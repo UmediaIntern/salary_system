@@ -357,6 +357,7 @@
     "excel_download": "Excel下載",
     "excel_preview": "Excel預覽",
     "auto_calculate": "自動計算",
+    "adjust_base_salary": "調整底薪",
     "form": "表單",
     "save": "儲存",
     "ignore": "忽略",
@@ -477,5 +478,13 @@
     "new_department": "改動",
     "new_employee": "改動",
     "all_(un)click": "全選/取消全選"
+  },
+  "form": {
+    "adjust_base_salary": {
+      "title": "調整基本薪資",
+      "description": "請選擇最低工資。系統會在最低工資生效時更新所有員工的基本薪資。",
+      "placeholder": "選擇最低工資",
+      "footer_desc": "您可以在參數頁面的保險費率表中管理最低工資。"
+    }
   }
 }

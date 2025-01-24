@@ -18,6 +18,7 @@ import {
 import { EmployeePaymentMapper } from "../database/mapper/employee_payment_mapper";
 import { EmployeeDataService } from "./employee_data_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
+import { WorkTypeEnum } from "../api/types/work_type_enum";
 
 @injectable()
 export class EmployeePaymentService {
@@ -28,7 +29,7 @@ export class EmployeePaymentService {
 		private readonly levelService: LevelService,
 		private readonly levelRangeService: LevelRangeService,
 		private readonly employeeDataService: EmployeeDataService
-	) {}
+	) { }
 
 	async createEmployeePayment(
 		data: z.input<typeof employeePaymentCreateService>
@@ -399,7 +400,7 @@ export class EmployeePaymentService {
 					empPayment.h_i != updatedEmployeePayment.h_i ||
 					empPayment.l_r != updatedEmployeePayment.l_r ||
 					empPayment.occupational_injury !=
-						updatedEmployeePayment.occupational_injury
+					updatedEmployeePayment.occupational_injury
 				) {
 					await this.createEmployeePayment({
 						...updatedEmployeePayment,
@@ -638,17 +639,23 @@ export class EmployeePaymentService {
 		employeePayment: z.infer<typeof employeePaymentCreateService>,
 		date: Date
 	): Promise<z.infer<typeof employeePaymentCreateService>> {
-		const ehr_service = container.resolve(EHRService);
-		const period_id = await ehr_service.getPeriodIdByDate(date);
+		const period_id = await this.ehrService.getPeriodIdByDate(date);
+		const employeeData = (await this.employeeDataService.getCurrentEmployeeData(period_id)).find((e) => e.emp_no == employeePayment.emp_no);
+		if (employeeData == null) {
+			throw new BaseResponseError("Employee Data does not exist");
+		}
+
 		const salary =
 			employeePayment.base_salary +
 			employeePayment.food_allowance +
 			employeePayment.supervisor_allowance +
 			employeePayment.occupational_allowance +
 			employeePayment.subsidy_allowance +
-			(employeePayment.long_service_allowance_type ==
-			LongServiceEnum.Enum.month_allowance
+			(employeePayment.long_service_allowance_type == LongServiceEnum.Enum.month_allowance
 				? employeePayment.long_service_allowance
+				: 0) +
+			(employeeData.position >= 2 && employeeData.position <= 3 && employeeData.work_type == WorkTypeEnum.Enum.直接人員
+				? 2000
 				: 0);
 
 		const result = [];
@@ -667,21 +674,13 @@ export class EmployeePaymentService {
 			});
 		}
 
-		const employeeData =
-			await this.employeeDataService.getLatestEmployeeDataByEmpNo(
-				employeePayment.emp_no
-			);
-		if (employeeData == null) {
-			throw new BaseResponseError("Employee Data does not exist");
-		}
-
 		const updatedEmployeePayment = {
 			...employeePayment,
 			l_i: result.find((r) => r.type === "勞保")?.level ?? 0,
 			h_i: result.find((r) => r.type === "健保")?.level ?? 0,
 			l_r:
 				employeeData.work_type != "外籍勞工" &&
-				employeeData.work_status != "外籍勞工"
+					employeeData.work_status != "外籍勞工"
 					? result.find((r) => r.type === "勞退")?.level ?? 0
 					: 0,
 			occupational_injury:

@@ -298,6 +298,7 @@
     "excel_upload": "Excel Upload",
     "excel_download": "Excel Download",
     "auto_calculate": "Auto Calculate",
+    "adjust_base_salary": "Adjust Base Salary",
     "form": "Form",
     "save": "Save",
     "ignore": "Ignore",
@@ -415,5 +416,13 @@
     "new_department": "New",
     "new_employee": "New",
     "all_(un)click": "All (Un)Click"
+  },
+  "form": {
+    "adjust_base_salary": {
+      "title": "Adjust Base Salary",
+      "description": "Please select a minimum wage. The system will schedule an update to the base salary for all employees once the minimum wage becomes active.",
+      "placeholder": "Select a minimum wage",
+      "footer_desc": "You can manage the minimum wage in the insurance rate-setting table on the parameters page."
+    }
   }
 }

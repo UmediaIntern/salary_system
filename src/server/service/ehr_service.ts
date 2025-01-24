@@ -132,6 +132,7 @@ export class EHRService {
 				"pay_id": h.pay_id,
 				"holidays_name": h.holidays_name,
 				"multiplier": h.multiplier,
+				"pay_type": h.pay_type,
 			}
 		}));
 		const filtered_holiday = all_holiday.filter((holiday) =>

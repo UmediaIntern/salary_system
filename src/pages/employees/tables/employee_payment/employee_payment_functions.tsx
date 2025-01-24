@@ -12,6 +12,7 @@ import {
 } from "~/components/form/default/form_standard";
 import { zodOptionalDate } from "~/lib/utils/zod_types";
 import { DateDialog } from "../../components/function_sheet/date_dialog";
+import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_base_salary_dialog";
 
 export function EmployeePaymentFunctionMenu() {
 	const { setMode, setOpenCalculate } = usePaymentFunctionContext();
@@ -30,6 +31,12 @@ export function EmployeePaymentFunctionMenu() {
 			<FunctionMenuOption.AutoCalculate
 				onClick={() => {
 					setMode("auto_calculate");
+					setOpenCalculate(true);
+				}}
+			/>
+			<FunctionMenuOption.AdjustBaseSalary
+				onClick={() => {
+					setMode("adjust_base_salary");
 					setOpenCalculate(true);
 				}}
 			/>
@@ -120,8 +127,9 @@ export function EmployeePaymentFunctions() {
 					<StandardForm {...updateForm} />
 				)}
 			</TableFunctionSheet>
+      {/* Auto calculate */}
 			<DateDialog
-				open={openCalculate}
+				open={openCalculate && mode === "auto_calculate"}
 				setOpen={setOpenCalculate}
 				onSubmit={(date) => {
 					autoCalculateEmployeePayment.mutate({
@@ -129,6 +137,11 @@ export function EmployeePaymentFunctions() {
 					});
 				}}
 			/>
+      {/* Adjust base salary */}
+      <AdjustBaseSalaryDialog
+        open={openCalculate && mode === "adjust_base_salary"}
+        setOpen={setOpenCalculate}
+      />
 		</>
 	);
 }

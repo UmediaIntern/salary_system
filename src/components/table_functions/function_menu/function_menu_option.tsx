@@ -1,4 +1,5 @@
 import {
+    ArrowUpFromLine,
 	Calculator,
 	Download,
 	PenSquare,
@@ -70,4 +71,5 @@ export const FunctionMenuOption = {
 	ExcelUpload: createOptionComponent("excel_upload", PenSquare),
 	Initialize: createOptionComponent("initialize", RefreshCcw),
 	AutoCalculate: createOptionComponent("auto_calculate", Calculator),
+	AdjustBaseSalary: createOptionComponent("adjust_base_salary", ArrowUpFromLine),
 };

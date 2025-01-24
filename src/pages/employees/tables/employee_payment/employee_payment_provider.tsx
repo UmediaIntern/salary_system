@@ -24,6 +24,7 @@ export type PaymentFunctionModes =
 	| "excel_upload"
 	| "initialize"
 	| "auto_calculate"
+  | "adjust_base_salary"
 	| "none";
 
 interface AdditionalPaymentFunctionContext {

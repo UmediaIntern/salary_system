@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { dateAll, dateCreate, func, Id } from "./common_type";
+import { dateAll, dateCreate, dateMetaFE, func, Id } from "./common_type";
 
-const InsuranceRateSettingBase = z.object({
+const insuranceRateSettingBase = z.object({
     min_wage: z.number(),
     l_i_accident_rate: z.number(),
     l_i_employment_pay_rate: z.number(),
@@ -14,18 +14,18 @@ const InsuranceRateSettingBase = z.object({
     v2_h_i_multiplier: z.number(),
 });
 export const createInsuranceRateSettingAPI =
-    InsuranceRateSettingBase.merge(dateCreate).omit({ end_date: true });
+    insuranceRateSettingBase.merge(dateCreate).omit({ end_date: true });
 export const createInsuranceRateSettingService =
-    InsuranceRateSettingBase.merge(dateCreate);
-export const updateInsuranceRateSettingAPI = InsuranceRateSettingBase.merge(dateAll).partial().merge(Id);
-export const updateInsuranceRateSettingService = InsuranceRateSettingBase.merge(dateAll).partial().merge(Id);
+    insuranceRateSettingBase.merge(dateCreate);
+export const updateInsuranceRateSettingAPI = insuranceRateSettingBase.merge(dateAll).partial().merge(Id);
+export const updateInsuranceRateSettingService = insuranceRateSettingBase.merge(dateAll).partial().merge(Id);
 
-export const InsuranceRateSettingFE = z
+export const insuranceRateSettingFE = z
     .object({
         id: z.number(),
     })
-    .merge(InsuranceRateSettingBase)
-    .merge(dateAll)
+    .merge(insuranceRateSettingBase)
+    .merge(dateMetaFE)
     .merge(func);
 
-export type InsuranceRateSettingFEType = z.infer<typeof InsuranceRateSettingFE>;
+export type InsuranceRateSettingFEType = z.infer<typeof insuranceRateSettingFE>;

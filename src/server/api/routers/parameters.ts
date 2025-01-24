@@ -37,6 +37,7 @@ import {
 } from "../types/bank_setting_type";
 import {
 	createInsuranceRateSettingAPI,
+	insuranceRateSettingFE,
 	updateInsuranceRateSettingAPI,
 } from "../types/insurance_rate_setting_type";
 import {
@@ -262,32 +263,34 @@ export const parametersRouter = createTRPCRouter({
 			return InsuranceRateSettingFE;
 		}),
 
-	getAllInsuranceRateSetting: publicProcedure.query(async () => {
-		const insuranceRateService = container.resolve(
-			InsuranceRateSettingService
-		);
-		const insuranceRateSetting =
-			await insuranceRateService.getAllInsuranceRateSetting();
-		if (insuranceRateSetting.length == 0) {
-			// throw new BaseResponseError("InsuranceRateSetting does not exist");
-		}
-		const InsuranceRateSettingFE = insuranceRateSetting.map(
-			(insurance_rate_setting_list) => {
-				const list = insurance_rate_setting_list.map((a) => {
-					return {
-						...roundProperties(a, 4),
-						functions: {
-							creatable: true,
-							updatable: a.start_date > new Date(),
-							deletable: a.start_date > new Date(),
-						},
-					};
-				});
-				return list;
+	getAllInsuranceRateSetting: publicProcedure
+		.output(insuranceRateSettingFE.array().array())
+		.query(async () => {
+			const insuranceRateService = container.resolve(
+				InsuranceRateSettingService
+			);
+			const insuranceRateSetting =
+				await insuranceRateService.getAllInsuranceRateSetting();
+			if (insuranceRateSetting.length == 0) {
+				// throw new BaseResponseError("InsuranceRateSetting does not exist");
 			}
-		);
-		return InsuranceRateSettingFE;
-	}),
+			const insuranceRateSettingFE = insuranceRateSetting.map(
+				(insurance_rate_setting_list) => {
+					const list = insurance_rate_setting_list.map((a) => {
+						return {
+							...roundProperties(a, 4),
+							functions: {
+								creatable: true,
+								updatable: a.start_date > new Date(),
+								deletable: a.start_date > new Date(),
+							},
+						};
+					});
+					return list;
+				}
+			);
+			return insuranceRateSettingFE;
+		}),
 
 	getAllFutureInsuranceRateSetting: publicProcedure.query(async () => {
 		const insuranceRateService = container.resolve(
@@ -357,7 +360,7 @@ export const parametersRouter = createTRPCRouter({
 			// await levelRangeService.rescheduleLevelRange();
 			return levelRangeFE;
 		}),
-	
+
 	batchCreateLevelRange: publicProcedure
 		.input(z.array(createLevelRangeAPI))
 		.mutation(async ({ input }) => {
@@ -401,9 +404,11 @@ export const parametersRouter = createTRPCRouter({
 		}
 		const levelRangeFE = await Promise.all(
 			levelRange.map(async (e_list) => {
-				const list = await Promise.all(e_list.map(async (e) => {
-					return await levelRangeMapper.getLevelRangeFE(e);
-				}));
+				const list = await Promise.all(
+					e_list.map(async (e) => {
+						return await levelRangeMapper.getLevelRangeFE(e);
+					})
+				);
 				return list;
 			})
 		);
@@ -457,6 +462,7 @@ export const parametersRouter = createTRPCRouter({
 			// await levelService.rescheduleLevel();
 			return newdata;
 		}),
+
 	batchCreateLevel: publicProcedure
 		.input(batchCreateLevelAPI)
 		.mutation(async ({ input }) => {
@@ -466,6 +472,7 @@ export const parametersRouter = createTRPCRouter({
 			// await levelService.rescheduleLevel();
 			return newdata;
 		}),
+
 	getCurrentLevel: publicProcedure
 		.input(z.object({ period_id: z.number() }))
 		.query(async ({ input }) => {
@@ -482,7 +489,11 @@ export const parametersRouter = createTRPCRouter({
 						functions: {
 							creatable: true,
 							updatable: e.start_date > new Date(),
-							deletable: e.start_date > new Date() && ! await levelRangeService.isLevelReferenced(e.id),
+							deletable:
+								e.start_date > new Date() &&
+								!(await levelRangeService.isLevelReferenced(
+									e.id
+								)),
 						},
 					};
 				})
@@ -496,16 +507,22 @@ export const parametersRouter = createTRPCRouter({
 		const level = await levelService.getAllLevel();
 		const levelFE = await Promise.all(
 			level.map(async (level_list) => {
-				return await Promise.all(level_list.map(async (l) => {
-					return {
-						...l,
-						functions: {
-							creatable: true,
-							updatable: l.start_date > new Date(),
-							deletable: l.start_date > new Date() && ! await levelRangeService.isLevelReferenced(l.id),
-						},
-					};
-				}));
+				return await Promise.all(
+					level_list.map(async (l) => {
+						return {
+							...l,
+							functions: {
+								creatable: true,
+								updatable: l.start_date > new Date(),
+								deletable:
+									l.start_date > new Date() &&
+									!(await levelRangeService.isLevelReferenced(
+										l.id
+									)),
+							},
+						};
+					})
+				);
 			})
 		);
 		if (level == null) {
@@ -513,6 +530,7 @@ export const parametersRouter = createTRPCRouter({
 		}
 		return levelFE;
 	}),
+
 	getAllLevelByStartDate: publicProcedure
 		.input(z.object({ start_date: z.date() }))
 		.query(async ({ input }) => {
@@ -528,7 +546,11 @@ export const parametersRouter = createTRPCRouter({
 						functions: {
 							creatable: true,
 							updatable: l.start_date > new Date(),
-							deletable: l.start_date > new Date() && ! await levelRangeService.isLevelReferenced(l.id),
+							deletable:
+								l.start_date > new Date() &&
+								!(await levelRangeService.isLevelReferenced(
+									l.id
+								)),
 						},
 					};
 				})
@@ -630,7 +652,7 @@ export const parametersRouter = createTRPCRouter({
 			await trustMoneyService.rescheduleTrustMoney();
 			return newdata;
 		}),
-	
+
 	batchCreateTrustMoney: publicProcedure
 		.input(batchCreateTrustMoneyAPI)
 		.mutation(async ({ input }) => {
@@ -660,7 +682,7 @@ export const parametersRouter = createTRPCRouter({
 							creatable: true,
 							updatable: e.start_date > new Date(),
 							deletable: e.start_date > new Date(),
-						}
+						},
 					};
 				})
 			);
@@ -714,6 +736,7 @@ export const parametersRouter = createTRPCRouter({
 			await trustMoneyService.deleteTrustMoney(input.id);
 			await trustMoneyService.rescheduleTrustMoney();
 		}),
+
 	createSalaryIncomeTax: publicProcedure
 		.input(createSalaryIncomeTaxAPI)
 		.mutation(async ({ input }) => {
