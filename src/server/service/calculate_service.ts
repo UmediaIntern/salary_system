@@ -635,7 +635,7 @@ export class CalculateService {
 		leave_deduction: number,
 		operational_performance_bonus: number,
 		other_addition_tax: number,
-		special_personal_leave_deduction: number,
+		special_personal_leave_deduct: number,
 		other_deduction_tax: number,
 		shift_allowance: number,
 		professional_cert_allowance: number
@@ -674,7 +674,7 @@ export class CalculateService {
 			(shift_allowance ?? 0) - //+
 			// rd("夜點費") -
 			leave_deduction -
-			special_personal_leave_deduction -
+			special_personal_leave_deduct -
 			other_deduction_tax;
 
 		return salary_income_deduction;
@@ -1049,7 +1049,7 @@ export class CalculateService {
 	async getNonTaxableSubtotal(
 		discounted_employee_payment_dec: EmployeePaymentFEType,
 		weekday_overtime_pay: number,
-		holiday_overtime_pay: number,
+		rest_overtime_pay: number,
 		non_leave_compensation: number,
 		other_addition: number,
 		retirement_income: number,
@@ -1077,7 +1077,7 @@ export class CalculateService {
 		const non_taxable_subtotal =
 			(discounted_employee_payment_dec.food_allowance ?? 0) +
 			weekday_overtime_pay +
-			holiday_overtime_pay +
+			rest_overtime_pay +
 			(discounted_employee_payment_dec.subsidy_allowance ?? 0) +
 			non_leave_compensation +
 			other_addition +
@@ -1097,7 +1097,7 @@ export class CalculateService {
 		group_insurance_deduction: number,
 		group_insurance_deduction_promotion: number,
 		leave_deduction: number,
-		special_personal_leave_deduction: number,
+		special_personal_leave_deduct: number,
 		other_deduction: number,
 		other_deduction_tax: number,
 		income_tax_deduction: number,
@@ -1130,7 +1130,7 @@ export class CalculateService {
 				group_insurance_deduction +
 				group_insurance_deduction_promotion +
 				leave_deduction +
-				special_personal_leave_deduction +
+				special_personal_leave_deduct +
 				meal_deduction +
 				other_deduction +
 				other_deduction_tax +

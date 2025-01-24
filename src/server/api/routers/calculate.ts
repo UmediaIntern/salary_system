@@ -121,7 +121,7 @@ export const calculateRouter = createTRPCRouter({
 					input.period_id,
 					input.emp_no
 				);
-			const holiday_overtime_pay: number =
+			const rest_overtime_pay: number =
 				await calculateService.getHolidayOvertimePay(
 					employee_data!,
 					employee_payment!,
@@ -130,12 +130,12 @@ export const calculateRouter = createTRPCRouter({
 					insurance_rate_setting!,
 					full_attendance_bonus
 				);
-			if (holiday_overtime_pay == null) {
+			if (rest_overtime_pay == null) {
 				throw new BaseResponseError(
 					"Cannot calculate holiday overtime payment"
 				);
 			}
-			return holiday_overtime_pay;
+			return rest_overtime_pay;
 		}),
 	//MARK: API for 超時加班
 		calculateExceedOvertimePay: publicProcedure

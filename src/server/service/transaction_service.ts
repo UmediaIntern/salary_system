@@ -28,6 +28,8 @@ import { SalaryIncomeTaxDecType } from "../database/entity/SALARY/salary_income_
 
 import { container } from "tsyringe";
 import { BonusMapper } from "~/server/database/mapper/bonus_mapper";
+import { OtherMapper } from "../database/mapper/other_mapper";
+import { OtherFEType } from "../api/types/other_type";
 
 
 type CommonParametersType = {
@@ -70,6 +72,7 @@ export class TransactionService {
 		const allowance_list = await this.ehrService.getAllowance(period_id);
 		const allowance_type_list = await this.ehrService.getAllowanceType();
 		const payset_list = await this.ehrService.getPayset(period_id);
+		const employee_list = await this.ehrService.getEmp(period_id);
 		const employee_data_list = await this.employeeDataService.getCurrentEmployeeData(period_id);
 		const employee_payment_list = await this.employeePaymentService.getCurrentEmployeePayment(period_id);
 		const employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
@@ -81,6 +84,7 @@ export class TransactionService {
 		const bonus_type_list = await this.ehrService.getBonusType();
 		const expense_list = await this.ehrService.getExpense(period_id);
 		const expense_type_list = await this.ehrService.getExpenseClass();
+		const expense_class_list = await this.ehrService.getExpenseClass();
 		const salary_income_tax_list = await this.salaryIncomeTaxService.getCurrentSalaryIncomeTax(period_id);
 
 
@@ -172,8 +176,8 @@ export class TransactionService {
 
 
 		// ~ TODO
-		const project_bonus = 0;								// TODO: find from table: other
-		const dorm_deduction = 0;								// TODO: find from table: other
+		const project_bonus = 0;								// TODO
+		
 		const fixed_deposit_deduction = 0;						// ! TODO: no data yet
 		const court_salary_garnishment = 0;						// ! TODO: no data yet
 
@@ -183,6 +187,11 @@ export class TransactionService {
 		const l_i_day = payset?.li_day ?? 30;
 		const h_i_day = 0;										// ! TODO: no data yet
 
+
+		// const bank_account_1 = employee_data!.bank_account_taiwan;
+		// const bank_account_2 = employee_acount![1]?.bank_account!;
+		const bank_account_taiwan = employee_data!.bank_account_taiwan;
+		const bank_account_foreign = employee_data!.bank_account_foreign;
 		const currency_foreign = "";	
 		const exchange_rate = 0;								// ! TODO: no data yet
 		const currency_amount_foreign = 0;						// ! TODO: no data yet
@@ -204,7 +213,7 @@ export class TransactionService {
 		const base_salary = discounted_employee_payment!.base_salary;
 		const received_elderly_benefits = false;
 		// MARK: Calculated Results
-		const special_personal_leave_deduction = await this.calculateService.getSpecialPersonalLeave(holiday_list, holidays_type_list);
+		const special_personal_leave_deduct = await this.calculateService.getSpecialPersonalLeave(holiday_list, holidays_type_list);
 		const other_deduction_tax = await this.calculateService.getOtherDeductionTax(expense_list, expense_class_list);
 		const gross_salary = await this.calculateService.getGrossSalary(employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
 		const discounted_gross_salary = await this.calculateService.getGrossSalary(discounted_employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
@@ -217,7 +226,7 @@ export class TransactionService {
 		const rest_overtime_pay = await this.calculateService.getHolidayOvertimePay(employee_data!, discounted_employee_payment!, overtime_list, payset!, insurance_rate_setting!, full_attendance_bonus!, pay_type, shift_allowance, gross_salary, professional_cert_allowance);
 		const leave_deduction = await this.calculateService.getLeaveDeduction(employee_data!, holiday_list!, holidays_type_list, insurance_rate_setting!, full_attendance_bonus, shift_allowance, gross_salary, professional_cert_allowance);
 		const exceed_overtime_pay = await this.calculateService.getExceedOvertimePay(employee_data!, discounted_employee_payment!, overtime_list!, payset!, insurance_rate_setting!, full_attendance_bonus, pay_type, shift_allowance, gross_salary, professional_cert_allowance);
-		const salary_income_deduction = await this.calculateService.getSalaryIncomeDeduction(discounted_employee_payment!, reissue_salary!, full_attendance_bonus!, exceed_overtime_pay!, leave_deduction!, operational_performance_bonus, other_addition_tax, special_personal_leave_deduction, other_deduction_tax, shift_allowance, professional_cert_allowance);
+		const salary_income_deduction = await this.calculateService.getSalaryIncomeDeduction(discounted_employee_payment!, reissue_salary!, full_attendance_bonus!, exceed_overtime_pay!, leave_deduction!, operational_performance_bonus, other_addition_tax, special_personal_leave_deduct, other_deduction_tax, shift_allowance, professional_cert_allowance);
 		const group_insurance_deduction = await this.calculateService.getGroupInsuranceDeduction(expense_list, expense_class_list);
 		const other_deduction = await this.calculateService.getOtherDeduction(expense_list, expense_class_list);
 		const other_addition = await this.calculateService.getOtherAddition(expense_list, allowance_type_list);
@@ -242,16 +251,11 @@ export class TransactionService {
 		const brokerage_fee = await this.calculateService.getBrokerageFee(expense_list, expense_class_list);
 		const total_salary = await this.calculateService.getTotalSalary(discounted_employee_payment!, full_attendance_bonus, professional_cert_allowance, shift_allowance);
 		const salary_range = await this.calculateService.getSalaryRange(total_salary);
-		const dragon_boat_festival_bonus = await this.calculateService.getDragonBoatFestivalBonus();
-		const mid_autumn_festival_bonus = await this.calculateService.getMidAutumnFestivalBonus();
-		const bank_account_1 = employee_data!.bank_account_taiwan;
+		const dorm_deduction = await this.calculateService.getMealDeduction(expense_list, expense_class_list);	// ~ Need Check
 		
-		const bank_account_taiwan = employee_data!.bank_account_taiwan;
-		const bank_account_foreign = employee_data!.bank_account_foreign;
 
 
-		// const bank_account_2 = employee_acount![1]?.bank_account!;
-		// const foreign_currency_account =("");
+		
 		const bonus_ratio = -1; //bonus_setting!.fixed_multiplier;
 		const annual_days_in_service = 365; // MARK: 年度在職天數不知道在哪
 		const l_r_contribution = await this.calculateService.getLaborRetirementContribution(employee_data!, discounted_employee_payment!);
@@ -344,7 +348,7 @@ export class TransactionService {
 
 			// 減項
 			// TODO: 請假時數
-			special_personal_leave_deduct: special_personal_leave_deduction, 	// 特別事假扣款
+			special_personal_leave_deduct: special_personal_leave_deduct, 	// 特別事假扣款
 			leave_deduction: leave_deduction, 								// 請假扣款
 			emp_trust_reserve: emp_trust_reserve ?? 0,						// 員工信託提存金
 			emp_special_trust_incent: emp_special_trust_incent ?? 0,		// 特別信託獎勵金_員工
