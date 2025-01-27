@@ -1866,35 +1866,39 @@ export class CalculateService {
 		employee_payment_dec: EmployeePaymentFEType,
 		payset: Payset | undefined
 	) {
-		employee_payment_dec.base_salary =
+		const new_employee_payment_dec = { ...employee_payment_dec };
+	
+		new_employee_payment_dec.base_salary =
 			(employee_payment_dec.base_salary *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.food_allowance =
+		new_employee_payment_dec.food_allowance =
 			(employee_payment_dec.food_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.occupational_allowance =
+		new_employee_payment_dec.occupational_allowance =
 			(employee_payment_dec.occupational_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.subsidy_allowance =
+		new_employee_payment_dec.subsidy_allowance =
 			(employee_payment_dec.subsidy_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.supervisor_allowance =
+		new_employee_payment_dec.supervisor_allowance =
 			(employee_payment_dec.supervisor_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.long_service_allowance =
+		new_employee_payment_dec.long_service_allowance =
 			((employee_payment_dec.long_service_allowance_type ==
 				LongServiceEnum.Enum.month_allowance
 				? employee_payment_dec.long_service_allowance
 				: 0) *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		return employee_payment_dec;
+	
+		return new_employee_payment_dec;
 	}
+	
 	/*
 if (!工作天數)
 	工作天數 = 30

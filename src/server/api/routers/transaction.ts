@@ -43,6 +43,7 @@ export const transactionRouter = createTRPCRouter({
 				if (exist_transaction != null) {
 					await transactionService.deleteTransaction(exist_transaction.id);
 				}
+
 				await transactionService.createTransaction(
 					emp_no,
 					input.period_id,
@@ -52,6 +53,7 @@ export const transactionRouter = createTRPCRouter({
 					commonParameters
 				);
 			})
+
 
 			await Promise.all(promises);
 		}),

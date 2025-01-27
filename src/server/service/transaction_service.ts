@@ -317,7 +317,8 @@ export class TransactionService {
 			long_service_allowance: long_service_allowance, 				// 久任津貼
 			subsidy_allowance: subsidy_allowance, 							// 補助津貼
 			food_allowance: food_allowance, 								// 伙食津貼
-			gross_salary: gross_salary,										// 應發底薪
+			gross_salary: discounted_gross_salary,							// 應發底薪
+			// original_gross_salary: gross_salary,							// ! 理論上要有原應發底薪
 			shift_allowance: shift_allowance,								// 輪班津貼
 			professional_cert_allowance: professional_cert_allowance,		// 專業証照津貼
 			full_attendance_bonus: full_attendance_bonus, 					// 全勤獎金
