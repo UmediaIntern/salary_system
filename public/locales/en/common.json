@@ -364,8 +364,6 @@
     "create_msg": "Fill in the parameters to create new data.",
     "update_msg": "Please select one data to update.",
     "delete_msg": "Please select one data to delete.",
-    "auto_calculate_msg": "Please select data to auto calculate.",
-    "auto_calculate_confirm": "Confirm auto calculate",
     "confirm_msg": "Please make sure all the data are correct before you click confirm.",
     "delete_warning": "There's only one data left. Please create a new one before you continue to delete.",
     "check_data": "Please check the data.",
@@ -423,6 +421,10 @@
       "description": "Please select a minimum wage. The system will schedule an update to the base salary for all employees once the minimum wage becomes active.",
       "placeholder": "Select a minimum wage",
       "footer_desc": "You can manage the minimum wage in the insurance rate-setting table on the parameters page."
+    },
+    "auto_calculate": {
+      "title": "Confirm auto calculate",
+      "description": "Please select a date for the LI, HI, LR, and Occupational Injury to be updated.",
     }
   }
 }

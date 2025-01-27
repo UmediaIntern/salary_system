@@ -426,8 +426,6 @@
     "create_msg": "請填寫參數來建立新資料",
     "update_msg": "請選擇一筆資料進行更新",
     "delete_msg": "請選擇一筆資料進行刪除",
-    "auto_calculate_msg": "請選擇資料進行自動計算",
-    "auto_calculate_confirm": "確認自動計算",
     "confirm_msg": "請確認所有資料都正確後再點擊確認",
     "delete_warning": "當前資料只剩一筆，請先建立新資料再進行刪除",
     "check_data": "請確認資料",
@@ -485,6 +483,10 @@
       "description": "請選擇最低工資。系統會在最低工資生效時更新所有員工的基本薪資。",
       "placeholder": "選擇最低工資",
       "footer_desc": "您可以在參數頁面的保險費率表中管理最低工資。"
+    },
+    "auto_calculate": {
+      "title": "自動計算確認",
+      "description": "請選擇需一個日期。系統將在該日期生效時更新勞保、健保、勞退和職災。"
     }
   }
 }
