@@ -1056,7 +1056,16 @@ export class CalculateService {
 		expense_list: Expense[],
 		expense_class_list: ExpenseClass[]
 	): Promise<number> {
-		// rd("非課稅小計") = rd("伙食津貼") + rd("平日加班費") + rd("假日加班費") + rd("補助津貼") + rd("其他加項") + rd("不休假代金") + rd("退職所得") + rd("勞保減免") + rd("健保補助") 'hm 111/0427const ehrService = container.resolve(EHRService);
+		// rd("非課稅小計") = rd("伙食津貼") + 
+		// 					 rd("平日加班費") + 
+		//                   rd("假日加班費") + 
+		//                   rd("補助津貼") + 
+		//                   rd("其他加項") + 
+		//                   rd("不休假代金") + 
+		//                   rd("退職所得") + 
+		//                   rd("勞保減免") + 
+		//                   rd("健保補助") 
+		// 'hm 111/0427const ehrService = container.resolve(EHRService);
 		const l_i_subsidy_id = expense_class_list.find(
 			(ec) => ec.name === "勞保殘障減免"
 		)?.id!;
@@ -1066,12 +1075,21 @@ export class CalculateService {
 		const expenseList = expense_list.filter((e) => e.kind === 1);
 		let l_i_subsidy = 0;
 		let h_i_subsidy = 0;
+		// ! Pony: Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		const parking_subsidy_id = expense_class_list.find(
+			(ec) => ec.name === "停車費"
+		)?.id!;
+		let other_subsidy = 0;
+		// ! End !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		for (const expense of expenseList) {
 			if (expense.id === l_i_subsidy_id) {
 				l_i_subsidy += expense.amount ?? 0;
 			}
-			if (expense.id === h_i_subsidy_id) {
+			else if (expense.id === h_i_subsidy_id) {
 				h_i_subsidy += expense.amount ?? 0;
+			}
+			else if (expense.id === parking_subsidy_id) {	// ! Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				other_subsidy += expense.amount ?? 0;
 			}
 		}
 		const non_taxable_subtotal =
@@ -1083,7 +1101,8 @@ export class CalculateService {
 			other_addition +
 			retirement_income +
 			l_i_subsidy +
-			h_i_subsidy;
+			h_i_subsidy + 
+			other_subsidy;		// ! Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		return non_taxable_subtotal;
 	}
 	//MARK: 減項小計(要補信託提存)

@@ -83,7 +83,7 @@ export class TransactionService {
 		const bonus_list = await this.ehrService.getBonus(period_id, pay_type);
 		const bonus_type_list = await this.ehrService.getBonusType();
 		const expense_list = await this.ehrService.getExpense(period_id);
-		const expense_type_list = await this.ehrService.getExpenseClass();
+		// const expense_type_list = await this.ehrService.getExpenseClass();
 		const expense_class_list = await this.ehrService.getExpenseClass();
 		const salary_income_tax_list = await this.salaryIncomeTaxService.getCurrentSalaryIncomeTax(period_id);
 
@@ -102,7 +102,7 @@ export class TransactionService {
 			bonus_list: bonus_list,
 			bonus_type_list: bonus_type_list,
 			expense_list: expense_list,
-			expense_class_list: expense_type_list,
+			expense_class_list: expense_class_list,
 			salary_income_tax_list: salary_income_tax_list,
 		};
 
@@ -132,6 +132,7 @@ export class TransactionService {
 		const bonus_list = commonParameters.bonus_list.filter(b => b.emp_no === emp_no);
 		const bonus_type_list = commonParameters.bonus_type_list;
 		const expense_list = commonParameters.expense_list.filter(e => e.emp_no === emp_no);
+		console.log("expense_list:", expense_list);
 		const expense_class_list = commonParameters.expense_class_list;
 		const salary_income_tax_list = commonParameters.salary_income_tax_list;
 
