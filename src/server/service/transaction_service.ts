@@ -213,9 +213,10 @@ export class TransactionService {
 		const base_salary = discounted_employee_payment!.base_salary;
 		const received_elderly_benefits = false;
 		// MARK: Calculated Results
-		const special_personal_leave_deduct = await this.calculateService.getSpecialPersonalLeave(holiday_list, holidays_type_list);
-		const other_deduction_tax = await this.calculateService.getOtherDeductionTax(expense_list, expense_class_list);
 		const gross_salary = await this.calculateService.getGrossSalary(employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
+		const special_personal_leave_deduction_hours = await this.calculateService.getSpecialPersonalLeaveHours(holiday_list, holidays_type_list);
+		const special_personal_leave_deduct = await this.calculateService.getSpecialPersonalLeave(holiday_list, holidays_type_list, gross_salary);
+		const other_deduction_tax = await this.calculateService.getOtherDeductionTax(expense_list, expense_class_list);
 		const discounted_gross_salary = await this.calculateService.getGrossSalary(discounted_employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
 		const special_leave_deduction = await this.calculateService.getSpecialPersonalLeaveDeduction(employee_data!, holidays_type_list, holiday_list, gross_salary, insurance_rate_setting!, professional_cert_allowance);
 		const l_i_deduction = await this.calculateService.getLaborInsuranceDeduction(employee_data!, discounted_employee_payment!, payset!, insurance_rate_setting!);

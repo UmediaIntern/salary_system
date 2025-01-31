@@ -1814,8 +1814,8 @@ export class CalculateService {
 		}
 		return -1;
 	}
-	//MARK: 特別事假
-	async getSpecialPersonalLeave(
+	//MARK: 特別事假時數
+	async getSpecialPersonalLeaveHours(
 		holiday_list: Holiday[],
 		holidays_type: HolidaysType[]
 	): Promise<number> {
@@ -1829,6 +1829,24 @@ export class CalculateService {
 			}
 		});
 		return special_personal_leave;
+	}
+	//MARK: 特別事假扣款
+	async getSpecialPersonalLeave(
+		holiday_list: Holiday[],
+		holidays_type: HolidaysType[],
+		gross_salary: number
+	): Promise<number> {
+		const special_personal_leave_id = holidays_type.find(
+			(ht) => ht.holidays_name === "特別事假"
+		)?.pay_id;
+		let special_personal_leave_hour = 0;
+		holiday_list.map((h) => {
+			if (h.pay_order === special_personal_leave_id) {
+				special_personal_leave_hour += h.total_hours ?? 0;
+			}
+		});
+		const special_personal_leave = special_personal_leave_hour * (gross_salary / 240);
+		return Round(special_personal_leave, 0);
 	}
 	//MARK: 有全勤事假
 	async getFullAtendancePersonalLeave(
