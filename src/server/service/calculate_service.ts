@@ -1572,12 +1572,14 @@ export class CalculateService {
 		const money = taxable_subtotal + non_taxable_subtotal;
 		const l_i_day = payset?.li_day ?? 30;
 
+
 		if (kind1 === FOREIGN)
 			if (kind2 === NORMAL_MAN) {
 				//         'ComRetire_old = 0 '2014/1/15 外籍勞工從事一般員工, 也要提撥勞退(舊)
 				return Round(Round(money * 0.02, 0), 0);
 			} else return 0;
-		else if (On_Board < "2005-7-1") {
+		// else if (On_Board < "2005-7-1") {
+		else if (new Date(On_Board) < new Date("2005-7-1")) {	// ~ Pony's fix
 			if (
 				kind2 === BOSS ||
 				kind2 === FOREIGN ||

@@ -132,7 +132,7 @@ export class TransactionService {
 		const bonus_list = commonParameters.bonus_list.filter(b => b.emp_no === emp_no);
 		const bonus_type_list = commonParameters.bonus_type_list;
 		const expense_list = commonParameters.expense_list.filter(e => e.emp_no === emp_no);
-		console.log("expense_list:", expense_list);
+		// console.log("expense_list:", expense_list);		// ~ Pony's Test
 		const expense_class_list = commonParameters.expense_class_list;
 		const salary_income_tax_list = commonParameters.salary_income_tax_list;
 

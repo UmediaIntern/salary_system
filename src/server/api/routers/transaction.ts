@@ -55,7 +55,7 @@ export const transactionRouter = createTRPCRouter({
 				);
 			})
 
-			console.log(commonParameters.expense_class_list);
+			// console.log(commonParameters.expense_class_list);	// ~ Pony's Test
 
 
 			await Promise.all(promises);
