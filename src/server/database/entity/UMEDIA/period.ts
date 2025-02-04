@@ -1,7 +1,7 @@
 import { get_date_string } from "~/server/service/helper_function";
 
+// TODO: date should be date type not string
 export class Period {
-	// id can be undefined during creation when using `autoIncrement`
 	declare period_id: number;
 	declare period_name: string;
 	declare start_date: string;
@@ -9,13 +9,6 @@ export class Period {
 	declare status: string;
 	declare issue_date: string;
 
-	// timestamps!
-	// createdAt can be undefined during creation
-	// declare create_date: CreationOptional<Date>;
-	// declare create_by: string;
-	// // updatedAt can be undefined during creation
-	// declare update_date: CreationOptional<Date>;
-	// declare update_by: string;
 	constructor(
 		period_id: number,
 		period_name: string,

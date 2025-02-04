@@ -4,7 +4,7 @@ import { BaseResponseError } from "~/server/api/error/BaseResponseError";
 import {
 	type updateEmployeeTrustAPI,
 	updateEmployeeTrustService,
-	type employeeTrustFE,
+	employeeTrustFE,
 } from "~/server/api/types/employee_trust_type";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
 import { deleteProperties } from "./helper_function";
@@ -60,17 +60,28 @@ export class EmployeeTrustMapper extends BaseMapper<
 			await this.trustMoneyService.getAllTrustMoney()
 		).flat();
 
-		const start_dates = employee_trust_list
-			.map((emp_trust) => emp_trust.start_date)
-			.sort((a, b) => a.getTime() - b.getTime());
+		// Sort by start date chronologically
+		const sorted_employee_trust_list = employee_trust_list.sort(
+			(a, b) => a.start_date.getTime() - b.start_date.getTime()
+		);
+		const start_dates: Date[] = sorted_employee_trust_list.map(
+			(d) => d.start_date
+		);
 
-		const last_end_date = employee_trust_list[employee_trust_list.length - 1]!.end_date;
+		// TODO: don't assert
+		const first_start_date = start_dates[0];
+		const last_employee_trust = employee_trust_list.at(-1);
+		if (!first_start_date || !last_employee_trust) {
+			throw new Error("Employee trust records do not exist");
+		}
+		const last_end_date: Date | null = last_employee_trust.end_date;
 
 		trust_money_list.forEach((trust_money) => {
 			const trust_money_start_date = trust_money.start_date;
 			if (
-				trust_money_start_date.getTime() > start_dates[0]!.getTime() &&
-				(last_end_date == null || trust_money_start_date.getTime() <= last_end_date.getTime()) &&
+				trust_money_start_date > first_start_date &&
+				(last_end_date == null ||
+					trust_money_start_date <= last_end_date) &&
 				!start_dates
 					.map((d) => d.getTime())
 					.includes(trust_money_start_date.getTime())
@@ -78,75 +89,43 @@ export class EmployeeTrustMapper extends BaseMapper<
 				start_dates.push(trust_money_start_date);
 			}
 		});
-		const promises = start_dates
-			.sort((a, b) => a.getTime() - b.getTime())
-			.map(async (start_date, idx) => {
+		const sorted_start_dates = start_dates.sort();
+
+		const p_process_FE_employee_trust = sorted_start_dates.map(
+			async (start_date, idx) => {
 				const employee_trust =
 					await this.employeeTrustService.getCurrentEmployeeTrustByEmpNoByDate(
-						employee_trust_list[0]!.emp_no,
+						emp_first.emp_no,
 						start_date
 					);
+
+				let emp_trust_reserve = 0;
+				let org_trust_reserve = 0;
+				let emp_special_trust_incent = 0;
+				let org_special_trust_incent = 0;
 
 				if (
-					new Date(employee_trust.start_date).getTime() ===
+					employee_trust.start_date.getTime() !==
 					new Date("1970-01-01").getTime()
 				) {
-					const employeeTrust: z.infer<typeof employeeTrustFE> = {
-						...employee_trust,
-						id: idx,
-						emp_no: employee.emp_no,
-						emp_name: employee.emp_name,
-						position: employee.position,
-						position_type: employee.position_type,
-						department: employee.department,
-						emp_trust_reserve: 0,
-						org_trust_reserve: 0,
-						emp_special_trust_incent: 0,
-						org_special_trust_incent: 0,
-						start_date: start_date,
-						end_date: start_dates[idx + 1]
-							? new Date(
-								new Date(start_dates[idx + 1]!).setDate(
-									new Date(start_dates[idx + 1]!).getDate() -
-									1
-								)
-							)
-							: last_end_date,
-						functions: {
-							creatable: true,
-							updatable: false,
-							deletable: false,
-						},
-					};
-
-					return deleteProperties(employeeTrust, [
-						"emp_trust_reserve_enc",
-						"emp_special_trust_incent_enc",
-					]);
-				}
-				const trust_money =
-					await this.trustMoneyService.getCurrentTrustMoneyByPositionByDate(
-						employee.position,
-						employee.position_type,
-						start_date
+					const trust_money =
+						await this.trustMoneyService.getCurrentTrustMoneyByPositionByDate(
+							employee.position,
+							employee.position_type,
+							start_date
+						);
+					emp_trust_reserve = employee_trust.emp_trust_reserve;
+					org_trust_reserve = Math.min(
+						trust_money.org_trust_reserve_limit,
+						employee_trust.emp_trust_reserve
 					);
-
-				const org_trust_reserve = Math.min(
-					trust_money!.org_trust_reserve_limit,
-					Number(
-						CryptoHelper.decrypt(
-							employee_trust.emp_trust_reserve_enc
-						)
-					)
-				);
-				const org_special_trust_incent = Math.min(
-					trust_money!.org_special_trust_incent_limit,
-					Number(
-						CryptoHelper.decrypt(
-							employee_trust.emp_special_trust_incent_enc
-						)
-					)
-				);
+					emp_special_trust_incent =
+						employee_trust.emp_special_trust_incent;
+					org_special_trust_incent = Math.min(
+						trust_money.org_special_trust_incent_limit,
+						employee_trust.emp_special_trust_incent
+					);
+				}
 
 				const employeeTrust: z.infer<typeof employeeTrustFE> = {
 					...employee_trust,
@@ -156,26 +135,20 @@ export class EmployeeTrustMapper extends BaseMapper<
 					position: employee.position,
 					position_type: employee.position_type,
 					department: employee.department,
-					emp_trust_reserve: Number(
-						CryptoHelper.decrypt(
-							employee_trust.emp_trust_reserve_enc
-						)
-					),
+
+					emp_trust_reserve: emp_trust_reserve,
 					org_trust_reserve: org_trust_reserve,
-					emp_special_trust_incent: Number(
-						CryptoHelper.decrypt(
-							employee_trust.emp_special_trust_incent_enc
-						)
-					),
+					emp_special_trust_incent: emp_special_trust_incent,
 					org_special_trust_incent: org_special_trust_incent,
+
 					start_date: start_date,
 					end_date: start_dates[idx + 1]
 						? new Date(
-							new Date(start_dates[idx + 1]!).setDate(
-								new Date(start_dates[idx + 1]!).getDate() -
-								1
-							)
-						)
+								new Date(start_dates[idx + 1]!).setDate(
+									new Date(start_dates[idx + 1]!).getDate() -
+										1
+								)
+						  )
 						: last_end_date,
 					functions: {
 						creatable: true,
@@ -184,14 +157,21 @@ export class EmployeeTrustMapper extends BaseMapper<
 					},
 				};
 
-				return deleteProperties(employeeTrust, [
-					"emp_trust_reserve_enc",
-					"emp_special_trust_incent_enc",
-				]);
-				// return new_emp_trust
-			});
-		await Promise.all(promises);
-		const employee_trust_FE_list = await Promise.all(promises);
+				const result = employeeTrustFE.safeParse(employeeTrust);
+				if (!result.success) {
+					throw new Error(
+						"Parse employee trust failed in EmployeeTrustMapper: " +
+							result.error.message
+					);
+				}
+				return result.data;
+			}
+		);
+
+		const employee_trust_FE_list = await Promise.all(
+			p_process_FE_employee_trust
+		);
+
 		const reduced: z.infer<typeof employeeTrustFE>[] = [];
 		const merged_employee_trust_FE_list = employee_trust_FE_list.reduce(
 			(acc, cur) => {
@@ -202,13 +182,13 @@ export class EmployeeTrustMapper extends BaseMapper<
 				if (
 					acc[acc.length - 1]!.emp_no == cur.emp_no &&
 					acc[acc.length - 1]!.emp_trust_reserve ==
-					cur.emp_trust_reserve &&
+						cur.emp_trust_reserve &&
 					acc[acc.length - 1]!.emp_special_trust_incent ==
-					cur.emp_special_trust_incent &&
+						cur.emp_special_trust_incent &&
 					acc[acc.length - 1]!.org_trust_reserve ==
-					cur.org_trust_reserve &&
+						cur.org_trust_reserve &&
 					acc[acc.length - 1]!.org_special_trust_incent ==
-					cur.org_special_trust_incent
+						cur.org_special_trust_incent
 				) {
 					acc[acc.length - 1]!.end_date = cur.end_date;
 					return acc;
@@ -220,7 +200,6 @@ export class EmployeeTrustMapper extends BaseMapper<
 			reduced
 		);
 		return merged_employee_trust_FE_list;
-		// return employee_trust_FE_list
 	}
 
 	async getEmployeeTrustNullable(
@@ -233,14 +212,14 @@ export class EmployeeTrustMapper extends BaseMapper<
 					emp_trust_reserve_enc:
 						employee_trust.emp_trust_reserve != undefined
 							? CryptoHelper.encrypt(
-								employee_trust.emp_trust_reserve.toString()
-							)
+									employee_trust.emp_trust_reserve.toString()
+							  )
 							: undefined,
 					emp_special_trust_incent_enc:
 						employee_trust.emp_special_trust_incent != undefined
 							? CryptoHelper.encrypt(
-								employee_trust.emp_special_trust_incent.toString()
-							)
+									employee_trust.emp_special_trust_incent.toString()
+							  )
 							: undefined,
 					...employee_trust,
 				}
