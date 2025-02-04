@@ -89,7 +89,9 @@ export class EmployeeTrustMapper extends BaseMapper<
 				start_dates.push(trust_money_start_date);
 			}
 		});
-		const sorted_start_dates = start_dates.sort();
+		const sorted_start_dates = start_dates.sort(
+			(a, b) => a.getTime() - b.getTime()
+		);
 
 		const p_process_FE_employee_trust = sorted_start_dates.map(
 			async (start_date, idx) => {
@@ -142,11 +144,12 @@ export class EmployeeTrustMapper extends BaseMapper<
 					org_special_trust_incent: org_special_trust_incent,
 
 					start_date: start_date,
-					end_date: start_dates[idx + 1]
+					end_date: sorted_start_dates[idx + 1]
 						? new Date(
-								new Date(start_dates[idx + 1]!).setDate(
-									new Date(start_dates[idx + 1]!).getDate() -
-										1
+								new Date(sorted_start_dates[idx + 1]!).setDate(
+									new Date(
+										sorted_start_dates[idx + 1]!
+									).getDate() - 1
 								)
 						  )
 						: last_end_date,
@@ -179,18 +182,17 @@ export class EmployeeTrustMapper extends BaseMapper<
 					acc.push(cur);
 					return acc;
 				}
+				const prev = acc.at(-1)!;
 				if (
-					acc[acc.length - 1]!.emp_no == cur.emp_no &&
-					acc[acc.length - 1]!.emp_trust_reserve ==
-						cur.emp_trust_reserve &&
-					acc[acc.length - 1]!.emp_special_trust_incent ==
+					prev.emp_no == cur.emp_no &&
+					prev.emp_trust_reserve == cur.emp_trust_reserve &&
+					prev.emp_special_trust_incent ==
 						cur.emp_special_trust_incent &&
-					acc[acc.length - 1]!.org_trust_reserve ==
-						cur.org_trust_reserve &&
-					acc[acc.length - 1]!.org_special_trust_incent ==
+					prev.org_trust_reserve == cur.org_trust_reserve &&
+					prev.org_special_trust_incent ==
 						cur.org_special_trust_incent
 				) {
-					acc[acc.length - 1]!.end_date = cur.end_date;
+					prev.end_date = cur.end_date;
 					return acc;
 				} else {
 					acc.push(cur);
