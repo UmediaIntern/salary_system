@@ -27,7 +27,7 @@ export class EmployeeTrustService {
 		private readonly employeeTrustMapper: EmployeeTrustMapperType,
 		private readonly ehrService: EHRService,
 		private readonly employeeDataService: EmployeeDataService
-	) { }
+	) {}
 
 	async createEmployeeTrust(
 		data: z.input<typeof employeeTrustCreateService>
@@ -93,6 +93,34 @@ export class EmployeeTrustService {
 		return await this.employeeTrustMapper.decodeList(employeeTrust);
 	}
 
+	async getCurrentEmployeeTrustByEmpNoByDate(
+		emp_no: string,
+		date: Date
+	): Promise<EmployeeTrustDecType> {
+		const date_str = dateToString.parse(date);
+
+		const employeeTrust = await EmployeeTrust.findOne({
+			where: {
+				emp_no: emp_no,
+				start_date: {
+					[Op.lte]: date_str,
+				},
+				end_date: {
+					[Op.or]: [{ [Op.gte]: date_str }, { [Op.eq]: null }],
+				},
+				disabled: false,
+			},
+			raw: true,
+		});
+
+		if (employeeTrust == null) {
+			throw new BaseResponseError("Employee Trust does not exist");
+		}
+
+		return await this.employeeTrustMapper.decode(employeeTrust);
+	}
+
+  // TODO: why are these FE shit here?
 	async getCurrentEmployeeTrustFE(
 		period_id: number
 	): Promise<z.infer<typeof employeeTrustFE>[]> {
@@ -124,7 +152,7 @@ export class EmployeeTrustService {
 			groupedRecordsArray.map(
 				async (employeeTrustList) =>
 					await this.employeeTrustMapper.getEmployeeTrustFE(
-						employeeTrustList,
+						employeeTrustList
 					)
 			)
 		);
@@ -161,15 +189,15 @@ export class EmployeeTrustService {
 		)[0]!;
 	}
 
-	async getAllEmployeeTrustFE(
-	): Promise<z.infer<typeof employeeTrustFE>[][]> {
-		// 获取所有的员工信任记录
+	async getAllEmployeeTrustFE(): Promise<
+		z.infer<typeof employeeTrustFE>[][]
+	> {
 		const allEmployeeTrustRecords = await this.getAllEmployeeTrust();
 		if (allEmployeeTrustRecords == null) {
 			throw new BaseResponseError("Employee trust records do not exist");
 		}
 
-		// 将记录按工号分组
+		// Group by emp_no
 		const groupedEmployeeTrustRecords: Record<
 			string,
 			EmployeeTrustDecType[]
@@ -188,17 +216,17 @@ export class EmployeeTrustService {
 			groupedRecordsArray.map(
 				async (employeeTrustList) =>
 					await this.employeeTrustMapper.getEmployeeTrustFE(
-						employeeTrustList,
+						employeeTrustList
 					)
 			)
 		);
-		let cnt = 0;
-		allEmployeeTrustFE.forEach((emp_trust_list) => {
-			emp_trust_list.forEach((emp_trust) => {
-				emp_trust.id = cnt;
-				cnt += 1;
-			});
-		});
+		// let cnt = 0;
+		// allEmployeeTrustFE.forEach((emp_trust_list) => {
+		// 	emp_trust_list.forEach((emp_trust) => {
+		// 		emp_trust.id = cnt;
+		// 		cnt += 1;
+		// 	});
+		// });
 		return allEmployeeTrustFE;
 	}
 
@@ -246,6 +274,7 @@ export class EmployeeTrustService {
 			throw new BaseResponseError("Delete error");
 		}
 	}
+
 	async rescheduleEmployeeTrust(): Promise<void> {
 		const employeeTrustList = await EmployeeTrust.findAll({
 			where: { disabled: false },
@@ -263,7 +292,11 @@ export class EmployeeTrustService {
 			const new_end_date_string = get_date_string(
 				new Date(start_date.setDate(start_date.getDate() - 1))
 			);
-			const quit_date = (await this.employeeDataService.getLatestEmployeeDataByEmpNo(employeeTrustList[i]!.emp_no)).quit_date;
+			const quit_date = (
+				await this.employeeDataService.getLatestEmployeeDataByEmpNo(
+					employeeTrustList[i]!.emp_no
+				)
+			).quit_date;
 			if (quit_date != null) {
 				continue;
 			}
@@ -299,10 +332,13 @@ export class EmployeeTrustService {
 		}
 	}
 
-	async rescheduleEmployeeTrustByQuitDate(emp_no: string, period_id: number): Promise<void> {
+	async rescheduleEmployeeTrustByQuitDate(
+		emp_no: string,
+		period_id: number
+	): Promise<void> {
 		const period = await this.ehrService.getPeriodById(period_id);
 		const quit_date = period.end_date;
-		const employeeTrustList = await EmployeeTrust.findAll({
+		const encList = await EmployeeTrust.findAll({
 			where: { emp_no: emp_no, disabled: false },
 			order: [
 				["start_date", "ASC"],
@@ -310,19 +346,21 @@ export class EmployeeTrustService {
 			],
 		});
 
-		for (let i = 0; i < employeeTrustList.length; i += 1) {
-			const start_date_string = get_date_string(
-				new Date(employeeTrustList[i]!.start_date)
-			);
-			const end_date_string = employeeTrustList[i]!.end_date
-				? get_date_string(new Date(employeeTrustList[i]!.end_date!))
+		const employeeTrustList = await this.employeeTrustMapper.decodeList(
+			encList
+		);
+
+		for (const emp_trust of employeeTrustList) {
+			const start_date_string = get_date_string(emp_trust.start_date);
+			const end_date_string = emp_trust.end_date
+				? get_date_string(emp_trust.end_date)
 				: null;
+
 			if (start_date_string > quit_date) {
-				await this.deleteEmployeeTrust(employeeTrustList[i]!.id);
-			}
-			else if (end_date_string == null || end_date_string > quit_date) {
+				await this.deleteEmployeeTrust(emp_trust.id);
+			} else if (end_date_string == null || end_date_string > quit_date) {
 				await this.updateEmployeeTrust({
-					id: employeeTrustList[i]!.id,
+					id: emp_trust.id,
 					end_date: new Date(quit_date),
 				});
 			}
@@ -376,24 +414,7 @@ export class EmployeeTrustService {
 					? emp_trust.end_date > new_emp_trust.end_date
 					: true)
 		);
-		// console.log("new_emp_trust", new_emp_trust);
-		// // console.log("endOverlapList", endOverlapList);
-		// console.log("startOverlapList", startOverlapList);
-		// console.log("twoEndInsideList", twoEndInsideList);
-		// console.log("twoEndOutsideList", twoEndOutsideList);
 
-		// endOverlapList.forEach(async (emp_trust) => {
-		// 	await this.updateEmployeeTrust({
-		// 		id: emp_trust.id,
-		// 		end_date: get_date_string(
-		// 			new Date(
-		// 				new_emp_trust_start_date.setDate(
-		// 					new_emp_trust_start_date.getDate() - 1
-		// 				)
-		// 			)
-		// 		),
-		// 	});
-		// });
 		await Promise.all(
 			startOverlapList.map(async (emp_trust) => {
 				await this.updateEmployeeTrust({
@@ -406,11 +427,13 @@ export class EmployeeTrustService {
 				});
 			})
 		);
+
 		await Promise.all(
 			twoEndInsideList.map(async (emp_trust) => {
 				await this.deleteEmployeeTrust(emp_trust.id);
 			})
 		);
+
 		await Promise.all(
 			twoEndOutsideList.map(async (emp_trust) => {
 				await this.createEmployeeTrust({
@@ -427,33 +450,5 @@ export class EmployeeTrustService {
 				});
 			})
 		);
-	}
-
-	async getCurrentEmployeeTrustByEmpNoByDate(
-		emp_no: string,
-		date: Date
-	): Promise<EmployeeTrust> {
-
-		const date_str = dateToString.parse(date);
-
-		const employeeTrust = await EmployeeTrust.findOne({
-			where: {
-				emp_no: emp_no,
-				start_date: {
-					[Op.lte]: date_str,
-				},
-				end_date: {
-					[Op.or]: [{ [Op.gte]: date_str }, { [Op.eq]: null }],
-				},
-				disabled: false,
-			},
-			raw: true,
-		});
-		if (employeeTrust == null) {
-			throw new BaseResponseError(
-				"Employee Trust does not exist"
-			);
-		}
-		return employeeTrust;
 	}
 }
