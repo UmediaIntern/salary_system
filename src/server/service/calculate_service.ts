@@ -635,7 +635,7 @@ export class CalculateService {
 		leave_deduction: number,
 		operational_performance_bonus: number,
 		other_addition_tax: number,
-		special_personal_leave_deduction: number,
+		special_personal_leave_deduct: number,
 		other_deduction_tax: number,
 		shift_allowance: number,
 		professional_cert_allowance: number
@@ -674,7 +674,7 @@ export class CalculateService {
 			(shift_allowance ?? 0) - //+
 			// rd("夜點費") -
 			leave_deduction -
-			special_personal_leave_deduction -
+			special_personal_leave_deduct -
 			other_deduction_tax;
 
 		return salary_income_deduction;
@@ -1049,14 +1049,23 @@ export class CalculateService {
 	async getNonTaxableSubtotal(
 		discounted_employee_payment_dec: EmployeePaymentFEType,
 		weekday_overtime_pay: number,
-		holiday_overtime_pay: number,
+		rest_overtime_pay: number,
 		non_leave_compensation: number,
 		other_addition: number,
 		retirement_income: number,
 		expense_list: Expense[],
 		expense_class_list: ExpenseClass[]
 	): Promise<number> {
-		// rd("非課稅小計") = rd("伙食津貼") + rd("平日加班費") + rd("假日加班費") + rd("補助津貼") + rd("其他加項") + rd("不休假代金") + rd("退職所得") + rd("勞保減免") + rd("健保補助") 'hm 111/0427const ehrService = container.resolve(EHRService);
+		// rd("非課稅小計") = rd("伙食津貼") + 
+		// 					 rd("平日加班費") + 
+		//                   rd("假日加班費") + 
+		//                   rd("補助津貼") + 
+		//                   rd("其他加項") + 
+		//                   rd("不休假代金") + 
+		//                   rd("退職所得") + 
+		//                   rd("勞保減免") + 
+		//                   rd("健保補助") 
+		// 'hm 111/0427const ehrService = container.resolve(EHRService);
 		const l_i_subsidy_id = expense_class_list.find(
 			(ec) => ec.name === "勞保殘障減免"
 		)?.id!;
@@ -1066,24 +1075,34 @@ export class CalculateService {
 		const expenseList = expense_list.filter((e) => e.kind === 1);
 		let l_i_subsidy = 0;
 		let h_i_subsidy = 0;
+		// ! Pony: Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		const parking_subsidy_id = expense_class_list.find(
+			(ec) => ec.name === "停車費"
+		)?.id!;
+		let other_subsidy = 0;
+		// ! End !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		for (const expense of expenseList) {
 			if (expense.id === l_i_subsidy_id) {
 				l_i_subsidy += expense.amount ?? 0;
 			}
-			if (expense.id === h_i_subsidy_id) {
+			else if (expense.id === h_i_subsidy_id) {
 				h_i_subsidy += expense.amount ?? 0;
+			}
+			else if (expense.id === parking_subsidy_id) {	// ! Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				other_subsidy += expense.amount ?? 0;
 			}
 		}
 		const non_taxable_subtotal =
 			(discounted_employee_payment_dec.food_allowance ?? 0) +
 			weekday_overtime_pay +
-			holiday_overtime_pay +
+			rest_overtime_pay +
 			(discounted_employee_payment_dec.subsidy_allowance ?? 0) +
 			non_leave_compensation +
 			other_addition +
 			retirement_income +
 			l_i_subsidy +
-			h_i_subsidy;
+			h_i_subsidy + 
+			other_subsidy;		// ! Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		return non_taxable_subtotal;
 	}
 	//MARK: 減項小計(要補信託提存)
@@ -1097,7 +1116,7 @@ export class CalculateService {
 		group_insurance_deduction: number,
 		group_insurance_deduction_promotion: number,
 		leave_deduction: number,
-		special_personal_leave_deduction: number,
+		special_personal_leave_deduct: number,
 		other_deduction: number,
 		other_deduction_tax: number,
 		income_tax_deduction: number,
@@ -1130,7 +1149,7 @@ export class CalculateService {
 				group_insurance_deduction +
 				group_insurance_deduction_promotion +
 				leave_deduction +
-				special_personal_leave_deduction +
+				special_personal_leave_deduct +
 				meal_deduction +
 				other_deduction +
 				other_deduction_tax +
@@ -1553,12 +1572,14 @@ export class CalculateService {
 		const money = taxable_subtotal + non_taxable_subtotal;
 		const l_i_day = payset?.li_day ?? 30;
 
+
 		if (kind1 === FOREIGN)
 			if (kind2 === NORMAL_MAN) {
 				//         'ComRetire_old = 0 '2014/1/15 外籍勞工從事一般員工, 也要提撥勞退(舊)
 				return Round(Round(money * 0.02, 0), 0);
 			} else return 0;
-		else if (On_Board < "2005-7-1") {
+		// else if (On_Board < "2005-7-1") {
+		else if (new Date(On_Board) < new Date("2005-7-1")) {	// ~ Pony's fix
 			if (
 				kind2 === BOSS ||
 				kind2 === FOREIGN ||
@@ -1814,8 +1835,8 @@ export class CalculateService {
 		}
 		return -1;
 	}
-	//MARK: 特別事假
-	async getSpecialPersonalLeave(
+	//MARK: 特別事假時數
+	async getSpecialPersonalLeaveHours(
 		holiday_list: Holiday[],
 		holidays_type: HolidaysType[]
 	): Promise<number> {
@@ -1829,6 +1850,24 @@ export class CalculateService {
 			}
 		});
 		return special_personal_leave;
+	}
+	//MARK: 特別事假扣款
+	async getSpecialPersonalLeave(
+		holiday_list: Holiday[],
+		holidays_type: HolidaysType[],
+		gross_salary: number
+	): Promise<number> {
+		const special_personal_leave_id = holidays_type.find(
+			(ht) => ht.holidays_name === "特別事假"
+		)?.pay_id;
+		let special_personal_leave_hour = 0;
+		holiday_list.map((h) => {
+			if (h.pay_order === special_personal_leave_id) {
+				special_personal_leave_hour += h.total_hours ?? 0;
+			}
+		});
+		const special_personal_leave = special_personal_leave_hour * (gross_salary / 240);
+		return Round(special_personal_leave, 0);
 	}
 	//MARK: 有全勤事假
 	async getFullAtendancePersonalLeave(
@@ -1866,35 +1905,39 @@ export class CalculateService {
 		employee_payment_dec: EmployeePaymentFEType,
 		payset: Payset | undefined
 	) {
-		employee_payment_dec.base_salary =
+		const new_employee_payment_dec = { ...employee_payment_dec };
+	
+		new_employee_payment_dec.base_salary =
 			(employee_payment_dec.base_salary *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.food_allowance =
+		new_employee_payment_dec.food_allowance =
 			(employee_payment_dec.food_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.occupational_allowance =
+		new_employee_payment_dec.occupational_allowance =
 			(employee_payment_dec.occupational_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.subsidy_allowance =
+		new_employee_payment_dec.subsidy_allowance =
 			(employee_payment_dec.subsidy_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.supervisor_allowance =
+		new_employee_payment_dec.supervisor_allowance =
 			(employee_payment_dec.supervisor_allowance *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		employee_payment_dec.long_service_allowance =
+		new_employee_payment_dec.long_service_allowance =
 			((employee_payment_dec.long_service_allowance_type ==
 				LongServiceEnum.Enum.month_allowance
 				? employee_payment_dec.long_service_allowance
 				: 0) *
 				(payset ? payset.work_day! : 30)) /
 			30;
-		return employee_payment_dec;
+	
+		return new_employee_payment_dec;
 	}
+	
 	/*
 if (!工作天數)
 	工作天數 = 30

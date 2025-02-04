@@ -69,9 +69,12 @@ export default function PeriodSelector() {
 											const original_name = period_info.period_name
 											return (
 												<SelectItem
-													key={original_name}
-													value={original_name}
-													className="hover:bg-gray-100 hover:cursor-pointer"
+													key={
+														original_name
+													}
+													value={
+														original_name
+													}
 												>
 													{`20${original_name.split("-")[1]}-${t(`month.${original_name.split("-")[0]!.toLowerCase()}`)}`}
 												</SelectItem>

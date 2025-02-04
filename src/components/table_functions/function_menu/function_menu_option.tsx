@@ -28,7 +28,7 @@ export function FunctionMenuOptionBase({
 	return (
 		<DropdownMenuItem
 			className="cursor-pointer"
-			disabled={disabled}
+			// disabled={disabled}		// * Comment for debug
 			onClick={onClick}
 		>
 			<Icon
