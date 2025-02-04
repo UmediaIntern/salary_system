@@ -14,6 +14,9 @@ const dbAllowanceType = z.object({
 	UPDATE_DATE: z.date(),
 });
 
+export const STR_L_I_SUBSIDY = "勞保殘障減免";
+export const STR_H_I_SUBSIDY = "健保補助";
+
 export class AllowanceType {
 	id: number;
 	name: string;

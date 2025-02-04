@@ -30,6 +30,7 @@ import { container } from "tsyringe";
 import { BonusMapper } from "~/server/database/mapper/bonus_mapper";
 import { OtherMapper } from "../database/mapper/other_mapper";
 import { OtherFEType } from "../api/types/other_type";
+import { convert_employee_payment, convert_employee_trust } from "~/pages/test/test_function";
 
 
 type CommonParametersType = {
@@ -74,19 +75,25 @@ export class TransactionService {
 		const payset_list = await this.ehrService.getPayset(period_id);
 		const employee_list = await this.ehrService.getEmp(period_id);
 		const employee_data_list = await this.employeeDataService.getCurrentEmployeeData(period_id);
-		const employee_payment_list = await this.employeePaymentService.getCurrentEmployeePayment(period_id);
-		const employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
+		// const employee_payment_list = await this.employeePaymentService.getCurrentEmployeePayment(period_id);
+		// ^ Pony's Test
+		let real_employee_payment_list = await this.employeePaymentService.getCurrentEmployeePayment(period_id);
+		const employee_payment_list = convert_employee_payment(real_employee_payment_list);
+		// ^ End Pony's Test
+		// const employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
+		// & Pony's Test
+		const real_employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
+		const employee_trust_list = convert_employee_trust(real_employee_trust_list);
+		// & End Pony's Test
 		const overtime_list = await this.ehrService.getOvertime(period_id, pay_type);
 		const insurance_rate_setting = await this.insuranceRateSettingService.getCurrentInsuranceRateSetting(period_id);
 		const holiday_list = await this.ehrService.getHoliday(period_id);
 		const holidays_type_list = await this.holidaysTypeService.getCurrentHolidaysType();
 		const bonus_list = await this.ehrService.getBonus(period_id, pay_type);
 		const bonus_type_list = await this.ehrService.getBonusType();
-		const expense_list = await this.ehrService.getExpense(period_id);
-		// const expense_type_list = await this.ehrService.getExpenseClass();
+		const expense_list = await this.ehrService.getExpense(period_id);		
 		const expense_class_list = await this.ehrService.getExpenseClass();
 		const salary_income_tax_list = await this.salaryIncomeTaxService.getCurrentSalaryIncomeTax(period_id);
-
 
 		const commonParameters: CommonParametersType = {
 			allowance_list: allowance_list,
@@ -132,7 +139,11 @@ export class TransactionService {
 		const bonus_list = commonParameters.bonus_list.filter(b => b.emp_no === emp_no);
 		const bonus_type_list = commonParameters.bonus_type_list;
 		const expense_list = commonParameters.expense_list.filter(e => e.emp_no === emp_no);
-		// console.log("expense_list:", expense_list);		// ~ Pony's Test
+		// // & Pony's test
+		// console.log("\n\n\n\n\n\n");
+		// console.log("expense_list:", expense_list);
+		// console.log("\n\n\n\n\n\n");
+		// // & Pony's test
 		const expense_class_list = commonParameters.expense_class_list;
 		const salary_income_tax_list = commonParameters.salary_income_tax_list;
 
@@ -241,7 +252,7 @@ export class TransactionService {
 		const end_of_year_bonus = await this.calculateService.getYearEndBonus(bonus_list, bonus_type_list);
 		const taxable_subtotal = await this.calculateService.getTaxableSubtotal(pay_type, discounted_employee_payment!, operational_performance_bonus, reissue_salary, exceed_overtime_pay, other_addition_tax, full_attendance_bonus, end_of_year_bonus, professional_cert_allowance, shift_allowance);
 		const retirement_income = await this.calculateService.getRetirementIncome(expense_list, expense_class_list);
-		const non_taxable_subtotal = await this.calculateService.getNonTaxableSubtotal(discounted_employee_payment!, weekday_overtime_pay, rest_overtime_pay, non_leave_compensation, other_addition, retirement_income, expense_list, expense_class_list);
+		const non_taxable_subtotal = await this.calculateService.getNonTaxableSubtotal(discounted_employee_payment!, weekday_overtime_pay, rest_overtime_pay, non_leave_compensation, other_addition, retirement_income, expense_list, allowance_type_list);
 		const salary_income_tax = await this.calculateService.getSalaryIncomeTax(employee_data!, issue_date, salary_income_tax_list, salary_income_deduction);
 		const l_i_pay = await this.calculateService.getLaborInsurancePay(discounted_employee_payment!, employee_data!, insurance_rate_setting!, payset, received_elderly_benefits, pay_type);
 		const salary_advance = await this.calculateService.getSalaryAdvance(pay_type, payset, discounted_employee_payment!, insurance_rate_setting!, employee_data!);
@@ -260,7 +271,7 @@ export class TransactionService {
 		
 		const bonus_ratio = -1; //bonus_setting!.fixed_multiplier;
 		const annual_days_in_service = 365; // MARK: 年度在職天數不知道在哪
-		const l_r_contribution = await this.calculateService.getLaborRetirementContribution(employee_data!, discounted_employee_payment!);
+		const l_r_contribution = await this.calculateService.getLaborRetirementContribution(employee_data!, discounted_employee_payment!, payset);
 		const old_l_r_contribution = await this.calculateService.getOldLaborRetirementContribution(employee_data!, taxable_subtotal, non_taxable_subtotal, payset);
 		const seniority = 0;
 		const assessment_rate = 0;
@@ -273,7 +284,7 @@ export class TransactionService {
 		const org_trust_reserve = employee_trust ? employee_trust!.org_trust_reserve : null;
 		const org_special_trust_incent = employee_trust ? employee_trust!.org_special_trust_incent : null;
 		const g_i_deduction_promotion = await this.calculateService.getGroupInsuranceDeductionPromotion(expense_list, expense_class_list);
-		const deduction_subtotal = await this.calculateService.getDeductionSubtotal(pay_type, salary_income_tax, bonus_tax, welfare_contribution, l_i_deduction, h_i_deduction, group_insurance_deduction, g_i_deduction_promotion, leave_deduction, special_leave_deduction, other_deduction, other_deduction_tax, income_tax_deduction, l_r_self, parking_fee, brokerage_fee, v_2_h_i, meal_deduction);
+		const deduction_subtotal = await this.calculateService.getDeductionSubtotal(pay_type, salary_income_tax, bonus_tax, welfare_contribution, l_i_deduction, h_i_deduction, group_insurance_deduction, g_i_deduction_promotion, leave_deduction, special_leave_deduction, other_deduction, other_deduction_tax, income_tax_deduction, l_r_self, parking_fee, brokerage_fee, v_2_h_i, meal_deduction, emp_trust_reserve ?? 0);
 		const net_salary = await this.calculateService.getNetSalary(pay_type, taxable_subtotal, non_taxable_subtotal, deduction_subtotal);
 		const full_attendance_personal_leave = await this.calculateService.getFullAtendancePersonalLeave(holiday_list, holidays_type_list);
 		const full_attendance_sick_leave = await this.calculateService.getFullAtendanceSickLeave(holiday_list, holidays_type_list);
