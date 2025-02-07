@@ -10,7 +10,7 @@ import {
 	buildStandardFormProps,
 	StandardForm,
 } from "~/components/form/default/form_standard";
-import { createEmployeeTrust, updateEmployeeTrust, deleteEmployeeTrust } from "../employee_table_api";
+import { api } from "~/utils/api";
 
 export function EmployeeTrustFunctionMenu() {
 	const { setMode } = useTrustFunctionContext();
@@ -32,6 +32,26 @@ export function EmployeeTrustFunctionMenu() {
 
 export function EmployeeTrustFunctions() {
 	const { data, open, setOpen, mode } = useTrustFunctionContext();
+
+	const ctx = api.useUtils();
+	const deleteEmployeeTrust =
+		api.employeeTrust.deleteEmployeeTrust.useMutation({
+			onSuccess: () => {
+				void ctx.employeeTrust.invalidate();
+			},
+		});
+	const updateEmployeeTrust =
+		api.employeeTrust.updateEmployeeTrust.useMutation({
+			onSuccess: () => {
+				void ctx.employeeTrust.invalidate();
+			},
+		});
+	const createEmployeeTrust =
+		api.employeeTrust.createEmployeeTrust.useMutation({
+			onSuccess: () => {
+				void ctx.employeeTrust.invalidate();
+			},
+		});
 
 	const createFormSchema = employeeTrustSchema.omit({ id: true });
 	const createForm = buildStandardFormProps({

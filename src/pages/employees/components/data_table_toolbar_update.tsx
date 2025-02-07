@@ -5,11 +5,11 @@ import { ToolbarFilter } from "~/components/data_table/toolbar/toolbar_filter";
 import { TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { EmpTabsEnum } from "./context/employee_tabs_enum";
 import { useTranslation } from "react-i18next";
-import { LoadingSpinner } from "~/components/loading";
 import { DataTableToolbarWrapper } from "~/components/data_table/toolbar/data_table_toolbar_wrapper";
 import { StatsPanel } from "~/components/data_table/toolbar/stats_panel";
 import { useEmployeeTableContext } from "./context/data_table_context_provider";
 import { TableFunctionMenuSelector } from "./function_sheet/table_function_selector";
+import { Skeleton } from "~/components/ui/skeleton";
 
 interface DataTableToolbarProps<TData> {
 	filterColumnKey?: keyof TData;
@@ -26,12 +26,7 @@ export function DataTableToolbarUpdate<TData>({
 	const table = selectedTable?.table;
 
 	if (!table) {
-    // TODO: the ui of this need to change 
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
+		return <Skeleton className="h-12 w-full" />; // TODO: Loading element with toast
 	}
 
 	return (
