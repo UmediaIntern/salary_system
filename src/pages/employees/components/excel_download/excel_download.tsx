@@ -9,7 +9,7 @@ import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 
 import { useTranslation } from "react-i18next";
-import { ExcelDownloader } from "~/components/excel_operations/excel_download";
+import { ExcelDownloader } from "~/components/file_operations/excel_download";
 
 export function ExcelDownload() {
 	const { t } = useTranslation();

@@ -41,7 +41,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { parameterToolbarFunctionsContext } from "../function_sheet/parameter_functions_context";
-import { FileUploader } from "./fileUpload";
+import { FileUploader } from "../../../../components/file_operations/file_upload";
 
 function transposeData(data: any[][]): any[][] {
 	const tranposed_data = (data[0] ?? []).map((_, colIndex) =>
