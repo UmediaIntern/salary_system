@@ -51,7 +51,7 @@ export function DataTableFunctions({
 	const [mode, setMode] = useState<FunctionMode>("none");
 
 	// ========================= Additional Condition for Schema =====================================
-	let schema = getSchema(tableType);
+	const schema = getSchema(tableType);
 
 	return (
 		<div className={cn(className, "flex h-full items-center")}>
