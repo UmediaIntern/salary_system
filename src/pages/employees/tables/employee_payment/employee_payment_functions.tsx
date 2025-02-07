@@ -1,7 +1,6 @@
 import { FunctionMenu } from "~/components/table_functions/function_menu/function_menu";
 import { usePaymentFunctionContext } from "./employee_payment_provider";
 import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
-import { api } from "~/utils/api";
 import { employeePaymentSchema } from "../../schemas/configurations/employee_payment_schema";
 import { z } from "zod";
 import { ConfirmDialog } from "~/components/table_functions/confirm_dialog";
@@ -15,6 +14,12 @@ import { DateDialog } from "../../components/function_sheet/date_dialog";
 import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_base_salary_dialog";
 import { Dialog } from "~/components/ui/dialog";
 import { ExcelDownload } from "../../components/excel_download/excel_download";
+import {
+	createEmployeePayment,
+	updateEmployeePayment,
+	deleteEmployeePayment,
+	autoCalculateEmployeePayment,
+} from "../employee_table_api";
 
 export function EmployeePaymentFunctionMenu() {
 	const { setMode, setOpenCalculate } = usePaymentFunctionContext();
@@ -52,33 +57,6 @@ export function EmployeePaymentFunctionMenu() {
 export function EmployeePaymentFunctions() {
 	const { data, open, setOpen, mode, openCalculate, setOpenCalculate } =
 		usePaymentFunctionContext();
-
-	// TODO: move
-	const ctx = api.useUtils();
-	const updateEmployeePayment =
-		api.employeePayment.updateEmployeePayment.useMutation({
-			onSuccess: () => {
-				void ctx.employeePayment.invalidate();
-			},
-		});
-	const createEmployeePayment =
-		api.employeePayment.createEmployeePayment.useMutation({
-			onSuccess: () => {
-				void ctx.employeePayment.invalidate();
-			},
-		});
-	const deleteEmployeePayment =
-		api.employeePayment.deleteEmployeePayment.useMutation({
-			onSuccess: () => {
-				void ctx.employeePayment.invalidate();
-			},
-		});
-	const autoCalculateEmployeePayment =
-		api.employeePayment.autoCalculateEmployeePayment.useMutation({
-			onSuccess: () => {
-				void ctx.employeePayment.invalidate();
-			},
-		});
 
 	const createFormSchema = employeePaymentSchema.omit({ id: true });
 	const createForm = buildStandardFormProps({
@@ -152,8 +130,8 @@ export function EmployeePaymentFunctions() {
 				open={openCalculate && mode === "excel_download"}
 				onOpenChange={setOpenCalculate}
 			>
-        <ExcelDownload/>
-      </Dialog>
+				<ExcelDownload />
+			</Dialog>
 		</>
 	);
 }
