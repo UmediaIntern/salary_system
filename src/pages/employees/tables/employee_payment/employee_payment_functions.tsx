@@ -166,7 +166,7 @@ export function EmployeePaymentFunctions() {
 						selectedTable?.table
 							.getFilteredRowModel()
 							.rows.map((r) => (r.original as Record<string, unknown>)) ?? [],
-						["id", "functions"]
+						["id", "functions", "disabled"]
 					)}
           fileName="employee_payment"
 				/>
@@ -175,7 +175,7 @@ export function EmployeePaymentFunctions() {
 				open={openCalculate && mode === "excel_upload"}
 				onOpenChange={setOpenCalculate}
 			>
-				<DialogContent className="p-8">
+				<DialogContent className="max-w-[80vw] max-h-[80vh] p-8">
 					<ExcelUpload />
 				</DialogContent>
 			</Dialog>

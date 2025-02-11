@@ -29,6 +29,8 @@ export function ExcelDownload({ data, fileName }: ExcelDownloadProps) {
 		setFilename(`${fileName}_${period_name}`);
 	}, [fileName, period_name]);
 
+  const headers = data[0]?.map((header) => t(`table.${header}`)) ?? null;
+
 	return (
 		<DialogContent className="p-8">
 			<DialogTitle>{t("button.excel_download")}</DialogTitle>
@@ -51,7 +53,8 @@ export function ExcelDownload({ data, fileName }: ExcelDownloadProps) {
 							.setFileName(filename)
 							.addSheet({
 								buildSheet: (sheet) => {
-									sheet.setData(data);
+                  if (headers) sheet.setHeaders(headers);
+									sheet.setData(data.slice(1));
 								},
 							})
 							.download()
@@ -64,13 +67,3 @@ export function ExcelDownload({ data, fileName }: ExcelDownloadProps) {
 		</DialogContent>
 	);
 }
-
-// handleExportExcel(
-//   getExcelData(
-//     selectedTable?.table
-//       .getFilteredRowModel()
-//       .rows.map((r) => r.original)!,
-//     ["id", "functions"]
-//   ),
-//   filename
-// )

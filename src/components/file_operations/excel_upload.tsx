@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { FileUploader } from "./file_uploader";
 import { Workbook } from "exceljs";
+import { UploadPreview } from "./upload_preview";
 
 function excelMapDate(cell: any): Date | null {
 	if (typeof cell === "string") {
@@ -30,9 +31,8 @@ function excelMapDate(cell: any): Date | null {
 
 function recoverData(
 	data: any[][],
-	isList: boolean,
 	table_name?: string
-): Record<string, any>[] | Record<string, any> {
+): Record<string, unknown>[] {
 	if (data.length === 0 || !data[0]) return [];
 
 	// Generate keys by applying inverse_translate to each header
@@ -61,11 +61,7 @@ function recoverData(
 		return obj;
 	});
 
-	if (isList) {
-		return mappedData;
-	} else {
-		return mappedData[0] ?? {};
-	}
+	return mappedData;
 }
 
 async function extract_data(file: File): Promise<any[][] | null> {
@@ -101,7 +97,6 @@ async function extract_data(file: File): Promise<any[][] | null> {
 
 		// TODO: data mapping
 
-		// Update state with the extracted data
 		return rows;
 	} catch (error) {
 		console.error("Error processing file");
@@ -109,10 +104,14 @@ async function extract_data(file: File): Promise<any[][] | null> {
 	}
 }
 
-export function ExcelUpload() {
+interface ExcelUploadProps {
+	onClick?: (data: Record<string, unknown>[]) => void;
+}
+
+export function ExcelUpload({ onClick }: ExcelUploadProps) {
 	const [view, setView] = useState("upload");
 	const { t } = useTranslation("common");
-  const [data, setData] = useState<any[][] | null>(null);
+	const [data, setData] = useState<any[][] | null>(null);
 
 	async function handleFileUpload(files: File[]) {
 		console.log(files);
@@ -120,8 +119,8 @@ export function ExcelUpload() {
 			throw new Error("Only one file can be uploaded at a time");
 		}
 		for (const file of files) {
-      const data = await extract_data(file);
-      if(data) setData(data);
+			const data = await extract_data(file);
+			if (data) setData(data);
 		}
 	}
 
@@ -133,14 +132,33 @@ export function ExcelUpload() {
 				onValueChange={setView}
 				className="w-full"
 			>
-				<TabsList className="grid w-full grid-cols-1">
+				<TabsList className="grid w-full grid-cols-2">
 					<TabsTrigger value="upload">
 						{t("button.excel_upload")}
+					</TabsTrigger>
+					<TabsTrigger
+						value="preview"
+						disabled={!data || data.length === 0}
+					>
+						{t("button.excel_preview")}
 					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="upload">
 					<FileUploader onUpload={handleFileUpload} />
+				</TabsContent>
+
+				<TabsContent value="preview">
+					{data ? (
+						<UploadPreview
+							data={data}
+							onClick={() => {
+								onClick?.(recoverData(data));
+							}}
+						/>
+					) : (
+						<div />
+					)}
 				</TabsContent>
 			</Tabs>
 		</>
