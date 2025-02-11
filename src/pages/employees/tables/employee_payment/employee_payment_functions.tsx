@@ -13,9 +13,11 @@ import { zodOptionalDate } from "~/lib/utils/zod_types";
 import { DateDialog } from "../../components/function_sheet/date_dialog";
 import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_base_salary_dialog";
 import { Dialog, DialogContent } from "~/components/ui/dialog";
-import { ExcelDownload } from "../../components/excel_download/excel_download";
+import { ExcelDownload } from "~/components/file_operations/excel_download";
 import { api } from "~/utils/api";
 import { ExcelUpload } from "~/components/file_operations/excel_upload";
+import { getExcelData } from "../../components/excel_download/utils";
+import { useEmployeeTableContext } from "../../components/context/data_table_context_provider";
 
 export function EmployeePaymentFunctionMenu() {
 	const { setMode, setOpenCalculate } = usePaymentFunctionContext();
@@ -109,20 +111,10 @@ export function EmployeePaymentFunctions() {
 		closeSheet: () => setOpen(false),
 	});
 
+  const { selectedTable } = useEmployeeTableContext()
+
 	return (
 		<>
-			<ConfirmDialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
-				onClick={() =>
-					data && deleteEmployeePayment.mutate({ id: data.id })
-				}
-				data={
-					employeePaymentSchema
-						.merge(z.object({ end_date: zodOptionalDate() }))
-						.safeParse(data).data
-				}
-			/>
 			<TableFunctionSheet
 				openSheet={open && mode !== "delete"}
 				setOpenSheet={setOpen}
@@ -135,6 +127,19 @@ export function EmployeePaymentFunctions() {
 					<StandardForm {...updateForm} />
 				)}
 			</TableFunctionSheet>
+			{/* Delete */}
+			<ConfirmDialog
+				open={open && mode === "delete"}
+				onOpenChange={setOpen}
+				onClick={() =>
+					data && deleteEmployeePayment.mutate({ id: data.id })
+				}
+				data={
+					employeePaymentSchema
+						.merge(z.object({ end_date: zodOptionalDate() }))
+						.safeParse(data).data
+				}
+			/>
 			{/* Auto calculate */}
 			<DateDialog
 				open={openCalculate && mode === "auto_calculate"}
@@ -155,7 +160,16 @@ export function EmployeePaymentFunctions() {
 				open={openCalculate && mode === "excel_download"}
 				onOpenChange={setOpenCalculate}
 			>
-				<ExcelDownload />
+          {/* Fix type later */}
+				<ExcelDownload
+					data={getExcelData(
+						selectedTable?.table
+							.getFilteredRowModel()
+							.rows.map((r) => (r.original as Record<string, unknown>)) ?? [],
+						["id", "functions"]
+					)}
+          fileName="employee_payment"
+				/>
 			</Dialog>
 			<Dialog
 				open={openCalculate && mode === "excel_upload"}

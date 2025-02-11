@@ -1,4 +1,4 @@
-import React, { useState, type PropsWithChildren, useEffect } from "react";
+import React, { useState, type PropsWithChildren, useEffect, useContext } from "react";
 import { type Period } from "~/server/database/entity/UMEDIA/period";
 import periodContext from "./period_context";
 import { SessionStorage } from "~/utils/session_storage";
@@ -31,3 +31,14 @@ export default function PeriodContextProvider({ children }: PropsWithChildren) {
 		</periodContext.Provider>
 	);
 }
+
+export function usePeriodContext() {
+  const context = useContext(periodContext);
+  if (context === null) {
+    throw new Error(
+      "Period Context must be used within a PeriodContextProvider"
+    );
+  }
+  return context;
+}
+
