@@ -31,5 +31,5 @@ export function inverse_translate(key: string, table_name?: string) {
         }
     }
 
-    return inverse;
+    return inverse ?? "unknown";
 }

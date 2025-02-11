@@ -12,9 +12,10 @@ import {
 import { zodOptionalDate } from "~/lib/utils/zod_types";
 import { DateDialog } from "../../components/function_sheet/date_dialog";
 import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_base_salary_dialog";
-import { Dialog } from "~/components/ui/dialog";
+import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { ExcelDownload } from "../../components/excel_download/excel_download";
 import { api } from "~/utils/api";
+import { ExcelUpload } from "~/components/file_operations/excel_upload";
 
 export function EmployeePaymentFunctionMenu() {
 	const { setMode, setOpenCalculate } = usePaymentFunctionContext();
@@ -28,7 +29,10 @@ export function EmployeePaymentFunctionMenu() {
 				}}
 			/>
 			<FunctionMenuOption.ExcelUpload
-				onClick={() => setMode("excel_upload")}
+				onClick={() => {
+					setMode("excel_upload");
+					setOpenCalculate(true);
+				}}
 			/>
 			<FunctionMenuOption.Initialize
 				onClick={() => setMode("initialize")}
@@ -152,6 +156,14 @@ export function EmployeePaymentFunctions() {
 				onOpenChange={setOpenCalculate}
 			>
 				<ExcelDownload />
+			</Dialog>
+			<Dialog
+				open={openCalculate && mode === "excel_upload"}
+				onOpenChange={setOpenCalculate}
+			>
+				<DialogContent className="p-8">
+					<ExcelUpload />
+				</DialogContent>
 			</Dialog>
 		</>
 	);
