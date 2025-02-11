@@ -59,7 +59,7 @@ export default function PeriodSelector() {
 									// );
 								}}
 							>
-								<SelectTrigger className="w-full">
+								<SelectTrigger className="w-full font-mono">
 									<SelectValue
 										placeholder={t("others.select_period")}
 									/>
@@ -72,20 +72,16 @@ export default function PeriodSelector() {
 										{getPeriod.data!.map((period_info) => {
 											const original_name =
 												period_info.period_name;
+											const [month, year] =
+												original_name.split("-");
 											return (
 												<SelectItem
 													key={original_name}
 													value={original_name}
-													className="hover:cursor-pointer hover:bg-gray-100"
+													className="font-mono hover:cursor-pointer hover:bg-gray-100"
 												>
-													{`20${
-														original_name.split(
-															"-"
-														)[1]
-													}-${t(
-														`month.${original_name
-															.split("-")[0]!
-															.toLowerCase()}`
+													{`20${year}-${t(
+														`month.${month!.toLowerCase()}`
 													)}`}
 												</SelectItem>
 											);
