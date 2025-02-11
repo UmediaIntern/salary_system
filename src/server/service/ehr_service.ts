@@ -529,6 +529,8 @@ export class EHRService {
 
 	private GET_EXPENSE_CLASS_QUERY(): string {
 		return `SELECT * FROM SYSTEM."U_HR_EXPENSE_CLASS_V"`;
+		// // & Pony's fix, need check
+		// return `SELECT * FROM SYSTEM."U_HR_ALLOWANCE_TYPE_V"`;
 	}
 	private GET_ALLOWANCE_TYPE_QUERY(): string {
 		return `SELECT * FROM SYSTEM."U_HR_ALLOWANCE_TYPE_V"`;

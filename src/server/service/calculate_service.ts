@@ -21,12 +21,13 @@ import { bonusTypeEnum } from "../api/types/bonus_type_enum";
 import { EmployeeBonusService } from "./employee_bonus_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { Expense } from "../database/entity/UMEDIA/expense";
-import { AllowanceType } from "../database/entity/UMEDIA/allowance_type";
+import { AllowanceType, STR_H_I_SUBSIDY, STR_L_I_SUBSIDY } from "../database/entity/UMEDIA/allowance_type";
 import { ExpenseClass } from "../database/entity/UMEDIA/expense_class";
 import { EmployeePaymentFEType } from "../api/types/employee_payment_type";
 import { Bonus } from "../database/entity/UMEDIA/bonus";
 import { BonusType } from "../database/entity/UMEDIA/bonus_type";
 import { SalaryIncomeTaxDecType } from "../database/entity/SALARY/salary_income_tax";
+import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
 
 const FOREIGN = "外籍勞工";
 const PROFESSOR = "顧問";
@@ -39,9 +40,13 @@ const PARTTIME1 = "工讀生";
 const PARTTIME2 = "建教生";
 const CONTRACT = "約聘人員";
 const NORMAL_MAN = "一般員工";
+
+
 const rd = (key: string) => {
 	throw new Error("Should change 'rd' to your functions");
 };
+
+
 @injectable()
 export class CalculateService {
 	constructor() { }
@@ -730,9 +735,11 @@ export class CalculateService {
 		employee_data: EmployeeDataDecType,
 		issue_date: string,
 		salary_income_tax_list: SalaryIncomeTaxDecType[],
-		salary_income_deduction: number
+		salary_income_deduction: number,
+		insurance_rate_setting: InsuranceRateSettingDecType,
+		income_tax_setting: IncomeTaxSetting
 	): Promise<number> {
-		/*
+		/* #region
 					rd("薪資所得稅") = FindTex(
 						rd("薪資所得扣繳總額"),
 						rd("扶養人數"), 
@@ -741,7 +748,8 @@ export class CalculateService {
 						rd("入境日期"), 
 						rd("工作天數")
 					)
-		*/
+		# endregion */ 
+
 		const Tax = salary_income_deduction;
 		const Num = employee_data.dependents;
 		const kind1 = employee_data.work_type;
@@ -751,7 +759,7 @@ export class CalculateService {
 		const Day = rd("工作天數");			// no use in prev salary system code
 		*/
 
-		const START_WORK_DAY = new Date(employee_data.registration_date);
+		const START_WORK_DAY = new Date(employee_data.registration_date);		// ! 要改入境日
 		const PAY_DATE = new Date(issue_date);
 
 		const differenceInMilliseconds =
@@ -763,11 +771,33 @@ export class CalculateService {
 		// Jerry 07/01/31 主要區別外籍勞工 同時也是當月離職人員的算法會與間接人員計計算邏輯衝突,因此以工作類別區分外籍勞工
 		if (kind1 === FOREIGN || kind2 === FOREIGN) {
 			// Jerry 07/09/21  15840 ==> 17280   09/4/28 17280 ==> 25920
-			if (differenceInDays > 183) return Round(Tax * 0.06);
+
+			// ! 183, 1.5, 6%, 18% 要拉出去
+
+			
+			// ^ 原本access程式邏輯
+			// ^ if (differenceInDays > 183) return Round(Tax * 0.06);
+			// ^ else {
+			// ^ 	if (Tax < 25920) return Round(Tax * 0.06);
+			// ^ 	else return Round(Tax * 0.2);
+			// ^ }
+			
+			// ~ 2025/02/11: 25920 => 39285 = (勞健保費率最低薪資:28590 - 伙食津貼:2400)*1.5 (要拉出來)
+			// ~ 2025/02/11: 20% => 18% (要拉出來)
+			// ~ if (differenceInDays > 183) return Round(Tax * 0.06);
+			// ~ else {
+			// ~ 	if (Tax < 39285) return Round(Tax * 0.06);
+			// ~ 	else return Round(Tax * 0.18);
+			// ~ }
+			
+			// & 2025/02/11: 新增Table: 薪資所得稅設定
+			if (differenceInDays > income_tax_setting.entry_date_threshold) return Round(Tax * income_tax_setting.tax_ratio_1 * 0.01);
 			else {
-				if (Tax < 25920) return Round(Tax * 0.06);
-				else return Round(Tax * 0.2);
+				if (Tax < (insurance_rate_setting.min_wage - income_tax_setting.deduction)*income_tax_setting.multiplier) return Round(Tax * income_tax_setting.tax_ratio_1 * 0.01);
+				else return Round(Tax * income_tax_setting.tax_ratio_2 * 0.01);
 			}
+			
+
 		}
 
 		if (kind2 === LEAVE_MAN) return 0;
@@ -785,8 +815,8 @@ export class CalculateService {
 		return 0;
 	}
 	//MARK: 獎金所得稅
-	async getBonusTax(): Promise<number> {
-		const bonus_tax = -1;
+	async getBonusTax(): Promise<number> {		// ! 還沒寫
+		const bonus_tax = 0;
 		return bonus_tax;
 	}
 	//MARK: 不休假代金
@@ -1054,8 +1084,11 @@ export class CalculateService {
 		other_addition: number,
 		retirement_income: number,
 		expense_list: Expense[],
-		expense_class_list: ExpenseClass[]
+		// ^ 20250204 Kevin 和 Jerry 說 expence 要看 H_UR_ALLOWANCE_TYPE_V，不然健保補助會變成停車費
+		// expense_class_list: ExpenseClass[]		// ! 原本用的不是給我們看的view
+		allowance_type_list: AllowanceType[]			
 	): Promise<number> {
+
 		// rd("非課稅小計") = rd("伙食津貼") + 
 		// 					 rd("平日加班費") + 
 		//                   rd("假日加班費") + 
@@ -1065,31 +1098,25 @@ export class CalculateService {
 		//                   rd("退職所得") + 
 		//                   rd("勞保減免") + 
 		//                   rd("健保補助") 
-		// 'hm 111/0427const ehrService = container.resolve(EHRService);
-		const l_i_subsidy_id = expense_class_list.find(
-			(ec) => ec.name === "勞保殘障減免"
+		// 'hm 111/0427const
+
+		
+		const l_i_subsidy_id = allowance_type_list.find(
+			(ec) => ec.name === STR_L_I_SUBSIDY
 		)?.id!;
-		const h_i_subsidy_id = expense_class_list.find(
-			(ec) => ec.name === "健保補助"
+		const h_i_subsidy_id = allowance_type_list.find(
+			(ec) => ec.name === STR_H_I_SUBSIDY
 		)?.id!;
 		const expenseList = expense_list.filter((e) => e.kind === 1);
 		let l_i_subsidy = 0;
 		let h_i_subsidy = 0;
-		// ! Pony: Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		const parking_subsidy_id = expense_class_list.find(
-			(ec) => ec.name === "停車費"
-		)?.id!;
-		let other_subsidy = 0;
-		// ! End !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 		for (const expense of expenseList) {
 			if (expense.id === l_i_subsidy_id) {
 				l_i_subsidy += expense.amount ?? 0;
 			}
 			else if (expense.id === h_i_subsidy_id) {
 				h_i_subsidy += expense.amount ?? 0;
-			}
-			else if (expense.id === parking_subsidy_id) {	// ! Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				other_subsidy += expense.amount ?? 0;
 			}
 		}
 		const non_taxable_subtotal =
@@ -1101,8 +1128,7 @@ export class CalculateService {
 			other_addition +
 			retirement_income +
 			l_i_subsidy +
-			h_i_subsidy + 
-			other_subsidy;		// ! Need to be checked !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			h_i_subsidy;
 		return non_taxable_subtotal;
 	}
 	//MARK: 減項小計(要補信託提存)
@@ -1124,7 +1150,10 @@ export class CalculateService {
 		parking_fee: number,
 		brokerage_fee: number,
 		v_2_h_i: number,
-		meal_deduction: number
+		meal_deduction: number,
+
+		// ! Add 員工信託提存金 (Need to be checked)
+		emp_trust_reserve: number, 
 	): Promise<number> {
 		// If PayType = Moon_Pay Then
 		// rd("減項小計") = rd("薪資所得稅") + rd("獎金所得稅") + rd("福利金提撥") + rd("勞保扣除額") + rd("健保扣除額") + rd("團保費代扣") + rd("團保費代扣_升等") + _
@@ -1159,7 +1188,8 @@ export class CalculateService {
 				l_r_self +
 				parking_fee +
 				brokerage_fee +
-				v_2_h_i;
+				v_2_h_i +
+				emp_trust_reserve;		// ! 員工信託提存金 (Need to be checked)
 			return deduction_subtotal;
 		} else if (pay_type === PayTypeEnum.Enum.foreign_15_bonus) {
 			//MARK: 不確定加班費等於15日？
@@ -1494,7 +1524,8 @@ export class CalculateService {
 	//MARK: 勞退金提撥
 	async getLaborRetirementContribution(
 		employee_data: EmployeeDataDecType,
-		discounted_employee_payment_dec: EmployeePaymentFEType
+		discounted_employee_payment_dec: EmployeePaymentFEType,
+		payset?: Payset,
 	): Promise<number> {
 		/*
 			rd("勞退金提撥") = ComRetire(
@@ -1508,8 +1539,8 @@ export class CalculateService {
 		const money = discounted_employee_payment_dec.l_r; //rd("勞退");
 		const kind1 = employee_data.work_type;
 		const kind2 = employee_data.work_status;
-		const Normalday = 30; //rd("工作天數");
-		const PartTimeDay = 30; //rd("勞保天數");
+		const Normalday = payset ? (payset.work_day ?? 30) : 30; //rd("工作天數");
+		const PartTimeDay = payset ? (payset.li_day ?? 30) : 30; //rd("勞保天數");
 
 		if (kind1 === FOREIGN) return 0;
 		if (kind2 === BOSS) return 0;

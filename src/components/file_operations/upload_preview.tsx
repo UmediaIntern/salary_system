@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
 import { isDateType } from "~/lib/utils/check_type";
 import { formatDate } from "~/lib/utils/format_date";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 interface UploadPreviewProps {
 	data: any[][];
@@ -22,8 +23,9 @@ export function UploadPreview({ data, onClick }: UploadPreviewProps) {
 
 	return (
 		<div className="flex h-full w-full flex-col">
-				<div className="overflow-x-auto overflow-y-auto border border-gray-300">
-					<Table className="w-full table-auto">
+				<div className="flex w-full">
+					<ScrollArea className="max-h-[55vh]">
+					<Table className="">
 						<TableHeader>
 							<TableRow>
 								{(data?.[0] ?? []).map(
@@ -31,7 +33,7 @@ export function UploadPreview({ data, onClick }: UploadPreviewProps) {
 										if (index == 0) return <></>;
 										else
 											return (
-												<TableHead key={index}>
+												<TableHead key={index} className="text-center min-w-[100px]">
 													{header}
 												</TableHead>
 											);
@@ -52,6 +54,7 @@ export function UploadPreview({ data, onClick }: UploadPreviewProps) {
 													return (
 														<TableCell
 															key={cellIndex}
+															className="text-center"
 														>
 															{isDateType(cell)
 																? formatDate(
@@ -67,7 +70,9 @@ export function UploadPreview({ data, onClick }: UploadPreviewProps) {
 								))}
 						</TableBody>
 					</Table>
-			</div>
+					<ScrollBar orientation="horizontal" hidden={true} />
+					</ScrollArea>
+				</div>
 
 			<div className="mt-4 flex justify-end">
 				<Button className="ml-auto" onClick={onClick}>

@@ -7,6 +7,7 @@ import { levelRangeSchema } from "./configurations/level_range_schema";
 import { trustMoneySchema } from "./configurations/trust_money_schema";
 
 import { salaryIncomeTaxSchema } from "./configurations/salary_income_tax_schema";
+import { incomeTaxSchema } from "./configurations/income_tax_schema";
 
 export function getSchema(table: TableEnum) {
 	switch (table) {
@@ -27,6 +28,8 @@ export function getSchema(table: TableEnum) {
 			return trustMoneySchema;
 		case "TableSalaryIncomeTax":
 			return salaryIncomeTaxSchema;
+		case "TableIncomeTaxSetting":
+			return incomeTaxSchema;
 		default:
 			throw Error("Table not found");
 	}

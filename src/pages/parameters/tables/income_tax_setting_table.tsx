@@ -8,18 +8,20 @@ import { c_EndDateStr, c_StartDateStr } from "../constant";
 import { LoadingSpinner } from "~/components/loading";
 import { formatDate } from "~/lib/utils/format_date";
 import { type TableComponentProps } from "../tables_view";
-import { EmptyTable } from "./empty_table";
+// import { EmptyTable } from "./empty_table";
 import { useTranslation } from "react-i18next";
-import { type InsuranceRateSettingFEType } from "~/server/api/types/insurance_rate_setting_type";
 import { type TFunction } from "i18next";
 import { useContext, useEffect } from "react";
 import dataTableContext from "../components/context/data_table_context";
 import { Sheet } from "~/components/ui/sheet";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
-import { insuranceSchema } from "../schemas/configurations/insurance_schema";
+import { incomeTaxSchema } from "../Schemas/configurations/income_tax_schema";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
+import { IncomeTaxSettingFEType } from "~/server/api/types/income_tax_setting_type";
+
+const formula = "If (發薪日 - 入境日期) > [外勞入境天數門檻] then\n\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\nElse\n\tIf 薪資所得稅扣繳總額 < (最低基本工資-免稅額)*[最低工資倍率] then \n\t\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\n\tElse\n\t\tTax=薪資扣繳總額*[薪資所得扣繳總額比率2]\n\tEnd_If\nEnd_If";
 
 export type RowItem = {
 	parameters: string;
@@ -29,7 +31,7 @@ type RowItemKey = keyof RowItem;
 
 const columnHelper = createColumnHelper<RowItem>();
 
-export const insurance_rate_columns = ({
+export const income_tax_setting_columns = ({
 	t,
 }: {
 	t: TFunction<[string], undefined>;
@@ -63,8 +65,15 @@ export const insurance_rate_columns = ({
 							);
 						}
 					}
+					if (row.original.parameters.includes("比率") && key === "value") {
+						return (
+							<div className="text-center font-medium" title={formula}>{`${row.original[
+								key as RowItemKey
+							]!.toString()}%`}</div>
+						)
+					}
 					return (
-						<div className="text-center font-medium">{`${row.original[
+						<div className="text-center font-medium" title={formula}>{`${row.original[
 							key as RowItemKey
 						]!.toString()}`}</div>
 					);
@@ -73,50 +82,30 @@ export const insurance_rate_columns = ({
 		),
 	];
 
-export function insuranceRateMapper(
-	insuranceRateData: InsuranceRateSettingFEType[]
+export function incomeTaxSettingMapper(
+	incomeTaxSettingData: IncomeTaxSettingFEType[]
 ): RowItem[] {
-	const data = insuranceRateData[0]!;
+	const data = incomeTaxSettingData[0]!;
 	return [
 		{
-			parameters: "基本(最低)工資",
-			value: data.min_wage,
+			parameters: "外勞入境天數門檻",
+			value: data.entry_date_threshold,
 		},
 		{
-			parameters: "勞保事故費率",
-			value: data.l_i_accident_rate,
+			parameters: "最低工資倍率",
+			value: data.multiplier,
 		},
 		{
-			parameters: "勞保就業保險費率",
-			value: data.l_i_employment_pay_rate,
+			parameters: "免稅額",
+			value: data.deduction,
 		},
 		{
-			parameters: "勞保職業災害費率",
-			value: data.l_i_occupational_injury_rate,
+			parameters: "薪資所得扣繳總額比率1",
+			value: data.tax_ratio_1,
 		},
 		{
-			parameters: "勞保工資墊償基金提繳率",
-			value: data.l_i_wage_replacement_rate,
-		},
-		{
-			parameters: "健保一般費率",
-			value: data.h_i_standard_rate,
-		},
-		{
-			parameters: "健保平均眷口數",
-			value: data.h_i_avg_dependents_count,
-		},
-		{
-			parameters: "二代健保補充保費率",
-			value: data.v2_h_i_supp_pay_rate,
-		},
-		{
-			parameters: "二代健保扣繳門檻單次",
-			value: data.v2_h_i_deduction_tsx_thres,
-		},
-		{
-			parameters: "二代健保補充保費倍數",
-			value: data.v2_h_i_multiplier,
+			parameters: "薪資所得扣繳總額比率2",
+			value: data.tax_ratio_2,
 		},
 		{
 			parameters: c_StartDateStr,
@@ -137,21 +126,23 @@ export function insuranceRateMapper(
 	];
 }
 
-interface InsuranceRateTableProps extends TableComponentProps {
+interface IncomeTaxSettingTableProps extends TableComponentProps {
 	period_id: number;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }
-export function InsuranceRateTable({
+export function IncomeTaxSettingTable({
 	period_id,
 	viewOnly,
-}: InsuranceRateTableProps) {
+}: IncomeTaxSettingTableProps) {
+
+
 	const { t } = useTranslation(["common"]);
 	const { selectedTab, open, setOpen, mode, setData } =
 		useContext(dataTableContext);
 
 	const { isLoading, isError, data, error } =
-		api.parameters.getCurrentInsuranceRateSetting.useQuery({ period_id });
+		api.incomeTaxSetting.getCurrentIncomeTaxSetting.useQuery({ period_id });
 	const filterKey: RowItemKey = "parameters";
 
 	useEffect(() => {
@@ -173,7 +164,7 @@ export function InsuranceRateTable({
 		// const err_msg = error.message;
 		// const emptyError = true;
 		// return emptyError ? (
-		// 	<EmptyTable err_msg={err_msg} selectedTableType="TableInsurance" />
+		// 	<EmptyTable err_msg={err_msg} selectedTableType="TableIncomeTaxSetting" />
 		// ) : (
 		// 	<></>
 		// );
@@ -183,18 +174,18 @@ export function InsuranceRateTable({
 		<>
 			{!viewOnly ? (
 				<ParameterToolbarFunctionsProvider
-					selectedTableType={"TableInsurance"}
+					selectedTableType={"TableIncomeTaxSetting"}
 					period_id={period_id}
 				>
 					<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
 						<DataTableWithFunctions
-							columns={insurance_rate_columns({ t })}
-							data={data ? insuranceRateMapper([data]) : []}
+							columns={income_tax_setting_columns({ t })}
+							data={data ? incomeTaxSettingMapper([data]) : []}
 							filterColumnKey={filterKey}
 						/>
 						<FunctionsSheetContent t={t} period_id={period_id}>
 							<ParameterForm
-								formSchema={insuranceSchema}
+								formSchema={incomeTaxSchema}
 								formConfig={[{ key: "id", config: { hidden: true } }]}
 								mode={mode}
 								closeSheet={() => {
@@ -203,12 +194,12 @@ export function InsuranceRateTable({
 							/>
 						</FunctionsSheetContent>
 					</Sheet>
-					<ConfirmDialog open={open && mode === "delete"} onOpenChange={setOpen} schema={insuranceSchema} />
+					<ConfirmDialog open={open && mode === "delete"} onOpenChange={setOpen} schema={incomeTaxSchema} />
 				</ParameterToolbarFunctionsProvider>
 			) : (
 				<DataTableWithoutFunctions
-					columns={insurance_rate_columns({ t })}
-					data={insuranceRateMapper([data!])}
+					columns={income_tax_setting_columns({ t })}
+					data={incomeTaxSettingMapper([data!])}
 					filterColumnKey={filterKey}
 				/>
 			)}

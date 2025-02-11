@@ -175,8 +175,8 @@ export function EmployeePaymentFunctions() {
 				open={openCalculate && mode === "excel_upload"}
 				onOpenChange={setOpenCalculate}
 			>
-				<DialogContent className="max-w-[80vw] max-h-[80vh] p-8">
-					<ExcelUpload />
+				<DialogContent className="max-w-[80vw] max-h-[80vh] p-8 flex">
+					<ExcelUpload/>
 				</DialogContent>
 			</Dialog>
 		</>

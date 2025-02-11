@@ -25,6 +25,7 @@ import { batchCreateSalaryIncomeTax } from "./entity/SALARY/salary_income_tax";
 import { initUser } from "./entity/SALARY/user";
 import { initEmployeeBonus } from "./entity/SALARY/employee_bonus";
 import { initBonusAll } from "./entity/SALARY/bonus_all";
+import { initIncomeTaxSetting } from "./entity/SALARY/income_tax_setting";
 // import { initEmployeeDataMut } from "./entity/SALARY/employee_data_mut";
 
 const sequelize = container.resolve(Database).connection;
@@ -56,3 +57,5 @@ initTransaction(sequelize);
 initTrustMoney(sequelize);
 initUser(sequelize);
 // initEmployeeDataMut(sequelize);
+
+initIncomeTaxSetting(sequelize);
