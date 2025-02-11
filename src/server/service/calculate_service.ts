@@ -27,6 +27,7 @@ import { EmployeePaymentFEType } from "../api/types/employee_payment_type";
 import { Bonus } from "../database/entity/UMEDIA/bonus";
 import { BonusType } from "../database/entity/UMEDIA/bonus_type";
 import { SalaryIncomeTaxDecType } from "../database/entity/SALARY/salary_income_tax";
+import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
 
 const FOREIGN = "外籍勞工";
 const PROFESSOR = "顧問";
@@ -734,9 +735,11 @@ export class CalculateService {
 		employee_data: EmployeeDataDecType,
 		issue_date: string,
 		salary_income_tax_list: SalaryIncomeTaxDecType[],
-		salary_income_deduction: number
+		salary_income_deduction: number,
+		insurance_rate_setting: InsuranceRateSettingDecType,
+		income_tax_setting: IncomeTaxSetting
 	): Promise<number> {
-		/*
+		/* #region
 					rd("薪資所得稅") = FindTex(
 						rd("薪資所得扣繳總額"),
 						rd("扶養人數"), 
@@ -745,7 +748,8 @@ export class CalculateService {
 						rd("入境日期"), 
 						rd("工作天數")
 					)
-		*/
+		# endregion */ 
+
 		const Tax = salary_income_deduction;
 		const Num = employee_data.dependents;
 		const kind1 = employee_data.work_type;
@@ -755,7 +759,7 @@ export class CalculateService {
 		const Day = rd("工作天數");			// no use in prev salary system code
 		*/
 
-		const START_WORK_DAY = new Date(employee_data.registration_date);
+		const START_WORK_DAY = new Date(employee_data.registration_date);		// ! 要改入境日
 		const PAY_DATE = new Date(issue_date);
 
 		const differenceInMilliseconds =
@@ -767,11 +771,33 @@ export class CalculateService {
 		// Jerry 07/01/31 主要區別外籍勞工 同時也是當月離職人員的算法會與間接人員計計算邏輯衝突,因此以工作類別區分外籍勞工
 		if (kind1 === FOREIGN || kind2 === FOREIGN) {
 			// Jerry 07/09/21  15840 ==> 17280   09/4/28 17280 ==> 25920
-			if (differenceInDays > 183) return Round(Tax * 0.06);
+
+			// ! 183, 1.5, 6%, 18% 要拉出去
+
+			
+			// ^ 原本access程式邏輯
+			// ^ if (differenceInDays > 183) return Round(Tax * 0.06);
+			// ^ else {
+			// ^ 	if (Tax < 25920) return Round(Tax * 0.06);
+			// ^ 	else return Round(Tax * 0.2);
+			// ^ }
+			
+			// ~ 2025/02/11: 25920 => 39285 = (勞健保費率最低薪資:28590 - 伙食津貼:2400)*1.5 (要拉出來)
+			// ~ 2025/02/11: 20% => 18% (要拉出來)
+			// ~ if (differenceInDays > 183) return Round(Tax * 0.06);
+			// ~ else {
+			// ~ 	if (Tax < 39285) return Round(Tax * 0.06);
+			// ~ 	else return Round(Tax * 0.18);
+			// ~ }
+			
+			// & 2025/02/11: 新增Table: 薪資所得稅設定
+			if (differenceInDays > income_tax_setting.entry_date_threshold) return Round(Tax * income_tax_setting.tax_ratio_1);
 			else {
-				if (Tax < 25920) return Round(Tax * 0.06);
-				else return Round(Tax * 0.2);
+				if (Tax < (insurance_rate_setting.min_wage - income_tax_setting.deduction)) return Round(Tax * income_tax_setting.tax_ratio_1);
+				else return Round(Tax * income_tax_setting.tax_ratio_2);
 			}
+			
+
 		}
 
 		if (kind2 === LEAVE_MAN) return 0;

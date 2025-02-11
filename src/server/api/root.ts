@@ -11,6 +11,7 @@ import { employeeTrustRouter } from "./routers/employee_trust";
 import { calculateRouter } from "./routers/calculate";
 import { transactionRouter } from "./routers/transaction";
 import { bonusRouter } from "./routers/bonus";
+import { incomeTaxSettingRouter } from "./routers/income_tax_setting";
 
 /**
  * This is the primary router for your server.
@@ -30,6 +31,8 @@ export const appRouter = createTRPCRouter({
 	sync: syncRouter,
 	calculate: calculateRouter,
 	transaction: transactionRouter,
+
+	incomeTaxSetting: incomeTaxSettingRouter,
 });
 
 // export type definition of API

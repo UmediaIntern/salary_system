@@ -31,6 +31,9 @@ import { BonusMapper } from "~/server/database/mapper/bonus_mapper";
 import { OtherMapper } from "../database/mapper/other_mapper";
 import { OtherFEType } from "../api/types/other_type";
 import { convert_employee_payment, convert_employee_trust } from "~/pages/test/test_function";
+import { IncomeTaxSettingFEType } from "../api/types/income_tax_setting_type";
+import { IncomeTaxSettingService } from "./income_tax_setting_service";
+import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
 
 
 type CommonParametersType = {
@@ -49,6 +52,7 @@ type CommonParametersType = {
 	expense_list: Expense[],
 	expense_class_list: ExpenseClass[],
 	salary_income_tax_list: SalaryIncomeTaxDecType[],
+	income_tax_setting: IncomeTaxSetting,
 }
 
 @injectable()
@@ -63,6 +67,7 @@ export class TransactionService {
 		private readonly salaryIncomeTaxService: SalaryIncomeTaxService,
 		private readonly holidaysTypeService: HolidaysTypeService,
 		private readonly calculateService: CalculateService,
+		private readonly incomeTaxSettingService: IncomeTaxSettingService,
 	) { }
 
 	async getCommonParameters(
@@ -80,11 +85,11 @@ export class TransactionService {
 		let real_employee_payment_list = await this.employeePaymentService.getCurrentEmployeePayment(period_id);
 		const employee_payment_list = convert_employee_payment(real_employee_payment_list);
 		// ^ End Pony's Test
-		// const employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
-		// & Pony's Test
-		const real_employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
-		const employee_trust_list = convert_employee_trust(real_employee_trust_list);
-		// & End Pony's Test
+		const employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
+		// // & Pony's Test
+		// const real_employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
+		// const employee_trust_list = convert_employee_trust(real_employee_trust_list);
+		// // & End Pony's Test
 		const overtime_list = await this.ehrService.getOvertime(period_id, pay_type);
 		const insurance_rate_setting = await this.insuranceRateSettingService.getCurrentInsuranceRateSetting(period_id);
 		const holiday_list = await this.ehrService.getHoliday(period_id);
@@ -94,6 +99,9 @@ export class TransactionService {
 		const expense_list = await this.ehrService.getExpense(period_id);		
 		const expense_class_list = await this.ehrService.getExpenseClass();
 		const salary_income_tax_list = await this.salaryIncomeTaxService.getCurrentSalaryIncomeTax(period_id);
+
+		// & Income Tax Setting table (in parameters)
+		const income_tax_setting = await this.incomeTaxSettingService.getCurrentIncomeTaxSetting(period_id);
 
 		const commonParameters: CommonParametersType = {
 			allowance_list: allowance_list,
@@ -111,6 +119,8 @@ export class TransactionService {
 			expense_list: expense_list,
 			expense_class_list: expense_class_list,
 			salary_income_tax_list: salary_income_tax_list,
+
+			income_tax_setting: income_tax_setting!,
 		};
 
 		return commonParameters;
@@ -139,13 +149,10 @@ export class TransactionService {
 		const bonus_list = commonParameters.bonus_list.filter(b => b.emp_no === emp_no);
 		const bonus_type_list = commonParameters.bonus_type_list;
 		const expense_list = commonParameters.expense_list.filter(e => e.emp_no === emp_no);
-		// // & Pony's test
-		// console.log("\n\n\n\n\n\n");
-		// console.log("expense_list:", expense_list);
-		// console.log("\n\n\n\n\n\n");
-		// // & Pony's test
 		const expense_class_list = commonParameters.expense_class_list;
 		const salary_income_tax_list = commonParameters.salary_income_tax_list;
+
+		const income_tax_setting = commonParameters.income_tax_setting;
 
 		const has_trust = employee_trust ? true : false;
 		const discounted_employee_payment = await this.calculateService.discountedPayment(employee_payment!, payset);
@@ -245,7 +252,7 @@ export class TransactionService {
 		const other_addition = await this.calculateService.getOtherAddition(expense_list, allowance_type_list);
 		const meal_deduction = await this.calculateService.getMealDeduction(expense_list, expense_class_list);
 		const taxable_income = await this.calculateService.getTaxableIncome(discounted_employee_payment!, exceed_overtime_pay, professional_cert_allowance);
-		const income_tax = await this.calculateService.getSalaryIncomeTax(employee_data!, issue_date, salary_income_tax_list, salary_income_deduction);
+		const income_tax = await this.calculateService.getSalaryIncomeTax(employee_data!, issue_date, salary_income_tax_list, salary_income_deduction, insurance_rate_setting, income_tax_setting);
 		const bonus_tax = await this.calculateService.getBonusTax();
 		const occupational_allowance = discounted_employee_payment!.occupational_allowance;
 		const non_leave_compensation = await this.calculateService.getNonLeaveCompensation(holiday_list!, holidays_type_list, gross_salary, insurance_rate_setting!, employee_data!);
@@ -253,7 +260,7 @@ export class TransactionService {
 		const taxable_subtotal = await this.calculateService.getTaxableSubtotal(pay_type, discounted_employee_payment!, operational_performance_bonus, reissue_salary, exceed_overtime_pay, other_addition_tax, full_attendance_bonus, end_of_year_bonus, professional_cert_allowance, shift_allowance);
 		const retirement_income = await this.calculateService.getRetirementIncome(expense_list, expense_class_list);
 		const non_taxable_subtotal = await this.calculateService.getNonTaxableSubtotal(discounted_employee_payment!, weekday_overtime_pay, rest_overtime_pay, non_leave_compensation, other_addition, retirement_income, expense_list, allowance_type_list);
-		const salary_income_tax = await this.calculateService.getSalaryIncomeTax(employee_data!, issue_date, salary_income_tax_list, salary_income_deduction);
+		const salary_income_tax = await this.calculateService.getSalaryIncomeTax(employee_data!, issue_date, salary_income_tax_list, salary_income_deduction, insurance_rate_setting, income_tax_setting);
 		const l_i_pay = await this.calculateService.getLaborInsurancePay(discounted_employee_payment!, employee_data!, insurance_rate_setting!, payset, received_elderly_benefits, pay_type);
 		const salary_advance = await this.calculateService.getSalaryAdvance(pay_type, payset, discounted_employee_payment!, insurance_rate_setting!, employee_data!);
 		const h_i_pay = await this.calculateService.getHealthInsurancePay(discounted_employee_payment!, employee_data!, insurance_rate_setting!);

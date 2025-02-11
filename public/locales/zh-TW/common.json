@@ -336,7 +336,8 @@
     "other": "其他",
     "payset": "工作天數",
     "salaryIncomeTax": "薪資所得稅",
-    "bonusPositionAndPositionType": "獎金職等與職級"
+    "bonusPositionAndPositionType": "獎金職等與職級",
+    "incomeTaxSetting": "薪資所得稅設定"
   },
   "button": {
     "next_step": "下一步",

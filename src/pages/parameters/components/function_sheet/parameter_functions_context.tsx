@@ -272,6 +272,34 @@ export default function ParameterToolbarFunctionsProvider({
 		});
 	//#endregion
 
+	// #region <IncomeTaxSetting>
+	const getCurrentIncomeTaxSetting = () => api.incomeTaxSetting.getCurrentIncomeTaxSetting.useQuery({ period_id });
+	// const getFutureIncomeTaxSetting = () => api.parameters.getAllFutureIncomeTaxSetting.useQuery();
+	const createIncomeTaxSetting =
+		api.incomeTaxSetting.createIncomeTaxSetting.useMutation({
+			onSuccess: () => {
+				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
+				// ctx.parameters.getAllIncomeTaxSetting.invalidate();
+				// ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
+			},
+		});
+	const updateIncomeTaxSetting =
+		api.incomeTaxSetting.updateIncomeTaxSetting.useMutation({
+			onSuccess: () => {
+				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
+				// ctx.parameters.getAllIncomeTaxSetting.invalidate();
+				// ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
+			},
+		});
+	const deleteIncomeTaxSetting =
+		api.incomeTaxSetting.deleteIncomeTaxSetting.useMutation({
+			onSuccess: () => {
+				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
+				// ctx.parameters.getAllIncomeTaxSetting.invalidate();
+				// ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
+			},
+		});
+
 	const functionsDictionary: Record<ParameterTableEnum, FunctionsApi> = {
 		TableAttendance: {
 			queryCurrentFunction: getCurrentAttendanceSetting,
@@ -328,6 +356,14 @@ export default function ParameterToolbarFunctionsProvider({
 			createFunction: createSalaryIncomeTax,
 			deleteFunction: deleteSalaryIncomeTax,
 			batchCreateFunction: batchCreateSalaryIncomeTax,
+		},
+		TableIncomeTaxSetting: {
+			queryCurrentFunction: getCurrentIncomeTaxSetting,
+			queryFutureFunction: undefined,
+			updateFunction: updateIncomeTaxSetting,
+			createFunction: createIncomeTaxSetting,
+			deleteFunction: deleteIncomeTaxSetting,
+			batchCreateFunction: undefined,
 		}
 	};
 

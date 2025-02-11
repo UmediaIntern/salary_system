@@ -31,6 +31,7 @@ import { LevelTable } from "./tables/level_table";
 import { useTranslation } from "react-i18next";
 import { TrustMoneyTable } from "./tables/trust_money_table";
 import { SalaryIncomeTaxTable } from "./tables/salary_income_tax_table";
+import { IncomeTaxSettingTable } from "./tables/income_tax_setting_table";
 
 export type TableComponentProps = {
 	period_id: number;
@@ -79,6 +80,11 @@ function getTableComponent(
 		case "TableSalaryIncomeTax":
 			return {
 				component: SalaryIncomeTaxTable,
+				icon: Table,
+			}
+		case "TableIncomeTaxSetting":
+			return {
+				component: IncomeTaxSettingTable,
 				icon: Table,
 			}
 		default:
