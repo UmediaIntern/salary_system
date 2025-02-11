@@ -791,10 +791,10 @@ export class CalculateService {
 			// ~ }
 			
 			// & 2025/02/11: 新增Table: 薪資所得稅設定
-			if (differenceInDays > income_tax_setting.entry_date_threshold) return Round(Tax * income_tax_setting.tax_ratio_1);
+			if (differenceInDays > income_tax_setting.entry_date_threshold) return Round(Tax * income_tax_setting.tax_ratio_1 * 0.01);
 			else {
-				if (Tax < (insurance_rate_setting.min_wage - income_tax_setting.deduction)) return Round(Tax * income_tax_setting.tax_ratio_1);
-				else return Round(Tax * income_tax_setting.tax_ratio_2);
+				if (Tax < (insurance_rate_setting.min_wage - income_tax_setting.deduction)*income_tax_setting.multiplier) return Round(Tax * income_tax_setting.tax_ratio_1 * 0.01);
+				else return Round(Tax * income_tax_setting.tax_ratio_2 * 0.01);
 			}
 			
 

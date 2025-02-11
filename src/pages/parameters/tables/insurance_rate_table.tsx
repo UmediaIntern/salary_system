@@ -79,7 +79,7 @@ export function insuranceRateMapper(
 	const data = insuranceRateData[0]!;
 	return [
 		{
-			parameters: "最低薪資",
+			parameters: "基本(最低)工資",
 			value: data.min_wage,
 		},
 		{

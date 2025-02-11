@@ -21,7 +21,7 @@ import ParameterToolbarFunctionsProvider from "../components/function_sheet/para
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import { IncomeTaxSettingFEType } from "~/server/api/types/income_tax_setting_type";
 
-const formula = "If 天數 > [外勞入境天數門檻] then\n\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\nElse\n\tIf 薪資所得稅扣繳總額 < (最低基本工資-扣款)*[倍率] then \n\t\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\n\tElse\n\t\tTax=薪資扣繳總額*[薪資所得扣繳總額比率2]\n\tEnd_If\nEnd_If";
+const formula = "If (發薪日 - 入境日期) > [外勞入境天數門檻] then\n\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\nElse\n\tIf 薪資所得稅扣繳總額 < (最低基本工資-免稅額)*[最低工資倍率] then \n\t\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\n\tElse\n\t\tTax=薪資扣繳總額*[薪資所得扣繳總額比率2]\n\tEnd_If\nEnd_If";
 
 export type RowItem = {
 	parameters: string;
@@ -92,11 +92,11 @@ export function incomeTaxSettingMapper(
 			value: data.entry_date_threshold,
 		},
 		{
-			parameters: "倍率",
+			parameters: "最低工資倍率",
 			value: data.multiplier,
 		},
 		{
-			parameters: "扣款",
+			parameters: "免稅額",
 			value: data.deduction,
 		},
 		{
