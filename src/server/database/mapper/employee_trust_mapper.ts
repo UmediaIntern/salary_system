@@ -7,7 +7,6 @@ import {
 	employeeTrustFE,
 } from "~/server/api/types/employee_trust_type";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
-import { deleteProperties } from "./helper_function";
 import { CryptoHelper } from "~/lib/utils/crypto";
 import { TrustMoneyService } from "~/server/service/trust_money_service";
 import { EmployeeTrustService } from "~/server/service/employee_trust_service";

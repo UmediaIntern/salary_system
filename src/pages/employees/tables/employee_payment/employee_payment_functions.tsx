@@ -1,7 +1,6 @@
 import { FunctionMenu } from "~/components/table_functions/function_menu/function_menu";
 import { usePaymentFunctionContext } from "./employee_payment_provider";
 import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
-import { api } from "~/utils/api";
 import { employeePaymentSchema } from "../../schemas/configurations/employee_payment_schema";
 import { z } from "zod";
 import { ConfirmDialog } from "~/components/table_functions/confirm_dialog";
@@ -13,6 +12,9 @@ import {
 import { zodOptionalDate } from "~/lib/utils/zod_types";
 import { DateDialog } from "../../components/function_sheet/date_dialog";
 import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_base_salary_dialog";
+import { Dialog } from "~/components/ui/dialog";
+import { ExcelDownload } from "../../components/excel_download/excel_download";
+import { api } from "~/utils/api";
 
 export function EmployeePaymentFunctionMenu() {
 	const { setMode, setOpenCalculate } = usePaymentFunctionContext();
@@ -20,7 +22,10 @@ export function EmployeePaymentFunctionMenu() {
 	return (
 		<FunctionMenu>
 			<FunctionMenuOption.ExcelDownload
-				onClick={() => setMode("excel_download")}
+				onClick={() => {
+					setMode("excel_download");
+					setOpenCalculate(true);
+				}}
 			/>
 			<FunctionMenuOption.ExcelUpload
 				onClick={() => setMode("excel_upload")}
@@ -48,7 +53,6 @@ export function EmployeePaymentFunctions() {
 	const { data, open, setOpen, mode, openCalculate, setOpenCalculate } =
 		usePaymentFunctionContext();
 
-	// TODO: move
 	const ctx = api.useUtils();
 	const updateEmployeePayment =
 		api.employeePayment.updateEmployeePayment.useMutation({
@@ -127,7 +131,7 @@ export function EmployeePaymentFunctions() {
 					<StandardForm {...updateForm} />
 				)}
 			</TableFunctionSheet>
-      {/* Auto calculate */}
+			{/* Auto calculate */}
 			<DateDialog
 				open={openCalculate && mode === "auto_calculate"}
 				setOpen={setOpenCalculate}
@@ -137,11 +141,18 @@ export function EmployeePaymentFunctions() {
 					});
 				}}
 			/>
-      {/* Adjust base salary */}
-      <AdjustBaseSalaryDialog
-        open={openCalculate && mode === "adjust_base_salary"}
-        setOpen={setOpenCalculate}
-      />
+			{/* Adjust base salary */}
+			<AdjustBaseSalaryDialog
+				open={openCalculate && mode === "adjust_base_salary"}
+				setOpen={setOpenCalculate}
+			/>
+			{/* Download excel */}
+			<Dialog
+				open={openCalculate && mode === "excel_download"}
+				onOpenChange={setOpenCalculate}
+			>
+				<ExcelDownload />
+			</Dialog>
 		</>
 	);
 }

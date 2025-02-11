@@ -1,58 +1,13 @@
 import { UploadIcon } from "@radix-ui/react-icons";
 import { useCallback } from "react";
-
 import { toast } from "sonner";
-
 import Dropzone, {
 	type DropzoneProps,
 	type FileRejection,
 } from "react-dropzone";
-
 import { cn } from "~/lib/utils";
 
 import ExcelJS from "exceljs";
-
-function transposeData(data: any[][]): any[][] {
-	const tranposed_data = (data[0]??[]).map((_, colIndex) => data.map(row => row[colIndex]));
-	return tranposed_data.map((row) => row.slice(1));
-}
-
-export function formatBytes(
-	bytes: number,
-	opts: {
-		decimals?: number;
-		sizeType?: "accurate" | "normal";
-	} = {}
-) {
-	const { decimals = 0, sizeType = "normal" } = opts;
-
-	const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-	const accurateSizes = ["Bytes", "KiB", "MiB", "GiB", "TiB"];
-	if (bytes === 0) return "0 Byte";
-	const i = Math.floor(Math.log(bytes) / Math.log(1024));
-	return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${
-		sizeType === "accurate"
-			? accurateSizes[i] ?? "Bytest"
-			: sizes[i] ?? "Bytes"
-	}`;
-}
-
-export function composeEventHandlers<E>(
-	originalEventHandler?: (event: E) => void,
-	ourEventHandler?: (event: E) => void,
-	{ checkForDefaultPrevented = true } = {}
-) {
-	return function handleEvent(event: E) {
-		originalEventHandler?.(event);
-
-		if (
-			checkForDefaultPrevented === false ||
-			!(event as unknown as Event).defaultPrevented
-		) {
-			return ourEventHandler?.(event);
-		}
-	};
-}
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
 	/**
@@ -139,12 +94,42 @@ interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
 	setData: (data: any[][]) => void;
 }
 
+const extract_data = async (file: File) => {
+	if (!file) return;
+	try {
+		// Read the file as ArrayBuffer
+		const arrayBuffer = await file.arrayBuffer();
+
+		// Create a new workbook
+		const workbook = new ExcelJS.Workbook();
+		await workbook.xlsx.load(arrayBuffer);
+
+		// Access the first sheet
+		const sheet = workbook.worksheets[0];
+		const rows: any[][] = [];
+
+		// Extract data from the sheet
+		sheet!.eachRow({ includeEmpty: true }, (row) => {
+      let rowValues: any[];
+			if (Array.isArray(row.values)) {
+				rowValues = row.values;
+			} else {
+				rowValues = Object.values(row.values);
+			}
+			rows.push(rowValues);
+		});
+
+		// TODO: data mapping
+
+		// Update state with the extracted data
+		// setData(rows);
+	} catch (error) {
+		console.error("Error processing file");
+	}
+};
+
 export function FileUploader(props: FileUploaderProps) {
 	const {
-		value: valueProp,
-		onValueChange,
-		onUpload,
-		progresses,
 		accept = {
 			"text/csv": [".csv"],
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
@@ -154,55 +139,13 @@ export function FileUploader(props: FileUploaderProps) {
 		maxFileCount = 1,
 		multiple = false,
 		disabled = false,
-		files,
 		setFiles,
-		data,
-		setData,
 		className,
 		...dropzoneProps
 	} = props;
 
-	const ExtractData = async (file: File) => {
-		if (!file) return;
-		try {
-			// Read the file as ArrayBuffer
-			const arrayBuffer = await file.arrayBuffer();
-
-			// Create a new workbook
-			const workbook = new ExcelJS.Workbook();
-			await workbook.xlsx.load(arrayBuffer);
-
-			// Access the first sheet
-			const sheet = workbook.worksheets[0];
-			const rows: any[][] = [];
-
-			// Extract data from the sheet
-			sheet!.eachRow({ includeEmpty: true }, (row: any) => {
-				rows.push(row.values);
-			});
-
-			const newRows = rows.slice(1).map((row, index) => {
-				row = row.slice(2);
-				return {
-					salary_start: row[0],
-					salary_end: row[1],
-					dependent: row[2],
-					tax_amount: row[3],
-				};
-			});
-
-			// call api if needed
-			// createAPI.mutate(newRows)
-
-			// Update state with the extracted data
-			setData(rows);
-		} catch (error) {
-			console.error("Error processing file");
-		}
-	};
-
 	const onDrop = useCallback(
-		(acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+		(acceptedFiles: File[], _: FileRejection[]) => {
 			if (!multiple && maxFileCount === 1 && acceptedFiles.length > 1) {
 				toast.error("Cannot upload more than 1 file at a time");
 				return;
@@ -211,10 +154,12 @@ export function FileUploader(props: FileUploaderProps) {
 			setFiles(acceptedFiles);
 
 			acceptedFiles.forEach((file) => {
-				ExtractData(file);
+				extract_data(file).catch((error) => {
+					console.error("Error processing file", error);
+				});
 			});
 		},
-		[]
+		[multiple, maxFileCount, setFiles]
 	);
 
 	function FileDropZone() {
@@ -266,20 +211,6 @@ export function FileUploader(props: FileUploaderProps) {
 											Drag & drop files here, or click to
 											select files
 										</p>
-										{/* <p className="text-sm text-muted-foreground/70">
-											You can upload
-											{maxFileCount > 1
-												? ` ${
-														maxFileCount ===
-														Infinity
-															? "multiple"
-															: maxFileCount
-												  }
-						files (up to ${formatBytes(maxSize)} each)`
-												: ` a file with ${formatBytes(
-														maxSize
-												  )}`}
-										</p> */}
 									</div>
 								</div>
 							)}

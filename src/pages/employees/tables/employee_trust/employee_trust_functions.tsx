@@ -5,12 +5,12 @@ import { ConfirmDialog } from "~/components/table_functions/confirm_dialog";
 import { employeeTrustSchema } from "../../schemas/configurations/employee_trust_schema";
 import { z } from "zod";
 import { zodOptionalDate } from "~/lib/utils/zod_types";
-import { api } from "~/utils/api";
 import { TableFunctionSheet } from "~/components/table_functions/function_sheet/function_sheet";
 import {
 	buildStandardFormProps,
 	StandardForm,
 } from "~/components/form/default/form_standard";
+import { api } from "~/utils/api";
 
 export function EmployeeTrustFunctionMenu() {
 	const { setMode } = useTrustFunctionContext();
@@ -33,7 +33,6 @@ export function EmployeeTrustFunctionMenu() {
 export function EmployeeTrustFunctions() {
 	const { data, open, setOpen, mode } = useTrustFunctionContext();
 
-	// TODO: move
 	const ctx = api.useUtils();
 	const deleteEmployeeTrust =
 		api.employeeTrust.deleteEmployeeTrust.useMutation({

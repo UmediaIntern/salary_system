@@ -45,10 +45,9 @@ export function FunctionsComponent<TMode, TData extends object>({
 							? "update"
 							: "delete";
 					return (
-						<>
+						<div key={key}>
 							{key == "creatable" && (
 								<FunctionMenuOption.Create
-									key={key}
 									onClick={() => {
 										setMode(mode as TMode);
 										setData(data);
@@ -60,7 +59,6 @@ export function FunctionsComponent<TMode, TData extends object>({
 
 							{key == "updatable" && (
 								<FunctionMenuOption.Update
-									key={key}
 									onClick={() => {
 										setMode(mode as TMode);
 										setData(data);
@@ -72,7 +70,6 @@ export function FunctionsComponent<TMode, TData extends object>({
 
 							{key == "deletable" && (
 								<FunctionMenuOption.Delete
-									key={key}
 									onClick={() => {
 										setMode(mode as TMode);
 										setData(data);
@@ -81,7 +78,7 @@ export function FunctionsComponent<TMode, TData extends object>({
 									disabled={disabled}
 								/>
 							)}
-						</>
+						</div>
 					);
 				})}
 			</DropdownMenuContent>
