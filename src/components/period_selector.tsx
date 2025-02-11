@@ -10,15 +10,15 @@ import {
 	SelectValue,
 } from "./ui/select";
 import periodContext from "./context/period_context";
-import { Input } from "./ui/input";
 import { SessionStorage } from "~/utils/session_storage";
 import { Button } from "./ui/button";
 import { DialogClose } from "./ui/dialog";
 import { type Period } from "~/server/database/entity/UMEDIA/period";
 import { useTranslation } from "react-i18next";
+import { DatePicker } from "./ui/date-picker";
 
 export default function PeriodSelector() {
-	const { t } = useTranslation('common')
+	const { t } = useTranslation("common");
 
 	const getPeriod = api.function.getPeriod.useQuery();
 	const {
@@ -31,8 +31,8 @@ export default function PeriodSelector() {
 	const [tmpPeriod, setTmpPeriod] = useState<Period | null>(
 		selectedPeriod ?? null
 	);
-	const [tmpPayDate, setTmpPayDate] = useState<string | null>(
-		selectedPayDate ?? null
+	const [tmpPayDate, setTmpPayDate] = useState<Date | null>(
+		selectedPayDate ? new Date(selectedPayDate) : null
 	);
 
 	if (getPeriod.isLoading) {
@@ -60,20 +60,33 @@ export default function PeriodSelector() {
 								}}
 							>
 								<SelectTrigger className="w-full">
-									<SelectValue placeholder={t("others.select_period")} />
+									<SelectValue
+										placeholder={t("others.select_period")}
+									/>
 								</SelectTrigger>
 								<SelectContent className="h-[20em]">
 									<SelectGroup>
-										<SelectLabel>{t('others.period')}</SelectLabel>
+										<SelectLabel>
+											{t("others.period")}
+										</SelectLabel>
 										{getPeriod.data!.map((period_info) => {
-											const original_name = period_info.period_name
+											const original_name =
+												period_info.period_name;
 											return (
 												<SelectItem
 													key={original_name}
 													value={original_name}
-													className="hover:bg-gray-100 hover:cursor-pointer"
+													className="hover:cursor-pointer hover:bg-gray-100"
 												>
-													{`20${original_name.split("-")[1]}-${t(`month.${original_name.split("-")[0]!.toLowerCase()}`)}`}
+													{`20${
+														original_name.split(
+															"-"
+														)[1]
+													}-${t(
+														`month.${original_name
+															.split("-")[0]!
+															.toLowerCase()}`
+													)}`}
 												</SelectItem>
 											);
 										})}
@@ -85,17 +98,12 @@ export default function PeriodSelector() {
 					<div className="flex w-full p-2">
 						<div className="flex-1">{t("table.issue_date")}</div>
 						<div className="flex-1">
-							<Input
-								type="Date"
-								defaultValue={selectedPayDate ?? undefined}
-								onChange={(e) => {
-									// setSelectedPayDate(e.target.value);
-									// SessionStorage.setSelectedPayDate(
-									//	e.target.value
-									// );
-									setTmpPayDate(e.target.value);
+							<DatePicker
+								date={tmpPayDate ?? undefined}
+								setDate={(date: Date | undefined) => {
+									setTmpPayDate(date ?? null);
 								}}
-							></Input>
+							/>
 						</div>
 					</div>
 					<DialogClose>
@@ -106,9 +114,9 @@ export default function PeriodSelector() {
 									SessionStorage.setSelectedPeriod(tmpPeriod);
 								}
 								if (tmpPayDate != null) {
-									setSelectedPayDate(tmpPayDate);
+									setSelectedPayDate(tmpPayDate.toString());
 									SessionStorage.setSelectedPayDate(
-										tmpPayDate
+										tmpPayDate.toString()
 									);
 								}
 							}}
