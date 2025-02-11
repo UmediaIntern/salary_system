@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	DialogContent,
 	DialogFooter,
@@ -9,25 +9,27 @@ import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 
 import { useTranslation } from "react-i18next";
-import { ExcelDownloader } from "~/components/file_operations/excel_download";
+import { ExcelDownloader } from "~/components/file_operations/excel_downloader";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
-export function ExcelDownload() {
+interface ExcelDownloadProps {
+	data: any[][];
+	fileName: string;
+}
+
+export function ExcelDownload({ data, fileName }: ExcelDownloadProps) {
 	const { t } = useTranslation();
 
 	const [filename, setFilename] = useState("excel");
 
-	// const { selectedPeriod } = useContext(periodContext);
-	// const period_name = selectedPeriod?.period_name ?? "ERROR";
+	const { selectedPeriod } = usePeriodContext();
+	const period_name = selectedPeriod?.period_name ?? "ERROR";
 
-	// const { selectedTable, selectedTableType } = useContext(dataTableContext);
+	useEffect(() => {
+		setFilename(`${fileName}_${period_name}`);
+	}, [fileName, period_name]);
 
-	// useEffect(() => {
-	// 	setFilename(
-	// 		`${t(`table_name.${getTableName()}`)}_${t(
-	// 			`table.${bonus_type}`
-	// 		)}_${period_name}.xlsx`
-	// 	);
-	// }, [table_name]);
+  const headers = data[0]?.map((header) => t(`table.${header}`)) ?? null;
 
 	return (
 		<DialogContent className="p-8">
@@ -51,10 +53,8 @@ export function ExcelDownload() {
 							.setFileName(filename)
 							.addSheet({
 								buildSheet: (sheet) => {
-									sheet.setData([
-										[1, 2, 3],
-										[4, 5, 6],
-									]);
+                  if (headers) sheet.setHeaders(headers);
+									sheet.setData(data.slice(1));
 								},
 							})
 							.download()
@@ -67,13 +67,3 @@ export function ExcelDownload() {
 		</DialogContent>
 	);
 }
-
-// handleExportExcel(
-//   getExcelData(
-//     selectedTable?.table
-//       .getFilteredRowModel()
-//       .rows.map((r) => r.original)!,
-//     ["id", "functions"]
-//   ),
-//   filename
-// )

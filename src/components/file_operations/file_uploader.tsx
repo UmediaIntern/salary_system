@@ -7,8 +7,6 @@ import Dropzone, {
 } from "react-dropzone";
 import { cn } from "~/lib/utils";
 
-import ExcelJS from "exceljs";
-
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
 	/**
 	 * Value of the uploader.
@@ -84,49 +82,7 @@ interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
 	 * @example disabled
 	 */
 	disabled?: boolean;
-
-	/* Handle files */
-	files: File[];
-	setFiles: (files: File[]) => void;
-
-	/* 2D array data */
-	data: any[][];
-	setData: (data: any[][]) => void;
 }
-
-const extract_data = async (file: File) => {
-	if (!file) return;
-	try {
-		// Read the file as ArrayBuffer
-		const arrayBuffer = await file.arrayBuffer();
-
-		// Create a new workbook
-		const workbook = new ExcelJS.Workbook();
-		await workbook.xlsx.load(arrayBuffer);
-
-		// Access the first sheet
-		const sheet = workbook.worksheets[0];
-		const rows: any[][] = [];
-
-		// Extract data from the sheet
-		sheet!.eachRow({ includeEmpty: true }, (row) => {
-      let rowValues: any[];
-			if (Array.isArray(row.values)) {
-				rowValues = row.values;
-			} else {
-				rowValues = Object.values(row.values);
-			}
-			rows.push(rowValues);
-		});
-
-		// TODO: data mapping
-
-		// Update state with the extracted data
-		// setData(rows);
-	} catch (error) {
-		console.error("Error processing file");
-	}
-};
 
 export function FileUploader(props: FileUploaderProps) {
 	const {
@@ -139,7 +95,7 @@ export function FileUploader(props: FileUploaderProps) {
 		maxFileCount = 1,
 		multiple = false,
 		disabled = false,
-		setFiles,
+		onUpload,
 		className,
 		...dropzoneProps
 	} = props;
@@ -151,15 +107,11 @@ export function FileUploader(props: FileUploaderProps) {
 				return;
 			}
 
-			setFiles(acceptedFiles);
-
-			acceptedFiles.forEach((file) => {
-				extract_data(file).catch((error) => {
-					console.error("Error processing file", error);
-				});
+			onUpload?.(acceptedFiles).catch(() => {
+				toast.error("Failed to upload file");
 			});
 		},
-		[multiple, maxFileCount, setFiles]
+		[multiple, maxFileCount, onUpload]
 	);
 
 	function FileDropZone() {

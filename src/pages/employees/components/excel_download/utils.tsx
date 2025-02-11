@@ -1,22 +1,16 @@
 import { z } from "zod";
-export interface keyDict {
-	[key: string]: string[];
-}
 
-export function getExcelData(datas: any[], excludeKeys: string[]) {
-
-    if (datas.length == 0) {
+export function getExcelData<T extends Record<string, unknown>>(datas: T[], excludeKeys: string[]): (unknown)[][] {
+    if (datas.length === 0 || !datas[0]) {
         return [];
     }
 
-    // exclude keys
-    // const column_names: any[] = Object.keys(datas[0])
-    const column_names: any[] = Object.keys(datas[0]).filter((key: string) => !excludeKeys.includes(key));
-    const rows = datas.map((data: any, index: number) => {
-        return column_names.map((key: string) => {
-            return data[key];
-        });
+    const column_names: string[] = Object.keys(datas[0]).filter((key: string) => !excludeKeys.includes(key));
+
+    const rows = datas.map((data: T) => {
+        return column_names.map(key => data[key]);
     });
-    return [column_names].concat(rows);
+
+    return [column_names, ...rows];
 }
 
