@@ -72,6 +72,7 @@ export class EmployeeDataService {
 		const employee_data_mapper = container.resolve(EmployeeDataMapper);
 		return await employee_data_mapper.decode(employeeData);
 	}
+
 	async getEmployeeDataByEmpNoByPeriod(period_id: number, emp_no: string): Promise<EmployeeDataDecType> {
 		const employeeData = await EmployeeData.findOne({
 			where: {
@@ -85,6 +86,7 @@ export class EmployeeDataService {
 		const employee_data_mapper = container.resolve(EmployeeDataMapper);
 		return await employee_data_mapper.decode(employeeData);
 	}
+
 	async getLatestEmployeeDataByEmpNo(emp_no: string): Promise<EmployeeDataDecType> {
 		const employeeData = await EmployeeData.findAll({
 			where: {

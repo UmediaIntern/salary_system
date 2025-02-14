@@ -32,7 +32,7 @@ export class SyncService {
 		private readonly employeeDataService: EmployeeDataService,
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService
-	) { }
+	) {}
 	// TODO: move this
 	parsedPeriod(
 		period: Period
@@ -257,12 +257,12 @@ export class SyncService {
 			const ehr_emps = await this.ehrService.getEmp(period_id); // 從EHR服務中獲取員工數據
 
 			// 步驟1: 創建ehr_emps的字典
-			const ehrDict: Map<string, Emp> = new Map<string, Emp>();
+			const ehr_dict: Map<string, Emp> = new Map<string, Emp>();
 			ehr_emps.forEach((emp) => {
-				ehrDict.set(emp.emp_no, emp);
+				ehr_dict.set(emp.emp_no, emp);
 			});
 
-			// 步驟2: 添加新員工
+			// New employees
 			const newEmps: Array<Emp> = [];
 			ehr_emps.map((emp) => {
 				if (
@@ -272,19 +272,19 @@ export class SyncService {
 					newEmps.push(emp);
 			});
 			// 將新員工轉換為Employee
-			const new_employees: z.infer<typeof createEmployeeDataService>[] = newEmps.map(
-				(emp) => this.empToEmployee(emp, period_id)
-			);
+			const new_employees: z.infer<typeof createEmployeeDataService>[] =
+				newEmps.map((emp) => this.empToEmployee(emp, period_id));
 
 			const all_emps = salary_emps.concat(new_employees); // 合併所有員工數據
 
-			// 最新的所有員工數據
+			// Updated employee data from changes in EHR (Besides new employees)
 			const updated_all_emps = all_emps.map((salaryEmp) => {
-				const matchingEhrEmp = ehrDict.get(salaryEmp.emp_no);
-				return matchingEhrEmp
-					? this.empToEmployee(matchingEhrEmp, period_id)
+				const matching_ehr_emp = ehr_dict.get(salaryEmp.emp_no);
+				return matching_ehr_emp
+					? this.empToEmployee(matching_ehr_emp, period_id)
 					: salaryEmp;
 			});
+
 			const periodInfo = await this.ehrService.getPeriodById(period_id);
 			const parsedPeriod = this.parsedPeriod(periodInfo);
 			// NOTE: check employee work status
@@ -353,6 +353,7 @@ export class SyncService {
 		}
 		return cand_paid_emps;
 	}
+
 	async createNewMonthData(period_id: number, emp_no_list: string[]) {
 		const salary_datas = await EmployeeData.findAll({
 			where: {
@@ -363,46 +364,39 @@ export class SyncService {
 			},
 		});
 		const previous_period_id = await this.getPreviousPeriodId(period_id);
-		const employee_data_service = container.resolve(EmployeeDataService);
 		if (salary_datas.length == 0) {
-			emp_no_list.forEach(async (emp_no) => {
-				const old_employee_data =
-					await employee_data_service.getEmployeeDataByEmpNoByPeriod(
-						previous_period_id,
-						emp_no
-					);
-				if (!old_employee_data) return;
-				if (
-					old_employee_data?.work_status ==
-					WorkStatusEnum.Values.當月離職人員破月 ||
-					old_employee_data?.work_status ==
-					WorkStatusEnum.Values.當月離職人員全月
-				) {
-					employee_data_service.createEmployeeData({
+			await Promise.all(
+				emp_no_list.map(async (emp_no) => {
+					const old_employee_data =
+						await this.employeeDataService.getEmployeeDataByEmpNoByPeriod(
+							previous_period_id,
+							emp_no
+						);
+					if (!old_employee_data) return;
+					const old_work_status = old_employee_data.work_status;
+					let new_work_status = old_work_status;
+					switch (old_work_status) {
+						case WorkStatusEnum.Values.當月離職人員破月:
+						case WorkStatusEnum.Values.當月離職人員全月:
+							new_work_status = WorkStatusEnum.Enum.離職人員;
+							break;
+						case WorkStatusEnum.Values.當月新進人員破月:
+						case WorkStatusEnum.Values.當月新進人員全月:
+							new_work_status = WorkStatusEnum.Enum.一般員工;
+							break;
+						default:
+							break;
+					}
+					await this.employeeDataService.createEmployeeData({
 						...old_employee_data,
 						period_id: period_id,
-						work_status: WorkStatusEnum.Enum.離職人員,
+						work_status: new_work_status,
 					});
-				} else if (
-					old_employee_data?.work_status ==
-					WorkStatusEnum.Values.當月新進人員破月 ||
-					old_employee_data?.work_status ==
-					WorkStatusEnum.Values.當月新進人員全月
-				) {
-					employee_data_service.createEmployeeData({
-						...old_employee_data,
-						period_id: period_id,
-						work_status: WorkStatusEnum.Values.一般員工,
-					});
-				} else {
-					employee_data_service.createEmployeeData({
-						...old_employee_data,
-						period_id: period_id,
-					});
-				}
-			});
+				})
+			);
 		}
 	}
+
 	// Stage 2
 	async checkEmployeeData(
 		func: FunctionsEnumType,
@@ -424,13 +418,11 @@ export class SyncService {
 				},
 			});
 		}
-		// else {
-		// 	salary_datas = await EmployeeData.findAll({}); // 否則查找所有工資數據
-		// }
 
 		const ehr_datas: Emp[] = await this.ehrService.getEmp(period_id);
-		const ehr_datas_transformed: z.infer<typeof createEmployeeDataService>[] =
-			ehr_datas.map((emp) => this.empToEmployee(emp, period_id));
+		const ehr_datas_transformed: z.infer<
+			typeof createEmployeeDataService
+		>[] = ehr_datas.map((emp) => this.empToEmployee(emp, period_id));
 
 		// Lookup table by EMP_NO
 		const ehrDict: Map<string, Partial<EmployeeData>> = new Map<
@@ -484,7 +476,10 @@ export class SyncService {
 
 		// All existing employee data from Salary
 		const salary_datas = await EmployeeData.findAll({
-			where: { period_id: period_id, emp_no: { [Op.in]: changed_emp_nos } },
+			where: {
+				period_id: period_id,
+				emp_no: { [Op.in]: changed_emp_nos },
+			},
 		});
 
 		// Get services
@@ -544,8 +539,9 @@ export class SyncService {
 
 			const updatedData: EmployeeData = salary_emp_data;
 			for (const key of changeEmp.keys) {
-				const data_key: keyof z.infer<typeof createEmployeeDataService> =
-					key as keyof z.infer<typeof createEmployeeDataService>;
+				const data_key: keyof z.infer<
+					typeof createEmployeeDataService
+				> = key as keyof z.infer<typeof createEmployeeDataService>;
 				updatedData.set(data_key, ehr_emp_data[data_key]);
 			}
 
@@ -555,8 +551,14 @@ export class SyncService {
 			updatedDatas.push(updatedData);
 
 			if (updatedData.quit_date) {
-				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(updatedData.emp_no, period_id)
-				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(updatedData.emp_no, period_id)
+				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(
+					updatedData.emp_no,
+					period_id
+				);
+				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(
+					updatedData.emp_no,
+					period_id
+				);
 			}
 		}
 
@@ -565,7 +567,10 @@ export class SyncService {
 
 	// Stage 3
 	// 獲取需支付員工的函數
-	async getPaidEmps(func: FunctionsEnumType, period_id: number): Promise<EmployeeData[]> {
+	async getPaidEmps(
+		func: FunctionsEnumType,
+		period_id: number
+	): Promise<EmployeeData[]> {
 		if (func == FunctionsEnum.Enum.month_salary) {
 			// 定義需支付的員工狀態列表
 			const paid_status = [
@@ -584,7 +589,9 @@ export class SyncService {
 					period_id: period_id,
 				},
 			});
-			return paid_emps.filter((emp) => paid_status.includes(emp.work_status));
+			return paid_emps.filter((emp) =>
+				paid_status.includes(emp.work_status)
+			);
 		} else {
 			// 如果功能不是月薪計算
 			const paid_emps = await EmployeeData.findAll({}); // 查找所有需支付的員工數據

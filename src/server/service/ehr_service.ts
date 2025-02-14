@@ -471,6 +471,7 @@ export class EHRService {
 		});
 		return amount;
 	}
+
 	async initEmployeeData(period_id: number) {
 
 		const dbConnection = container.resolve(Database).ehr_connection;
