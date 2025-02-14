@@ -1,4 +1,4 @@
-import { type PropsWithChildren, useContext, useState } from "react";
+import { type PropsWithChildren, useContext } from "react";
 import {
 	createTableFunctionContext,
 	useTableFunctionState,
@@ -24,25 +24,27 @@ export type PaymentFunctionModes =
 	| "excel_upload"
 	| "initialize"
 	| "auto_calculate"
-  | "adjust_base_salary"
+	| "adjust_base_salary"
 	| "none";
 
-interface AdditionalPaymentFunctionContext {
-  openCalculate: boolean;
-  setOpenCalculate: (open: boolean) => void;
-}
 const employeePaymentFunctionContext = createTableFunctionContext<
 	PaymentFunctionModes,
-	PaymentRowItem,
-  AdditionalPaymentFunctionContext
+	PaymentRowItem
 >();
 
 export function EmployeePaymentFunctionContextProvider({
 	children,
 }: PropsWithChildren) {
-	const { open, setOpen, mode, setMode, data, setData } =
-		useTableFunctionState<PaymentFunctionModes, PaymentRowItem>("none");
-  const [ openCalculate, setOpenCalculate ] = useState<boolean>(false);
+	const {
+		open,
+		setOpen,
+		mode,
+		setMode,
+		data,
+		setData,
+		openDialog,
+		setOpenDialog,
+	} = useTableFunctionState<PaymentFunctionModes, PaymentRowItem>("none");
 
 	return (
 		<employeePaymentFunctionContext.Provider
@@ -53,8 +55,8 @@ export function EmployeePaymentFunctionContextProvider({
 				setMode,
 				data,
 				setData,
-        openCalculate,
-        setOpenCalculate
+				openDialog,
+				setOpenDialog,
 			}}
 		>
 			{children}

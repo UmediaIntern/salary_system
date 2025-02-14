@@ -25,8 +25,16 @@ const employeeTrustFunctionContext = createTableFunctionContext<
 export function EmployeeTrustFunctionContextProvider({
 	children,
 }: PropsWithChildren) {
-	const { open, setOpen, mode, setMode, data, setData } =
-		useTableFunctionState<TrustFunctionModes, TrustRowItem>("none");
+	const {
+		open,
+		setOpen,
+		mode,
+		setMode,
+		data,
+		setData,
+		openDialog,
+		setOpenDialog,
+	} = useTableFunctionState<TrustFunctionModes, TrustRowItem>("none");
 
 	return (
 		<employeeTrustFunctionContext.Provider
@@ -37,6 +45,8 @@ export function EmployeeTrustFunctionContextProvider({
 				setMode,
 				data,
 				setData,
+				openDialog,
+				setOpenDialog,
 			}}
 		>
 			{children}

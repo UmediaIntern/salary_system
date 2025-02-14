@@ -1,5 +1,4 @@
 import {
-	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -15,8 +14,6 @@ import { FormField, Form } from "~/components/ui/form";
 import { useTranslation } from "react-i18next";
 
 interface DateDialogProps {
-	open: boolean;
-	setOpen: (open: boolean) => void;
 	onSubmit: (date: Date) => void;
 }
 
@@ -25,11 +22,7 @@ const dateDialogSchema = z.object({
 });
 
 // TODO: validate date is valid (disable invalid value)
-export function DateDialog({
-	open,
-	setOpen,
-	onSubmit: submit,
-}: DateDialogProps) {
+export function DateDialog({ onSubmit: submit }: DateDialogProps) {
 	const { t } = useTranslation(["common"]);
 
 	const form = useForm<z.infer<typeof dateDialogSchema>>({
@@ -44,36 +37,34 @@ export function DateDialog({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>{t("form.auto_calculate.title")}</DialogTitle>
-					<DialogDescription>
-						{t("form.auto_calculate.description")}
-					</DialogDescription>
-				</DialogHeader>
-				<Form {...form}>
-					<form
-						onSubmit={(event) =>
-							void form.handleSubmit(onSubmit)(event)
-						}
-					>
-						<FormField
-							control={form.control}
-							name="date"
-							render={({ field }) => (
-								<DatePicker
-									date={field.value}
-									setDate={field.onChange}
-								/>
-							)}
-						/>
-						<DialogFooter className="pt-4">
-							<Button type="submit">{t("button.confirm")}</Button>
-						</DialogFooter>
-					</form>
-				</Form>
-			</DialogContent>
-		</Dialog>
+		<DialogContent>
+			<DialogHeader>
+				<DialogTitle>{t("form.auto_calculate.title")}</DialogTitle>
+				<DialogDescription>
+					{t("form.auto_calculate.description")}
+				</DialogDescription>
+			</DialogHeader>
+			<Form {...form}>
+				<form
+					onSubmit={(event) =>
+						void form.handleSubmit(onSubmit)(event)
+					}
+				>
+					<FormField
+						control={form.control}
+						name="date"
+						render={({ field }) => (
+							<DatePicker
+								date={field.value}
+								setDate={field.onChange}
+							/>
+						)}
+					/>
+					<DialogFooter className="pt-4">
+						<Button type="submit">{t("button.confirm")}</Button>
+					</DialogFooter>
+				</form>
+			</Form>
+		</DialogContent>
 	);
 }

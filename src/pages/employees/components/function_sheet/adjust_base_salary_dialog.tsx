@@ -1,5 +1,4 @@
 import {
-	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -37,15 +36,9 @@ const adjustBaseSalarySchema = z.object({
 
 type BaseSalaryOption = { value: number; label: number };
 
-interface AdjustBaseSalaryDialogPorps {
-	open: boolean;
-	setOpen: (open: boolean) => void;
-}
+interface AdjustBaseSalaryDialogPorps {}
 
-export function AdjustBaseSalaryDialog({
-	open,
-	setOpen,
-}: AdjustBaseSalaryDialogPorps) {
+export function AdjustBaseSalaryDialog({}: AdjustBaseSalaryDialogPorps) {
 	const q = api.parameters.getAllInsuranceRateSetting.useQuery();
 	const { data, isPending, content } = useQueryHandle(q);
 
@@ -87,39 +80,37 @@ export function AdjustBaseSalaryDialog({
 	});
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>{t("form.adjust_base_salary.title")}</DialogTitle>
-					<DialogDescription>
-            {t("form.adjust_base_salary.description")}
-					</DialogDescription>
-				</DialogHeader>
-				<Form {...form}>
-					<form
-						onSubmit={(event) =>
-							void form.handleSubmit(onSubmit)(event)
-						}
-						className="w-full space-y-6"
-					>
-						<FormField
-							control={form.control}
-							name="insurance_rate_setting_id"
-							render={({ field }) => (
-								<BaseSalarySelect
-									onChange={field.onChange}
-									defaultValue={field.value}
-									options={options}
-								/>
-							)}
-						/>
-					</form>
-				</Form>
-				<DialogFooter>
-					<Button type="submit">{t("button.confirm")}</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+		<DialogContent>
+			<DialogHeader>
+				<DialogTitle>{t("form.adjust_base_salary.title")}</DialogTitle>
+				<DialogDescription>
+					{t("form.adjust_base_salary.description")}
+				</DialogDescription>
+			</DialogHeader>
+			<Form {...form}>
+				<form
+					onSubmit={(event) =>
+						void form.handleSubmit(onSubmit)(event)
+					}
+					className="w-full space-y-6"
+				>
+					<FormField
+						control={form.control}
+						name="insurance_rate_setting_id"
+						render={({ field }) => (
+							<BaseSalarySelect
+								onChange={field.onChange}
+								defaultValue={field.value}
+								options={options}
+							/>
+						)}
+					/>
+				</form>
+			</Form>
+			<DialogFooter>
+				<Button type="submit">{t("button.confirm")}</Button>
+			</DialogFooter>
+		</DialogContent>
 	);
 }
 
@@ -130,7 +121,6 @@ interface BaseSalarySelectProps {
 }
 
 function BaseSalarySelect({ onChange, options }: BaseSalarySelectProps) {
-
 	const { t } = useTranslation(["common"]);
 
 	return (
@@ -139,7 +129,11 @@ function BaseSalarySelect({ onChange, options }: BaseSalarySelectProps) {
 			<Select onValueChange={onChange}>
 				<FormControl>
 					<SelectTrigger>
-						<SelectValue placeholder={t("form.adjust_base_salary.placeholder")} />
+						<SelectValue
+							placeholder={t(
+								"form.adjust_base_salary.placeholder"
+							)}
+						/>
 					</SelectTrigger>
 				</FormControl>
 				<SelectContent>
@@ -154,8 +148,10 @@ function BaseSalarySelect({ onChange, options }: BaseSalarySelectProps) {
 				</SelectContent>
 			</Select>
 			<FormDescription>
-        {t("form.adjust_base_salary.footer_desc")}
-        <Link className="underline" href="/parameters">{t("table_name.insuranceRateSetting")}</Link>
+				{t("form.adjust_base_salary.footer_desc")}
+				<Link className="underline" href="/parameters">
+					{t("table_name.insuranceRateSetting")}
+				</Link>
 			</FormDescription>
 			<FormMessage />
 		</FormItem>
