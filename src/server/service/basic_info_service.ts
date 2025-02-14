@@ -1,17 +1,15 @@
 import { injectable } from "tsyringe";
 import { BaseResponseError } from "../errors/base_response_error";
-import { z } from "zod";
+import { type z } from "zod";
 import {
-	createBasicInfoService,
-	updateBasicInfoService,
+	type createBasicInfoService,
+	type updateBasicInfoService,
 } from "../api/types/parameters_input_type";
 import { BasicInfo } from "../database/entity/SALARY/basic_info";
 import { select_value } from "./helper_function";
 
 @injectable()
 export class BasicInfoService {
-	constructor() {}
-
 	async createBasicInfo({
 		issue_date,
 		announcement,
@@ -19,6 +17,7 @@ export class BasicInfoService {
 		const newData = await BasicInfo.create({
 			issue_date: issue_date,
 			announcement: announcement,
+			disabled: false,
 			create_by: "system",
 			update_by: "system",
 		});
@@ -37,10 +36,13 @@ export class BasicInfoService {
 	async getCurrentBasicInfo(): Promise<BasicInfo | null> {
 		const basicInfoList = await this.getAllBasicInfo();
 		if (basicInfoList.length > 1) {
-			throw new BaseResponseError("more than one active BasicInfo");
+			throw new BaseResponseError("More than one active BasicInfo");
 		}
 
-		const basicInfo = basicInfoList.length == 1 ? basicInfoList[0]! : null;
+		const basicInfo =
+			basicInfoList.length === 1 && basicInfoList[0]
+				? basicInfoList[0]
+				: null;
 
 		return basicInfo;
 	}
@@ -55,7 +57,7 @@ export class BasicInfoService {
 		issue_date,
 		announcement,
 	}: z.infer<typeof updateBasicInfoService>): Promise<void> {
-		const basicInfo = await this.getBasicInfoById(id!);
+		const basicInfo = await this.getBasicInfoById(id);
 		if (basicInfo == null) {
 			throw new BaseResponseError("BasicInfo does not exist");
 		}
