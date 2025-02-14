@@ -4,6 +4,7 @@ import { BaseResponseError } from "../error/BaseResponseError";
 import { z } from "zod";
 import { EmployeePaymentService } from "~/server/service/employee_payment_service";
 import {
+	employeePaymentBatchCreateAPI,
 	employeePaymentCreateAPI,
 	employeePaymentFE,
 	type EmployeePaymentFEType,
@@ -13,6 +14,7 @@ import {
 import { EmployeePaymentMapper } from "~/server/database/mapper/employee_payment_mapper";
 import { ValidateService } from "~/server/service/validate_service";
 import { select_value } from "~/server/service/helper_function";
+import { EmployeePayment } from "~/server/database/entity/SALARY/employee_payment";
 
 export const employeePaymentRouter = createTRPCRouter({
 	getCurrentEmployeePayment: publicProcedure
@@ -100,6 +102,43 @@ export const employeePaymentRouter = createTRPCRouter({
 
 			return await employeePaymentMapper.decode(newdata);
 		}),
+	
+	batchCreateEmployeePayment: publicProcedure
+		.input(employeePaymentBatchCreateAPI)
+		.mutation(async ({ input }) => {
+			const employeePaymentService = container.resolve(EmployeePaymentService);
+			const employeePaymentMapper = container.resolve(EmployeePaymentMapper);
+			const validateService = container.resolve(ValidateService);
+
+			const newDatas = input.map(async(i) => {
+				// const previousEmployeePaymentFE =
+				// await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
+				// 	i.emp_no,
+				// 	i.start_date ?? new Date()
+				// );
+				// if (!previousEmployeePaymentFE) {
+				// 	throw new BaseResponseError(
+				// 		`EmployeePayment for emp_no: ${i.emp_no} not exists yet`
+				// 	);
+				// }
+
+				// await validateService.validateEmployeePayment({
+				// 	...i,
+				// 	end_date: null,
+				// });
+				
+				const newData = await employeePaymentService.createEmployeePayment({
+					...i,
+					end_date: null,
+				})
+
+				// await employeePaymentService.rescheduleEmployeePayment();
+
+				return await employeePaymentMapper.decode(newData);
+			})
+
+			return newDatas;
+	}),
 
 	updateEmployeePayment: publicProcedure
 		.input(updateEmployeePaymentAPI)

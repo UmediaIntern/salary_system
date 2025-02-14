@@ -72,6 +72,13 @@ export function EmployeePaymentFunctions() {
 				void ctx.employeePayment.invalidate();
 			},
 		});
+	const batchCreateEmployeePayment =
+		api.employeePayment.batchCreateEmployeePayment.useMutation({
+			onSuccess: () => {
+				void ctx.employeePayment.invalidate();
+			},
+		});
+
 	const deleteEmployeePayment =
 		api.employeePayment.deleteEmployeePayment.useMutation({
 			onSuccess: () => {
@@ -88,6 +95,8 @@ export function EmployeePaymentFunctions() {
 	const createFormSchema = employeePaymentSchema.omit({ id: true });
 	const createForm = buildStandardFormProps({
 		formSchema: createFormSchema,
+		formConfig: [{ key: "emp_no", config: { fixed: true } }],
+
 		formSubmit: (d) => {
 			createEmployeePayment.mutate(d);
 			setOpen(false);
@@ -99,7 +108,10 @@ export function EmployeePaymentFunctions() {
 
 	const updateForm = buildStandardFormProps({
 		formSchema: employeePaymentSchema,
-		formConfig: [{ key: "id", config: { hidden: true } }],
+		formConfig: [
+			{ key: "id", config: { hidden: true } },
+			{ key: "emp_no", config: { fixed: true } }
+		],
 		formSubmit: (d) => {
 			updateEmployeePayment.mutate(d);
 			setOpen(false);
@@ -176,7 +188,7 @@ export function EmployeePaymentFunctions() {
 				onOpenChange={setOpenCalculate}
 			>
 				<DialogContent className="max-w-[80vw] max-h-[80vh] p-8 flex">
-					<ExcelUpload/>
+					<ExcelUpload onClick={batchCreateEmployeePayment.mutate}/>
 				</DialogContent>
 			</Dialog>
 		</>

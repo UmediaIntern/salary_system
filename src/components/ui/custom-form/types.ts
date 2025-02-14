@@ -22,6 +22,9 @@ export interface FieldConfig<
 	inputProps?: Record<string, any>;
 	label?: Renderable<AdditionalRenderable>;
 	fieldType?: FieldTypes;
+
+	// fixed value
+	fixed?: boolean;
 }
 
 /**
@@ -65,6 +68,8 @@ export interface FormFieldProps {
 	path: string[];
 	inputProps: any;
 	/* inputProps?: React.InputHTMLAttributes<HTMLInputElement> & { */
+
+	fixed?: boolean;
 }
 
 export interface ParsedField<AdditionalRenderable = null, FieldTypes = string> {

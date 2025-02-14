@@ -67,6 +67,7 @@ export class EmployeeTrustMapper extends BaseMapper<
 			(d) => d.start_date
 		);
 
+
 		// TODO: don't assert
 		const first_start_date = start_dates[0];
 		const last_employee_trust = employee_trust_list.at(-1);

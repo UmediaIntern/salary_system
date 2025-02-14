@@ -47,8 +47,16 @@ export class EmployeePaymentService {
 		const newData = await EmployeePayment.create(employeePayment, {
 			raw: true,
 		});
-
+		console.log("Create EmployeePayment")
 		return newData;
+	}
+
+	async batchCreateEmployeePayment(
+		datas: z.input<typeof employeePaymentCreateService>[]
+	): Promise<EmployeePayment[]> {
+		// TODO
+		const employeePaymentList: EmployeePayment[] = [];
+		return employeePaymentList
 	}
 
 	async getEmployeePaymentById(

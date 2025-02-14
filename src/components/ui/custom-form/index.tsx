@@ -67,6 +67,7 @@ export default function CustomForm<SchemaType extends ZodObjectOrWrapped>({
 						field={field}
 						path={[field.key]}
 						render={config?.render}
+						fixed={config?.fixed}
 					/>
 				})}
 				{children}

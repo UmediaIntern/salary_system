@@ -409,6 +409,7 @@ export class SyncService {
 		period_id: number
 	): Promise<SyncData[] | null> {
 		const cand_paid_emps = await this.getCandPaidEmployees(func, period_id); // 獲取候選需支付員工數據
+
 		const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
 		await this.createNewMonthData(period_id, cand_emp_no_list);
 		// Get Data from Salary and EHR

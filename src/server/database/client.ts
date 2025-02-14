@@ -67,6 +67,7 @@ export class Database {
 				dialect: "oracle",
 				host: config.host,
 				port: config.port,
+				logging: false,
 			}
 		);
 

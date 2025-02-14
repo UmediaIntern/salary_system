@@ -48,6 +48,9 @@ export const employeePaymentCreateAPI = employeePaymentCreate.omit({
 	occupational_injury: true,
 	end_date: true,
 });
+
+export const  employeePaymentBatchCreateAPI = z.array(employeePaymentCreate.omit({end_date: true}))
+
 export const employeePaymentCreateService = employeePaymentCreate;
 
 // Update Types

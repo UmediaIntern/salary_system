@@ -10,10 +10,12 @@ export function AutoFormField({
 	field,
 	path,
   render,
+  fixed,
 }: {
 	field: ParsedField;
 	path: string[];
-  render?: React.ComponentType<FormFieldProps> 
+	render?: React.ComponentType<FormFieldProps>;
+	fixed?: boolean;
 }) {
 	const {
 		register,
@@ -66,6 +68,7 @@ export function AutoFormField({
 					...field.fieldConfig?.inputProps,
 					...register(fullPath),
 				}}
+				fixed={fixed}
 			/>
 		</FieldWrapper>
 	);

@@ -1,39 +1,45 @@
+import { useContext, useEffect, useState } from "react";
 import { api } from "~/utils/api";
-import { Button } from "~/components/ui/button";
-import { createColumnHelper } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
-import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
-import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
-import { type BonusAll } from "~/server/database/entity/SALARY/bonus_all";
-import { LoadingSpinner } from "~/components/loading";
-import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
-import { useTranslation } from "react-i18next";
-import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 import { TFunction } from "i18next";
-// import { FunctionMode } from "../components/function_sheet/data_table_functions_single";
-import { FunctionsComponent } from "~/components/data_table/functions_component";
+import { useTranslation } from "react-i18next";
+
+import { Sheet } from "~/components/ui/sheet";
+import { Button } from "~/components/ui/button";
+import { LoadingSpinner } from "~/components/loading";
+
+import { ArrowUpDown } from "lucide-react";
+import { createColumnHelper } from "@tanstack/react-table";
+
+import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
+
+import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
+
 import dataTableContext, {
 	FunctionsItem,
-	type FunctionMode,
 } from "../components/context/data_table_context";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
+import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
 import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
 import { BonusForm } from "../components/function_sheet/bonus_form";
-import { bonusAllSchema } from "../schemas/configurations/bonus_all_schema";
-import { useContext, useEffect, useState } from "react";
-import { Sheet } from "~/components/ui/sheet";
-
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 
+import { bonusAllSchema } from "../schemas/configurations/bonus_all_schema";
+import { ColumnHeaderBaseComponent } from "~/components/data_table/column_header_component";
+import { useBonusFunctionContext } from "../components/context/data_table_context_provider";
+import { FunctionsComponent } from "~/components/data_table/functions_component";
+
+
 export type RowItem = {
+	id: number;
 	parameters: string;
 	value: number;
 	functions: FunctionsItem;
 };
 type RowItemKey = keyof RowItem;
 
+
 const columnHelper = createColumnHelper<RowItem>();
+
 
 export const bonus_all_columns = (
 	{
@@ -75,32 +81,37 @@ export const bonus_all_columns = (
 			},
 		})
 	),
-	// columnHelper.accessor("functions", {
-	// 	header: () => {
-	// 		return (
-	// 			<div className="flex justify-center">
-	// 				<div className="text-center font-medium">
-	// 					{t(`others.functions`)}
-	// 				</div>
-	// 			</div>
-	// 		);
-	// 	},
-	// 	cell: ({ row }) => {
-	// 		return (
-	// 			<FunctionsComponent
-	// 				t={t}
-	// 				setOpen={setOpen}
-	// 				setMode={setMode}
-	// 				data={row.original}
-	// 				setData={setData}
-	// 			/>
-	// 		);
-	// 	},
-	// }),
+	columnHelper.accessor("functions", {
+		header: () => {
+			return (
+				<ColumnHeaderBaseComponent>
+					{t(`others.functions`)}
+				</ColumnHeaderBaseComponent>
+			);
+		},
+		cell: ({ row }) => {
+		// TODO: Should use data with Frontend Type instead of data in table?
+			return <BonusAllFunctionComponent data={row.original} />;
+		},
+	}),
 ];
 
-export function bonusAllMapper(bonusAllData: any): RowItem {
+function BonusAllFunctionComponent({data}: {data: RowItem}) {
+	const { setOpen, setMode, setData } = useBonusFunctionContext();
+	return (
+		<FunctionsComponent
+			setOpen={setOpen}
+			setMode={setMode}
+			data={data}
+			setData={setData}
+		/>
+	);
+}
+
+export function bonusAllMapper(bonusAllData: any, t: TFunction): RowItem {
 	return {
+		// parameters: t(`table.multiplier`),
+		id: bonusAllData?.id,
 		parameters: "倍率",
 		value: bonusAllData?.multiplier,
 		functions: bonusAllData?.functions,
@@ -122,7 +133,7 @@ export function BonusAllTable({
 	const { t } = useTranslation(["common"]);
 	// const [open, setOpen] = useState<boolean>(false);
 	// const [mode, setMode] = useState<FunctionMode>("none");
-	const { open, setOpen, mode, setMode, setData } = useContext(dataTableContext);
+	const { data: selectedData, open, setOpen, mode, setMode, setData } = useContext(dataTableContext);
 
 
 	const { isLoading, isError, data, error } = api.bonus.getBonusAll.useQuery({
@@ -157,21 +168,33 @@ export function BonusAllTable({
 			{!viewOnly ? (
 				<BonusToolbarFunctionsProvider selectedTableType={"TableBonusAll"} period_id={period_id} bonus_type={bonus_type}>
 					<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
-						{bonusAllMapper(data!) && <DataTableWithFunctions
+						{bonusAllMapper(data!, t) && <DataTableWithFunctions
 							columns={bonus_all_columns({
 								t,
 							})}
-							data={data ? [bonusAllMapper(data!)] : []}
+							data={data ? [bonusAllMapper(data!, t)] : []}
 							bonusType={bonus_type}
 							filterColumnKey={filterKey}
 						/>}
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<BonusForm
-								formSchema={bonusAllSchema}
-								formConfig={[{ key: "id", config: { hidden: true } }]}
-								mode={mode}
-								closeSheet={() => setOpen(false)}
-							/>
+							{
+								mode === "create" && <BonusForm
+									formSchema={bonusAllSchema.omit({ id: true })}
+									formConfig={undefined}
+									mode={mode}
+									defaultValue={selectedData && {multiplier: selectedData.value}}
+									closeSheet={() => setOpen(false)}
+								/>
+							}
+							{
+								mode === "update" && <BonusForm
+									formSchema={bonusAllSchema}
+									formConfig={[{ key: "id", config: { hidden: true } }]}
+									mode={mode}
+									defaultValue={selectedData && {id: selectedData.id, multiplier: selectedData.value}}
+									closeSheet={() => setOpen(false)}
+								/>
+							}
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog

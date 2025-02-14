@@ -14,7 +14,8 @@ const TEST: NextPageWithLayout = () => {
 	const { isPending, isError, data, error } =
 			api.employeePayment.getCurrentEmployeePayment.useQuery({period_id: selectedPeriod?.period_id ?? 0});
 
-	const update = api.employeePayment.updateEmployeePayment.useMutation();
+	const updateEmployeePayment = api.employeePayment.updateEmployeePayment.useMutation();
+	const deleteEmployeePayment = api.employeePayment.deleteEmployeePayment.useMutation();
 
 	return (
 		<>

@@ -105,7 +105,7 @@ async function extract_data(file: File): Promise<any[][] | null> {
 }
 
 interface ExcelUploadProps {
-	onClick?: (data: Record<string, unknown>[]) => void;
+	onClick?: (data: any) => void;
 }
 
 export function ExcelUpload({ onClick }: ExcelUploadProps) {

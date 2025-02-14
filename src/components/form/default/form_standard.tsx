@@ -17,7 +17,7 @@ import { type FormConfig } from "~/components/ui/custom-form/types";
 import GeneralTable from "~/components/table_functions/general_table";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
-interface StandardFormProps<SchemaType extends z.AnyZodObject> {
+export interface StandardFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
 	formConfig?: FormConfig<SchemaType>;
 	formSubmit?: (data: z.infer<SchemaType>) => void;

@@ -25,6 +25,21 @@ export const employeeTrustRouter = createTRPCRouter({
 				);
 			return current_employee_trustFE;
 		}),
+	
+	getCurrentEmployeeTrustByEmpNo: publicProcedure
+		.input(z.object({ period_id: z.number(), emp_no: z.string() }))
+		.output(z.array(employeeTrustFE))
+		.query(async ({ input }) => {
+			const employeeTrustService =
+				container.resolve(EmployeeTrustService);
+			const current_employee_trustFE =
+				await employeeTrustService.getCurrentEmployeeTrustFE(
+					input.period_id
+				);
+			return current_employee_trustFE.filter((item) => {
+				return item.emp_no === input.emp_no;
+			});
+		}),
 
 	getAllEmployeeTrust: publicProcedure.query(async ({ input }) => {
 		const employeeTrustService = container.resolve(EmployeeTrustService);

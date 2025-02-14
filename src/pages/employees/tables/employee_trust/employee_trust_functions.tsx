@@ -60,6 +60,7 @@ export function EmployeeTrustFunctions() {
 			createEmployeeTrust.mutate(d);
 			setOpen(false);
 		},
+		formConfig: [{ key: "emp_no", config: { fixed: true } }],
 		buttonText: "create",
 		defaultValue: data ? createFormSchema.safeParse(data).data : undefined, // TODO: move this into buildStandardFormProps function
 		closeSheet: () => setOpen(false),
@@ -67,7 +68,10 @@ export function EmployeeTrustFunctions() {
 
 	const updateForm = buildStandardFormProps({
 		formSchema: employeeTrustSchema,
-		formConfig: [{ key: "id", config: { hidden: true } }],
+		formConfig: [
+			{ key: "id", 	config: { hidden: true } }, 
+			{ key: "emp_no", config: { fixed: true } }
+		],
 		formSubmit: (d) => {
 			updateEmployeeTrust.mutate(d);
 			setOpen(false);

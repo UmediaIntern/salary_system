@@ -1,4 +1,4 @@
-import React, { useState, type PropsWithChildren } from "react";
+import React, { useContext, useState, type PropsWithChildren } from "react";
 import dataTableContext, { FunctionMode } from "./data_table_context";
 import {
 	BonusTableEnumValues,
@@ -48,4 +48,15 @@ export default function DataTableContextProvider({
 			{children}
 		</dataTableContext.Provider>
 	);
+}
+
+
+export function useBonusFunctionContext() {
+	const context = useContext(dataTableContext);
+	if (context === null) {
+		throw new Error(
+			"useBonusFunctionContext must be used within a DataTableContextProvider in bonus page"
+		);
+	}
+	return context;
 }
