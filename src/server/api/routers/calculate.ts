@@ -1,4 +1,4 @@
-import { BaseResponseError } from "../error/BaseResponseError";
+import { BaseResponseError } from "../../errors/base_response_error";
 import { CalculateService } from "~/server/service/calculate_service";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { container } from "tsyringe";

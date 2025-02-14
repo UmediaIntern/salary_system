@@ -1,7 +1,7 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { container } from "tsyringe";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
-import { BaseResponseError } from "../error/BaseResponseError";
+import { BaseResponseError } from "../../errors/base_response_error";
 import {
 	createEmployeeDataAPI,
 	updateEmployeeDataAPI,

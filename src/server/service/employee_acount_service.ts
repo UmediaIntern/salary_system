@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { select_value } from "./helper_function";
 import { z } from "zod";
 import {

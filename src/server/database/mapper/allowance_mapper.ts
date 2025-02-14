@@ -4,13 +4,10 @@ import {
 } from "~/server/api/types/allowance_type";
 import {
 	type AllowanceWithType,
-	EHRService,
 } from "~/server/service/ehr_service";
-import { EmployeeDataService } from "~/server/service/employee_data_service";
-import { container } from "tsyringe";
 import { type EmployeePaymentDecType } from "../entity/SALARY/employee_payment";
-import { EmployeeDataDecType } from "../entity/SALARY/employee_data";
-import { Payset } from "../entity/UMEDIA/payset";
+import { type EmployeeDataDecType } from "../entity/SALARY/employee_data";
+import { type Payset } from "../entity/UMEDIA/payset";
 
 export class AllowanceMapper {
 

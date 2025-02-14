@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import * as bcrypt from "bcrypt";
 import { UserService } from "~/server/service/user_service";
 import { container } from "tsyringe";
-import { BaseResponseError } from "../error/BaseResponseError";
+import { BaseResponseError } from "../../errors/base_response_error";
 import { createUserAPI } from "../types/parameters_input_type";
 import { get_date_string } from "~/server/service/helper_function";
 

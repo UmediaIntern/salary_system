@@ -9,7 +9,7 @@ import {
 } from "../types/employee_trust_type";
 import { EmployeeTrustMapper } from "~/server/database/mapper/employee_trust_mapper";
 import { ValidateService } from "~/server/service/validate_service";
-import { BaseResponseError } from "../error/BaseResponseError";
+import { BaseResponseError } from "../../errors/base_response_error";
 import { select_value } from "~/server/service/helper_function";
 
 export const employeeTrustRouter = createTRPCRouter({

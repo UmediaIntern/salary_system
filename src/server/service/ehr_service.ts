@@ -7,7 +7,7 @@ import { Holiday } from "../database/entity/UMEDIA/holiday";
 import { Overtime } from "../database/entity/UMEDIA/overtime";
 import { Payset } from "../database/entity/UMEDIA/payset";
 import { Emp } from "../database/entity/UMEDIA/emp";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { Bonus } from "../database/entity/UMEDIA/bonus";
 import { BonusType } from "../database/entity/UMEDIA/bonus_type";
 import { Expense } from "../database/entity/UMEDIA/expense";

@@ -1,6 +1,6 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { container } from "tsyringe";
-import { BaseResponseError } from "../error/BaseResponseError";
+import { BaseResponseError } from "../../errors/base_response_error";
 import { z } from "zod";
 import { TransactionService } from "~/server/service/transaction_service";
 import { PayTypeEnum } from "~/server/api/types/pay_type_enum";

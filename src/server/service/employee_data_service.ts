@@ -9,7 +9,7 @@ import {
 	type updateEmployeeDataByEmpNoService,
 	type updateEmployeeDataService,
 } from "../api/types/employee_data_type";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { select_value } from "./helper_function";
 import { Op } from "sequelize";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";

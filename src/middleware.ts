@@ -4,7 +4,7 @@ import {
 	type AccessiblePagesType,
 	accessiblePages,
 } from "./server/api/types/access_page_type";
-import { BaseResponseError } from "./server/api/error/BaseResponseError";
+import { BaseResponseError } from "./server/errors/base_response_error";
 
 function guardRoute(
 	request: NextRequestWithAuth,

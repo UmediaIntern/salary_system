@@ -6,7 +6,7 @@ import {
 	encBankSetting,
 } from "../database/entity/SALARY/bank_setting";
 import { Op } from "sequelize";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { get_date_string, select_value } from "./helper_function";
 import { type z } from "zod";
 import { EHRService } from "./ehr_service";

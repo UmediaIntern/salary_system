@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import { SalaryRaisePosition } from "../database/entity/SALARY/salary_raise_position";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { z } from "zod";
 import {
 	createSalaryRaisePositionService,

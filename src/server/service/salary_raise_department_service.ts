@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import { SalaryRaiseDepartment } from "../database/entity/SALARY/salary_raise_department";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { z } from "zod";
 import {
 	createSalaryRaiseDepartmentService, 

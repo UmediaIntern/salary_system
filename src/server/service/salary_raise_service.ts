@@ -1,7 +1,7 @@
 import { container, injectable } from "tsyringe";
 import { type z } from "zod";
 import { SalaryRaise } from "../database/entity/SALARY/salary_raise";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { Round, select_value } from "./helper_function";
 import { EHRService } from "./ehr_service";
 import { EmployeePaymentService } from "./employee_payment_service";

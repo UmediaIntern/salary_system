@@ -9,7 +9,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { container } from "tsyringe";
 import { env } from "~/env.mjs";
 import * as bcrypt from "bcrypt";
-import { BaseResponseError } from "./api/error/BaseResponseError";
+import { BaseResponseError } from "./errors/base_response_error";
 import { UserService } from "./service/user_service";
 import { RolesEnum, RolesEnumType } from "./api/types/role_type";
 import { DefaultJWT } from "next-auth/jwt";

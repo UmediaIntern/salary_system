@@ -1,7 +1,7 @@
 import { container, injectable } from "tsyringe";
 import { type z } from "zod";
 import { EmployeeBonus } from "../database/entity/SALARY/employee_bonus";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { Round, select_value } from "./helper_function";
 import { type BonusTypeEnumType } from "../api/types/bonus_type_enum";
 import { BonusWorkTypeService } from "./bonus_work_type_service";
