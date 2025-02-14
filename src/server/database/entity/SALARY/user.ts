@@ -4,7 +4,7 @@ import {
 	type InferAttributes,
 	type InferCreationAttributes,
 	type CreationOptional,
-	Sequelize,
+	type Sequelize,
 	/* Association, */
 	/* HasManyAddAssociationMixin, */
 	/* HasManyCountAssociationsMixin, */

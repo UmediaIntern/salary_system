@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import { Op } from "sequelize";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { type z } from "zod";
 import { get_date_string, select_value } from "./helper_function";
 import { EHRService } from "./ehr_service";

@@ -2,7 +2,7 @@ import { injectable } from "tsyringe";
 import { z } from "zod";
 import { validateBase, validateEmployeePayment, validateEmployeeTrust } from "../api/types/validate_type";
 import { EmployeeDataService } from "./employee_data_service";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 
 @injectable()
 export class ValidateService {

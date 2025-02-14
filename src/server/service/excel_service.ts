@@ -8,7 +8,7 @@ import { Overtime } from "../database/entity/UMEDIA/overtime";
 import { Payset } from "../database/entity/UMEDIA/payset";
 import { BankSetting } from "../database/entity/SALARY/bank_setting";
 import { Holiday } from "../database/entity/UMEDIA/holiday";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { EmployeeData } from "../database/entity/SALARY/employee_data";
 import { EmployeePayment } from "../database/entity/SALARY/employee_payment";
 import { EHRService } from "./ehr_service";

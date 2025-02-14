@@ -1,3 +1,4 @@
+import { api } from "~/utils/api";
 import { FunctionMenu } from "~/components/table_functions/function_menu/function_menu";
 import { usePaymentFunctionContext } from "./employee_payment_provider";
 import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
@@ -14,26 +15,26 @@ import { DateDialog } from "../../components/function_sheet/date_dialog";
 import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_base_salary_dialog";
 import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { ExcelDownload } from "~/components/file_operations/excel_download";
-import { api } from "~/utils/api";
 import { ExcelUpload } from "~/components/file_operations/excel_upload";
 import { getExcelData } from "../../components/excel_download/utils";
 import { useEmployeeTableContext } from "../../components/context/data_table_context_provider";
 
 export function EmployeePaymentFunctionMenu() {
-	const { setMode, setOpenCalculate } = usePaymentFunctionContext();
+	const { setMode, setOpenDialog } =
+		usePaymentFunctionContext();
 
 	return (
 		<FunctionMenu>
 			<FunctionMenuOption.ExcelDownload
 				onClick={() => {
 					setMode("excel_download");
-					setOpenCalculate(true);
+					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.ExcelUpload
 				onClick={() => {
 					setMode("excel_upload");
-					setOpenCalculate(true);
+					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.Initialize
@@ -42,13 +43,13 @@ export function EmployeePaymentFunctionMenu() {
 			<FunctionMenuOption.AutoCalculate
 				onClick={() => {
 					setMode("auto_calculate");
-					setOpenCalculate(true);
+					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.AdjustBaseSalary
 				onClick={() => {
 					setMode("adjust_base_salary");
-					setOpenCalculate(true);
+					setOpenDialog(true);
 				}}
 			/>
 		</FunctionMenu>
@@ -56,7 +57,7 @@ export function EmployeePaymentFunctionMenu() {
 }
 
 export function EmployeePaymentFunctions() {
-	const { data, open, setOpen, mode, openCalculate, setOpenCalculate } =
+	const { data, open, setOpen, mode, openDialog, setOpenDialog } =
 		usePaymentFunctionContext();
 
 	const ctx = api.useUtils();
@@ -123,7 +124,7 @@ export function EmployeePaymentFunctions() {
 		closeSheet: () => setOpen(false),
 	});
 
-  const { selectedTable } = useEmployeeTableContext()
+	const { selectedTable } = useEmployeeTableContext();
 
 	return (
 		<>
@@ -139,57 +140,62 @@ export function EmployeePaymentFunctions() {
 					<StandardForm {...updateForm} />
 				)}
 			</TableFunctionSheet>
-			{/* Delete */}
-			<ConfirmDialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
-				onClick={() =>
-					data && deleteEmployeePayment.mutate({ id: data.id })
-				}
-				data={
-					employeePaymentSchema
-						.merge(z.object({ end_date: zodOptionalDate() }))
-						.safeParse(data).data
-				}
-			/>
-			{/* Auto calculate */}
-			<DateDialog
-				open={openCalculate && mode === "auto_calculate"}
-				setOpen={setOpenCalculate}
-				onSubmit={(date) => {
-					autoCalculateEmployeePayment.mutate({
-						start_date: date,
-					});
-				}}
-			/>
-			{/* Adjust base salary */}
-			<AdjustBaseSalaryDialog
-				open={openCalculate && mode === "adjust_base_salary"}
-				setOpen={setOpenCalculate}
-			/>
-			{/* Download excel */}
+
 			<Dialog
-				open={openCalculate && mode === "excel_download"}
-				onOpenChange={setOpenCalculate}
+				open={openDialog}
+				onOpenChange={setOpenDialog}
+				aria-hidden={false}
 			>
-          {/* Fix type later */}
-				<ExcelDownload
-					data={getExcelData(
-						selectedTable?.table
-							.getFilteredRowModel()
-							.rows.map((r) => (r.original as Record<string, unknown>)) ?? [],
-						["id", "functions", "disabled"]
-					)}
-          fileName="employee_payment"
-				/>
-			</Dialog>
-			<Dialog
-				open={openCalculate && mode === "excel_upload"}
-				onOpenChange={setOpenCalculate}
-			>
-				<DialogContent className="max-w-[80vw] max-h-[80vh] p-8 flex">
-					<ExcelUpload onClick={batchCreateEmployeePayment.mutate}/>
-				</DialogContent>
+				{/* Delete */}
+				{mode === "delete" && (
+					<ConfirmDialog
+						onClick={() =>
+							data &&
+							deleteEmployeePayment.mutate({ id: data.id })
+						}
+						data={
+							employeePaymentSchema
+								.merge(
+									z.object({ end_date: zodOptionalDate() })
+								)
+								.safeParse(data).data
+						}
+					/>
+				)}
+
+				{/* Auto calculate */}
+				{mode === "auto_calculate" && (
+					<DateDialog
+						onSubmit={(date) => {
+							autoCalculateEmployeePayment.mutate({
+								start_date: date,
+							});
+						}}
+					/>
+				)}
+
+				{/* Adjust base salary */}
+				{mode === "adjust_base_salary" && <AdjustBaseSalaryDialog />}
+				{/* Download excel */}
+				{/* Fix type later */}
+				{mode === "excel_download" && (
+					<ExcelDownload
+						data={getExcelData(
+							selectedTable?.table
+								.getFilteredRowModel()
+								.rows.map(
+									(r) => r.original as Record<string, unknown>
+								) ?? [],
+							["id", "functions", "disabled"]
+						)}
+						fileName="employee_payment"
+					/>
+				)}
+				{mode === "excel_upload" && (
+					<DialogContent className="flex max-h-[80vh] max-w-[80vw] p-8">
+						<ExcelUpload />
+					</DialogContent>
+				)}
 			</Dialog>
 		</>
 	);

@@ -1,5 +1,5 @@
 import { delay, inject, injectable } from "tsyringe";
-import { BaseResponseError } from "../api/error/BaseResponseError";
+import { BaseResponseError } from "../errors/base_response_error";
 import { get_date_string, select_value } from "./helper_function";
 import { type z } from "zod";
 import { Op } from "sequelize";
@@ -174,7 +174,7 @@ export class EmployeeTrustService {
 		);
 		return current_employee_trustFE.filter(
 			(emp_trust) => emp_trust != null
-		) as z.infer<typeof employeeTrustFE>[];
+		);
 	}
 
 	async getCurrentEmployeeTrustFEByEmpNo(
@@ -371,20 +371,12 @@ export class EmployeeTrustService {
 		new_emp_id: number,
 		new_emp_trust: z.input<typeof encEmployeeTrust>
 	): Promise<void> {
-		const new_emp_trust_start_date = new Date(new_emp_trust.start_date);
 		const new_emp_trust_end_date = new_emp_trust.end_date
 			? new Date(new_emp_trust.end_date)
 			: null;
 		const allEmployeeTrust = (
 			await this.getAllEmployeeTrustByEmpNo(new_emp_trust.emp_no)
 		).filter((emp_trust) => emp_trust.id != new_emp_id);
-		//右端在裡面
-		// const endOverlapList = allEmployeeTrust.filter(
-		// 	(emp_trust) =>
-		// 		emp_trust.start_date < new_emp_trust.start_date &&
-		// 		(  (emp_trust.end_date == null && new_emp_trust.end_date == null) ||
-		// 			(emp_trust.end_date! > new_emp_trust.start_date &&
-		// 				emp_trust.end_date! <= new_emp_trust.end_date))
 
 		// );
 		//左端在裡面

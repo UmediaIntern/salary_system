@@ -6,7 +6,7 @@ import { ExcelService } from "~/server/service/excel_service";
 import { PayTypeEnum } from "../types/pay_type_enum";
 import { AllowanceMapper } from "~/server/database/mapper/allowance_mapper";
 import { EmployeePaymentService } from "~/server/service/employee_payment_service";
-import { BaseResponseError } from "../error/BaseResponseError";
+import { BaseResponseError } from "../../errors/base_response_error";
 import { OtherMapper } from "~/server/database/mapper/other_mapper";
 import { BonusMapper } from "~/server/database/mapper/bonus_mapper";
 import { CalculateService } from "~/server/service/calculate_service";

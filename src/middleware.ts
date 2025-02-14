@@ -1,28 +1,35 @@
 import { NextResponse } from "next/server";
 import { type NextRequestWithAuth, withAuth } from "next-auth/middleware";
-import {
-	type AccessiblePagesType,
-	accessiblePages,
-} from "./server/api/types/access_page_type";
-import { BaseResponseError } from "./server/api/error/BaseResponseError";
+import { accessiblePages } from "./server/api/types/access_page_type";
+import { z } from "zod";
+import { ParserError } from "./server/errors/parser_error";
+import { MiddlewareErrorScope } from "./server/errors/error_scope";
 
 function guardRoute(
 	request: NextRequestWithAuth,
 	route: string,
 	access: boolean
 ): NextResponse | null {
-  const { pathname, locale } = request.nextUrl;
+	const { pathname, locale } = request.nextUrl;
 
 	if (pathname.startsWith(route)) {
 		if (access) {
 			return NextResponse.rewrite(new URL(request.url));
 		}
 		console.log(`You cannot view ${route} page`);
-    const redirectUrl = new URL(`/${locale}`, request.url);
+		const redirectUrl = new URL(`/${locale}`, request.url);
 		return NextResponse.redirect(redirectUrl);
 	}
 	return null;
 }
+
+const accessResponse = z.object({
+	result: z.object({
+		data: z.object({
+			json: accessiblePages,
+		}),
+	}),
+});
 
 export default withAuth(
 	async function middleware(request: NextRequestWithAuth) {
@@ -34,27 +41,15 @@ export default withAuth(
 			{ method: "GET", headers: request.headers }
 		);
 
-		/* const ResponseSchema = z.object({ */
-		/*   result: z.object({ */
-		/*     data: z.object({ */
-		/*       json: z */
-		/*         .object(AccessiblePagesType) // Use your imported type directly */
-		/*         .nullable(), // Make json property nullable */
-		/*       }), */
-		/*     }), */
-		/* }); */
+		const accessRes = await res.json();
 
-		const data: { result: { data: { json: AccessiblePagesType } } } =
-			await res.json();
+		const parseAccessible = accessResponse.safeParse(accessRes);
 
-		const parseAccessible = accessiblePages.safeParse(
-			data.result.data.json
-		);
 		if (!parseAccessible.success) {
 			console.log(parseAccessible.error);
-			throw new BaseResponseError(`Internal Error: No accessible page`);
+			throw new ParserError(parseAccessible.error.toString(), MiddlewareErrorScope);
 		}
-		const accessible = parseAccessible.data;
+		const accessible = parseAccessible.data.result.data.json;
 
 		const guarded =
 			guardRoute(request, "/functions", accessible.actions) ??

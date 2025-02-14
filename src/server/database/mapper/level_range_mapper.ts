@@ -1,6 +1,6 @@
 import { container, injectable } from "tsyringe";
 import { type z } from "zod";
-import { BaseResponseError } from "~/server/api/error/BaseResponseError";
+import { BaseResponseError } from "~/server/errors/base_response_error";
 import {
 	type createLevelRangeAPI,
 	createLevelRangeService,

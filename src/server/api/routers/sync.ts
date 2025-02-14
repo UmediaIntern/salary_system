@@ -3,7 +3,7 @@ import {
 	publicProcedure,
 } from "~/server/api/trpc";
 import { container } from "tsyringe";
-import { BaseResponseError } from "../error/BaseResponseError";
+import { BaseResponseError } from "../../errors/base_response_error";
 import { z } from "zod";
 import { SyncService } from "~/server/service/sync_service";
 import { FunctionsEnum } from "../types/functions_enum";

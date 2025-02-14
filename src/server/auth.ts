@@ -3,17 +3,16 @@ import {
 	getServerSession,
 	type NextAuthOptions,
 	type DefaultSession,
-	DefaultUser,
+	type DefaultUser,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { container } from "tsyringe";
 import { env } from "~/env.mjs";
 import * as bcrypt from "bcrypt";
-import { BaseResponseError } from "./api/error/BaseResponseError";
+import { BaseResponseError } from "./errors/base_response_error";
 import { UserService } from "./service/user_service";
-import { RolesEnum, RolesEnumType } from "./api/types/role_type";
-import { DefaultJWT } from "next-auth/jwt";
-import { z } from "zod";
+import { RolesEnum, type RolesEnumType } from "./api/types/role_type";
+import { type DefaultJWT } from "next-auth/jwt";
 import { initUser } from "./database/entity/SALARY/user";
 import { Database } from "./database/client";
 
@@ -113,7 +112,7 @@ export const authOptions: NextAuthOptions = {
 				},
 				password: { label: "Password", type: "password" },
 			},
-			async authorize(credentials, req) {
+			async authorize(credentials, _req) {
 				// You need to provide your own logic here that takes the credentials
 				// submitted and returns either a object representing a user or value
 				// that is false/null if the credentials are invalid.

@@ -1,37 +1,38 @@
 import { injectable } from "tsyringe";
 import { BonusDepartment } from "../database/entity/SALARY/bonus_department";
-import { BaseResponseError } from "../api/error/BaseResponseError";
-import { z } from "zod";
+import { type z } from "zod";
 import {
-	createBonusDepartmentService,
-	updateBonusDepartmentService,
+	type createBonusDepartmentService,
+	type updateBonusDepartmentService,
 } from "../api/types/parameters_input_type";
 import { select_value } from "./helper_function";
-import { BonusTypeEnumType } from "../api/types/bonus_type_enum";
+import { type BonusTypeEnumType } from "../api/types/bonus_type_enum";
+import { InternalServerError } from "../errors/internal_server_error";
+import { BonusAllServiceErrorScope } from "../errors/error_scope";
 
 @injectable()
 export class BonusDepartmentService {
-	constructor() { }
-
 	async createBonusDepartment({
 		period_id,
 		bonus_type,
 		department,
 		multiplier,
 	}: z.infer<typeof createBonusDepartmentService>): Promise<BonusDepartment> {
-		const newData = await BonusDepartment.create(
-			{
-				period_id: period_id,
-				bonus_type: bonus_type,
-				department: (typeof department === "number") ? department.toString() : department,
-				multiplier: multiplier,
-				disabled: false,
-				create_by: "system",
-				update_by: "system",
-			}
-		);
+		const newData = await BonusDepartment.create({
+			period_id: period_id,
+			bonus_type: bonus_type,
+			department:
+				typeof department === "number"
+					? department.toString()
+					: department,
+			multiplier: multiplier,
+			disabled: false,
+			create_by: "system",
+			update_by: "system",
+		});
 		return newData;
 	}
+
 	async batchCreateBonusDepartment(
 		data_array: z.infer<typeof createBonusDepartmentService>[]
 	) {
@@ -39,7 +40,10 @@ export class BonusDepartmentService {
 			return {
 				period_id: data.period_id,
 				bonus_type: data.bonus_type,
-				department: (typeof data.department === "number") ? data.department.toString() : data.department,
+				department:
+					typeof data.department === "number"
+						? data.department.toString()
+						: data.department,
 				multiplier: data.multiplier,
 				disabled: false,
 				create_by: "system",
@@ -48,6 +52,7 @@ export class BonusDepartmentService {
 		});
 		await BonusDepartment.bulkCreate(new_data_array);
 	}
+
 	async getMultiplier(
 		period_id: number,
 		bonus_type: BonusTypeEnumType,
@@ -64,25 +69,22 @@ export class BonusDepartmentService {
 		if (list.length == 0) return 1;
 		const correct_department = department.split("\r")[0]?.split("\n")[0];
 		const multiplier = (
-			await BonusDepartment.findOne(
-				{
-					where: {
-						period_id: period_id,
-						bonus_type: bonus_type,
-						department: correct_department,
-						disabled: false,
-					},
-				}
-			)
+			await BonusDepartment.findOne({
+				where: {
+					period_id: period_id,
+					bonus_type: bonus_type,
+					department: correct_department,
+					disabled: false,
+				},
+			})
 		)?.multiplier;
 		return multiplier ?? 0;
 	}
+
 	async getBonusDepartmentById(id: number): Promise<BonusDepartment | null> {
-		const bonusDepartment = await BonusDepartment.findOne(
-			{
-				where: { id: id }
-			}
-		);
+		const bonusDepartment = await BonusDepartment.findOne({
+			where: { id: id },
+		});
 		return bonusDepartment;
 	}
 
@@ -90,24 +92,20 @@ export class BonusDepartmentService {
 		period_id: number,
 		bonus_type: BonusTypeEnumType
 	): Promise<BonusDepartment[] | null> {
-		const bonusDepartment = await BonusDepartment.findAll(
-			{
-				where: {
-					period_id: period_id,
-					bonus_type: bonus_type,
-					disabled: false,
-				},
-			}
-		);
+		const bonusDepartment = await BonusDepartment.findAll({
+			where: {
+				period_id: period_id,
+				bonus_type: bonus_type,
+				disabled: false,
+			},
+		});
 		return bonusDepartment;
 	}
 
 	async getAllBonusDepartment(): Promise<BonusDepartment[] | null> {
-		const bonusDepartment = await BonusDepartment.findAll(
-			{
-				where: { disabled: false },
-			}
-		);
+		const bonusDepartment = await BonusDepartment.findAll({
+			where: { disabled: false },
+		});
 		return bonusDepartment;
 	}
 
@@ -118,24 +116,19 @@ export class BonusDepartmentService {
 	}: z.infer<typeof updateBonusDepartmentService>): Promise<void> {
 		const bonus_department = await this.getBonusDepartmentById(id);
 		if (bonus_department == null) {
-			throw new BaseResponseError("BonusDepartment does not exist");
+			throw new InternalServerError(
+				"BonusDepartment does not exist",
+				BonusAllServiceErrorScope
+			);
 		}
 		await this.deleteBonusDepartment(id);
 
-		await this.createBonusDepartment(
-			{
-				period_id: bonus_department.period_id,
-				bonus_type: bonus_department.bonus_type,
-				department: select_value(
-					department,
-					bonus_department.department
-				),
-				multiplier: select_value(
-					multiplier,
-					bonus_department.multiplier
-				),
-			}
-		);
+		await this.createBonusDepartment({
+			period_id: bonus_department.period_id,
+			bonus_type: bonus_department.bonus_type,
+			department: select_value(department, bonus_department.department),
+			multiplier: select_value(multiplier, bonus_department.multiplier),
+		});
 	}
 
 	async deleteBonusDepartment(id: number): Promise<void> {
@@ -144,7 +137,10 @@ export class BonusDepartmentService {
 			{ where: { id: id } }
 		);
 		if (destroyedRows[0] == 0) {
-			throw new BaseResponseError("Delete error");
+			throw new InternalServerError(
+				"Delete error",
+				BonusAllServiceErrorScope
+			);
 		}
 	}
 }
