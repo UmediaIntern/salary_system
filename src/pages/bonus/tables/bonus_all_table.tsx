@@ -2,31 +2,34 @@ import { useContext, useEffect, useState } from "react";
 import { api } from "~/utils/api";
 import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-
-import { Sheet } from "~/components/ui/sheet";
-import { Button } from "~/components/ui/button";
-import { LoadingSpinner } from "~/components/loading";
-
 import { ArrowUpDown } from "lucide-react";
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
+// Component
+import { Sheet } from "~/components/ui/sheet";
+import { Button } from "~/components/ui/button";
+import { LoadingSpinner } from "~/components/loading";
+import { FunctionsComponent } from "~/components/data_table/functions_component";
+import { ColumnHeaderBaseComponent } from "~/components/data_table/column_header_component";
 
+// Type
+import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
 import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 
-import dataTableContext, {
-	FunctionsItem,
-} from "../components/context/data_table_context";
-import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
-import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
-import { BonusForm } from "../components/function_sheet/bonus_form";
-import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
-import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
-
-import { bonusAllSchema } from "../schemas/configurations/bonus_all_schema";
-import { ColumnHeaderBaseComponent } from "~/components/data_table/column_header_component";
+// Bonus Table Context
 import { useBonusFunctionContext } from "../components/context/data_table_context_provider";
-import { FunctionsComponent } from "~/components/data_table/functions_component";
+import dataTableContext, {FunctionsItem} from "../components/context/data_table_context";
+import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
+
+// Bonus Table Component
+import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
+import { BonusForm } from "../components/function_sheet/bonus_form";
+import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
+import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
+
+// Bonus All Schema
+import { bonusAllSchema } from "../schemas/configurations/bonus_all_schema";
+
 
 
 export type RowItem = {
@@ -41,13 +44,7 @@ type RowItemKey = keyof RowItem;
 const columnHelper = createColumnHelper<RowItem>();
 
 
-export const bonus_all_columns = (
-	{
-		t,
-	}: {
-		t: TFunction<[string], undefined>;
-	}
-) => [
+export const bonus_all_columns = ({t}: {t: TFunction<[string], undefined>;}) => [
 	...["parameters", "value"].map((key: string) =>
 		columnHelper.accessor(key as RowItemKey, {
 			header: ({ column }) => {
@@ -100,9 +97,9 @@ function BonusAllFunctionComponent({data}: {data: RowItem}) {
 	const { setOpen, setMode, setData } = useBonusFunctionContext();
 	return (
 		<FunctionsComponent
+			data={data}
 			setOpen={setOpen}
 			setMode={setMode}
-			data={data}
 			setData={setData}
 		/>
 	);
@@ -110,9 +107,8 @@ function BonusAllFunctionComponent({data}: {data: RowItem}) {
 
 export function bonusAllMapper(bonusAllData: any, t: TFunction): RowItem {
 	return {
-		// parameters: t(`table.multiplier`),
 		id: bonusAllData?.id,
-		parameters: "倍率",
+		parameters: "倍率",			// parameters: t(`table.multiplier`),
 		value: bonusAllData?.multiplier,
 		functions: bonusAllData?.functions,
 	};
@@ -131,11 +127,7 @@ export function BonusAllTable({
 	viewOnly,
 }: BonusAllTableProps) {
 	const { t } = useTranslation(["common"]);
-	// const [open, setOpen] = useState<boolean>(false);
-	// const [mode, setMode] = useState<FunctionMode>("none");
 	const { data: selectedData, open, setOpen, mode, setMode, setData } = useContext(dataTableContext);
-
-
 	const { isLoading, isError, data, error } = api.bonus.getBonusAll.useQuery({
 		period_id,
 		bonus_type,
@@ -146,10 +138,10 @@ export function BonusAllTable({
 		if (data) {
 			setData(data);
 		}
-	}, [data, setData]);
+	}, [data, setData, selectedData]);
 
 
-	if (isLoading) {
+	if (isLoading || !data) {
 		return (
 			<div className="flex grow items-center justify-center">
 				<LoadingSpinner />
@@ -169,9 +161,7 @@ export function BonusAllTable({
 				<BonusToolbarFunctionsProvider selectedTableType={"TableBonusAll"} period_id={period_id} bonus_type={bonus_type}>
 					<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
 						{bonusAllMapper(data!, t) && <DataTableWithFunctions
-							columns={bonus_all_columns({
-								t,
-							})}
+							columns={bonus_all_columns({t})}
 							data={data ? [bonusAllMapper(data!, t)] : []}
 							bonusType={bonus_type}
 							filterColumnKey={filterKey}
@@ -205,19 +195,6 @@ export function BonusAllTable({
 				</BonusToolbarFunctionsProvider>
 			) : (
 				<></>
-				// <DataTableWithoutFunctions
-				// 	columns={bonus_all_columns({
-				// 		t,
-				// 		period_id,
-				// 		bonus_type,
-				// 		setOpen,
-				// 		setMode,
-				// 		setData,
-				// 	})}
-				// 	data={bonusAllMapper(data!)}
-				// 	bonusType={bonus_type}
-				// 	filterColumnKey={filterKey}
-				// />
 			)}
 		</>
 	);

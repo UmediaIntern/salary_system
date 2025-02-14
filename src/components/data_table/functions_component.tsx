@@ -37,7 +37,8 @@ export function FunctionsComponent<TMode, TData extends object>({
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-[120px]">
 				{funcKey.map((key) => {
-					const disabled = !(data?.functions[key] ?? false);
+					// const disabled = !(data?.functions[key] ?? false);
+					const disabled = !(data ? (data.functions ? data.functions[key] : false) : false);
 					const mode =
 						key == "creatable"
 							? "create"

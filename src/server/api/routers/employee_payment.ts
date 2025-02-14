@@ -111,28 +111,28 @@ export const employeePaymentRouter = createTRPCRouter({
 			const validateService = container.resolve(ValidateService);
 
 			const newDatas = input.map(async(i) => {
-				// const previousEmployeePaymentFE =
-				// await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
-				// 	i.emp_no,
-				// 	i.start_date ?? new Date()
-				// );
-				// if (!previousEmployeePaymentFE) {
-				// 	throw new BaseResponseError(
-				// 		`EmployeePayment for emp_no: ${i.emp_no} not exists yet`
-				// 	);
-				// }
+				const previousEmployeePaymentFE =
+				await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
+					i.emp_no,
+					i.start_date ?? new Date()
+				);
+				if (!previousEmployeePaymentFE) {
+					throw new BaseResponseError(
+						`EmployeePayment for emp_no: ${i.emp_no} not exists yet`
+					);
+				}
 
-				// await validateService.validateEmployeePayment({
-				// 	...i,
-				// 	end_date: null,
-				// });
+				await validateService.validateEmployeePayment({
+					...i,
+					end_date: null,
+				});
 				
 				const newData = await employeePaymentService.createEmployeePayment({
 					...i,
 					end_date: null,
 				})
 
-				// await employeePaymentService.rescheduleEmployeePayment();
+				await employeePaymentService.rescheduleEmployeePayment();
 
 				return await employeePaymentMapper.decode(newData);
 			})
