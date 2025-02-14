@@ -1,5 +1,8 @@
-import { container, injectable } from "tsyringe";
-import { EmployeeData, EmployeeDataDecType } from "../database/entity/SALARY/employee_data";
+import { injectable } from "tsyringe";
+import {
+	EmployeeData,
+	type EmployeeDataDecType,
+} from "../database/entity/SALARY/employee_data";
 import { type z } from "zod";
 import {
 	type createEmployeeDataService,
@@ -13,7 +16,7 @@ import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 
 @injectable()
 export class EmployeeDataService {
-	/* constructor() {} */
+	constructor(private readonly employeeDataMapper: EmployeeDataMapper) {}
 
 	async createEmployeeData({
 		period_id,
@@ -35,8 +38,7 @@ export class EmployeeDataService {
 		bank_account_taiwan,
 		bank_account_foreign,
 		received_elderly_benefits,
-	}:
-		z.infer<typeof createEmployeeDataService>): Promise<EmployeeData> {
+	}: z.infer<typeof createEmployeeDataService>): Promise<EmployeeData> {
 		const newData = await EmployeeData.create({
 			period_id: period_id,
 			emp_no: emp_no,
@@ -69,11 +71,13 @@ export class EmployeeDataService {
 				id: id,
 			},
 		});
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-		return await employee_data_mapper.decode(employeeData);
+		return await this.employeeDataMapper.decode(employeeData);
 	}
 
-	async getEmployeeDataByEmpNoByPeriod(period_id: number, emp_no: string): Promise<EmployeeDataDecType> {
+	async getEmployeeDataByEmpNoByPeriod(
+		period_id: number,
+		emp_no: string
+	): Promise<EmployeeDataDecType> {
 		const employeeData = await EmployeeData.findOne({
 			where: {
 				emp_no: emp_no,
@@ -81,25 +85,34 @@ export class EmployeeDataService {
 			},
 		});
 		if (employeeData == null) {
-			throw new Error(`Employee data does not exist,emp_no: ${emp_no},period_id: ${period_id}`)
+			throw new Error(
+				`Employee data does not exist,emp_no: ${emp_no},period_id: ${period_id}`
+			);
 		}
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-		return await employee_data_mapper.decode(employeeData);
+		return await this.employeeDataMapper.decode(employeeData);
 	}
 
-	async getLatestEmployeeDataByEmpNo(emp_no: string): Promise<EmployeeDataDecType> {
+	async getLatestEmployeeDataByEmpNo(
+		emp_no: string
+	): Promise<EmployeeDataDecType> {
 		const employeeData = await EmployeeData.findAll({
 			where: {
 				emp_no: emp_no,
 			},
 			order: [["period_id", "DESC"]],
 		});
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-    // TODO: why assert??? without check???
-		return await employee_data_mapper.decode(employeeData[0]!);
+		const latest_emp = employeeData[0];
+		if (!latest_emp) {
+			throw new BaseResponseError(
+				`Employee data does not exist, emp_no: ${emp_no}`
+			);
+		}
+		return await this.employeeDataMapper.decode(latest_emp);
 	}
 
-	async getLatestEmployeeDataByEmpNoList(emp_no_list: string[]): Promise<EmployeeDataDecType[]> {
+	async getLatestEmployeeDataByEmpNoList(
+		emp_no_list: string[]
+	): Promise<EmployeeDataDecType[]> {
 		const candidates = await EmployeeData.findAll({
 			where: {
 				emp_no: { [Op.in]: emp_no_list },
@@ -107,73 +120,64 @@ export class EmployeeDataService {
 			order: [["period_id", "DESC"]],
 		});
 		const employeeDataList = emp_no_list.map((emp_no) => {
-			const employeeData = candidates.find((candidate) => candidate.emp_no === emp_no);
+			const employeeData = candidates.find(
+				(candidate) => candidate.emp_no === emp_no
+			);
 			if (employeeData == null) {
-				throw new BaseResponseError(`Employee data does not exist, emp_no: ${emp_no}`);
+				throw new BaseResponseError(
+					`Employee data does not exist, emp_no: ${emp_no}`
+				);
 			}
 			return employeeData;
-		})
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-		return await employee_data_mapper.decodeList(employeeDataList);
+		});
+		return await this.employeeDataMapper.decodeList(employeeDataList);
 	}
-	// async getEmployeeDataByEmpNoByDate(date: Date,emp_no: string): Promise<EmployeeDataDecType | null> {
-	// 	const ehr_service = container.resolve(EHRService);
-	// 	const period_id = await ehr_service.getPeriodIdByDate(date);
-	// 	const employeeData = await EmployeeData.findOne({
-	// 		where: {
-	// 			emp_no: emp_no,
-	// 			period_id: period_id,
-	// 		},
-	// 	});
-	// 	const employee_data_mapper = container.resolve(EmployeeDataMapper);
-	// 	if (employeeData == null ){
-	// 		this.getLatestEmployeeDataByEmpNo(emp_no);
-	// 		throw new BaseResponseError("Employee data does not exist");
-	// 	}
-	// 	return await employee_data_mapper.decode(employeeData);
-	// }
 
-	async getEmployeeDataByEmpNoListByPeriod(period_id: number, emp_no_list: string[]): Promise<EmployeeDataDecType[]> {
-		const employeeDataList = (await EmployeeData.findAll({
-			where: {
-				emp_no: {
-					[Op.in]: emp_no_list,
+	async getEmployeeDataByEmpNoListByPeriod(
+		period_id: number,
+		emp_no_list: string[]
+	): Promise<EmployeeDataDecType[]> {
+		const employeeDataList = (
+			await EmployeeData.findAll({
+				where: {
+					emp_no: {
+						[Op.in]: emp_no_list,
+					},
+					period_id: period_id,
 				},
-				period_id: period_id
-			},
-		})).filter((employeeData) => emp_no_list.includes(employeeData.emp_no));
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-		return await employee_data_mapper.decodeList(employeeDataList);
+			})
+		).filter((employeeData) => emp_no_list.includes(employeeData.emp_no));
+		return await this.employeeDataMapper.decodeList(employeeDataList);
 	}
 
-	async getCurrentEmployeeData(period_id: number): Promise<EmployeeDataDecType[]> {
+	async getCurrentEmployeeData(
+		period_id: number
+	): Promise<EmployeeDataDecType[]> {
 		const employeeDataList = await EmployeeData.findAll({
 			where: {
-				period_id: period_id
+				period_id: period_id,
 			},
 		});
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-		return await employee_data_mapper.decodeList(employeeDataList);
+		return await this.employeeDataMapper.decodeList(employeeDataList);
 	}
-
 
 	async getAllEmployeeData(): Promise<EmployeeDataDecType[]> {
 		const employeeDataList = await EmployeeData.findAll({
 			order: [["emp_no", "ASC"]],
 		});
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-		return await employee_data_mapper.decodeList(employeeDataList);
+		return await this.employeeDataMapper.decodeList(employeeDataList);
 	}
 
-	async getAllEmployeeDataByPeriod(period_id: number): Promise<EmployeeDataDecType[]> {
+	async getAllEmployeeDataByPeriod(
+		period_id: number
+	): Promise<EmployeeDataDecType[]> {
 		const employeeDataList = await EmployeeData.findAll({
 			where: {
-				period_id: period_id
+				period_id: period_id,
 			},
 			order: [["emp_no", "ASC"]],
 		});
-		const employee_data_mapper = container.resolve(EmployeeDataMapper);
-		return await employee_data_mapper.decodeList(employeeDataList);
+		return await this.employeeDataMapper.decodeList(employeeDataList);
 	}
 
 	async updateEmployeeData({
@@ -197,8 +201,7 @@ export class EmployeeDataService {
 		bank_account_taiwan,
 		bank_account_foreign,
 		received_elderly_benefits,
-	}:
-		z.infer<typeof updateEmployeeDataService>): Promise<void> {
+	}: z.infer<typeof updateEmployeeDataService>): Promise<void> {
 		const employeeData = await this.getEmployeeDataById(id);
 		if (employeeData == null) {
 			throw new BaseResponseError("Employee account does not exist");
@@ -280,9 +283,11 @@ export class EmployeeDataService {
 		bank_account_taiwan,
 		bank_account_foreign,
 		received_elderly_benefits,
-	}:
-		z.infer<typeof updateEmployeeDataByEmpNoService>): Promise<void> {
-		const employeeData = await this.getEmployeeDataByEmpNoByPeriod(period_id!, emp_no!);
+	}: z.infer<typeof updateEmployeeDataByEmpNoService>): Promise<void> {
+		const employeeData = await this.getEmployeeDataByEmpNoByPeriod(
+			period_id!,
+			emp_no!
+		);
 		if (employeeData == null) {
 			throw new BaseResponseError("Employee account does not exist");
 		}
