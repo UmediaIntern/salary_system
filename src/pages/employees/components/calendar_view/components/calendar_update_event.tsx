@@ -21,7 +21,7 @@ import {
 	DialogFooter,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import AutoForm from "~/components/ui/auto-form";
+// import AutoForm from "~/components/ui/auto-form";
 import { z } from "zod";
 import { employeeToolbarFunctionsContext } from "../../function_sheet/employee_functions_context";
 import { modeDescription } from "~/lib/utils/helper_function";
@@ -98,7 +98,7 @@ export default function CalendarUpdateEvent({}: CalendarUpdateEventProps) {
 					<SheetDescription>{modeDescription(t, mode)}</SheetDescription>
 				</SheetHeader>
 				<ScrollArea className="h-[85%] w-full">
-					<AutoForm
+					{/* <AutoForm
 						className="mb-10 mr-5 ml-5 mt-5"
 						_defaultValues={selectedEvent?.getData()}
 						values={formValues}
@@ -121,7 +121,7 @@ export default function CalendarUpdateEvent({}: CalendarUpdateEventProps) {
 								<Button type="submit">Update</Button>
 							</div>
 						</div>
-					</AutoForm>
+					</AutoForm> */}
 					{/* Submit change dialog */}
 					<Dialog open={openDialog} onOpenChange={setOpenDialog}>
 						<DialogContent className="max-h-screen overflow-y-scroll sm:max-w-[425px]">

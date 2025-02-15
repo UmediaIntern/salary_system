@@ -1,4 +1,3 @@
-import AutoForm from "~/components/ui/auto-form";
 import * as z from "zod";
 import { Button } from "~/components/ui/button";
 import { useState } from "react";

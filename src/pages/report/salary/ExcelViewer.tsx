@@ -33,7 +33,7 @@ import { useTranslation } from "react-i18next";
 
 const DEFAULT_TEXT_COLOR = "#000000";
 const DEFAULT_BACKGROUND_COLOR = "#ffffff";
-const DEFAULT_HEADER_BACKGROUND_COLOR = "#909090";
+const DEFAULT_HEADER_BACKGROUND_COLOR = "#d0d0d0";
 const formatColor = (colorCode: string, colorMode: "text" | "background") => {
 	return colorMode == "text" ? `text-[${colorCode}]` : `bg-[${colorCode}]`;
 };
@@ -442,7 +442,7 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 							initialColor={
 								(sheets[selectedSheetIndex]!.data ?? []).findLast((rows, r_idx) => 
 									r_idx === selectedCell.rowIndex)?.findLast((cols, c_idx) => 
-									c_idx === selectedCell.colIndex)?.backgroundColor ?? "#FFFFFF"
+									c_idx === selectedCell.colIndex)?.backgroundColor ?? DEFAULT_BACKGROUND_COLOR
 							}
 							
 							setFinalColor={(newColor: string) => {
@@ -477,7 +477,7 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 							initialColor={
 								(sheets[selectedSheetIndex]!.data ?? []).findLast((rows, r_idx) => 
 								r_idx === selectedCell.rowIndex)?.findLast((cols, c_idx) => 
-								c_idx === selectedCell.colIndex)?.textColor ?? "#FFFFFF"
+								c_idx === selectedCell.colIndex)?.textColor ?? DEFAULT_BACKGROUND_COLOR
 							}
 							setFinalColor={(newColor: string) => {
 								changeSheets(

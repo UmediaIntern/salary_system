@@ -1,33 +1,38 @@
+import { useContext, useEffect, useState } from "react";
 import { api } from "~/utils/api";
-import { Button } from "~/components/ui/button";
-import { createColumnHelper } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
-import { DataTable as DataTableWithFunctions } from "../components/data_table";
-import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
-import { type BonusPosition } from "~/server/database/entity/SALARY/bonus_position";
-import { LoadingSpinner } from "~/components/loading";
-import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
-import { useTranslation } from "react-i18next";
-import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import { useState, useContext } from "react";
-import { bonusPositionSchema } from "../schemas/configurations/bonus_position_schema";
-import { BonusForm } from "../components/function_sheet/bonus_form";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
 import { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
+import { ArrowUpDown } from "lucide-react";
+import { createColumnHelper } from "@tanstack/react-table";
 
+// Component
 import { Sheet } from "~/components/ui/sheet";
-import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
-import dataTableContext, {
-	FunctionsItem,
-	type FunctionMode,
-} from "../components/context/data_table_context";
+import { Button } from "~/components/ui/button";
+import { LoadingSpinner } from "~/components/loading";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
-import { formatDate } from "~/lib/utils/format_date";
+import { ColumnHeaderBaseComponent } from "~/components/data_table/column_header_component";
+
+// Type
+import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
+import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
+
+// Bonus Table Context
+import { useBonusFunctionContext } from "../components/context/data_table_context_provider";
+import dataTableContext, {FunctionsItem} from "../components/context/data_table_context";
+import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
+
+// Bonus Table Component
+import { DataTable as DataTableWithFunctions } from "../components/data_table";
+import { BonusForm } from "../components/function_sheet/bonus_form";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
+import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
+
+// Bonus Position Type & Schema
 import { BonusPositionFEType } from "~/server/api/types/bonus_position_type";
+import { bonusPositionSchema } from "../schemas/configurations/bonus_position_schema";
 
 export type RowItem = {
+	id: number;
 	position: number;
 	position_type: string;
 	position_multiplier: number;
@@ -38,22 +43,9 @@ type RowItemKey = keyof RowItem;
 
 const columnHelper = createColumnHelper<RowItem>();
 
-export const bonus_position_columns = ({
-	t,
-	setOpen,
-	setMode,
-	setData,
-}: {
-	t: TFunction<[string], undefined>;
-	setOpen: (open: boolean) => void;
-	setMode: (mode: FunctionMode) => void;
-	setData: (data: RowItem) => void;
-}) => [
-	...[
-		"position",
-		"position_multiplier",
-		"position_type_multiplier",
-	].map((key: string) =>
+
+export const bonus_position_columns = ({t}: {t: TFunction<[string], undefined>;}) => [
+	...["position", "position_multiplier", "position_type_multiplier"].map((key: string) =>
 		columnHelper.accessor(key as RowItemKey, {
 			header: ({ column }) => {
 				return (
@@ -76,41 +68,43 @@ export const bonus_position_columns = ({
 			},
 			cell: ({ row }) => {
 				switch (key) {
-					case "position":
-						return (
-							<div className="text-center font-medium">{`${row.original.position}${row.original.position_type}`}</div>
-						);
 					default:
 						return (
-							<div className="text-center font-medium">{`${row.original[key as RowItemKey]?.toString()}`}</div>
+							<div className="text-center font-medium">{`${
+								row.original[key as RowItemKey]
+							}`}</div>
 						);
 				}
 			},
 		})
 	),
 	columnHelper.accessor("functions", {
-		header: ({ column }) => {
+		header: () => {
 			return (
-				<div className="flex justify-center">
-					<div className="text-center font-medium">
-						{t(`others.functions`)}
-					</div>
-				</div>
+				<ColumnHeaderBaseComponent>
+					{t(`others.functions`)}
+				</ColumnHeaderBaseComponent>
 			);
 		},
 		cell: ({ row }) => {
-			return (
-				<FunctionsComponent
-					t={t}
-					setOpen={setOpen}
-					setMode={setMode}
-					data={row.original}
-					setData={setData}
-				/>
-			);
+		// TODO: Should use data with Frontend Type instead of data in table?
+			return <BonusFunctionComponent data={row.original} />;
 		},
 	}),
 ];
+
+function BonusFunctionComponent({data}: {data: RowItem}) {
+	const { setOpen, setMode, setData } = useBonusFunctionContext();
+	return (
+		<FunctionsComponent
+			data={data}
+			setOpen={setOpen}
+			setMode={setMode}
+			setData={setData}
+		/>
+	);
+}
+
 
 export function bonusPositionMapper(
 	bonusPositionData: BonusPositionFEType[]
@@ -142,59 +136,47 @@ export function BonusPositionTable({
 	viewOnly,
 }: BonusPositionTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { selectedBonusType, open, setOpen, mode, setMode, setData } =
-		useContext(dataTableContext);
+	const { data: selectedData, selectedBonusType, open, setOpen, mode, setMode, setData } = useContext(dataTableContext);
 
-	const { isLoading, isError, data, error } =
-		api.bonus.getBonusPosition.useQuery({ period_id, bonus_type });
+	const { isLoading, isError, data, error } = api.bonus.getBonusPosition.useQuery({ period_id, bonus_type });
 	const filterKey: RowItemKey = "position";
 
-	if (isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
+	useEffect(() => {if (data) {setData(data);}}, [data, setData, selectedData]);
 
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
-	}
+	// TODO: Error element with toast
+	if (isLoading) return <div className="flex grow items-center justify-center"><LoadingSpinner /></div>;
+	if (isError) return <span>Error: {error.message}</span>; 
 
 	return (
 		<>
 			{!viewOnly ? (
-				<BonusToolbarFunctionsProvider
-					selectedTableType={"TableBonusPosition"}
-					period_id={period_id}
-					bonus_type={bonus_type}
-				>
-					<Sheet
-						open={open && mode !== "delete"}
-						onOpenChange={setOpen}
-					>
-						{/* <Button onClick={() => console.log(selectedBonusType)}>TEST</Button> */}
-						<DataTableWithFunctions
-							columns={bonus_position_columns({
-								t,
-								setOpen,
-								setMode,
-								setData,
-							})}
-							original_columns={["position", "position_type", "position_multiplier", "position_type_multiplier"]}
-							data={bonusPositionMapper(data!)}
+				<BonusToolbarFunctionsProvider selectedTableType={"TableBonusPosition"} period_id={period_id} bonus_type={bonus_type}>
+					<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+						{bonusPositionMapper(data!) && <DataTableWithFunctions
+							columns={bonus_position_columns({t})}
+							data={data ? bonusPositionMapper(data!) : []}
 							bonusType={bonus_type}
 							filterColumnKey={filterKey}
-						/>
+						/>}
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<BonusForm
-								formSchema={bonusPositionSchema}
-								formConfig={[{ key: "id", config: { hidden: true } }]}
-								mode={mode}
-								closeSheet={() => {
-									setOpen(false);
-								}}
-							/>
+							{
+								mode === "create" && <BonusForm
+									formSchema={bonusPositionSchema.omit({ id: true })}
+									formConfig={undefined}
+									mode={mode}
+									defaultValue={{...selectedData}}
+									closeSheet={() => setOpen(false)}
+								/>
+							}
+							{
+								mode === "update" && <BonusForm
+									formSchema={bonusPositionSchema}
+									formConfig={[{ key: "id", config: { hidden: true } }]}
+									mode={mode}
+									defaultValue={{...selectedData}}
+									closeSheet={() => setOpen(false)}
+								/>
+							}
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog open={open && mode === "delete"} onOpenChange={setOpen} schema={bonusPositionSchema}/>

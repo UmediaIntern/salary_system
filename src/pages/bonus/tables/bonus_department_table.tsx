@@ -30,6 +30,7 @@ import { FunctionsSheetContent } from "../components/function_sheet/functions_sh
 // Bonus Department Type & Schema
 import { BonusDepartmentFEType } from "~/server/api/types/bonus_department_type";
 import { bonusDepartmentSchema } from "../schemas/configurations/bonus_department_schema";
+import { BonusFunctionComponent } from "./bonus_function_component";
 
 
 
@@ -90,24 +91,10 @@ export const bonus_department_columns = ({t}: {t: TFunction<[string], undefined>
 		},
 		cell: ({ row }) => {
 		// TODO: Should use data with Frontend Type instead of data in table?
-			return <BonusDepartmentFunctionComponent data={row.original} />;
+			return <BonusFunctionComponent data={row.original} />;
 		},
 	}),
 ];
-
-
-
-function BonusDepartmentFunctionComponent({data}: {data: RowItem}) {
-	const { setOpen, setMode, setData } = useBonusFunctionContext();
-	return (
-		<FunctionsComponent
-			data={data}
-			setOpen={setOpen}
-			setMode={setMode}
-			setData={setData}
-		/>
-	);
-}
 
 
 export function bonusDepartmentMapper(

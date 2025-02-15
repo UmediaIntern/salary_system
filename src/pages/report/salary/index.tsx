@@ -31,6 +31,7 @@ import { z } from 'zod';
 import { api } from "~/utils/api";
 
 import { useTranslation } from "next-i18next";
+import { StandardForm } from "~/components/form/default/form_standard";
 
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
@@ -129,12 +130,11 @@ function ExportPage() {
 							</SheetDescription>
 						</SheetHeader>
 						<ScrollArea className="h-[85%] w-full">
-							<AutoForm 
-								className="mb-10 mr-5 ml-5 mt-5"
+							<StandardForm
 								formSchema={createSchema()}
-								values={formValues}
-								onValuesChange={setFormValues}
-								onSubmit={(data) => {
+								formConfig={undefined}
+								defaultValue={getDefaults(createSchema())}
+								formSubmit={(data) => {
 									setOpen(false)
 									// changeShowKeys("Sheet1", data);
 									let newExcludedColumns = [];
@@ -146,11 +146,9 @@ function ExportPage() {
 										getExcelData(ExcludeDataColumn(getExcelA.data!, newExcludedColumns))
 									);
 								}}
-							>			
-							<Button>
-								Submit
-							</Button>				
-							</AutoForm>
+								buttonText={"save"}
+								closeSheet={() => setOpen(false)}
+							/>
 							<ScrollBar orientation="horizontal" />
 						</ScrollArea>
 						
