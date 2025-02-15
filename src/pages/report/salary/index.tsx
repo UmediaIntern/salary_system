@@ -1,37 +1,40 @@
+import { useContext, useState } from "react";
+import { z } from 'zod';
+
+// Translation
+import { useTranslation } from "next-i18next";
+import { i18n, locales } from "~/components/lang_config";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+
+// Layout
 import { RootLayout } from "~/components/layout/root_layout";
 import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
-import { Header } from "~/components/header";
 import { type NextPageWithLayout } from "../../_app";
-import { useContext, useState } from "react";
-import ExcelViewer from "./ExcelViewer";
-import { LoadingSpinner } from "~/components/loading";
+
+// Context
 import periodContext from "~/components/context/period_context";
 
-import { getExcelData, getDefaults } from "./utils";
-import { keyDict } from "./utils";
-
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { i18n, locales } from "~/components/lang_config";
+// Components
+import { Header } from "~/components/header";
 import { Button } from "~/components/ui/button";
-
+import { LoadingSpinner } from "~/components/loading";
+import { StandardForm } from "~/components/form/default/form_standard";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import {
 	Sheet,
-	SheetClose,
 	SheetContent,
 	SheetDescription,
-	SheetFooter,
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
 } from "~/components/ui/sheet";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import AutoForm from "~/components/ui/auto-form";
-import { z } from 'zod';
+import ExcelViewer from "./ExcelViewer";
 
+// Functions
 import { api } from "~/utils/api";
+import { getExcelData, getDefaults } from "./utils";
 
-import { useTranslation } from "next-i18next";
-import { StandardForm } from "~/components/form/default/form_standard";
+
 
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
@@ -57,12 +60,8 @@ Salary.getLayout = function getLayout(page: React.ReactElement) {
 export default Salary;
 
 function ExportPage() {
-	// const getExcelA = api.function.getExcelA.useQuery();
 	const { selectedPeriod } = useContext(periodContext);
-
-	const getExcelA = api.transaction.getAllTransaction.useQuery({
-		period_id: selectedPeriod?.period_id ?? 0
-	});
+	const getExcelA = api.transaction.getAllTransaction.useQuery({period_id: selectedPeriod?.period_id ?? 0});
 	const [selectedSheetIndex, setSelectedSheetIndex] = useState(0);
 
 	const [toExcludedColumns, setToExcludedColumns] = useState([
@@ -178,20 +177,6 @@ function ExportPage() {
 					<LoadingSpinner />
 				</div>
 			)}
-
-			{/* <Button onClick={() => {
-				setToExcludedColumns([]);
-				setToDisplayData(getExcelData(ExcludeDataColumn(getExcelA.data!, [])));
-			}}>
-				Set
-			</Button>
-			<br></br>
-			<Button onClick={() => {
-				console.log("ToExcludedColumns", toExcludedColumns);
-				console.log("ToDisplayData", toDisplayData);
-			}}>
-				Console.log
-			</Button> */}
 		</>
 	);
 }
