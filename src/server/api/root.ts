@@ -12,6 +12,7 @@ import { calculateRouter } from "./routers/calculate";
 import { transactionRouter } from "./routers/transaction";
 import { bonusRouter } from "./routers/bonus";
 import { incomeTaxSettingRouter } from "./routers/income_tax_setting";
+import { testTransactionRouter } from "./routers/TEST_transaction";
 
 /**
  * This is the primary router for your server.
@@ -33,6 +34,8 @@ export const appRouter = createTRPCRouter({
 	transaction: transactionRouter,
 
 	incomeTaxSetting: incomeTaxSettingRouter,
+
+	testTransaction: testTransactionRouter,
 });
 
 // export type definition of API

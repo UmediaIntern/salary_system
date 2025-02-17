@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { inverse_translate } from "public/locales/utils";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -64,7 +64,19 @@ function recoverData(
 	return mappedData;
 }
 
-async function extract_data(file: File): Promise<any[][] | null> {
+
+function recoverMultiSheetData(
+	data: Record<string, any[]>,
+	table_name?: string
+): Record<string, Record<string, unknown>[]> {
+	const datas: Record<string, Record<string, unknown>[]> = {};
+	Object.keys(data).forEach((key) => {
+		datas[key] = recoverData(data[key]!, table_name);
+	});
+	return datas;
+}
+
+async function extract_data(file: File, multiSheet?: boolean): Promise<any | null> {
 	if (!file) return null;
 	try {
 		// Read the file as ArrayBuffer
@@ -75,29 +87,64 @@ async function extract_data(file: File): Promise<any[][] | null> {
 		await workbook.xlsx.load(arrayBuffer);
 
 		// Access the first sheet
-		const sheet = workbook.worksheets[0];
-		if (!sheet) return null;
 
-		const rows: any[][] = [];
+		if (multiSheet) {		
+			const datas: Record<string, any[]> = {};
 
-		sheet.eachRow({ includeEmpty: true }, (row) => {
-			let rowValues: any[];
-			if (Array.isArray(row.values)) {
-				rowValues = row.values;
-			} else {
-				rowValues = Object.values(row.values);
+			for (let i = 0; i < workbook.worksheets.length; i++) {
+				// get sheet name
+				const sheetName = workbook.worksheets[i]!.name;
+
+				// get sheet data
+				const sheet = workbook.worksheets[i]!;
+				const rows: any[][] = [];
+				sheet.eachRow({ includeEmpty: true }, (row) => {
+					let rowValues: any[];
+					if (Array.isArray(row.values)) {
+						rowValues = row.values;
+					} else {
+						rowValues = Object.values(row.values);
+					}
+					// Remove empty rows
+					if (rowValues.length === 0) return;
+					if (rowValues.every((val) => val === undefined || val === null))
+						return;
+
+					rows.push(rowValues);
+				});
+
+				// TODO: data mapping
+
+				datas[sheetName] = rows;
 			}
-			// Remove empty rows
-			if (rowValues.length === 0) return;
-			if (rowValues.every((val) => val === undefined || val === null))
-				return;
+			return datas;
+		}
+		else {
+			const sheet = workbook.worksheets[0];
+			if (!sheet) return null;
 
-			rows.push(rowValues);
-		});
+			const rows: any[][] = [];
+
+			sheet.eachRow({ includeEmpty: true }, (row) => {
+				let rowValues: any[];
+				if (Array.isArray(row.values)) {
+					rowValues = row.values;
+				} else {
+					rowValues = Object.values(row.values);
+				}
+				// Remove empty rows
+				if (rowValues.length === 0) return;
+				if (rowValues.every((val) => val === undefined || val === null))
+					return;
+
+				rows.push(rowValues);
+			});
+			
+			return rows;
+		}
 
 		// TODO: data mapping
 
-		return rows;
 	} catch (error) {
 		console.error("Error processing file");
 		return null;
@@ -106,12 +153,13 @@ async function extract_data(file: File): Promise<any[][] | null> {
 
 interface ExcelUploadProps {
 	onClick?: (data: any) => void;
+	multiSheet?: boolean;
 }
 
-export function ExcelUpload({ onClick }: ExcelUploadProps) {
+export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 	const [view, setView] = useState("upload");
 	const { t } = useTranslation("common");
-	const [data, setData] = useState<any[][] | null>(null);
+	const [data, setData] = useState<any | null>(null);
 
 	async function handleFileUpload(files: File[]) {
 		console.log(files);
@@ -119,10 +167,12 @@ export function ExcelUpload({ onClick }: ExcelUploadProps) {
 			throw new Error("Only one file can be uploaded at a time");
 		}
 		for (const file of files) {
-			const data = await extract_data(file);
+			const data = await extract_data(file, multiSheet);
 			if (data) setData(data);
 		}
 	}
+
+	useEffect(() => {if (data) setView("preview")}, [data]);
 
 	return (
 		<>
@@ -152,8 +202,12 @@ export function ExcelUpload({ onClick }: ExcelUploadProps) {
 					{data ? (
 						<UploadPreview
 							data={data}
+							multiSheet={multiSheet}
 							onClick={() => {
-								onClick?.(recoverData(data));
+								if (multiSheet) {
+									onClick?.(recoverMultiSheetData(data));
+								}
+								else {onClick?.(recoverData(data));}
 							}}
 						/>
 					) : (

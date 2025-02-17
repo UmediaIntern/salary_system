@@ -103,10 +103,10 @@ export const employeeDataRouter = createTRPCRouter({
 			// const empAllList = await ehrService.initEmployeeData(input.period_id);
 
 			// Excel
-			// const workbook = XLSX.readFile("/Users/max.liu/Downloads/TEST.xls");
-			// const sheet = workbook.Sheets['員工基本資料'];
-			const workbook = XLSX.readFile("C:/Users/USER/Desktop/test/init.xls");
-			const sheet = workbook.Sheets['薪資查詢明細'];
+			const workbook = XLSX.readFile("/Users/max.liu/Downloads/TEST.xls");
+			const sheet = workbook.Sheets['員工基本資料'];
+			// const workbook = XLSX.readFile("C:/Users/USER/Desktop/test/init.xls");
+			// const sheet = workbook.Sheets['薪資查詢明細'];
 			const data = XLSX.utils.sheet_to_json(sheet, { raw: false });
 			
 			const empAllList: EmpAll[] = data.map((data: { [x: string]: any; }): EmpAll => {

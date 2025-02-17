@@ -14,12 +14,18 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 interface UploadPreviewProps {
 	data: any[][];
+	multiSheet?: boolean;
 	onClick?: () => void;
 }
 
-export function UploadPreview({ data, onClick }: UploadPreviewProps) {
+export function UploadPreview({ data, multiSheet, onClick }: UploadPreviewProps) {
 	const { t } = useTranslation("common");
 	console.log("upload preview", data);
+
+	if (multiSheet) {
+		const first_key: string = Object.keys(data)[0]!;
+		data = data[first_key as any]!;
+	}
 
 	return (
 		<div className="flex h-full w-full flex-col">

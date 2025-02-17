@@ -241,6 +241,15 @@ const settingLinks: NavLinkEntry[] = [
 	},
 ];
 
+const testLinks: NavLinkEntry[] = [
+	{
+		title: "test transaction",
+		icon: CircleDollarSign,
+		url: "/test",
+		collapsed: false,
+	}
+]
+
 // https://www.flaticon.com/free-icon-font/coins_7928197?related_id=7928197
 export function Sidebar({
 	className,
@@ -324,6 +333,28 @@ export function Sidebar({
 					)}
 					<div className="space-y-1">
 						{settingLinks.map((link) => (
+							<CompNavLinkWrap
+								key={link.title}
+								navLinkEntry={link}
+								currentPath={pathname}
+								collapsed={isCollapsed}
+								collapseFunction={collapseFunction}
+								expandFunction={expandFunction}
+							>
+								{t(link.title)}
+							</CompNavLinkWrap>
+						))}
+					</div>
+				</div>
+				{/* Test */}
+				<div className={cn("py-2", !isCollapsed && "px-3")}>
+					{!isCollapsed && (
+						<div className="mb-2 line-clamp-1 break-all px-4 text-lg font-semibold tracking-tight">
+							{t("configurations")}
+						</div>
+					)}
+					<div className="space-y-1">
+						{testLinks.map((link) => (
 							<CompNavLinkWrap
 								key={link.title}
 								navLinkEntry={link}

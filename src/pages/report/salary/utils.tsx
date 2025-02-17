@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { displayData, displayDataNoTranslate } from "~/components/synchronize/utils/display";
 export interface keyDict {
 	[key: string]: string[];
 }
@@ -16,7 +17,7 @@ export function getExcelData(Alldatas: any[]) {
             );
             const rows = datas.map((data: any, index: number) => {
                 return Object.keys(data).map((key: string) => {
-                    return data[key];
+                    return displayDataNoTranslate(data[key]);
                 });
             });
             rows.unshift(columns);

@@ -51,3 +51,26 @@ export const displayData = (
 	if (data === null)		return t("table.no_data");
 	if (data === undefined)		return t("table.no_data");
 };
+
+
+export const displayDataNoTranslate = (
+	data: any,
+) => {
+	if (typeof data === "boolean") return data ? "True" : "False";
+	if (typeof data === "number") return data;
+
+	if (isDateType(data)) {
+		return formatDate("hour", new Date(data));
+	}
+
+	if (typeof data === "string") {
+		const dateCheck = isValidDateString(data);
+		if (dateCheck) return formatDate(dateCheck as "day" | "hour", data);
+		return data;
+	}
+
+
+	if (data === null)		return "";
+	if (data === undefined)		return "";
+};
+

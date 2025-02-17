@@ -100,6 +100,8 @@
     "shift_allowance": "輪班津貼",
     "subsidy_allowance": "補助津貼",
     "supervisor_allowance": "主管津貼",
+    "allowance_id": "津貼編號",
+    "bonus_id": "獎金編號",
     "l_r": "勞退",
   
     "emp_trust_reserve": "員工信託提存金",

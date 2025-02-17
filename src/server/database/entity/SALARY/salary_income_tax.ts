@@ -62,11 +62,11 @@ export class SalaryIncomeTax extends Model<
 	declare end_date: string | null;
 	declare disabled: boolean;
 
-	// // timestamps!
-	// // createdAt can be undefined during creation
+	// timestamps!
+	// createdAt can be undefined during creation
 	declare create_date: CreationOptional<Date>;
 	declare create_by: string;
-	// // updatedAt can be undefined during creation
+	// updatedAt can be undefined during creation
 	declare update_date: CreationOptional<Date>;
 	declare update_by: string;
 }
