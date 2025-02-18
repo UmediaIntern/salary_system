@@ -152,26 +152,16 @@ const TEST: NextPageWithLayout = () => {
 
 			</> : 
 			<>
-				<Button onClick={() => console.log(result)}>console.log(result)</Button>
+				{/* <Button onClick={() => console.log(result)}>console.log(result)</Button>
 				<Button onClick={() => console.log(ExcludeDataColumn(result, []))}>console.log(ExcludeDataColumn(result, []))</Button>
-				<Button onClick={() => console.log(getExcelData(ExcludeDataColumn(result, [])))}>console.log(getExcelData(ExcludeDataColumn(result, [])))</Button>
+				<Button onClick={() => console.log(getExcelData(ExcludeDataColumn(result, [])))}>console.log(getExcelData(ExcludeDataColumn(result, [])))</Button> */}
 				<div className="grow m-4">
-					<Select>
-						<SelectTrigger className="w-[180px]">
-							<SelectValue placeholder="請選擇" />
-						</SelectTrigger>
-						<SelectContent>
-							{Object.keys(data).map(
-								(key) => <SelectItem key={key} value={key}>{key}</SelectItem>
-							)}
-						</SelectContent>
-					</Select>
 					<ExcelViewer 
 						original_sheets={
 							getExcelData(ExcludeDataColumn(result, []))
 						}
 						filter_component={<></>}
-						selectedSheetIndex={1}
+						selectedSheetIndex={0}
 						setSelectedSheetIndex={(index) => {console.log(index)}}
 					/>
 				</div>

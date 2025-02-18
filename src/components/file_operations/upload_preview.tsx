@@ -30,13 +30,6 @@ export function UploadPreview({ data, multiSheet, onClick }: UploadPreviewProps)
 		if (multiSheet) setSelectedSheet(Object.keys(data)[0]!);
 	}, []);
 
-
-
-	// if (multiSheet) {
-	// 	const first_key: string = Object.keys(data)[0]!;
-	// 	data = data[first_key as any]!;
-	// }
-
 	function SelectComponent() {
 		if (multiSheet) {
 			return (
