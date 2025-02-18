@@ -44,6 +44,7 @@ import ExcelViewer from "../report/salary/ExcelViewer";
 import { getExcelData } from "../report/salary/utils";
 import { t } from "i18next";
 import { Header } from "~/components/header";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
 
 const DEFAULT_PERIOD = 132;
@@ -83,7 +84,7 @@ const TEST: NextPageWithLayout = () => {
 	const insuranceSetting = api.parameters.getCurrentInsuranceRateSetting.useQuery({ period_id: data ? data.length>0 ? data[0].period_id ?? DEFAULT_PERIOD : DEFAULT_PERIOD : DEFAULT_PERIOD });
 	const allowanceType = api.testTransaction.getAllowanceType.useQuery();
 	const bonusType = api.testTransaction.getBonusType.useQuery();
-
+	const expenseTypeList = api.testTransaction.getExpenseTypeList.useQuery();
 
 	const createTransaction = api.testTransaction.testCreateTransaction.useMutation({
 		onSuccess: () => {
@@ -147,7 +148,8 @@ const TEST: NextPageWithLayout = () => {
 					}}>
 					TEST CREATE TRANSACTION
 				</Button>
-				
+				<Button onClick={() => console.log(expenseTypeList.data)}>console.log(expenseTypeList)</Button>
+
 			</> : 
 			<>
 				{/* <Button onClick={() => console.log(result)}>console.log(result)</Button>
@@ -163,6 +165,10 @@ const TEST: NextPageWithLayout = () => {
 						setSelectedSheetIndex={(index) => {console.log(index)}}
 					/>
 				</div>
+
+				<Button onClick={() => setResult(undefined)}>
+					回上一頁
+				</Button>
 			</>
 			}
 		</>
