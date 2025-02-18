@@ -146,6 +146,7 @@ export class TransactionService {
 		const bonus_type_list = commonParameters.bonus_type_list;
 		const expense_list = commonParameters.expense_list.filter(e => e.emp_no === emp_no);
 		const expense_class_list = commonParameters.expense_class_list;
+
 		const salary_income_tax_list = commonParameters.salary_income_tax_list;
 
 		const income_tax_setting = commonParameters.income_tax_setting;
@@ -418,8 +419,6 @@ export class TransactionService {
 			create_by: "system",
 			update_by: "system",
 		};
-
-		// console.log(result);
 
 		return result;
 

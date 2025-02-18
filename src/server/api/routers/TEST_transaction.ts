@@ -67,4 +67,8 @@ export const testTransactionRouter = createTRPCRouter({
         const ehrService = container.resolve(EHRService);
         return await ehrService.getBonusType();
     }),
+    getExpenseTypeList: publicProcedure.query(async () => {
+        const ehrService = container.resolve(EHRService);
+        return await ehrService.getExpenseClass();
+    })
 });
