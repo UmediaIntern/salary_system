@@ -26,7 +26,6 @@ import {
 	SheetTrigger,
 } from "~/components/ui/sheet";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import AutoForm from "~/components/ui/auto-form";
 import { z } from 'zod';
 
 import { api } from "~/utils/api";
@@ -243,28 +242,28 @@ export function BonusExcelExport() {
 							</SheetDescription>
 						</SheetHeader>
 						<ScrollArea className="h-[85%] w-full">
-							<AutoForm 
-								className="mb-10 mr-5 ml-5 mt-5"
-								formSchema={createSchema()}
-								values={formValues}
-								onValuesChange={setFormValues}
-								onSubmit={(data) => {
-									setOpen(false)
-									// changeShowKeys("Sheet1", data);
-									let newExcludedColumns = [];
-									for (const [key, value] of Object.entries(data)) {
-										if (!value) newExcludedColumns.push(key);
-									}
-									setToExcludedColumns(newExcludedColumns);
-									setToDisplayData(
-										getExcelData(ExcludeDataColumn(getExcelA.data!, newExcludedColumns))
-									);
-								}}
-							>			
-							<Button>
-								Submit
-							</Button>				
-							</AutoForm>
+							{/* <AutoForm  */}
+							{/* 	className="mb-10 mr-5 ml-5 mt-5" */}
+							{/* 	formSchema={createSchema()} */}
+							{/* 	values={formValues} */}
+							{/* 	onValuesChange={setFormValues} */}
+							{/* 	onSubmit={(data) => { */}
+							{/* 		setOpen(false) */}
+							{/* 		// changeShowKeys("Sheet1", data); */}
+							{/* 		let newExcludedColumns = []; */}
+							{/* 		for (const [key, value] of Object.entries(data)) { */}
+							{/* 			if (!value) newExcludedColumns.push(key); */}
+							{/* 		} */}
+							{/* 		setToExcludedColumns(newExcludedColumns); */}
+							{/* 		setToDisplayData( */}
+							{/* 			getExcelData(ExcludeDataColumn(getExcelA.data!, newExcludedColumns)) */}
+							{/* 		); */}
+							{/* 	}} */}
+							{/* >			 */}
+							{/* <Button> */}
+							{/* 	Submit */}
+							{/* </Button>				 */}
+							{/* </AutoForm> */}
 							<ScrollBar orientation="horizontal" />
 						</ScrollArea>
 						

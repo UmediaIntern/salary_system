@@ -3,6 +3,7 @@ import { type BonusTableEnum } from "../bonus_tables";
 import { Button } from "~/components/ui/button";
 import { EmptyCreate } from "./empty_create";
 import { getSchema } from "../schemas/get_schemas";
+
 export function EmptyTable({ err_msg, selectedTableType }: { err_msg: string, selectedTableType: BonusTableEnum }) {
 	const [alertOpen, setAlertOpen] = useState(true);
 	return (

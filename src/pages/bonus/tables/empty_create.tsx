@@ -1,4 +1,3 @@
-import AutoForm from "~/components/ui/auto-form";
 import * as z from "zod";
 import { Button } from "~/components/ui/button";
 import { useState } from "react";
@@ -105,36 +104,36 @@ function EmptyCreateForm<SchemaType extends z.AnyZodObject>({
 					}
 				>
 					<>
-						<AutoForm
-							className="mb-10 mr-5 ml-5 mt-5"
-							_defaultValues={{}}
-							values={formValues}
-							onValuesChange={setFormValues}
-							onSubmit={handleSubmit}
-							formSchema={formSchema}
-							fieldConfig={fieldConfig}
-						>
-							<div>
-								<div className="flex justify-between">
-									<Button
-										type="button"
-										variant={"outline"}
-										onClick={() => {
-											if (mode === "create") {
-												setOpenConfirmDialog(false);
-												onClose();
-											}
-										}}
-									>
-										Cancel
-									</Button>
-
-									<Button type="submit">
-										{mode === "create" && t("button.create")}
-									</Button>
-								</div>
-							</div>
-						</AutoForm>
+						{/* <AutoForm */}
+						{/* 	className="mb-10 mr-5 ml-5 mt-5" */}
+						{/* 	_defaultValues={{}} */}
+						{/* 	values={formValues} */}
+						{/* 	onValuesChange={setFormValues} */}
+						{/* 	onSubmit={handleSubmit} */}
+						{/* 	formSchema={formSchema} */}
+						{/* 	fieldConfig={fieldConfig} */}
+						{/* > */}
+						{/* 	<div> */}
+						{/* 		<div className="flex justify-between"> */}
+						{/* 			<Button */}
+						{/* 				type="button" */}
+						{/* 				variant={"outline"} */}
+						{/* 				onClick={() => { */}
+						{/* 					if (mode === "create") { */}
+						{/* 						setOpenConfirmDialog(false); */}
+						{/* 						onClose(); */}
+						{/* 					} */}
+						{/* 				}} */}
+						{/* 			> */}
+						{/* 				Cancel */}
+						{/* 			</Button> */}
+						{/**/}
+						{/* 			<Button type="submit"> */}
+						{/* 				{mode === "create" && t("button.create")} */}
+						{/* 			</Button> */}
+						{/* 		</div> */}
+						{/* 	</div> */}
+						{/* </AutoForm> */}
 						{/* Submit change dialog */}
 						<Dialog
 							open={openConfirmDialog}

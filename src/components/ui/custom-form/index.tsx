@@ -9,10 +9,10 @@ import { cn } from "~/lib/utils";
 
 import { type ZodObjectOrWrapped } from "./utils";
 import { createFormEntries, parseSchema } from "./parser";
-import { AutoFormField } from "./field";
+import { CustomFormField } from "./field";
 import { type CustomFormProps } from "./types";
 
-export function AutoFormSubmit({ children }: { children?: ReactNode }) {
+export function CustomFormSubmit({ children }: { children?: ReactNode }) {
 	return <Button type="submit">{children ?? "Submit"}</Button>;
 }
 
@@ -62,7 +62,7 @@ export default function CustomForm<SchemaType extends ZodObjectOrWrapped>({
 					const field = entry.field
           const config = entry.config;
 
-					return !config?.hidden && <AutoFormField
+					return !config?.hidden && <CustomFormField
 						key={field.key}
 						field={field}
 						path={[field.key]}

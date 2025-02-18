@@ -6,7 +6,7 @@ import { FieldWrapper } from "./field-wrapper";
 import { ErrorMessage } from "./field-error-message";
 import { FIELD_COMPONENTS } from "./config";
 
-export function AutoFormField({
+export function CustomFormField({
 	field,
 	path,
   render,
@@ -29,7 +29,7 @@ export function AutoFormField({
 
 	let FieldComponent: React.ComponentType<FormFieldProps> = () => (
 		<ErrorMessage
-			error={`[AutoForm Configuration Error] No component found for type "${field.type}" nor a fallback`}
+			error={`[CustomFormField Configuration Error] No component found for type "${field.type}" nor a fallback`}
 		/>
 	);
 

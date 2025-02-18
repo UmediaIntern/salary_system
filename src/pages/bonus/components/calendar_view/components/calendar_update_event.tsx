@@ -22,7 +22,6 @@ import {
 	DialogFooter,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import AutoForm from "~/components/ui/auto-form";
 import GeneralTable from "../../../../../components/table_functions/general_table";
 import { z } from "zod";
 import { parameterToolbarFunctionsContext } from "../../function_sheet/parameter_functions_context";
