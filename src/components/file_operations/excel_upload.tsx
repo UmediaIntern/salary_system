@@ -103,10 +103,12 @@ async function extract_data(
 				if (rowValues.every((val) => val === undefined || val === null))
 					return;
 
+        rowValues = Array.from<any[], unknown[]>(rowValues, x => x ?? "");
 				rows.push(rowValues);
 			});
 
-			const sheetName = sheet.name;
+
+      const sheetName = sheet.name;
 			datas[sheetName] = rows;
 		}
 

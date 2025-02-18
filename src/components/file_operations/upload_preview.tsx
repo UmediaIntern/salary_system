@@ -49,7 +49,11 @@ export function UploadPreview({ datas, onClick }: UploadPreviewProps) {
 								return (
 									<Button
 										key={key}
-										variant={selectedKey === key ? "secondary" : "outline"}
+										variant={
+											selectedKey === key
+												? "secondary"
+												: "outline"
+										}
 										onClick={() => setSelectedKey(key)}
 									>
 										{key}
@@ -88,8 +92,8 @@ interface PreviewTableProps {
 function PreviewTable({ data }: PreviewTableProps) {
 	return (
 		<Table className="">
-			<TableHeader className="sticky top-0">
-				<TableRow className="bg-muted hover:bg-muted">
+			<TableHeader className="">
+				<TableRow className="sticky top-0 bg-muted hover:bg-muted">
 					{(data?.[0] ?? []).map((header: string, index: number) => {
 						if (index == 0) return <></>;
 						else
@@ -109,17 +113,24 @@ function PreviewTable({ data }: PreviewTableProps) {
 					<TableRow key={rowIndex}>
 						{row.map((cell: any, cellIndex: number) => {
 							if (cellIndex == 0) return <></>;
-							else
+							else {
+								const cellData: string = isDateType(cell)
+									? formatDate("day", cell)
+									: cell ?? "";
+
+                if (cellIndex == 11) {
+                    console.log(cellData)
+                  }
+
 								return (
 									<TableCell
 										key={cellIndex}
 										className="text-center"
 									>
-										{isDateType(cell)
-											? formatDate("day", cell)
-											: cell}
+										{cellData === "" ? "-" : cellData}
 									</TableCell>
 								);
+							}
 						})}
 					</TableRow>
 				))}
