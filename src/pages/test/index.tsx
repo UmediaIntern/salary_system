@@ -165,6 +165,10 @@ const TEST: NextPageWithLayout = () => {
 						setSelectedSheetIndex={(index) => {console.log(index)}}
 					/>
 				</div>
+
+				<Button onClick={() => setResult(undefined)}>
+					回上一頁
+				</Button>
 			</>
 			}
 		</>
