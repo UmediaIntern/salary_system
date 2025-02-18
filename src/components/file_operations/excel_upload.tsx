@@ -129,7 +129,6 @@ export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 	const [data, setData] = useState<Record<string, any[][]> | null>(null);
 
 	async function handleFileUpload(files: File[]) {
-		console.log(files);
 		if (files.length !== 1) {
 			throw new Error("Only one file can be uploaded at a time");
 		}

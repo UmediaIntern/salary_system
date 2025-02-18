@@ -88,8 +88,8 @@ interface PreviewTableProps {
 function PreviewTable({ data }: PreviewTableProps) {
 	return (
 		<Table className="">
-			<TableHeader>
-				<TableRow className="bg-muted">
+			<TableHeader className="sticky top-0">
+				<TableRow className="bg-muted hover:bg-muted">
 					{(data?.[0] ?? []).map((header: string, index: number) => {
 						if (index == 0) return <></>;
 						else
