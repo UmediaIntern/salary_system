@@ -64,9 +64,8 @@ function recoverData(
 	return mappedData;
 }
 
-
 function recoverMultiSheetData(
-	data: Record<string, any[]>,
+	data: Record<string, any[][]>,
 	table_name?: string
 ): Record<string, Record<string, unknown>[]> {
 	const datas: Record<string, Record<string, unknown>[]> = {};
@@ -76,7 +75,9 @@ function recoverMultiSheetData(
 	return datas;
 }
 
-async function extract_data(file: File, multiSheet?: boolean): Promise<any | null> {
+async function extract_data(
+	file: File,
+): Promise<Record<string, any[][]> | null> {
 	if (!file) return null;
 	try {
 		// Read the file as ArrayBuffer
@@ -86,43 +87,8 @@ async function extract_data(file: File, multiSheet?: boolean): Promise<any | nul
 		const workbook = new Workbook();
 		await workbook.xlsx.load(arrayBuffer);
 
-		// Access the first sheet
-
-		if (multiSheet) {		
-			const datas: Record<string, any[]> = {};
-
-			for (let i = 0; i < workbook.worksheets.length; i++) {
-				// get sheet name
-				const sheetName = workbook.worksheets[i]!.name;
-
-				// get sheet data
-				const sheet = workbook.worksheets[i]!;
-				const rows: any[][] = [];
-				sheet.eachRow({ includeEmpty: true }, (row) => {
-					let rowValues: any[];
-					if (Array.isArray(row.values)) {
-						rowValues = row.values;
-					} else {
-						rowValues = Object.values(row.values);
-					}
-					// Remove empty rows
-					if (rowValues.length === 0) return;
-					if (rowValues.every((val) => val === undefined || val === null))
-						return;
-
-					rows.push(rowValues);
-				});
-
-				// TODO: data mapping
-
-				datas[sheetName] = rows;
-			}
-			return datas;
-		}
-		else {
-			const sheet = workbook.worksheets[0];
-			if (!sheet) return null;
-
+		const datas: Record<string, any[][]> = {};
+		for (const sheet of workbook.worksheets) {
 			const rows: any[][] = [];
 
 			sheet.eachRow({ includeEmpty: true }, (row) => {
@@ -139,12 +105,13 @@ async function extract_data(file: File, multiSheet?: boolean): Promise<any | nul
 
 				rows.push(rowValues);
 			});
-			
-			return rows;
+
+			const sheetName = sheet.name;
+			datas[sheetName] = rows;
 		}
 
 		// TODO: data mapping
-
+    return datas;
 	} catch (error) {
 		console.error("Error processing file");
 		return null;
@@ -159,7 +126,7 @@ interface ExcelUploadProps {
 export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 	const [view, setView] = useState("upload");
 	const { t } = useTranslation("common");
-	const [data, setData] = useState<any | null>(null);
+	const [data, setData] = useState<Record<string, any[][]> | null>(null);
 
 	async function handleFileUpload(files: File[]) {
 		console.log(files);
@@ -167,12 +134,14 @@ export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 			throw new Error("Only one file can be uploaded at a time");
 		}
 		for (const file of files) {
-			const data = await extract_data(file, multiSheet);
+			const data = await extract_data(file);
 			if (data) setData(data);
 		}
 	}
 
-	useEffect(() => {if (data) setView("preview")}, [data]);
+	useEffect(() => {
+		if (data) setView("preview");
+	}, [data]);
 
 	return (
 		<>
@@ -182,13 +151,13 @@ export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 				onValueChange={setView}
 				className="w-full"
 			>
-				<TabsList className="grid w-full grid-cols-2">
+				<TabsList className="grid w-full grid-cols-2 mb-2">
 					<TabsTrigger value="upload">
 						{t("button.excel_upload")}
 					</TabsTrigger>
 					<TabsTrigger
 						value="preview"
-						disabled={!data || data.length === 0}
+						disabled={!data}
 					>
 						{t("button.excel_preview")}
 					</TabsTrigger>
@@ -201,13 +170,13 @@ export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 				<TabsContent value="preview">
 					{data ? (
 						<UploadPreview
-							data={data}
-							multiSheet={multiSheet}
+							datas={data}
 							onClick={() => {
 								if (multiSheet) {
 									onClick?.(recoverMultiSheetData(data));
+								} else {
+									onClick?.(recoverData(data));
 								}
-								else {onClick?.(recoverData(data));}
 							}}
 						/>
 					) : (

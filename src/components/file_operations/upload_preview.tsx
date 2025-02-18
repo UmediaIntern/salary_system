@@ -11,74 +11,66 @@ import { useTranslation } from "react-i18next";
 import { isDateType } from "~/lib/utils/check_type";
 import { formatDate } from "~/lib/utils/format_date";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { useEffect, useState } from "react";
+import { cn } from "~/lib/utils";
 
 interface UploadPreviewProps {
-	data: any[][];
-	multiSheet?: boolean;
+	datas: Record<string, any[][]>;
 	onClick?: () => void;
 }
 
-export function UploadPreview({ data, multiSheet, onClick }: UploadPreviewProps) {
+export function UploadPreview({ datas, onClick }: UploadPreviewProps) {
 	const { t } = useTranslation("common");
-	console.log("upload preview", data);
+	console.log("upload preview", datas);
+	const [selectedKey, setSelectedKey] = useState<string | null>(null);
+	const [isMultiSheet, setIsMultiSheet] = useState(false);
 
-	if (multiSheet) {
-		const first_key: string = Object.keys(data)[0]!;
-		data = data[first_key as any]!;
-	}
+	useEffect(() => {
+		const keys = Object.keys(datas);
+
+		if (keys.length > 1) {
+			setIsMultiSheet(true);
+		}
+
+		const firstKey = keys[0];
+		if (!firstKey) return;
+
+		setSelectedKey(firstKey);
+	}, [datas]);
 
 	return (
 		<div className="flex h-full w-full flex-col">
-				<div className="flex w-full">
-					<ScrollArea className="max-h-[55vh]">
-					<Table className="">
-						<TableHeader>
-							<TableRow>
-								{(data?.[0] ?? []).map(
-									(header: any, index: number) => {
-										if (index == 0) return <></>;
-										else
-											return (
-												<TableHead key={index} className="text-center min-w-[100px]">
-													{header}
-												</TableHead>
-											);
-									}
-								)}
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{data
-								?.slice(1)
-								.map((row: any[], rowIndex: number) => (
-									<TableRow key={rowIndex}>
-										{row.map(
-											(cell: any, cellIndex: number) => {
-												if (cellIndex == 0)
-													return <></>;
-												else
-													return (
-														<TableCell
-															key={cellIndex}
-															className="text-center"
-														>
-															{isDateType(cell)
-																? formatDate(
-																		"day",
-																		cell
-																  )
-																: cell}
-														</TableCell>
-													);
-											}
-										)}
-									</TableRow>
-								))}
-						</TableBody>
-					</Table>
-					<ScrollBar orientation="horizontal" hidden={true} />
+			<div className="flex w-full flex-col gap-2">
+				{/* Tabs list */}
+				{isMultiSheet && (
+					<ScrollArea>
+						<div className="flex gap-2">
+							{Object.keys(datas).map((key) => {
+								return (
+									<Button
+										key={key}
+										variant={selectedKey === key ? "secondary" : "outline"}
+										onClick={() => setSelectedKey(key)}
+									>
+										{key}
+									</Button>
+								);
+							})}
+						</div>
+
+						<ScrollBar orientation="horizontal" />
 					</ScrollArea>
-				</div>
+				)}
+
+				{selectedKey && datas[selectedKey] && (
+					<div className="flex rounded-sm border-2 border-muted">
+						<ScrollArea className="max-h-[55vh] w-full">
+							<PreviewTable data={datas[selectedKey]} />
+							<ScrollBar orientation="horizontal" hidden={true} />
+						</ScrollArea>
+					</div>
+				)}
+			</div>
 
 			<div className="mt-4 flex justify-end">
 				<Button className="ml-auto" onClick={onClick}>
@@ -89,14 +81,49 @@ export function UploadPreview({ data, multiSheet, onClick }: UploadPreviewProps)
 	);
 }
 
-// () => {
-// 	batchCreateFunction.mutate(
-// 		recoverData(
-// 			data.map((d) => d.slice(1)),
-// 			selectedPeriod?.period_id ?? 0,
-// 			selectedBonusType,
-// 			true,
-// 			selectedTableType
-// 		)
-// 	);
-// }
+interface PreviewTableProps {
+	data: any[][];
+}
+
+function PreviewTable({ data }: PreviewTableProps) {
+	return (
+		<Table className="">
+			<TableHeader>
+				<TableRow className="bg-muted">
+					{(data?.[0] ?? []).map((header: string, index: number) => {
+						if (index == 0) return <></>;
+						else
+							return (
+								<TableHead
+									key={index}
+									className={cn("min-w-[140px] text-center")}
+								>
+									{header}
+								</TableHead>
+							);
+					})}
+				</TableRow>
+			</TableHeader>
+			<TableBody>
+				{data?.slice(1).map((row: any[], rowIndex: number) => (
+					<TableRow key={rowIndex}>
+						{row.map((cell: any, cellIndex: number) => {
+							if (cellIndex == 0) return <></>;
+							else
+								return (
+									<TableCell
+										key={cellIndex}
+										className="text-center"
+									>
+										{isDateType(cell)
+											? formatDate("day", cell)
+											: cell}
+									</TableCell>
+								);
+						})}
+					</TableRow>
+				))}
+			</TableBody>
+		</Table>
+	);
+}
