@@ -2,7 +2,13 @@ import { cn } from "~/lib/utils";
 import { buttonVariants } from "~/components/ui/button";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useContext, type PropsWithChildren, useEffect } from "react";
+import {
+	useEffect,
+	useContext,
+	type PropsWithChildren,
+	type ReactElement,
+	type HTMLAttributes,
+} from "react";
 import { api } from "~/utils/api";
 import {
 	GanttChartSquare,
@@ -116,15 +122,19 @@ function CompSelectItemWrap(props: PropsWithChildren<SelectItemProp>) {
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<Dialog>
-						<DialogTrigger
-							className={cn(
-								buttonVariants({ variant: "ghost" }),
-								"w-full items-center justify-center"
-							)}
-						>
-							<props.selectItemEntry.icon className="h-4 w-4" />
-							<TooltipContent>{props.children}</TooltipContent>
-						</DialogTrigger>
+						<div className="flex w-full items-center justify-center">
+							<DialogTrigger
+								className={cn(
+									buttonVariants({ variant: "ghost" })
+								)}
+							>
+								<props.selectItemEntry.icon className="h-4 w-4" />
+								<TooltipContent>
+									{props.children}
+								</TooltipContent>
+							</DialogTrigger>
+						</div>
+
 						<DialogContent>
 							{props.selectItemEntry.popUpPage}
 						</DialogContent>
@@ -159,7 +169,7 @@ function CompSelectItemWrap(props: PropsWithChildren<SelectItemProp>) {
 	);
 }
 
-interface SidebarProp extends React.HTMLAttributes<HTMLDivElement> {
+interface SidebarProp extends HTMLAttributes<HTMLDivElement> {
 	isCollapsed: boolean;
 	collapseFunction: () => void;
 	expandFunction: () => void;
@@ -175,7 +185,7 @@ type NavLinkEntry = {
 type SelectItemEntry = {
 	title: string;
 	icon: LucideIcon;
-	popUpPage: React.ReactElement;
+	popUpPage: ReactElement;
 };
 
 // Nav link configurations
