@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { api } from "~/utils/api";
-import { TFunction } from "i18next";
+import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { ArrowUpDown } from "lucide-react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -14,11 +14,13 @@ import { ColumnHeaderBaseComponent } from "~/components/data_table/column_header
 
 // Type
 import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
-import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
+import { type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 
 // Bonus Table Context
 import { useBonusFunctionContext } from "../components/context/data_table_context_provider";
-import dataTableContext, {FunctionsItem} from "../components/context/data_table_context";
+import dataTableContext, {
+	type FunctionsItem,
+} from "../components/context/data_table_context";
 import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
 
 // Bonus Table Component
@@ -29,8 +31,7 @@ import { FunctionsSheetContent } from "../components/function_sheet/functions_sh
 
 // Bonus All Schema
 import { bonusAllSchema } from "../schemas/configurations/bonus_all_schema";
-
-
+import { type BonusAllFEType } from "~/server/api/types/bonus_all_type";
 
 export type RowItem = {
 	id: number;
@@ -40,13 +41,17 @@ export type RowItem = {
 };
 type RowItemKey = keyof RowItem;
 
-
 const columnHelper = createColumnHelper<RowItem>();
 
+const columnNames: RowItemKey[] = ["parameters", "value"];
 
-export const bonus_all_columns = ({t}: {t: TFunction<[string], undefined>;}) => [
-	...["parameters", "value"].map((key: string) =>
-		columnHelper.accessor(key as RowItemKey, {
+export const bonus_all_columns = ({
+	t,
+}: {
+	t: TFunction<[string], undefined>;
+}) => [
+	...columnNames.map((key) =>
+		columnHelper.accessor(key, {
 			header: ({ column }) => {
 				return (
 					<div className="flex justify-center">
@@ -70,9 +75,9 @@ export const bonus_all_columns = ({t}: {t: TFunction<[string], undefined>;}) => 
 				switch (key) {
 					default:
 						return (
-							<div className="text-center font-medium">{`${
-								row.original[key as RowItemKey]
-							}`}</div>
+							<div className="text-center font-medium">
+								{JSON.stringify(row.original[key]) ?? ""}
+							</div>
 						);
 				}
 			},
@@ -87,13 +92,13 @@ export const bonus_all_columns = ({t}: {t: TFunction<[string], undefined>;}) => 
 			);
 		},
 		cell: ({ row }) => {
-		// TODO: Should use data with Frontend Type instead of data in table?
+			// TODO: Should use data with Frontend Type instead of data in table?
 			return <BonusAllFunctionComponent data={row.original} />;
 		},
 	}),
 ];
 
-function BonusAllFunctionComponent({data}: {data: RowItem}) {
+function BonusAllFunctionComponent({ data }: { data: RowItem }) {
 	const { setOpen, setMode, setData } = useBonusFunctionContext();
 	return (
 		<FunctionsComponent
@@ -105,10 +110,10 @@ function BonusAllFunctionComponent({data}: {data: RowItem}) {
 	);
 }
 
-export function bonusAllMapper(bonusAllData: any, t: TFunction): RowItem {
+export function bonusAllMapper(bonusAllData: BonusAllFEType): RowItem {
 	return {
 		id: bonusAllData?.id,
-		parameters: "倍率",			// parameters: t(`table.multiplier`),
+		parameters: "倍率", // parameters: t(`table.multiplier`),
 		value: bonusAllData?.multiplier,
 		functions: bonusAllData?.functions,
 	};
@@ -127,11 +132,19 @@ export function BonusAllTable({
 	viewOnly,
 }: BonusAllTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { data: selectedData, open, setOpen, mode, setMode, setData } = useContext(dataTableContext);
+	const {
+		data: selectedData,
+		open,
+		setOpen,
+		mode,
+		setData,
+	} = useContext(dataTableContext);
+
 	const { isLoading, isError, data, error } = api.bonus.getBonusAll.useQuery({
 		period_id,
 		bonus_type,
 	});
+
 	const filterKey: RowItemKey = "parameters";
 
 	useEffect(() => {
@@ -139,7 +152,6 @@ export function BonusAllTable({
 			setData(data);
 		}
 	}, [data, setData, selectedData]);
-
 
 	if (isLoading || !data) {
 		return (
@@ -153,38 +165,58 @@ export function BonusAllTable({
 		return <span>Error: {error.message}</span>; // TODO: Error element with toast
 	}
 
-	
-
 	return (
 		<>
 			{!viewOnly ? (
-				<BonusToolbarFunctionsProvider selectedTableType={"TableBonusAll"} period_id={period_id} bonus_type={bonus_type}>
-					<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
-						{bonusAllMapper(data!, t) && <DataTableWithFunctions
-							columns={bonus_all_columns({t})}
-							data={data ? [bonusAllMapper(data!, t)] : []}
-							bonusType={bonus_type}
-							filterColumnKey={filterKey}
-						/>}
+				<BonusToolbarFunctionsProvider
+					selectedTableType={"TableBonusAll"}
+					period_id={period_id}
+					bonus_type={bonus_type}
+				>
+					<Sheet
+						open={open && mode !== "delete"}
+						onOpenChange={setOpen}
+					>
+						{bonusAllMapper(data) && (
+							<DataTableWithFunctions
+								columns={bonus_all_columns({ t })}
+								data={data ? [bonusAllMapper(data)] : []}
+								bonusType={bonus_type}
+								filterColumnKey={filterKey}
+							/>
+						)}
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							{
-								mode === "create" && <BonusForm
-									formSchema={bonusAllSchema.omit({ id: true })}
+							{mode === "create" && (
+								<BonusForm
+									formSchema={bonusAllSchema.omit({
+										id: true,
+									})}
 									formConfig={undefined}
 									mode={mode}
-									defaultValue={selectedData && {multiplier: selectedData.value}}
+									defaultValue={
+										selectedData && {
+											multiplier: selectedData.value,
+										}
+									}
 									closeSheet={() => setOpen(false)}
 								/>
-							}
-							{
-								mode === "update" && <BonusForm
+							)}
+							{mode === "update" && (
+								<BonusForm
 									formSchema={bonusAllSchema}
-									formConfig={[{ key: "id", config: { hidden: true } }]}
+									formConfig={[
+										{ key: "id", config: { hidden: true } },
+									]}
 									mode={mode}
-									defaultValue={selectedData && {id: selectedData.id, multiplier: selectedData.value}}
+									defaultValue={
+										selectedData && {
+											id: selectedData.id,
+											multiplier: selectedData.value,
+										}
+									}
 									closeSheet={() => setOpen(false)}
 								/>
-							}
+							)}
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog

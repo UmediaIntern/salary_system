@@ -2,13 +2,7 @@ import { cn } from "~/lib/utils";
 import { useContext, useState } from "react";
 import {
 	type LucideIcon,
-	PenSquare,
-	Plus,
-	PlusSquare,
-	Trash2,
-	Copy,
 	NotebookPen,
-	RefreshCcw,
 	EllipsisVertical,
 	Download,
 	Upload,
@@ -30,7 +24,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "~/components/ui/dialog"
+} from "~/components/ui/dialog";
 
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { Button } from "~/components/ui/button";
@@ -39,25 +33,19 @@ import { BonusForm } from "./bonus_form";
 import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { getSchema } from "../../schemas/get_schemas";
 import { modeDescription } from "~/lib/utils/helper_function";
-import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
+import { type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 
 import z from "zod";
 import { BonusWorkTypeBatchCreateForm } from "./batch_create_form/bonus_work_type_batch_create_form";
 import { BonusDepartmentBatchCreateForm } from "./batch_create_form/bonus_department_batch_create_form";
 import { BonusPositionBatchCreateForm } from "./batch_create_form/bonus_position_batch_create_form";
-import { BonusPositionTypeBatchCreateForm } from "./batch_create_form/bonus_position_type_batch_create_form";
 import { BonusSeniorityBatchCreateForm } from "./batch_create_form/bonus_seniority_batch_create_form";
-import { BonusTableEnumValues } from "../../bonus_tables";
 import { bonusToolbarFunctionsContext } from "./bonus_functions_context";
-import { UseTRPCQueryResult } from "@trpc/react-query/shared";
-import { Label } from "@radix-ui/react-label";
-import { Checkbox } from "@radix-ui/react-checkbox";
-import { Input } from "~/components/ui/input";
 
 import { BonusBatchUpdateForm } from "./batch_update_form";
-import { FunctionMode } from "../context/data_table_context";
-import { ExcelDownload } from "../excel_download/ExcelDownloader";
-import { ExcelUpload } from "../excel_upload/ExcelUpload";
+import { type FunctionMode } from "../context/data_table_context";
+import { BonusExcelDownloader } from "../excel_download/bonus_excel_downloader";
+import { BonusExcelUpload } from "../excel_upload/bonus_excel_upload";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -85,16 +73,11 @@ export function DataTableFunctions({
 	const [mode, setMode] = useState<FunctionMode>("none");
 	const { t } = useTranslation(["common", "nav"]);
 	const functions = useContext(bonusToolbarFunctionsContext);
-	const queryFunction = functions.queryFunction;
-	const updateFunction = functions.updateFunction;
-	const batchUpdateFunction = functions.batchUpdateFunction;
-	const createFunction = functions.createFunction;
-	const batchCreateFunction = functions.batchCreateFunction;
-	const deleteFunction = functions.deleteFunction;
 	const autoCalculateFunction = functions.autoCalculateFunction;
+	const batchUpdateFunction = functions.batchUpdateFunction;
 
 	// ========================= Additional Condition for Schema =====================================
-	let schema = getSchema(tableType);
+	const schema = getSchema(tableType);
 
 	return (
 		<div className={cn(className, "flex h-full items-center")}>
@@ -147,54 +130,62 @@ export function DataTableFunctions({
 					</DropdownMenuContent>
 				</DropdownMenu>
 				{/* Sheet */}
-				<DialogContent className="w-[60%]">
-					<DialogHeader>
-						<DialogTitle>
-							{`${t(`button.${mode}`)!}${t("button.form")} (${t(
-								getTableNameKey(tableType)
-							)})`}
-						</DialogTitle>
-						<DialogDescription>
-							{modeDescription(t, mode)}
-						</DialogDescription>
-					</DialogHeader>
+				{mode == "excel_download" && (
+					<BonusExcelDownloader
+						table_name={tableType}
+						bonus_type={bonusType}
+					/>
+				)}
+				{mode == "excel_upload" && (
+					<BonusExcelUpload
+						tableType={tableType}
+						closeDialog={() => setOpen(false)}
+					/>
+				)}
 
-					{mode == "batch_create" ? (
-						<BatchCreateForm
-							bonusType={bonusType}
-							tableType={tableType}
-							schema={schema}
-							setOpen={setOpen}
-						/>
-					) : mode == "batch_update" ? (
-						<BonusBatchUpdateForm
-							bonusType={bonusType}
-							tableType={tableType}
-							setOpen={setOpen}
-						/>
-					) : mode == "excel_download" ? (
-						<ExcelDownload
-							table_name={tableType}
-							bonus_type={bonusType}
-						/>
-					) : mode == "excel_upload" ? (
-						<ExcelUpload
-							tableType={tableType}
-							closeDialog={() => setOpen(false)}
-						/>
-					) : (
-						<ScrollArea className="h-full w-full">
-							<BonusForm
-								formSchema={schema}
-								formConfig={[{ key: "id", config: { hidden: true } }]}
-								mode={mode}
-								// bonus_type={bonusType}
-								closeSheet={() => setOpen(false)}
+				{mode != "excel_download" && mode != "excel_upload" && (
+					<DialogContent className="w-[60%]">
+						<DialogHeader>
+							<DialogTitle>
+								{`${t(`button.${mode}`)!}${t(
+									"button.form"
+								)} (${t(getTableNameKey(tableType))})`}
+							</DialogTitle>
+							<DialogDescription>
+								{modeDescription(t, mode)}
+							</DialogDescription>
+						</DialogHeader>
+
+						{mode == "batch_create" && (
+							<BatchCreateForm
+								bonusType={bonusType}
+								tableType={tableType}
+								schema={schema}
+								setOpen={setOpen}
 							/>
-							<ScrollBar orientation="horizontal" />
-						</ScrollArea>
-					)}
-				</DialogContent>
+						)}
+						{mode == "batch_update" && (
+							<BonusBatchUpdateForm
+								bonusType={bonusType}
+								tableType={tableType}
+								setOpen={setOpen}
+							/>
+						)}
+						{(mode == "create" || mode == "update") && (
+							<ScrollArea className="h-full w-full">
+								<BonusForm
+									formSchema={schema}
+									formConfig={[
+										{ key: "id", config: { hidden: true } },
+									]}
+									mode={mode}
+									closeSheet={() => setOpen(false)}
+								/>
+								<ScrollBar orientation="horizontal" />
+							</ScrollArea>
+						)}
+					</DialogContent>
+				)}
 			</Dialog>
 		</div>
 	);
@@ -276,6 +267,3 @@ function BatchCreateForm({
 			/>
 		);
 }
-
-
-

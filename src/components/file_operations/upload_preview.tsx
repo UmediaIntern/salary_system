@@ -21,7 +21,6 @@ interface UploadPreviewProps {
 
 export function UploadPreview({ datas, onClick }: UploadPreviewProps) {
 	const { t } = useTranslation("common");
-	console.log("upload preview", datas);
 	const [selectedKey, setSelectedKey] = useState<string | null>(null);
 	const [isMultiSheet, setIsMultiSheet] = useState(false);
 
@@ -99,7 +98,7 @@ function PreviewTable({ data }: PreviewTableProps) {
 						else
 							return (
 								<TableHead
-									key={index}
+									key={header}
 									className={cn("min-w-[140px] text-center")}
 								>
 									{header}
@@ -110,7 +109,7 @@ function PreviewTable({ data }: PreviewTableProps) {
 			</TableHeader>
 			<TableBody>
 				{data?.slice(1).map((row: any[], rowIndex: number) => (
-					<TableRow key={rowIndex}>
+					<TableRow key={`row_${rowIndex}`}>
 						{row.map((cell: any, cellIndex: number) => {
 							if (cellIndex == 0) return <></>;
 							else {
@@ -118,13 +117,9 @@ function PreviewTable({ data }: PreviewTableProps) {
 									? formatDate("day", cell)
 									: cell ?? "";
 
-                if (cellIndex == 11) {
-                    console.log(cellData)
-                  }
-
 								return (
 									<TableCell
-										key={cellIndex}
+										key={cellData}
 										className="text-center"
 									>
 										{cellData === "" ? "-" : cellData}

@@ -1,6 +1,4 @@
-import { z } from "zod";
-
-export function getExcelData<T extends Record<string, unknown>>(datas: T[], excludeKeys: string[]): (unknown)[][] {
+export function getExcelData<T extends Record<string, unknown>>(datas: T[], excludeKeys: string[], includeHeader = true): (unknown)[][] {
     if (datas.length === 0 || !datas[0]) {
         return [];
     }
@@ -11,6 +9,9 @@ export function getExcelData<T extends Record<string, unknown>>(datas: T[], excl
         return column_names.map(key => data[key]);
     });
 
-    return [column_names, ...rows];
+    if (includeHeader) {
+        return [column_names, ...rows];
+    } else {
+        return rows;
+    }
 }
-

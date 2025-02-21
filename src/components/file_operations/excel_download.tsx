@@ -15,9 +15,11 @@ import { usePeriodContext } from "~/components/context/period_context_provider";
 interface ExcelDownloadProps {
 	data: any[][];
 	fileName: string;
+	withHeader?: boolean
+	transpose?: boolean;
 }
 
-export function ExcelDownload({ data, fileName }: ExcelDownloadProps) {
+export function ExcelDownload({ data, fileName, withHeader = true, transpose = false }: ExcelDownloadProps) {
 	const { t } = useTranslation();
 
 	const [filename, setFilename] = useState("excel");
@@ -29,7 +31,7 @@ export function ExcelDownload({ data, fileName }: ExcelDownloadProps) {
 		setFilename(`${fileName}_${period_name}`);
 	}, [fileName, period_name]);
 
-  const headers = data[0]?.map((header) => t(`table.${header}`)) ?? null;
+	const headers = data[0]?.map((header) => t(`table.${header}`)) ?? null;
 
 	return (
 		<DialogContent className="p-8">
@@ -53,8 +55,13 @@ export function ExcelDownload({ data, fileName }: ExcelDownloadProps) {
 							.setFileName(filename)
 							.addSheet({
 								buildSheet: (sheet) => {
-                  if (headers) sheet.setHeaders(headers);
-									sheet.setData(data.slice(1));
+									if (withHeader && headers) {
+										sheet.setHeaders(headers);
+										sheet.setData(data.slice(1));
+									} else {
+										sheet.setData(data);
+									}
+									if (transpose) sheet.setTranspose();
 								},
 							})
 							.download()

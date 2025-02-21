@@ -16,8 +16,8 @@ import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_b
 import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { ExcelDownload } from "~/components/file_operations/excel_download";
 import { ExcelUpload } from "~/components/file_operations/excel_upload";
-import { getExcelData } from "../../components/excel_download/utils";
 import { useEmployeeTableContext } from "../../components/context/data_table_context_provider";
+import { getExcelData } from "~/components/file_operations/excel_utils";
 
 export function EmployeePaymentFunctionMenu() {
 	const { setMode, setOpenDialog } =

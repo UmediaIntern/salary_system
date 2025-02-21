@@ -57,19 +57,20 @@ function CompNavLinkWrap(props: PropsWithChildren<NavLinkProp>) {
 		<TooltipProvider>
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<Link
-						key={props.navLinkEntry.url}
-						href={props.navLinkEntry.url}
-						className={cn(
-							buttonVariants({ variant: "ghost" }),
-							props.currentPath === props.navLinkEntry.url &&
-							"bg-muted hover:bg-muted",
-							"w-full items-center justify-center"
-						)}
-					>
-						<props.navLinkEntry.icon className="h-4 w-4" />
-						<TooltipContent>{props.children}</TooltipContent>
-					</Link>
+					<div className="flex w-full items-center justify-center">
+						<Link
+							key={props.navLinkEntry.url}
+							href={props.navLinkEntry.url}
+							className={cn(
+								buttonVariants({ variant: "ghost" }),
+								props.currentPath === props.navLinkEntry.url &&
+									"bg-muted hover:bg-muted"
+							)}
+						>
+							<props.navLinkEntry.icon className="h-4 w-4" />
+							<TooltipContent>{props.children}</TooltipContent>
+						</Link>
+					</div>
 				</TooltipTrigger>
 			</Tooltip>
 		</TooltipProvider>
@@ -85,7 +86,7 @@ function CompNavLinkWrap(props: PropsWithChildren<NavLinkProp>) {
 			className={cn(
 				buttonVariants({ variant: "ghost" }),
 				props.currentPath === props.navLinkEntry.url &&
-				"bg-muted hover:bg-muted",
+					"bg-muted hover:bg-muted",
 				"w-full justify-start"
 			)}
 		>
@@ -108,7 +109,7 @@ type SelectItemProp = {
 
 function CompSelectItemWrap(props: PropsWithChildren<SelectItemProp>) {
 	const { selectedPeriod, selectedPayDate } = useContext(periodContext);
-	const { t } = useTranslation(['common']);
+	const { t } = useTranslation(["common"]);
 
 	return props.collapsed ? (
 		<TooltipProvider>
@@ -217,7 +218,7 @@ const actionLinks: NavLinkEntry[] = [
 		icon: CircleDollarSign,
 		url: "/bonus",
 		collapsed: false,
-	}
+	},
 ];
 
 const settingLinks: NavLinkEntry[] = [
@@ -247,8 +248,8 @@ const testLinks: NavLinkEntry[] = [
 		icon: CircleDollarSign,
 		url: "/test",
 		collapsed: false,
-	}
-]
+	},
+];
 
 // https://www.flaticon.com/free-icon-font/coins_7928197?related_id=7928197
 export function Sidebar({
@@ -268,7 +269,7 @@ export function Sidebar({
 		if (width < 100) {
 			collapseFunction();
 		}
-	})
+	});
 
 	if (isLoading) {
 		return <></>;

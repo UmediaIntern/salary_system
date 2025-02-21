@@ -69,14 +69,14 @@ function recoverMultiSheetData(
 	table_name?: string
 ): Record<string, Record<string, unknown>[]> {
 	const datas: Record<string, Record<string, unknown>[]> = {};
-	Object.keys(data).forEach((key) => {
-		datas[key] = recoverData(data[key]!, table_name);
+	Object.entries(data).forEach(([key, value]) => {
+		datas[key] = recoverData(value, table_name);
 	});
 	return datas;
 }
 
 async function extract_data(
-	file: File,
+	file: File
 ): Promise<Record<string, any[][]> | null> {
 	if (!file) return null;
 	try {
@@ -103,17 +103,19 @@ async function extract_data(
 				if (rowValues.every((val) => val === undefined || val === null))
 					return;
 
-        rowValues = Array.from<any[], unknown[]>(rowValues, x => x ?? "");
+				rowValues = Array.from<any[], unknown[]>(
+					rowValues,
+					(x) => x ?? ""
+				);
 				rows.push(rowValues);
 			});
 
-
-      const sheetName = sheet.name;
+			const sheetName = sheet.name;
 			datas[sheetName] = rows;
 		}
 
 		// TODO: data mapping
-    return datas;
+		return datas;
 	} catch (error) {
 		console.error("Error processing file");
 		return null;
@@ -122,10 +124,9 @@ async function extract_data(
 
 interface ExcelUploadProps {
 	onClick?: (data: any) => void;
-	multiSheet?: boolean;
 }
 
-export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
+export function ExcelUpload({ onClick }: ExcelUploadProps) {
 	const [view, setView] = useState("upload");
 	const { t } = useTranslation("common");
 	const [data, setData] = useState<Record<string, any[][]> | null>(null);
@@ -152,14 +153,11 @@ export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 				onValueChange={setView}
 				className="w-full"
 			>
-				<TabsList className="grid w-full grid-cols-2 mb-2">
+				<TabsList className="mb-2 grid w-full grid-cols-2">
 					<TabsTrigger value="upload">
 						{t("button.excel_upload")}
 					</TabsTrigger>
-					<TabsTrigger
-						value="preview"
-						disabled={!data}
-					>
+					<TabsTrigger value="preview" disabled={!data}>
 						{t("button.excel_preview")}
 					</TabsTrigger>
 				</TabsList>
@@ -173,10 +171,20 @@ export function ExcelUpload({ onClick, multiSheet }: ExcelUploadProps) {
 						<UploadPreview
 							datas={data}
 							onClick={() => {
-								if (multiSheet) {
-									onClick?.(recoverMultiSheetData(data));
+								const datas = recoverMultiSheetData(data);
+								const sheet_names = Object.keys(datas);
+								// Single sheet
+								if (
+									sheet_names.length === 1 &&
+									sheet_names[0]
+								) {
+									const firstEntry = datas[sheet_names[0]];
+									if (firstEntry) {
+										onClick?.(firstEntry);
+									}
 								} else {
-									onClick?.(recoverData(data));
+									// Multiple sheet
+									onClick?.(datas);
 								}
 							}}
 						/>
