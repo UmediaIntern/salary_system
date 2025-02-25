@@ -174,8 +174,8 @@ export function FileUploader(props: FileUploaderProps) {
 	}
 
 	return (
-		<div className="relative flex flex-col gap-6 overflow-hidden">
-			{<FileDropZone />}
+		<div className="h-full overflow-hidden">
+			<FileDropZone />
 		</div>
 	);
 }
