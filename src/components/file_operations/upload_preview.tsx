@@ -89,46 +89,50 @@ interface PreviewTableProps {
 }
 
 function PreviewTable({ data }: PreviewTableProps) {
+	const headerLength = data?.[0]?.length ?? 0;
 	return (
 		<Table className="">
 			<TableHeader className="">
 				<TableRow className="sticky top-0 bg-muted hover:bg-muted">
-					{(data?.[0] ?? []).map((header: string, index: number) => {
-						if (index == 0) return <></>;
-						else
-							return (
-								<TableHead
-									key={header}
-									className={cn("min-w-[140px] text-center")}
-								>
-									{header}
-								</TableHead>
-							);
-					})}
+					{(data?.[0] ?? []).map((header: string) => (
+						<TableHead
+							key={header}
+							className={cn("min-w-[140px] text-center")}
+						>
+							{header}
+						</TableHead>
+					))}
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{data?.slice(1).map((row: any[], rowIndex: number) => (
-					<TableRow key={`row_${rowIndex}`}>
-						{row.map((cell: any, cellIndex: number) => {
-							if (cellIndex == 0) return <></>;
-							else {
-								const cellData: string = isDateType(cell)
-									? formatDate("day", cell)
-									: cell ?? "";
+				{data?.slice(1).map((row: any[], rowIndex: number) => {
+					if (row.length < headerLength) {
+						row = row.concat(
+							Array(headerLength - row.length).fill("")
+						);
+					}
+					return (
+						<TableRow key={`row_${rowIndex}`}>
+							{row.map((cell: any, cellIndex: number) => {
+								if (cellIndex >= headerLength) return <></>;
+								else {
+									const cellData: string = isDateType(cell)
+										? formatDate("day", cell)
+										: cell ?? "";
 
-								return (
-									<TableCell
-										key={cellData}
-										className="text-center"
-									>
-										{cellData === "" ? "-" : cellData}
-									</TableCell>
-								);
-							}
-						})}
-					</TableRow>
-				))}
+									return (
+										<TableCell
+											key={`cell_${cellIndex}_${cellData}`}
+											className="text-center"
+										>
+											{cellData === "" ? "-" : cellData}
+										</TableCell>
+									);
+								}
+							})}
+						</TableRow>
+					);
+				})}
 			</TableBody>
 		</Table>
 	);

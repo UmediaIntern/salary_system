@@ -32,6 +32,7 @@ import { FunctionsSheetContent } from "../components/function_sheet/functions_sh
 // Bonus All Schema
 import { bonusAllSchema } from "../schemas/configurations/bonus_all_schema";
 import { type BonusAllFEType } from "~/server/api/types/bonus_all_type";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export type RowItem = {
 	id: number;
@@ -76,7 +77,7 @@ export const bonus_all_columns = ({
 					default:
 						return (
 							<div className="text-center font-medium">
-								{JSON.stringify(row.original[key]) ?? ""}
+								{(row.original[key] as string | number).toString() ?? ""}
 							</div>
 						);
 				}
@@ -140,12 +141,13 @@ export function BonusAllTable({
 		setData,
 	} = useContext(dataTableContext);
 
-	const { isLoading, isError, data, error } = api.bonus.getBonusAll.useQuery({
+	const getBonusAll = api.bonus.getBonusAll.useQuery({
 		period_id,
 		bonus_type,
 	});
 
 	const filterKey: RowItemKey = "parameters";
+	const { data, isPending, content } = useQueryHandle(getBonusAll);
 
 	useEffect(() => {
 		if (data) {
@@ -153,16 +155,8 @@ export function BonusAllTable({
 		}
 	}, [data, setData, selectedData]);
 
-	if (isLoading || !data) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
+	if (isPending) {
+		return content;
 	}
 
 	return (
