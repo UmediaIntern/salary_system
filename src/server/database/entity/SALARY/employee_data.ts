@@ -8,20 +8,17 @@ import {
 } from "sequelize";
 import { z } from "zod";
 import {
+	convertFromDBWorkStatusEnum,
+	convertToDBWorkStatusEnum,
+	DBWorkStatusEnum,
+	type DBWorkStatusEnumType,
 	WorkStatusEnum,
-	WorkStatusEnumType,
 } from "~/server/api/types/work_status_enum";
 import {
 	WorkTypeEnum,
 	type WorkTypeEnumType,
 } from "~/server/api/types/work_type_enum";
-import {
-	dateCreateF,
-	dateF,
-	dateStringF,
-	systemF,
-	systemKeys,
-} from "../../mapper/mapper_utils";
+import { dateCreateF, systemF, systemKeys } from "../../mapper/mapper_utils";
 
 const dbEmployeeData = z.object({
 	period_id: z.number(),
@@ -29,29 +26,31 @@ const dbEmployeeData = z.object({
 	emp_name: z.string(),
 	position: z.number(), //職等
 	position_type: z.string(), //職級
-	group_insurance_type: z.string(),//團保類別
+	group_insurance_type: z.string(), //團保類別
 	department: z.string(),
 	work_type: WorkTypeEnum, //工作類別
-	work_status: WorkStatusEnum, //工作型態
-	disabilty_level: z.string().nullable(),//殘障等級
-	sex_type: z.string(),//性別
-	dependents: z.number().nullable(),//扶養人數
-	healthcare_dependents: z.number().nullable(),//健保眷口數
-	registration_date: z.string(),//到職日期
-	quit_date: z.string().nullable(),//離職日期
-	license_id: z.string().nullable(),//身分證字號
-	bank_account_taiwan: z.string(),//台幣帳號
-	bank_account_foreign: z.string().nullable(),//外幣帳號
-	received_elderly_benefits: z.boolean(),
+	disabilty_level: z.string().nullable(), //殘障等級
+	sex_type: z.string(), //性別
+	dependents: z.number().nullable(), //扶養人數
+	healthcare_dependents: z.number().nullable(), //健保眷口數
+	registration_date: z.string(), //到職日期
+	quit_date: z.string().nullable(), //離職日期
+	license_id: z.string().nullable(), //身分證字號
+	bank_account_taiwan: z.string(), //台幣帳號
+	bank_account_foreign: z.string().nullable(), //外幣帳號
+	received_elderly_benefits: z.coerce.boolean(), // TODO: is this okay?
 	create_by: z.string(),
 	update_by: z.string(),
 });
 
 const decFields = z.object({
 	id: z.number(),
+	work_status: WorkStatusEnum,
 });
 
-const encFields = z.object({});
+const encFields = z.object({
+	work_status: DBWorkStatusEnum,
+});
 
 const encF = dbEmployeeData.merge(encFields);
 const decF = dbEmployeeData.merge(decFields).merge(dateCreateF);
@@ -63,6 +62,7 @@ export const decEmployeeData = encF
 		return {
 			...v,
 			id: v.id,
+			work_status: convertFromDBWorkStatusEnum(v.work_status),
 		};
 	})
 	.pipe(decF);
@@ -71,8 +71,10 @@ export const encEmployeeData = decF
 	.omit(systemKeys)
 	.transform((v) => ({
 		...v,
+		work_status: convertToDBWorkStatusEnum(v.work_status),
 	}))
 	.pipe(encF);
+
 export class EmployeeData extends Model<
 	InferAttributes<EmployeeData>,
 	InferCreationAttributes<EmployeeData>
@@ -87,7 +89,7 @@ export class EmployeeData extends Model<
 	declare group_insurance_type: string;
 	declare department: string;
 	declare work_type: WorkTypeEnumType; //工作類別
-	declare work_status: WorkStatusEnumType; //工作型態
+	declare work_status: DBWorkStatusEnumType; //工作型態
 	declare disabilty_level: string | null;
 	declare sex_type: string;
 	declare dependents: number | null;
@@ -106,9 +108,7 @@ export class EmployeeData extends Model<
 	// updatedAt can be undefined during creation
 	declare update_date: CreationOptional<Date>;
 	declare update_by: string;
-
 }
-
 
 export function initEmployeeData(sequelize: Sequelize) {
 	EmployeeData.init(

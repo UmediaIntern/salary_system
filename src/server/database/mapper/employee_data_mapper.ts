@@ -26,12 +26,6 @@ export class EmployeeDataMapper extends BaseMapper<
         period_id: number
 	) {
 		const EmployeeDataFE = await this.addEmployeeInformation(period_id,dec);
-		// const EmployeeDataFE = await Promise.all(list.map(async (e) => {
-		// 	return {
-		// 		...e,
-				
-		// 	}
-		// }))
 		return EmployeeDataFE;
 	}
     async addEmployeeInformation(
@@ -44,7 +38,7 @@ export class EmployeeDataMapper extends BaseMapper<
             if (emp_no_list_month_salary.includes(e.emp_no)) {
                 month_salary_status = MonthSalaryStatusEnum.Enum.未發放月薪
             } else {
-                if (e.work_status === WorkStatusEnum.Enum.離職人員) {
+                if (e.work_status === WorkStatusEnum.Enum.ResignedEmployee) {
                     month_salary_status = MonthSalaryStatusEnum.Enum.離職人員
                 } else {
                     month_salary_status = MonthSalaryStatusEnum.Enum.已發放月薪

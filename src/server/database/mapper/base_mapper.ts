@@ -26,7 +26,7 @@ export class BaseMapper<
 
 		if (!encoded_result.success) {
 			throw new Error(
-				`Parse failed in Mapper: ${this.name}, Error: ${encoded_result.error.message}`
+				`Parse failed in Mapper: ${this.name}, encode Error: ${encoded_result.error.message}, data: ${data}`
 			);
 		}
 
@@ -42,7 +42,7 @@ export class BaseMapper<
 
 		if (!decoded_result.success) {
 			throw new Error(
-				`Parse failed in Mapper: ${this.name}, Error: ${decoded_result.error.message}`
+				`Parse failed in Mapper: ${this.name}, decode Error: ${decoded_result.error.message}, data: ${data}`
 			);
 		}
 
@@ -50,9 +50,20 @@ export class BaseMapper<
 	}
 
 	async decodeList(dataList: z.input<DecInput>[]): Promise<DecOutput[]> {
-		const decoded = await Promise.all(
-			dataList.map(async (e) => this.decode(e))
-		);
-		return decoded;
+		try {
+			const decoded = await Promise.all(
+				dataList.map(async (e) => this.decode(e))
+			);
+			return decoded;
+		} catch (err) {
+			if (err instanceof Error) {
+				throw new Error(
+					`Parse failed in Mapper: ${this.name}, decodeList Error: ${err.message}`
+				);
+			}
+			throw new Error(
+				`Parse failed in Mapper: ${this.name}, decodeList Error`
+			);
+		}
 	}
 }

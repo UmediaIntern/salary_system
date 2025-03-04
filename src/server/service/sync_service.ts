@@ -1,5 +1,8 @@
 import { container, injectable } from "tsyringe";
-import { EmployeeData } from "../database/entity/SALARY/employee_data";
+import {
+	EmployeeData,
+	EmployeeDataDecType,
+} from "../database/entity/SALARY/employee_data";
 import { EHRService } from "./ehr_service";
 import { type Emp } from "../database/entity/UMEDIA/emp";
 import { EmployeeDataService } from "./employee_data_service";
@@ -24,6 +27,7 @@ import { createEmployeeDataService } from "../api/types/employee_data_type";
 import { Op } from "sequelize";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
 import { z } from "zod";
+import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 
 @injectable()
 export class SyncService {
@@ -31,7 +35,8 @@ export class SyncService {
 		private readonly ehrService: EHRService,
 		private readonly employeeDataService: EmployeeDataService,
 		private readonly employeePaymentService: EmployeePaymentService,
-		private readonly employeeTrustService: EmployeeTrustService
+		private readonly employeeTrustService: EmployeeTrustService,
+		private readonly employeeDataMapper: EmployeeDataMapper
 	) {}
 	// TODO: move this
 	parsedPeriod(
@@ -171,8 +176,8 @@ export class SyncService {
 	}
 
 	compareEmpData<T>(
-		ehrEmp: Partial<Exact<T, EmployeeData>>,
-		salaryEmp?: Exact<T, EmployeeData>
+		ehrEmp: Partial<Exact<T, EmployeeDataDecType>>,
+		salaryEmp?: Exact<T, EmployeeDataDecType>
 	): SyncData {
 		// TODO: change this
 		// syncData.english_name = this.dataComparison("english_name", ehrEmp.english_name, salaryEmp?.english_name);
@@ -210,7 +215,7 @@ export class SyncService {
 				this.dataComparison(
 					key as keyof EmployeeData,
 					ehrEmp[key],
-					salaryEmp?.get(key)
+					salaryEmp?.[key]
 				)
 			);
 		}
@@ -237,15 +242,19 @@ export class SyncService {
 
 		if (func == FunctionsEnum.Enum.month_salary) {
 			// 如果功能是月薪計算
-			const salary_emps_data = await EmployeeData.findAll({
-				attributes: [
-					"emp_name",
-					"department",
-					"emp_no",
-					"work_status",
-					"quit_date",
-				],
+			const db_salary_emps_data = await EmployeeData.findAll({
+				// attributes: [
+				// 	"emp_name",
+				// 	"department",
+				// 	"emp_no",
+				// 	"work_status",
+				// 	"quit_date",
+				// ],
+				raw: true,
 			});
+			const salary_emps_data = await this.employeeDataMapper.decodeList(
+				db_salary_emps_data
+			);
 
 			// 篩選符合支付工作狀態的員工
 			const salary_emps: z.infer<typeof createEmployeeDataService>[] =
@@ -297,13 +306,13 @@ export class SyncService {
 						emp.quit_date
 					);
 					switch (emp.work_status) {
-						case "一般員工":
+						case WorkStatusEnum.Values.RegularEmployee:
 							// 檢查不合理的離職日期
 							if (quit_date !== QuitDateEnum.Values.future) {
 								msg = `一般員工卻有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
-						case "當月離職人員破月":
+						case WorkStatusEnum.Values.ResignedEmployeePartialMonth:
 							// 檢查不合理的離職日期
 							if (quit_date === QuitDateEnum.Values.null) {
 								msg = "當月離職人員卻沒有離職日期";
@@ -313,7 +322,7 @@ export class SyncService {
 								msg = `當月離職人員卻有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
-						case "當月離職人員全月":
+						case WorkStatusEnum.Values.ResignedEmployeeFullMonth:
 							// 檢查不合理的離職日期
 							if (quit_date === QuitDateEnum.Values.null) {
 								msg = "當月離職人員卻沒有離職日期";
@@ -323,7 +332,7 @@ export class SyncService {
 								msg = `當月離職人員卻有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
-						case "離職人員":
+						case WorkStatusEnum.Values.ResignedEmployee:
 							// 檢查不合理的離職日期
 							if (quit_date === QuitDateEnum.Values.null) {
 								msg = "離職人員卻沒有離職日期";
@@ -376,13 +385,15 @@ export class SyncService {
 					const old_work_status = old_employee_data.work_status;
 					let new_work_status = old_work_status;
 					switch (old_work_status) {
-						case WorkStatusEnum.Values.當月離職人員破月:
-						case WorkStatusEnum.Values.當月離職人員全月:
-							new_work_status = WorkStatusEnum.Enum.離職人員;
+						case WorkStatusEnum.Values.ResignedEmployeePartialMonth:
+						case WorkStatusEnum.Values.ResignedEmployeeFullMonth:
+							new_work_status =
+								WorkStatusEnum.Enum.ResignedEmployee;
 							break;
-						case WorkStatusEnum.Values.當月新進人員破月:
-						case WorkStatusEnum.Values.當月新進人員全月:
-							new_work_status = WorkStatusEnum.Enum.一般員工;
+						case WorkStatusEnum.Values.NewEmployeePartialMonth:
+						case WorkStatusEnum.Values.NewEmployeeFullMonth:
+							new_work_status =
+								WorkStatusEnum.Enum.RegularEmployee;
 							break;
 						default:
 							break;
@@ -407,10 +418,10 @@ export class SyncService {
 		const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
 		await this.createNewMonthData(period_id, cand_emp_no_list);
 		// Get Data from Salary and EHR
-		let salary_datas: EmployeeData[] = [];
+		let salary_datas: EmployeeDataDecType[] = [];
 
 		if (func == FunctionsEnum.Enum.month_salary) {
-			salary_datas = await EmployeeData.findAll({
+			const db_salary_datas = await EmployeeData.findAll({
 				where: {
 					emp_no: {
 						[Op.in]: cand_emp_no_list,
@@ -418,6 +429,9 @@ export class SyncService {
 					period_id: period_id,
 				},
 			});
+			salary_datas = await this.employeeDataMapper.decodeList(
+				db_salary_datas
+			);
 		}
 
 		const ehr_datas: Emp[] = await this.ehrService.getEmp(period_id);
@@ -426,13 +440,13 @@ export class SyncService {
 		>[] = ehr_datas.map((emp) => this.empToEmployee(emp, period_id));
 
 		// Lookup table by EMP_NO
-		const ehrDict: Map<string, Partial<EmployeeData>> = new Map<
+		const ehrDict: Map<string, Partial<EmployeeDataDecType>> = new Map<
 			string,
-			Partial<EmployeeData>
+			Partial<EmployeeDataDecType>
 		>();
-		const salaryDict: Map<string, EmployeeData> = new Map<
+		const salaryDict: Map<string, EmployeeDataDecType> = new Map<
 			string,
-			EmployeeData
+			EmployeeDataDecType
 		>();
 
 		ehr_datas_transformed.forEach((emp) => {
@@ -476,26 +490,28 @@ export class SyncService {
 		const changed_emp_nos = change_emp_list.map((emp) => emp.emp_no);
 
 		// All existing employee data from Salary
-		const salary_datas = await EmployeeData.findAll({
+		const db_salary_datas = await EmployeeData.findAll({
 			where: {
 				period_id: period_id,
 				emp_no: { [Op.in]: changed_emp_nos },
 			},
 		});
+		const salary_datas = await this.employeeDataMapper.decodeList(
+			db_salary_datas
+		);
 
 		// Get services
 
 		// Update fields
-		const updatedDatas: EmployeeData[] = [];
+		const updatedDatas: EmployeeDataDecType[] = [];
 		for (const changeEmp of change_emp_list) {
 			// TODO: the data type is incorrect, lacking type check (period_id is missing)
 			// TODO: append period_id
 			const ehr_emp_data: z.infer<typeof createEmployeeDataService> =
 				this.empToEmployee(ehrDict.get(changeEmp.emp_no)!, period_id);
 
-			let salary_emp_data: EmployeeData | undefined = salary_datas.find(
-				(emp) => emp.emp_no == changeEmp.emp_no
-			);
+			let salary_emp_data: EmployeeDataDecType | undefined =
+				salary_datas.find((emp) => emp.emp_no == changeEmp.emp_no);
 			// Create default employee if not exist
 			// TODO: Refactor this
 			if (!salary_emp_data) {
@@ -532,18 +548,14 @@ export class SyncService {
 				});
 			}
 
-			// if (!salary_emp_data) {
-			// 	throw new Error(
-			// 		`Employee data for ${changeEmp.emp_no} does not exist`
-			// 	);
-			// }
-
-			const updatedData: EmployeeData = salary_emp_data;
+			const updatedData: EmployeeDataDecType = salary_emp_data;
 			for (const key of changeEmp.keys) {
-				const data_key: keyof z.infer<
+				const data_key = key as keyof z.infer<
 					typeof createEmployeeDataService
-				> = key as keyof z.infer<typeof createEmployeeDataService>;
-				updatedData.set(data_key, ehr_emp_data[data_key]);
+				>;
+				Object.assign(updatedData, {
+					[data_key]: ehr_emp_data[data_key],
+				}); // updatedData[data_key] = ehr_emp_data[data_key] as unknown;
 			}
 
 			await this.employeeDataService.updateEmployeeDataByEmpNoByPeriod(
