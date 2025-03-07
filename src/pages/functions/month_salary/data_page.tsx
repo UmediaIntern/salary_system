@@ -11,8 +11,28 @@ import { type FunctionsEnumType } from "~/server/api/types/functions_enum";
 import { useTranslation } from "react-i18next";
 import { PayTypeEnum } from "~/server/api/types/pay_type_enum";
 import { AllowanceTable } from "../tables/allowance_table";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 const tabOptions = ["table_name.allowance", "table_name.overtime", "table_name.holiday", "table_name.other", "table_name.bonus", "table_name.payset"];
+
+function getTable(table_name: string, emp_no_list: string[], period_id: number) {
+	switch (table_name) {
+		case tabOptions[0]:
+			return <AllowanceTable period_id={period_id} emp_no_list={emp_no_list} />;
+		case tabOptions[1]:
+			return <OvertimeTable period_id={period_id} emp_no_list={emp_no_list} pay_type={PayTypeEnum.Enum.month_salary} />;
+		case tabOptions[2]:
+			return <HolidayTable period_id={period_id} emp_no_list={emp_no_list} />;
+		case tabOptions[3]:
+			return <OtherTable period_id={period_id} emp_no_list={emp_no_list} />;
+		case tabOptions[4]:
+			return <BonusTable period_id={period_id} emp_no_list={emp_no_list} pay_type={PayTypeEnum.Enum.month_salary} />;
+		case tabOptions[5]:
+			return <PaysetTable period_id={period_id} emp_no_list={emp_no_list} />;
+		default:
+			return <p>No implement</p>;
+	}
+}
 
 export function DataPage({
 	period_id,
@@ -28,27 +48,14 @@ export function DataPage({
 
 	const { t } = useTranslation("common");
 
-	function getTable(table_name: string) {
-		const employee_data_list = api.sync.getPaidEmployees.useQuery({ period_id, func }).data
-		const emp_no_list = employee_data_list!.map(emp => emp.emp_no)
-		switch (table_name) {
-			case tabOptions[0]:
-				return <AllowanceTable period_id={period_id} emp_no_list={emp_no_list} />;
-			case tabOptions[1]:
-				return <OvertimeTable period_id={period_id} emp_no_list={emp_no_list} pay_type={PayTypeEnum.Enum.month_salary} />;
-			case tabOptions[2]:
-				return <HolidayTable period_id={period_id} emp_no_list={emp_no_list} />;
-			case tabOptions[3]:
-				return <OtherTable period_id={period_id} emp_no_list={emp_no_list} />;
-			case tabOptions[4]:
-				return <BonusTable period_id={period_id} emp_no_list={emp_no_list} pay_type={PayTypeEnum.Enum.month_salary} />;
-			case tabOptions[5]:
-				return <PaysetTable period_id={period_id} emp_no_list={emp_no_list} />;
-			default:
-				return <p>No implement</p>;
-		}
+	const getPaidEmp = api.sync.getPaidEmployees.useQuery({ period_id, func })
+	const {data, isPending, content} = useQueryHandle(getPaidEmp)
+
+	if (isPending) {
+		return content
 	}
 
+	const emp_no_list = data.map(emp => emp.emp_no)
 
 	return (
 		<>
@@ -70,7 +77,7 @@ export function DataPage({
 						{tabOptions.map((option) => {
 							return (
 								<TabsContent key={option} value={option} className="h-full">
-									{period_id > 0 ? getTable(option) : <></>}
+									{period_id > 0 ? getTable(option, emp_no_list, period_id) : <></>}
 								</TabsContent>
 							);
 						})}

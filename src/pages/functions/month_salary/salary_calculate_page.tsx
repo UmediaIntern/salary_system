@@ -1,11 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "~/components/loading";
-import { FunctionsEnumType } from "~/server/api/types/functions_enum";
+import { type FunctionsEnumType } from "~/server/api/types/functions_enum";
 import { api } from "~/utils/api";
 
 import { useEffect } from "react";
-import { Period } from "~/server/database/entity/UMEDIA/period";
+import { type Period } from "~/server/database/entity/UMEDIA/period";
 
 import {
 	Card,
@@ -16,6 +16,7 @@ import {
 } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export function SalaryCalculatePage({
 	period,
@@ -24,25 +25,22 @@ export function SalaryCalculatePage({
 	period: Period;
 	func: FunctionsEnumType;
 }) {
-	const { isLoading, isError, data, error } =
-		api.sync.getPaidEmployees.useQuery({ period_id: period.period_id, func });
+	const q = api.sync.getPaidEmployees.useQuery({
+		period_id: period.period_id,
+		func,
+	});
+	const { data, isPending, content } = useQueryHandle(q);
 
-	if (isLoading) {
-		return <LoadingSpinner />; // TODO: Loading element with toast
+	if (isPending) {
+		return content;
 	}
 
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
-	}
-	if (data) {
-		return (
-			<SalaryCalculateContent
-				period={period}
-				emp_no_list={data.map((emp) => emp.emp_no)}
-			/>
-		);
-	}
-	return <div />;
+	return (
+		<SalaryCalculateContent
+			period={period}
+			emp_no_list={data.map((emp) => emp.emp_no)}
+		/>
+	);
 }
 
 function SalaryCalculateContent({
@@ -120,7 +118,9 @@ function SalaryCalculateContent({
 						</CardTitle>
 						<CardDescription>
 							<Button>
-								<Link href="/report">{t("reports", { ns: "nav" })}</Link>
+								<Link href="/report">
+									{t("reports", { ns: "nav" })}
+								</Link>
 							</Button>
 						</CardDescription>
 					</CardHeader>

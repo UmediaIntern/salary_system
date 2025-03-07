@@ -1,14 +1,39 @@
-import { LoadingSpinner } from "~/components/loading";
 import { DataTable } from "../components/data_table_advanced_filter";
 import { api } from "~/utils/api";
 import { type I18nType } from "~/lib/utils/i18n_type";
 import { useTranslation } from "react-i18next";
-import { Button } from "~/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
 import { formatDate } from "~/lib/utils/format_date";
+import { createColumnHelper } from "@tanstack/react-table";
+import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
+import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
-const columns = (t: I18nType) =>
-	[
+type RowItem = {
+	department: string;
+	emp_no: string;
+	emp_name: string;
+	position: number;
+	position_type: string;
+	group_insurance_type: string;
+	work_type: string;
+	work_status: string;
+	disabilty_level: string | null;
+	sex_type: string;
+	dependents: number | null;
+	healthcare_dependents: number | null;
+	registration_date: string;
+	quit_date: string | null;
+	license_id: string | null;
+	bank_account_taiwan: string;
+	bank_account_foreign: string | null;
+	received_elderly_benefits: boolean;
+};
+type RowItemKey = keyof RowItem;
+
+const columnHelper = createColumnHelper<RowItem>();
+
+const columns = (t: I18nType) => {
+	const f: RowItemKey[] = [
 		"department",
 		"emp_no",
 		"emp_name",
@@ -27,54 +52,36 @@ const columns = (t: I18nType) =>
 		"bank_account_taiwan",
 		"bank_account_foreign",
 		"received_elderly_benefits",
-	].map((key) => {
-		const header = ({ column }: { column: any }) => {
-			return (
-				<div className="flex justify-center">
-					<div className="text-center font-medium">
-						<Button
-							variant="ghost"
-							onClick={() =>
-								column.toggleSorting(
-									column.getIsSorted() === "asc"
-								)
-							}
-						>
-							{t(`table.${key}`)}
-							<ArrowUpDown className="ml-2 h-4 w-4" />
-						</Button>
-					</div>
-				</div>
-			);
-		}
-		if (key === "registration_date" || key === "quit_date") {
-			return {
-				accessorKey: key,
-				header: header,
-				cell: ({ row }: any) => {
-					const value = row.getValue(key) as string;
-					return (
-						<div className="flex justify-center">
-							<div className="text-center font-medium">
-								{formatDate("day", value)}
-							</div>
-						</div>
-					);
-				},
-			};
-		}
-		if (key === "work_type") {
-			return {
-				accessorKey: key,
-				header: header,
-				filterFn: 'arrIncludesSome',
-			};
-		}
-		return {
-			accessorKey: key,
-			header: header,
-		};
+	];
+
+	return f.map((key: RowItemKey) => {
+		return columnHelper.accessor(key, {
+			header: ({ column }) => {
+				return (
+					<ColumnHeaderComponent column={column}>
+						{t(`table.${key}`)}
+					</ColumnHeaderComponent>
+				);
+			},
+			cell: ({ row }) => {
+				let content = row.original[key]?.toString() ?? "";
+				switch (key) {
+					case "registration_date":
+						content =
+							formatDate("day", row.original.registration_date) ??
+							"";
+						break;
+					case "quit_date":
+						content =
+							formatDate("day", row.original.quit_date) ?? "";
+						break;
+				}
+				return <ColumnCellComponent>{content}</ColumnCellComponent>;
+			},
+			filterFn: key === "work_type" ? "arrIncludesSome" : undefined,
+		});
 	});
+};
 
 interface EmployeeDataTableProps {
 	period_id: number;
@@ -82,21 +89,13 @@ interface EmployeeDataTableProps {
 }
 
 export function EmployeeDataTable({ period_id, func }: EmployeeDataTableProps) {
-	const { isLoading, isError, data, error } =
-		api.sync.getPaidEmployees.useQuery({ period_id, func });
-
+	const q = api.sync.getPaidEmployees.useQuery({ period_id, func });
+	const { data, isPending, content } = useQueryHandle(q);
 	const { t } = useTranslation(["common"]);
 
-	if (isLoading) {
-		return <LoadingSpinner />; // TODO: Loading element with toast
+	if (isPending) {
+		return content;
 	}
 
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
-	}
-
-	if (data) {
-		return <DataTable columns={columns(t)} data={data} />;
-	}
-	return <div />;
+	return <DataTable columns={columns(t)} data={data} />;
 }

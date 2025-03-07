@@ -25,7 +25,7 @@ import { type Period } from "../database/entity/UMEDIA/period";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { createEmployeeDataService } from "../api/types/employee_data_type";
 import { Op } from "sequelize";
-import { WorkStatusEnum } from "../api/types/work_status_enum";
+import { WorkStatusEnum, WorkStatusEnumType } from "../api/types/work_status_enum";
 import { z } from "zod";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 
@@ -230,14 +230,14 @@ export class SyncService {
 	): Promise<PaidEmployee[]> {
 		// 返回需支付的員工數組的Promise
 		let cand_paid_emps: PaidEmployee[] = [];
-		const paid_status = [
-			// 支付工作狀態列表
-			"一般員工",
-			"外籍勞工",
-			"當月離職人員全月",
-			"當月離職人員破月",
-			"當月新進人員全月",
-			"當月新進人員破月",
+		// 支付工作狀態列表
+		const paid_status: WorkStatusEnumType[] = [
+			WorkStatusEnum.Values.RegularEmployee,
+			WorkStatusEnum.Values.ForeignWorker,
+			WorkStatusEnum.Values.ResignedEmployeePartialMonth,
+			WorkStatusEnum.Values.ResignedEmployeeFullMonth, 
+			WorkStatusEnum.Values.NewEmployeePartialMonth,
+			WorkStatusEnum.Values.NewEmployeeFullMonth,
 		];
 
 		if (func == FunctionsEnum.Enum.month_salary) {
@@ -583,31 +583,34 @@ export class SyncService {
 	async getPaidEmps(
 		func: FunctionsEnumType,
 		period_id: number
-	): Promise<EmployeeData[]> {
+	): Promise<EmployeeDataDecType[]> {
 		if (func == FunctionsEnum.Enum.month_salary) {
 			// 定義需支付的員工狀態列表
-			const paid_status = [
-				"一般員工",
-				"外籍勞工",
-				"當月離職人員全月",
-				"當月離職人員破月",
-				"當月新進人員全月",
-				"當月新進人員破月",
+			const paid_status: WorkStatusEnumType[] = [
+				WorkStatusEnum.Values.RegularEmployee,
+				WorkStatusEnum.Values.ForeignWorker,
+				WorkStatusEnum.Values.ResignedEmployeePartialMonth,
+				WorkStatusEnum.Values.ResignedEmployeeFullMonth, 
+				WorkStatusEnum.Values.NewEmployeePartialMonth,
+				WorkStatusEnum.Values.NewEmployeeFullMonth,
 			];
-			const paid_emps = await EmployeeData.findAll({
+			const db_paid_emps = await EmployeeData.findAll({
 				where: {
-					// work_status: {
-					// 	[Op.in]: paid_status,
-					// },
 					period_id: period_id,
 				},
 			});
+			const paid_emps = await this.employeeDataMapper.decodeList(
+				db_paid_emps
+			);
 			return paid_emps.filter((emp) =>
 				paid_status.includes(emp.work_status)
 			);
 		} else {
-			// 如果功能不是月薪計算
-			const paid_emps = await EmployeeData.findAll({}); // 查找所有需支付的員工數據
+			// 如果功能不是月薪計算, 查找所有需支付的員工數據
+			const db_paid_emps = await EmployeeData.findAll({});
+			const paid_emps = await this.employeeDataMapper.decodeList(
+				db_paid_emps
+			);
 			return paid_emps;
 		}
 	}
