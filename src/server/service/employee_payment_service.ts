@@ -19,6 +19,7 @@ import { EmployeePaymentMapper } from "../database/mapper/employee_payment_mappe
 import { EmployeeDataService } from "./employee_data_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { WorkTypeEnum } from "../api/types/work_type_enum";
+import { WorkStatusEnum } from "../api/types/work_status_enum";
 
 @injectable()
 export class EmployeePaymentService {
@@ -49,14 +50,6 @@ export class EmployeePaymentService {
 		});
 		console.log("Create EmployeePayment")
 		return newData;
-	}
-
-	async batchCreateEmployeePayment(
-		datas: z.input<typeof employeePaymentCreateService>[]
-	): Promise<EmployeePayment[]> {
-		// TODO
-		const employeePaymentList: EmployeePayment[] = [];
-		return employeePaymentList
 	}
 
 	async getEmployeePaymentById(
@@ -210,8 +203,8 @@ export class EmployeePaymentService {
 				},
 				disabled: false,
 			},
+			raw: true,
 		});
-
 		return await this.employeePaymentMapper.decodeList(employeePayment);
 	}
 
@@ -688,7 +681,7 @@ export class EmployeePaymentService {
 			h_i: result.find((r) => r.type === "健保")?.level ?? 0,
 			l_r:
 				employeeData.work_type != "外籍勞工" &&
-					employeeData.work_status != "外籍勞工"
+					employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
 					? result.find((r) => r.type === "勞退")?.level ?? 0
 					: 0,
 			occupational_injury:

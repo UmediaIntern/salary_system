@@ -13,12 +13,16 @@ import { BaseResponseError } from "../errors/base_response_error";
 import { select_value } from "./helper_function";
 import { Op } from "sequelize";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
+import { InternalServerError } from "../errors/internal_server_error";
+import { convertToDBWorkStatusEnum } from "../api/types/work_status_enum";
 
 @injectable()
 export class EmployeeDataService {
 	constructor(private readonly employeeDataMapper: EmployeeDataMapper) {}
 
-	async createEmployeeData(data: z.infer<typeof createEmployeeDataService>): Promise<EmployeeDataDecType> {
+	async createEmployeeData(
+		data: z.infer<typeof createEmployeeDataService>
+	): Promise<EmployeeDataDecType> {
 		const d = createEmployeeDataService.parse(data);
 		const employeeBonus = await this.employeeDataMapper.encode({
 			...d,
@@ -149,167 +153,66 @@ export class EmployeeDataService {
 		return await this.employeeDataMapper.decodeList(employeeDataList);
 	}
 
-	async updateEmployeeData({
-		id,
-		period_id,
-		emp_no,
-		emp_name,
-		position,
-		position_type,
-		group_insurance_type,
-		department,
-		work_type,
-		work_status,
-		disabilty_level,
-		sex_type,
-		dependents,
-		healthcare_dependents,
-		registration_date,
-		quit_date,
-		license_id,
-		bank_account_taiwan,
-		bank_account_foreign,
-		received_elderly_benefits,
-	}: z.infer<typeof updateEmployeeDataService>): Promise<void> {
-		const employeeData = await this.getEmployeeDataById(id);
+	async updateEmployeeData(
+		data: z.infer<typeof updateEmployeeDataService>
+	): Promise<void> {
+		const employeeData = await this.getEmployeeDataById(data.id);
 		if (employeeData == null) {
 			throw new BaseResponseError("Employee account does not exist");
 		}
+		const updateEmployeeData = await this.getEmployeeDataAfterSelectValue(
+			data,
+			employeeData
+		);
+
 		const affectedCount = await EmployeeData.update(
 			{
-				period_id: select_value(period_id, employeeData.period_id),
-				emp_no: select_value(emp_no, employeeData.emp_no),
-				emp_name: select_value(emp_name, employeeData.emp_name),
-				position: select_value(position, employeeData.position),
-				position_type: select_value(
-					position_type,
-					employeeData.position_type
-				),
-				group_insurance_type: select_value(
-					group_insurance_type,
-					employeeData.group_insurance_type
-				),
-				department: select_value(department, employeeData.department),
-				work_type: select_value(work_type, employeeData.work_type),
-				work_status: select_value(
-					work_status,
-					employeeData.work_status
-				),
-				disabilty_level: select_value(
-					disabilty_level,
-					employeeData.disabilty_level
-				),
-				sex_type: select_value(sex_type, employeeData.sex_type),
-				dependents: select_value(dependents, employeeData.dependents),
-				healthcare_dependents: select_value(
-					healthcare_dependents,
-					employeeData.healthcare_dependents
-				),
-				registration_date: select_value(
-					registration_date,
-					employeeData.registration_date
-				),
-				quit_date: select_value(quit_date, employeeData.quit_date),
-				license_id: select_value(license_id, employeeData.license_id),
-				bank_account_taiwan: select_value(
-					bank_account_taiwan,
-					employeeData.bank_account_taiwan
-				),
-				bank_account_foreign: select_value(
-					bank_account_foreign,
-					employeeData.bank_account_foreign
-				),
-				received_elderly_benefits: select_value(
-					received_elderly_benefits,
-					employeeData.received_elderly_benefits
-				),
+				period_id: select_value(data.period_id, employeeData.period_id),
+				...updateEmployeeData,
+				// TODO
+				work_status: updateEmployeeData.work_status
+					? convertToDBWorkStatusEnum(updateEmployeeData.work_status)
+					: undefined,
 				update_by: "system",
 			},
-			{ where: { id: id } }
+			{ where: { id: data.id } }
 		);
 		if (affectedCount[0] == 0) {
 			throw new BaseResponseError("Update error");
 		}
 	}
 
-	async updateEmployeeDataByEmpNoByPeriod({
-		period_id,
-		emp_no,
-		emp_name,
-		position,
-		position_type,
-		group_insurance_type,
-		department,
-		work_type,
-		work_status,
-		disabilty_level,
-		sex_type,
-		dependents,
-		healthcare_dependents,
-		registration_date,
-		quit_date,
-		license_id,
-		bank_account_taiwan,
-		bank_account_foreign,
-		received_elderly_benefits,
-	}: z.infer<typeof updateEmployeeDataByEmpNoService>): Promise<void> {
-		const employeeData = await this.getEmployeeDataByEmpNoByPeriod(
-			period_id!,
-			emp_no!
-		);
-		if (employeeData == null) {
-			throw new BaseResponseError("Employee account does not exist");
+	async updateEmployeeDataByEmpNoByPeriod(
+		data: z.infer<typeof updateEmployeeDataByEmpNoService>
+	): Promise<void> {
+		if (!data.period_id || !data.emp_no) {
+			throw new InternalServerError(
+				`period id or emp no is undefined. period id: ${data.period_id}, emp no: ${data.emp_no}`
+			);
 		}
+
+		const employeeData = await this.getEmployeeDataByEmpNoByPeriod(
+			data.period_id,
+			data.emp_no
+		);
+
+		if (employeeData == null) {
+			throw new InternalServerError("Employee account does not exist");
+		}
+		const updateEmployeeData = await this.getEmployeeDataAfterSelectValue(
+			data,
+			employeeData
+		);
 		const affectedCount = await EmployeeData.update(
 			{
-				emp_no: select_value(emp_no, employeeData.emp_no),
-				emp_name: select_value(emp_name, employeeData.emp_name),
-				position: select_value(position, employeeData.position),
-				position_type: select_value(
-					position_type,
-					employeeData.position_type
-				),
-				group_insurance_type: select_value(
-					group_insurance_type,
-					employeeData.group_insurance_type
-				),
-				department: select_value(department, employeeData.department),
-				work_type: select_value(work_type, employeeData.work_type),
-				work_status: select_value(
-					work_status,
-					employeeData.work_status
-				),
-				disabilty_level: select_value(
-					disabilty_level,
-					employeeData.disabilty_level
-				),
-				sex_type: select_value(sex_type, employeeData.sex_type),
-				dependents: select_value(dependents, employeeData.dependents),
-				healthcare_dependents: select_value(
-					healthcare_dependents,
-					employeeData.healthcare_dependents
-				),
-				registration_date: select_value(
-					registration_date,
-					employeeData.registration_date
-				),
-				quit_date: select_value(quit_date, employeeData.quit_date),
-				license_id: select_value(license_id, employeeData.license_id),
-				bank_account_taiwan: select_value(
-					bank_account_taiwan,
-					employeeData.bank_account_taiwan
-				),
-				bank_account_foreign: select_value(
-					bank_account_foreign,
-					employeeData.bank_account_foreign
-				),
-				received_elderly_benefits: select_value(
-					received_elderly_benefits,
-					employeeData.received_elderly_benefits
-				),
+				...updateEmployeeData,
+				// TODO
+				work_status: updateEmployeeData.work_status
+					? convertToDBWorkStatusEnum(updateEmployeeData.work_status)
+					: undefined,
 				update_by: "system",
 			},
-			{ where: { emp_no: emp_no } }
+			{ where: { emp_no: data.emp_no } }
 		);
 		if (affectedCount[0] == 0) {
 			throw new BaseResponseError("Update error");
@@ -323,5 +226,74 @@ export class EmployeeDataService {
 		if (destroyedRows != 1) {
 			throw new BaseResponseError("Delete error");
 		}
+	}
+
+	private async getEmployeeDataAfterSelectValue(
+		{
+			emp_no,
+			emp_name,
+			position,
+			position_type,
+			group_insurance_type,
+			department,
+			work_type,
+			work_status,
+			disabilty_level,
+			sex_type,
+			dependents,
+			healthcare_dependents,
+			registration_date,
+			quit_date,
+			license_id,
+			bank_account_taiwan,
+			bank_account_foreign,
+			received_elderly_benefits,
+		}: z.infer<typeof updateEmployeeDataByEmpNoService>,
+		employee_data: EmployeeDataDecType
+	): Promise<z.infer<typeof updateEmployeeDataByEmpNoService>> {
+		return {
+			emp_no: select_value(emp_no, employee_data.emp_no),
+			emp_name: select_value(emp_name, employee_data.emp_name),
+			position: select_value(position, employee_data.position),
+			position_type: select_value(
+				position_type,
+				employee_data.position_type
+			),
+			group_insurance_type: select_value(
+				group_insurance_type,
+				employee_data.group_insurance_type
+			),
+			department: select_value(department, employee_data.department),
+			work_type: select_value(work_type, employee_data.work_type),
+			work_status: select_value(work_status, employee_data.work_status),
+			disabilty_level: select_value(
+				disabilty_level,
+				employee_data.disabilty_level
+			),
+			sex_type: select_value(sex_type, employee_data.sex_type),
+			dependents: select_value(dependents, employee_data.dependents),
+			healthcare_dependents: select_value(
+				healthcare_dependents,
+				employee_data.healthcare_dependents
+			),
+			registration_date: select_value(
+				registration_date,
+				employee_data.registration_date
+			),
+			quit_date: select_value(quit_date, employee_data.quit_date),
+			license_id: select_value(license_id, employee_data.license_id),
+			bank_account_taiwan: select_value(
+				bank_account_taiwan,
+				employee_data.bank_account_taiwan
+			),
+			bank_account_foreign: select_value(
+				bank_account_foreign,
+				employee_data.bank_account_foreign
+			),
+			received_elderly_benefits: select_value(
+				received_elderly_benefits,
+				employee_data.received_elderly_benefits
+			),
+		};
 	}
 }

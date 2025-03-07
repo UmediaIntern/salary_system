@@ -15,11 +15,11 @@ import { useContext, useEffect } from "react";
 import dataTableContext from "../components/context/data_table_context";
 import { Sheet } from "~/components/ui/sheet";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
-import { incomeTaxSchema } from "../Schemas/configurations/income_tax_schema";
+import { incomeTaxSchema } from "../schemas/configurations/income_tax_schema";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
-import { IncomeTaxSettingFEType } from "~/server/api/types/income_tax_setting_type";
+import { type IncomeTaxSettingFEType } from "~/server/api/types/income_tax_setting_type";
 
 const formula = "If (發薪日 - 入境日期) > [外勞入境天數門檻] then\n\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\nElse\n\tIf 薪資所得稅扣繳總額 < (最低基本工資-免稅額)*[最低工資倍率] then \n\t\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\n\tElse\n\t\tTax=薪資扣繳總額*[薪資所得扣繳總額比率2]\n\tEnd_If\nEnd_If";
 

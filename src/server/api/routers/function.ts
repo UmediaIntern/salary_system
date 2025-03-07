@@ -2,18 +2,16 @@ import { container } from "tsyringe";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EHRService } from "~/server/service/ehr_service";
-import { ExcelService } from "~/server/service/excel_service";
 import { PayTypeEnum } from "../types/pay_type_enum";
 import { AllowanceMapper } from "~/server/database/mapper/allowance_mapper";
 import { EmployeePaymentService } from "~/server/service/employee_payment_service";
-import { BaseResponseError } from "../../errors/base_response_error";
 import { OtherMapper } from "~/server/database/mapper/other_mapper";
 import { BonusMapper } from "~/server/database/mapper/bonus_mapper";
 import { CalculateService } from "~/server/service/calculate_service";
 import { OvertimeMapper } from "~/server/database/mapper/overtime_mapper";
 import { HolidayMapper } from "~/server/database/mapper/holiday_mapper";
 import { PaysetMapper } from "~/server/database/mapper/payset_mapper";
-import { AllowanceFEType } from "../types/allowance_type";
+import { type AllowanceFEType } from "../types/allowance_type";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
 
 export const functionRouter = createTRPCRouter({
@@ -163,10 +161,6 @@ export const functionRouter = createTRPCRouter({
 					expense_with_type_list,
 					expense_class_list
 				);
-			// console.log(other_addition_list);
-			// console.log(other_deduction_list);
-			// console.log(other_addition_tax_list);
-			// console.log(other_deduction_tax_list);
 			const result = input.emp_no_list.map((emp_no) => {
 				return {
 					emp_no: emp_no,
@@ -184,12 +178,6 @@ export const functionRouter = createTRPCRouter({
 					).filter((d) => d.emp_no === emp_no),
 				};
 			});
-			// const otherMapper = container.resolve(OtherMapper);
-			// const newOther_list = await otherMapper.getNewOther(
-			// 	input.period_id,
-			// 	expense_with_type_list,
-			// 	input.emp_no_list
-			// )
 			return result;
 		}),
 
@@ -227,26 +215,5 @@ export const functionRouter = createTRPCRouter({
 			);
 			return newAllowanceFE_list;
 		}),
-
-	getExcelA: publicProcedure
-		.input(z.object({ ids: z.array(z.number()) }))
-		.query(async ({ input }) => {
-			const excelService = container.resolve(ExcelService);
-			const SheetA = await excelService.getSheetA(input.ids);
-			const Sheets = [
-				{
-					name: "SheetA",
-					data: SheetA,
-				},
-			];
-			return Sheets;
-		}),
-
-	getPromotion: publicProcedure.query(async () => {
-		const ehrService = container.resolve(EHRService);
-		const promotion = await ehrService.getPromotion();
-
-		return promotion;
-	}),
 });
 
