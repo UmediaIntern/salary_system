@@ -1,6 +1,12 @@
 import { cn } from "~/lib/utils";
 import { useState } from "react";
-import { type LucideIcon, Download, EllipsisVertical, Plus, Upload } from "lucide-react";
+import {
+	type LucideIcon,
+	Download,
+	EllipsisVertical,
+	Plus,
+	Upload,
+} from "lucide-react";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import {
 	DropdownMenu,
@@ -16,14 +22,14 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "~/components/ui/dialog"
+} from "~/components/ui/dialog";
 
 import { Button } from "~/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { getSchema } from "../../schemas/get_schemas";
 import { modeDescription } from "~/lib/utils/helper_function";
-import { ExcelDownload } from "../excel_download/ExcelDownloader";
+import { ParameterExcelDownloader } from "../excel_download/parameter_excel_downloader";
 import { ExcelUpload } from "../excel_upload/ExcelUpload";
 import { ParameterForm } from "./parameter_form";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -34,7 +40,7 @@ interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 
 // TODO: remove
 type FunctionMode =
-	"create"
+	| "create"
 	| "update"
 	| "delete"
 	| "excel_download"
@@ -46,7 +52,7 @@ export function DataTableFunctions({
 	tableType,
 	className,
 }: DataTableFunctionsProps) {
-	const { t } = useTranslation(['common', 'nav']);
+	const { t } = useTranslation(["common", "nav"]);
 	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
 
@@ -68,7 +74,9 @@ export function DataTableFunctions({
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-[120px]">
-						<DropdownMenuLabel>{t("others.functions")}</DropdownMenuLabel>
+						<DropdownMenuLabel>
+							{t("others.functions")}
+						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<CompTriggerItem
 							mode={"excel_download"}
@@ -93,39 +101,45 @@ export function DataTableFunctions({
 					</DropdownMenuContent>
 				</DropdownMenu>
 				{/* Sheet */}
-				<DialogContent className={cn("h-[90vh]", mode == "excel_upload" ? "sm:max-w-[1000px]" : "sm:max-w-[600px]")}>
-					<ScrollArea className="w-full h-full">
-						<DialogHeader>
-							<DialogTitle>
-								{`${t(`button.${mode}`)!}${t("button.form")} (${t(getTableNameKey(tableType))})`}
-							</DialogTitle>
-							<DialogDescription>
-								{modeDescription(t, mode)}
-							</DialogDescription>
-						</DialogHeader>
-						{
-							mode == "excel_download" ?
-								<ExcelDownload
-									table_name={tableType}
+				{mode == "excel_download" ? (
+					<ParameterExcelDownloader table_name={tableType} />
+				) : (
+					<DialogContent
+						className={cn(
+							"h-[90vh]",
+							mode == "excel_upload"
+								? "sm:max-w-[1000px]"
+								: "sm:max-w-[600px]"
+						)}
+					>
+						<ScrollArea className="h-full w-full">
+							<DialogHeader>
+								<DialogTitle>
+									{`${t(`button.${mode}`)!}${t(
+										"button.form"
+									)} (${t(getTableNameKey(tableType))})`}
+								</DialogTitle>
+								<DialogDescription>
+									{modeDescription(t, mode)}
+								</DialogDescription>
+							</DialogHeader>
+							{mode == "excel_upload" ? (
+								<ExcelUpload
+									tableType={tableType}
+									closeDialog={() => setOpen(false)}
 								/>
-								:
-								mode == "excel_upload" ?
-									<ExcelUpload
-										tableType={tableType}
-										closeDialog={() => setOpen(false)}
-									/>
-									:
-									mode == "create" ?
-										<ParameterForm
-											formSchema={schema}
-											mode={"create"}
-											closeSheet={() => setOpen(false)}
-										/>
-										:
-										<></>
-						}
-					</ScrollArea>
-				</DialogContent>
+							) : mode == "create" ? (
+								<ParameterForm
+									formSchema={schema}
+									mode={"create"}
+									closeSheet={() => setOpen(false)}
+								/>
+							) : (
+								<></>
+							)}
+						</ScrollArea>
+					</DialogContent>
+				)}
 			</Dialog>
 		</div>
 	);

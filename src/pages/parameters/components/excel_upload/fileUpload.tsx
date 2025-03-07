@@ -12,31 +12,6 @@ import { cn } from "~/lib/utils";
 
 import ExcelJS from "exceljs";
 
-function transposeData(data: any[][]): any[][] {
-	const tranposed_data = (data[0]??[]).map((_, colIndex) => data.map(row => row[colIndex]));
-	return tranposed_data.map((row) => row.slice(1));
-}
-
-export function formatBytes(
-	bytes: number,
-	opts: {
-		decimals?: number;
-		sizeType?: "accurate" | "normal";
-	} = {}
-) {
-	const { decimals = 0, sizeType = "normal" } = opts;
-
-	const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-	const accurateSizes = ["Bytes", "KiB", "MiB", "GiB", "TiB"];
-	if (bytes === 0) return "0 Byte";
-	const i = Math.floor(Math.log(bytes) / Math.log(1024));
-	return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${
-		sizeType === "accurate"
-			? accurateSizes[i] ?? "Bytest"
-			: sizes[i] ?? "Bytes"
-	}`;
-}
-
 export function composeEventHandlers<E>(
 	originalEventHandler?: (event: E) => void,
 	ourEventHandler?: (event: E) => void,
