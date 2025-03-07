@@ -2,7 +2,6 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { DataTableToolbar } from "./data_table_toolbar_single";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
-import CalendarView from "./calendar_view/calendar_view";
 import { useContext } from "react";
 import dataTableContext from "./context/data_table_context";
 import { TabsEnum } from "./context/tabs_enum";
@@ -20,7 +19,6 @@ interface DataTableProps<TData> {
 export function DataTable<TData>({
 	columns,
 	data,
-	/* filterColumnKey, */
 	showTabs,
 }: DataTableProps<TData>) {
 
@@ -42,7 +40,6 @@ export function DataTable<TData>({
 		>
 			<div className="flex h-full flex-col">
 				<DataTableToolbar
-					/* filterColumnKey={filterColumnKey} */
 					showTabs={showTabs}
 				/>
 				<Separator />
@@ -58,15 +55,6 @@ export function DataTable<TData>({
 				>
 					<div className="flex h-0 w-full flex-grow flex-col">
 						<CompHistoryView />
-					</div>
-				</TabsContent>
-				<TabsContent
-					value={TabsEnum.Enum.calendar}
-					asChild
-					className="m-0"
-				>
-					<div className="flex h-0 w-full flex-grow flex-col">
-						<CalendarView />
 					</div>
 				</TabsContent>
 			</div>

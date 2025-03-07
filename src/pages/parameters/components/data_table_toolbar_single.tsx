@@ -7,7 +7,6 @@ import { DataTableFunctions as DataTableFunctionsSingle } from "./function_sheet
 import { DataTableFunctions } from "./function_sheet/data_table_functions";
 import { LoadingSpinner } from "~/components/loading";
 import { TabsEnum } from "./context/tabs_enum";
-import { CalendarToolbarFunctions } from "./calendar_view/components/calendar_toolbar_functions";
 import { hasHistory } from "./data_table_tabs_config";
 import { ToolbarFilter } from "~/components/data_table/toolbar/toolbar_filter";
 import periodContext from "~/components/context/period_context";
@@ -48,7 +47,7 @@ export function DataTableToolbar<TData>({
 			{/* tabs */}
 			<div className="flex">
 				{showTabs !== false && (
-					<TabsList className="grid h-8 w-96 grid-cols-3">
+					<TabsList className="grid h-8 w-96 grid-cols-2">
 						<TabsTrigger value={TabsEnum.Enum.current} className="h-6">
 							{t("table.current")}
 						</TabsTrigger>
@@ -58,13 +57,6 @@ export function DataTableToolbar<TData>({
 							className="h-6"
 						>
 							{t("table.history")}
-						</TabsTrigger>
-						<TabsTrigger
-							disabled={!hasHistory(selectedTableType)}
-							value={TabsEnum.Enum.calendar}
-							className="h-6"
-						>
-							{t("table.calendar")}
 						</TabsTrigger>
 					</TabsList>
 				)}
@@ -81,11 +73,6 @@ export function DataTableToolbar<TData>({
 								{data && <DataTableFunctionsSingle />}
 								<DataTableFunctions tableType={selectedTableType} />
 							</div>
-							{/* {selectedTab === TabsEnum.Enum.calendar && (
-								<CalendarToolbarFunctions
-									tableType={selectedTableType}
-								/>
-							)} */}
 						</ParameterToolbarFunctionsProvider>
 					)}
 				</div>
