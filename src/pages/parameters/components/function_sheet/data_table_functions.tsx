@@ -30,7 +30,7 @@ import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { getSchema } from "../../schemas/get_schemas";
 import { modeDescription } from "~/lib/utils/helper_function";
 import { ParameterExcelDownloader } from "../excel_download/parameter_excel_downloader";
-import { ExcelUpload } from "../excel_upload/ExcelUpload";
+import { ParameterExcelUpload } from "../excel_upload/parameter_excel_uplaod";
 import { ParameterForm } from "./parameter_form";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
@@ -101,17 +101,17 @@ export function DataTableFunctions({
 					</DropdownMenuContent>
 				</DropdownMenu>
 				{/* Sheet */}
-				{mode == "excel_download" ? (
+				{mode == "excel_download" && (
 					<ParameterExcelDownloader table_name={tableType} />
-				) : (
-					<DialogContent
-						className={cn(
-							"h-[90vh]",
-							mode == "excel_upload"
-								? "sm:max-w-[1000px]"
-								: "sm:max-w-[600px]"
-						)}
-					>
+				)}
+				{mode == "excel_upload" && (
+					<ParameterExcelUpload
+						tableType={tableType}
+						closeDialog={() => setOpen(false)}
+					/>
+				)}
+				{mode == "create" && (
+					<DialogContent className={cn("h-[90vh]")}>
 						<ScrollArea className="h-full w-full">
 							<DialogHeader>
 								<DialogTitle>
@@ -123,20 +123,11 @@ export function DataTableFunctions({
 									{modeDescription(t, mode)}
 								</DialogDescription>
 							</DialogHeader>
-							{mode == "excel_upload" ? (
-								<ExcelUpload
-									tableType={tableType}
-									closeDialog={() => setOpen(false)}
-								/>
-							) : mode == "create" ? (
-								<ParameterForm
-									formSchema={schema}
-									mode={"create"}
-									closeSheet={() => setOpen(false)}
-								/>
-							) : (
-								<></>
-							)}
+							<ParameterForm
+								formSchema={schema}
+								mode={"create"}
+								closeSheet={() => setOpen(false)}
+							/>
 						</ScrollArea>
 					</DialogContent>
 				)}
