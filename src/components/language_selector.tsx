@@ -8,6 +8,7 @@ import {
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useRouter } from "next/router";
+import { onPromise } from "~/utils/on_promise";
 
 export function LanguageSelector() {
 	const router = useRouter();
@@ -29,10 +30,10 @@ export function LanguageSelector() {
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={async () => await setLanguage("en")}>
+				<DropdownMenuItem onClick={onPromise(async () => await setLanguage("en"))}>
 					English
 				</DropdownMenuItem>
-				<DropdownMenuItem onClick={async () => await setLanguage("zh-TW")}>
+				<DropdownMenuItem onClick={onPromise(async () => await setLanguage("zh-TW"))}>
 					繁體中文
 				</DropdownMenuItem>
 			</DropdownMenuContent>

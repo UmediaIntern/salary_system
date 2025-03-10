@@ -4,6 +4,7 @@ import { UserAvatar } from "~/components/user_avatar";
 import { ThemeSelector } from "~/components/theme_selector";
 import { useSession } from "next-auth/react";
 import { LanguageSelector } from "./language_selector";
+import { NotificationTrigger } from "./notification/notification_trigger";
 
 interface TitleProp extends React.HTMLAttributes<HTMLDivElement> {
 	title: string;
@@ -21,6 +22,7 @@ export const Header = (props: PropsWithChildren<TitleProp>) => {
 				</h2>
 				{props.showOptions ? (
 					<div className="align-bot ml-auto flex items-center space-x-1">
+						<NotificationTrigger />
 						<LanguageSelector />
 						<ThemeSelector />
 						{status === "authenticated" ? <UserAvatar /> : <></>}

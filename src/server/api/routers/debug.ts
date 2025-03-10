@@ -36,6 +36,7 @@ import { where } from "sequelize";
 import { BonusAll } from "~/server/database/entity/SALARY/bonus_all";
 import { createLevelAPI } from "../types/level_type";
 import { LevelService } from "~/server/service/level_service";
+import { Notification } from "~/server/database/entity/SALARY/notification";
 // import { EHRService } from "~/server/service/ehr_service";
 // import { EmployeeDataService } from "~/server/service/employee_data_service";
 
@@ -149,7 +150,8 @@ export const debugRouter = createTRPCRouter({
 				// Level,
 				// TrustMoney,
 				// SalaryIncomeTax,
-				Transaction
+				// Transaction,
+				Notification,
 			];
 			const promises = table_list.map(async (model) => {
 				try {
