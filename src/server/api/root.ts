@@ -13,6 +13,7 @@ import { transactionRouter } from "./routers/transaction";
 import { bonusRouter } from "./routers/bonus";
 import { incomeTaxSettingRouter } from "./routers/income_tax_setting";
 import { testTransactionRouter } from "./routers/TEST_transaction";
+import { notificationRouter } from "./routers/notification";
 
 /**
  * This is the primary router for your server.
@@ -32,7 +33,7 @@ export const appRouter = createTRPCRouter({
 	sync: syncRouter,
 	calculate: calculateRouter,
 	transaction: transactionRouter,
-
+	notification: notificationRouter,
 	incomeTaxSetting: incomeTaxSettingRouter,
 
 	testTransaction: testTransactionRouter,

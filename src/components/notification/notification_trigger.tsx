@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Globe } from "lucide-react";
+import { BellRing, Globe } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
 	Popover,
@@ -13,8 +13,7 @@ export function NotificationTrigger() {
 		<Popover>
 			<PopoverTrigger asChild>
 				<Button variant="ghost" size="icon">
-					<Globe className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-					<Globe className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+					<BellRing className="h-[1.2rem] w-[1.2rem] stroke-2" />
 					<span className="sr-only">Notifications</span>
 				</Button>
 			</PopoverTrigger>
