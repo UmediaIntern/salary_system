@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BellRing, Globe } from "lucide-react";
+import { BellRing } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
 	Popover,
