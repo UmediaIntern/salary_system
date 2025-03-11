@@ -11,12 +11,12 @@ import {
 import { type ColumnDef } from "@tanstack/react-table";
 import { Separator } from "~/components/ui/separator";
 import { EmployeePopoverSelector } from "~/components/popover_selector";
-import periodContext from "~/components/context/period_context";
 import { HistoryViewMenuItem } from "~/components/data_table/history_view/history_view_menu_item";
 import { HistoryViewMenu } from "~/components/data_table/history_view/history_view_menu";
 import { buildEmployeeSelectOptions } from "~/components/data_table/history_view/utils";
 import { useHistoryState } from "~/components/data_table/history_view/use_history_state";
 import { type HistoryViewEmployeeCommonEmpInfo } from "~/components/data_table/history_view/types";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 // TODO: delete this type and use HistoryViewEmployeeCommonEmpInfo instead
 export interface EmployeeHistoryViewCommonEmpInfo {
@@ -35,7 +35,7 @@ export function HistoryView<TData extends DataRow>({
 	data,
 	columns,
 }: DataTableProps<TData>) {
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 
 	const [selectedEmpNo, setSelectedEmpNo] = useState<string | null>(null);
 

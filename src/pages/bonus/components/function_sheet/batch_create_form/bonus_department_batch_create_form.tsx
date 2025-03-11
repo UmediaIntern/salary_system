@@ -1,16 +1,6 @@
 import * as z from "zod";
 import { Button } from "~/components/ui/button";
 import { useState } from "react";
-import { ScrollArea } from "~/components/ui/scroll-area";
-
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "~/components/ui/table";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -34,9 +24,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
-import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import periodContext from "~/components/context/period_context";
+import { type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 import GeneralTable from "~/components/table_functions/general_table";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface ParameterFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
@@ -58,7 +48,7 @@ export function BonusDepartmentBatchCreateForm<
 	closeSheet,
 }: ParameterFormProps<SchemaType>) {
 	const functions = useContext(bonusToolbarFunctionsContext);
-	const period = useContext(periodContext)
+	const period = usePeriodContext();
 
 	const queryFunction = functions.queryFunction!;
 	const updateFunction = functions.updateFunction!;
@@ -149,9 +139,11 @@ export function BonusDepartmentBatchCreateForm<
 
 		const onSubmit = async (data: FormValues) => {
 			data.bonus_department.map(async (x) => {
-				await createFunction.mutateAsync(
-					{...x, bonus_type: bonusType, period_id: period.selectedPeriod?.period_id},
-				);
+				await createFunction.mutateAsync({
+					...x,
+					bonus_type: bonusType,
+					period_id: period.selectedPeriod?.period_id,
+				});
 			});
 			closeSheet();
 		};
@@ -210,7 +202,12 @@ export function BonusDepartmentBatchCreateForm<
 								<Button
 									type={"button"}
 									variant={"ghost"}
-									onClick={() => append({ department: "", multiplier: 0 })}
+									onClick={() =>
+										append({
+											department: "",
+											multiplier: 0,
+										})
+									}
 								>
 									<PlusCircle />
 								</Button>

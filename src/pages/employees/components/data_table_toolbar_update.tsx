@@ -1,6 +1,5 @@
 import { DataTableViewOptions } from "~/components/data_table/toolbar/data_table_view_options";
 import { useContext } from "react";
-import periodContext from "~/components/context/period_context";
 import { ToolbarFilter } from "~/components/data_table/toolbar/toolbar_filter";
 import { TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { EmpTabsEnum } from "./context/employee_tabs_enum";
@@ -10,6 +9,7 @@ import { StatsPanel } from "~/components/data_table/toolbar/stats_panel";
 import { useEmployeeTableContext } from "./context/data_table_context_provider";
 import { TableFunctionMenuSelector } from "./function_sheet/table_function_selector";
 import { Skeleton } from "~/components/ui/skeleton";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface DataTableToolbarProps<TData> {
 	filterColumnKey?: keyof TData;
@@ -19,7 +19,7 @@ export function DataTableToolbarUpdate<TData>({
 	filterColumnKey,
 }: DataTableToolbarProps<TData>) {
 	const { selectedTable } = useEmployeeTableContext();
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 
 	const { t } = useTranslation(["common"]);
 

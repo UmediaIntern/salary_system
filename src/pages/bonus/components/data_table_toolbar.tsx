@@ -4,11 +4,11 @@ import BonusToolbarFunctionsProvider from "./function_sheet/bonus_functions_cont
 import { DataTableFunctions } from "./function_sheet/data_table_functions";
 import { useContext } from "react";
 import dataTableContext from "./context/data_table_context";
-import periodContext from "~/components/context/period_context";
 import { ToolbarFilter } from "~/components/data_table/toolbar/toolbar_filter";
-import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
+import { type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 import { StatsPanel } from "~/components/data_table/toolbar/stats_panel";
 import { DataTableToolbarWrapper } from "~/components/data_table/toolbar/data_table_toolbar_wrapper";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
@@ -22,7 +22,7 @@ export function DataTableToolbar<TData>({
 	filterColumnKey,
 }: DataTableToolbarProps<TData>) {
 	const { selectedTableType } = useContext(dataTableContext);
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 
 	return (
 		<DataTableToolbarWrapper>

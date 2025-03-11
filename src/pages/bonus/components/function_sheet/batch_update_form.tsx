@@ -2,21 +2,15 @@ import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 import { TableEnum } from "../context/data_table_enum";
 import { useContext, useEffect, useState } from "react";
 import { bonusToolbarFunctionsContext } from "./bonus_functions_context";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@radix-ui/react-dialog";
-import { Label } from "@radix-ui/react-label";
-import { Separator } from "@radix-ui/react-separator";
-import { Trash2, PlusCircle, Copy, PenSquare } from "lucide-react";
-import { Input } from "postcss";
-import { Button } from "react-day-picker";
-import { useForm, useFieldArray } from "react-hook-form";
+import { Trash2, Copy, PenSquare } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import periodContext from "~/components/context/period_context";
 import { LoadingSpinner } from "~/components/loading";
 import { DialogHeader, DialogFooter } from "~/components/ui/dialog";
 import { FunctionMode } from "./data_table_functions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 export function BonusBatchUpdateForm({
 	tableType,
@@ -31,7 +25,7 @@ export function BonusBatchUpdateForm({
     const mode = "batch_update";
 
 	const functions = useContext(bonusToolbarFunctionsContext);
-	const period = useContext(periodContext)
+	const period = usePeriodContext();
 
 	const queryFunction = functions.queryFunction!;
 	const updateFunction = functions.updateFunction!;

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { z } from 'zod';
 
 // Translation
@@ -10,9 +10,6 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { RootLayout } from "~/components/layout/root_layout";
 import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
 import { type NextPageWithLayout } from "../../_app";
-
-// Context
-import periodContext from "~/components/context/period_context";
 
 // Components
 import { Header } from "~/components/header";
@@ -33,6 +30,7 @@ import ExcelViewer from "./ExcelViewer";
 // Functions
 import { api } from "~/utils/api";
 import { getExcelData, getDefaults } from "./utils";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 
 
@@ -60,7 +58,7 @@ Salary.getLayout = function getLayout(page: React.ReactElement) {
 export default Salary;
 
 function ExportPage() {
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 	const getExcelA = api.transaction.getAllTransaction.useQuery({period_id: selectedPeriod?.period_id ?? 0});
 	const [selectedSheetIndex, setSelectedSheetIndex] = useState(0);
 

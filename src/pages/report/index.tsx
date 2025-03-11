@@ -10,8 +10,7 @@ import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
 import { IconCoins } from "~/components/icons/svg_icons";
 import { Header } from "~/components/header";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
-import periodContext from "~/components/context/period_context";
+import { useState } from "react";
 import { useToast } from "~/components/ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import PeriodSelector from "~/components/period_selector";
@@ -20,7 +19,8 @@ import { useTranslation } from "react-i18next";
 
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { i18n, locales } from '~/components/lang_config'
-import { I18nType } from "~/lib/utils/i18n_type";
+import { type I18nType } from "~/lib/utils/i18n_type";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 
 type FunctionLinkData = CardFunctionData & { url: string | null };
@@ -36,7 +36,7 @@ const function_data: (t: I18nType) => FunctionLinkData[] = (t) => [
 
 const ReportHomePage: NextPageWithLayout = () => {
 	const router = useRouter();
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 	const { toast } = useToast();
 	const [open, setOpen] = useState(false);
 	const { t } = useTranslation(['common', 'nav']);

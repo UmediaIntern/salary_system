@@ -3,12 +3,11 @@ import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
 import { Header } from "~/components/header";
 import { type NextPageWithLayout } from "../../_app";
 import { api } from "~/utils/api";
-import { type ReactElement, useContext, useState } from "react";
+import { type ReactElement, useState } from "react";
 import { ProgressBar } from "~/components/functions/progress_bar";
 import { LoadingSpinner } from "~/components/loading";
 import { DataPage } from "./data_page";
 import { EmployeePage } from "./employee_page";
-import periodContext from "~/components/context/period_context";
 import { SyncPage } from "./sync_page";
 import Link from "next/link";
 import { buttonVariants } from "~/components/ui/button";
@@ -32,6 +31,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { i18n, locales } from '~/components/lang_config'
 import { ParameterPage } from "./parameters_page";
 import { Period } from "~/server/database/entity/UMEDIA/period";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 type FunctionStepPage = {
 	title: string;
@@ -39,7 +39,7 @@ type FunctionStepPage = {
 };
 
 const MonthSalary: NextPageWithLayout = () => {
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 
 	const periodId = selectedPeriod?.period_id;
 	const { t } = useTranslation(['common'])

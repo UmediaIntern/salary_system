@@ -5,7 +5,7 @@ import {
 	SidebarInset,
 	SidebarProvider,
 } from "~/components/ui/sidebar";
-import PeriodContextProvider from "../context/period_context_provider";
+import { PeriodContextProvider } from "../context/period_context_provider";
 
 type PerpageLayoutProp = {
 	pageTitle: string;

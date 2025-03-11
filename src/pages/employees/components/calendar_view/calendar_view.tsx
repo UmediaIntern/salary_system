@@ -8,13 +8,13 @@ import CalendarAddEvent from "./components/calendar_add_event";
 import dataTableContext from "../context/data_table_context";
 import { LoadingSpinner } from "~/components/loading";
 import CalendarUpdateEvent from "./components/calendar_update_event";
-import periodContext from "~/components/context/period_context";
 import { useTranslation } from "react-i18next";
 import { HistoryDataType, type EmployeeCalenderQueryFunctionType } from "~/components/data_table/history_data_type";
 import { type EmployeeHistoryViewCommonEmpInfo } from "../history_view/history_view";
 import EmployeeToolbarFunctionsProvider from "../function_sheet/employee_functions_context";
 import { PopoverSelectorDataType } from "~/components/popover_selector";
 import { formatDate } from "~/lib/utils/format_date";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface DataTableProps {
 	dataFunction: EmployeeCalenderQueryFunctionType<EmployeeHistoryViewCommonEmpInfo>;
@@ -22,7 +22,7 @@ interface DataTableProps {
 
 export default function CalendarView({ dataFunction }: DataTableProps) {
 	const { selectedTableType } = useContext(dataTableContext);
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 	const { t } = useTranslation(["common"]);
 
 	return (

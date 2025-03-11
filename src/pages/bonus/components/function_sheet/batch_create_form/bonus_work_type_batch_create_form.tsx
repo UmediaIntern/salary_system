@@ -45,8 +45,8 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import periodContext from "~/components/context/period_context";
 import GeneralTable from "~/components/table_functions/general_table";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface ParameterFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
@@ -68,7 +68,7 @@ export function BonusWorkTypeBatchCreateForm<
 	closeSheet,
 }: ParameterFormProps<SchemaType>) {
 	const functions = useContext(bonusToolbarFunctionsContext);
-	const period = useContext(periodContext)
+	const period = usePeriodContext();
 
 	const queryFunction = functions.queryFunction!;
 	const updateFunction = functions.updateFunction!;

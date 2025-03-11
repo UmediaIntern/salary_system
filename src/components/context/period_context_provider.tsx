@@ -1,9 +1,21 @@
-import React, { useState, type PropsWithChildren, useEffect, useContext } from "react";
+import {
+	createContext,
+	useState,
+	useEffect,
+	useContext,
+	type PropsWithChildren,
+} from "react";
 import { type Period } from "~/server/database/entity/UMEDIA/period";
-import periodContext from "./period_context";
 import { SessionStorage } from "~/utils/session_storage";
 
-export default function PeriodContextProvider({ children }: PropsWithChildren) {
+const periodContext = createContext<{
+	selectedPeriod: Period | null;
+	setSelectedPeriod: (period: Period) => void;
+	selectedPayDate: Date | null;
+	setSelectedPayDate: (date: Date) => void;
+} | null>(null);
+
+export function PeriodContextProvider({ children }: PropsWithChildren) {
 	const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
 	const [selectedPayDate, setSelectedPayDate] = useState<Date | null>(null);
 
@@ -20,7 +32,7 @@ export default function PeriodContextProvider({ children }: PropsWithChildren) {
 				console.log("Period context: Invalid date");
 				return;
 			}
-			setSelectedPayDate(date); 
+			setSelectedPayDate(date);
 		}
 	}, []);
 
@@ -39,12 +51,11 @@ export default function PeriodContextProvider({ children }: PropsWithChildren) {
 }
 
 export function usePeriodContext() {
-  const context = useContext(periodContext);
-  if (context === null) {
-    throw new Error(
-      "Period Context must be used within a PeriodContextProvider"
-    );
-  }
-  return context;
+	const context = useContext(periodContext);
+	if (context === null) {
+		throw new Error(
+			"Period Context must be used within a PeriodContextProvider"
+		);
+	}
+	return context;
 }
-

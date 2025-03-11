@@ -12,11 +12,10 @@ import {
 
 import { api } from "~/utils/api";
 import { type SyncCheckStatusEnumType } from "~/components/synchronize/utils/sync_check_status";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import periodContext from "../context/period_context";
 import { useTranslation } from "react-i18next";
 import { EmployeeDataChangeTable } from "./emp_data_change_table";
 import { type DataComparison, type SyncInputType } from "~/server/api/types/sync_type";
+import { usePeriodContext } from "../context/period_context_provider";
 
 export interface DataComparisonAndStatus extends DataComparison {
 	check_status: SyncCheckStatusEnumType;
@@ -35,7 +34,7 @@ interface UpdateTableDialogProps {
 }
 
 export function UpdateTableDialog({ data }: UpdateTableDialogProps) {
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 	const { t } = useTranslation(["common"]);
 
 	const ctx = api.useUtils();

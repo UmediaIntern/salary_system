@@ -1,15 +1,11 @@
-import { TypeOf, type z } from "zod";
-import { useContext, useEffect, useState } from "react";
+import { type z } from "zod";
+import { useContext } from "react";
 import { bonusToolbarFunctionsContext } from "./bonus_functions_context";
 import { type FormConfig } from "~/components/ui/custom-form/types";
 import dataTableContext, { type FunctionMode } from "../context/data_table_context";
-import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import periodContext from "~/components/context/period_context";
-
 import { buildStandardFormProps, StandardForm } from "~/components/form/default/form_standard";
-import { bonusAllSchema } from "../../schemas/configurations/bonus_all_schema";
 import { DefaultValues } from "react-hook-form";
-import { Button } from "~/components/ui/button";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface BonusFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
@@ -29,7 +25,7 @@ export function BonusForm<SchemaType extends z.AnyZodObject>({
 	closeSheet,
 }: BonusFormProps<SchemaType>) {
 	const { data, selectedBonusType } = useContext(dataTableContext);
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 	const functions = useContext(bonusToolbarFunctionsContext);
 	const createFunction = functions.createFunction!;
 	const updateFunction = functions.updateFunction!;		

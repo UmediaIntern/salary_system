@@ -1,4 +1,4 @@
-import { Period } from "~/server/database/entity/UMEDIA/period";
+import { type Period } from "~/server/database/entity/UMEDIA/period";
 
 export class SessionStorage {
 	static getSelectedPayDate(): string | null {

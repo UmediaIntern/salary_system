@@ -8,10 +8,10 @@ import { LoadingSpinner } from "~/components/loading";
 import { TabsEnum } from "./context/tabs_enum";
 import { hasHistory } from "./data_table_tabs_config";
 import { ToolbarFilter } from "~/components/data_table/toolbar/toolbar_filter";
-import periodContext from "~/components/context/period_context";
 import { useTranslation } from "react-i18next";
 import { StatsPanel } from "~/components/data_table/toolbar/stats_panel";
 import { DataTableToolbarWrapper } from "~/components/data_table/toolbar/data_table_toolbar_wrapper";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface DataTableToolbarProps<TData> {
 	filterColumnKey?: keyof TData;
@@ -24,7 +24,7 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
 	const { selectedTab, selectedTableType, selectedTable } =
 		useContext(dataTableContext);
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 	const table = selectedTable?.table;
 	const { t } = useTranslation(["common"]);
 

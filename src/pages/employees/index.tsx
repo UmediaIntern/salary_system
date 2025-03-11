@@ -2,7 +2,7 @@ import { type NextPageWithLayout } from "../_app";
 import { Header } from "~/components/header";
 import { RootLayout } from "~/components/layout/root_layout";
 import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
-import { type ReactElement, useContext } from "react";
+import { type ReactElement } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { EmployeeDataTable } from "./tables/employee_data_table";
 import { EmployeePaymentTable } from "./tables/employee_payment/employee_payment_table";
@@ -11,7 +11,6 @@ import {
 	EmployeeTableContextProvider,
 	useEmployeeTableContext,
 } from "./components/context/data_table_context_provider";
-import periodContext from "~/components/context/period_context";
 import { useTranslation } from "react-i18next";
 
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -22,6 +21,7 @@ import {
 	getTableNameKey,
 } from "./employee_tables";
 import { TabMountGuard } from "./components/context/tab_mount_guard";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 function PageEmployeesContent() {
 	const { setSelectedTableType } =
@@ -88,7 +88,7 @@ function PageEmployeesContent() {
 }
 
 const PageEmployees: NextPageWithLayout = () => {
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 	const { t } = useTranslation(["common", "nav"]);
 
 	if (selectedPeriod === null) {

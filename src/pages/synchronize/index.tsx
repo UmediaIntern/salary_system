@@ -2,20 +2,19 @@ import { api } from "~/utils/api";
 import { type NextPageWithLayout } from "../_app";
 import { RootLayout } from "~/components/layout/root_layout";
 import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
-import { useContext, type ReactElement } from "react";
+import { type ReactElement } from "react";
 import { LoadingSpinner } from "~/components/loading";
 import { Header } from "~/components/header";
 import { SyncPageContent } from "~/components/synchronize/sync_page_content";
-import periodContext from "~/components/context/period_context";
 import { FunctionsEnum } from "~/server/api/types/functions_enum";
 import { useTranslation } from "react-i18next";
-
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { i18n, locales } from '~/components/lang_config'
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 
 const PageCheckEHR: NextPageWithLayout = () => {
-	const {selectedPeriod} = useContext(periodContext);
+	const {selectedPeriod} = usePeriodContext();
 	const { t } = useTranslation(['common', 'nav']);
 	if (selectedPeriod == null) {
 		return <p>{t("others.select_period")}</p>;
@@ -24,7 +23,7 @@ const PageCheckEHR: NextPageWithLayout = () => {
 };
 
 function SyncPage() {
-	const {selectedPeriod} = useContext(periodContext);
+	const {selectedPeriod} = usePeriodContext();
 	const { t } = useTranslation(['common', 'nav']);
 
 	const { isLoading, isError, data, error } =

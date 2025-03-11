@@ -25,13 +25,13 @@ import {
 	type ParameterTableEnum,
 	ParameterTableEnumValues,
 } from "./parameter_tables";
-import periodContext from "~/components/context/period_context";
 import { LevelRangeTable } from "./tables/level_range_table";
 import { LevelTable } from "./tables/level_table";
 import { useTranslation } from "react-i18next";
 import { TrustMoneyTable } from "./tables/trust_money_table";
 import { SalaryIncomeTaxTable } from "./tables/salary_income_tax_table";
 import { IncomeTaxSettingTable } from "./tables/income_tax_setting_table";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 export type TableComponentProps = {
 	period_id: number;
@@ -169,7 +169,7 @@ function CompTablesSelector() {
 
 function CompTableView() {
 	const { selectedTableType } = useContext(dataTableContext);
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();;
 
 	const { t } = useTranslation(['common']);
 

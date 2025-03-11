@@ -16,7 +16,6 @@ import {
 	type HistoryDataType,
 	type ParameterHistoryQueryFunctionType,
 } from "~/components/data_table/history_data_type";
-import periodContext from "~/components/context/period_context";
 import { formatDate } from "~/lib/utils/format_date";
 import { Separator } from "~/components/ui/separator";
 import { DateStringPopoverSelector } from "~/components/popover_selector";
@@ -24,6 +23,7 @@ import { HistoryViewMenuItem } from "~/components/data_table/history_view/histor
 import { HistoryViewMenu } from "~/components/data_table/history_view/history_view_menu";
 import { useHistoryState } from "~/components/data_table/history_view/use_history_state";
 import { buildDateSelectOptions } from "~/components/data_table/history_view/utils";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 export default function HistoryView() {
 	const { selectedTableType } = useContext(dataTableContext);
@@ -50,7 +50,7 @@ function CompHistoryView() {
 
 	const { isLoading, isError, data, error } = queryFunction();
 
-	const { selectedPeriod } = useContext(periodContext);
+	const { selectedPeriod } = usePeriodContext();
 
 	const [selectedDateString, setSelectedDateString] = useState<string | null>(
 		null

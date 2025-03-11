@@ -1,11 +1,11 @@
 import { useContext } from "react";
 import { EmployeeBonusTable } from "../tables/employee_bonus_table_budget";
-import periodContext from "~/components/context/period_context";
 import dataTableContext from "../components/context/data_table_context";
 import { useTranslation } from "react-i18next";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 export default function BonusBudget() {
-    const { selectedPeriod } = useContext(periodContext)
+    const { selectedPeriod } = usePeriodContext()
     const { selectedBonusType } = useContext(dataTableContext);
     const { t } = useTranslation(["common"]);
 
