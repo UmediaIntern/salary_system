@@ -21,6 +21,7 @@ import {
 	CalendarRange,
 	Contact,
 	CircleDollarSign,
+    FlagTriangleRight,
 } from "lucide-react";
 
 import {
@@ -193,7 +194,7 @@ type SelectItemEntry = {
 const selectItems: SelectItemEntry[] = [
 	{
 		title: "period",
-		icon: CalendarRange,
+		icon: FlagTriangleRight,
 		popUpPage: <PeriodSelector />,
 	},
 ];
@@ -229,6 +230,13 @@ const actionLinks: NavLinkEntry[] = [
 		url: "/bonus",
 		collapsed: false,
 	},
+  {
+		title: "calendar",
+		icon: CalendarRange,
+		url: "/calendar",
+		collapsed: false,
+	},
+
 ];
 
 const settingLinks: NavLinkEntry[] = [
