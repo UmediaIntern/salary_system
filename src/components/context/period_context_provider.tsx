@@ -5,7 +5,7 @@ import { SessionStorage } from "~/utils/session_storage";
 
 export default function PeriodContextProvider({ children }: PropsWithChildren) {
 	const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
-	const [selectedPayDate, setSelectedPayDate] = useState<string | null>(null);
+	const [selectedPayDate, setSelectedPayDate] = useState<Date | null>(null);
 
 	useEffect(() => {
 		const sessionPeriod = SessionStorage.getSelectedPeriod();
@@ -14,7 +14,13 @@ export default function PeriodContextProvider({ children }: PropsWithChildren) {
 			setSelectedPeriod(sessionPeriod);
 		}
 		if (sessionPayDate) {
-			setSelectedPayDate(sessionPayDate);
+			// Check if the date is valid
+			const date = new Date(sessionPayDate);
+			if (date.getTime() <= 0) {
+				console.log("Period context: Invalid date");
+				return;
+			}
+			setSelectedPayDate(date); 
 		}
 	}, []);
 

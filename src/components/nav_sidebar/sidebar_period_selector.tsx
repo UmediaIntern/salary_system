@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 export function SidebarPeriodSelector() {
 	const { selectedPeriod, selectedPayDate } = usePeriodContext();
-	const { t } = useTranslation("common");
+	const { t } = useTranslation(["nav", "common"]);
 
 	return (
 		<SidebarMenu>
@@ -33,8 +33,8 @@ export function SidebarPeriodSelector() {
 								<span className="truncate text-xs">
 									{selectedPeriod?.period_name &&
 									selectedPayDate
-										? selectedPayDate
-										: t("others.not_set")}
+										? selectedPayDate.toLocaleDateString()
+										: t("others.not_set", { ns: "common" })}
 								</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />

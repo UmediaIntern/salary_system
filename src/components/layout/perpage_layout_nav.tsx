@@ -4,7 +4,6 @@ import { NavSidebar } from "~/components/nav_sidebar/nav_sidebar";
 import {
 	SidebarInset,
 	SidebarProvider,
-	SidebarTrigger,
 } from "~/components/ui/sidebar";
 import PeriodContextProvider from "../context/period_context_provider";
 
@@ -34,7 +33,7 @@ export const PerpageLayoutNav = (
 				<PeriodContextProvider>
 					<SidebarProvider>
 						<NavSidebar isCollapsed={isCollapsed} />
-						<SidebarInset>{props.children}</SidebarInset>
+						<SidebarInset className="min-w-0">{props.children}</SidebarInset>
 					</SidebarProvider>
 				</PeriodContextProvider>
 			</main>

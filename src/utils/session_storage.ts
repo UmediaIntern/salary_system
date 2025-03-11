@@ -5,8 +5,8 @@ export class SessionStorage {
 		return sessionStorage.getItem("selectedPayDate");
 	}
 
-	static setSelectedPayDate(date: string) {
-		sessionStorage.setItem("selectedPayDate", date);
+	static setSelectedPayDate(date: Date) {
+		sessionStorage.setItem("selectedPayDate", date.toString());
 	}
 
 	static getSelectedPeriod(): Period | null {

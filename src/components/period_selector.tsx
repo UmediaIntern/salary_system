@@ -119,10 +119,8 @@ export default function PeriodSelector() {
 							SessionStorage.setSelectedPeriod(tmpPeriod);
 						}
 						if (tmpPayDate != null) {
-							setSelectedPayDate(tmpPayDate.toString());
-							SessionStorage.setSelectedPayDate(
-								tmpPayDate.toString()
-							);
+							setSelectedPayDate(tmpPayDate);
+							SessionStorage.setSelectedPayDate(tmpPayDate);
 						}
 					}}
 				>
