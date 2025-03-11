@@ -1,14 +1,11 @@
 import Head from "next/head";
-import { useState, type PropsWithChildren, useRef } from "react";
-import { NavSidebar } from "~/components/sidebar";
-import { cn } from "~/lib/utils";
+import { useState, type PropsWithChildren } from "react";
+import { NavSidebar } from "~/components/nav_sidebar/nav_sidebar";
 import {
 	SidebarInset,
 	SidebarProvider,
 	SidebarTrigger,
 } from "~/components/ui/sidebar";
-
-import { type ImperativePanelHandle } from "react-resizable-panels";
 import PeriodContextProvider from "../context/period_context_provider";
 
 type PerpageLayoutProp = {
@@ -19,7 +16,6 @@ export const PerpageLayoutNav = (
 	props: PropsWithChildren<PerpageLayoutProp>
 ) => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
-	const ref = useRef<ImperativePanelHandle>(null);
 
 	return (
 		<>
@@ -39,8 +35,6 @@ export const PerpageLayoutNav = (
 					<SidebarProvider>
 						<NavSidebar
 							isCollapsed={isCollapsed}
-							collapseFunction={() => ref.current?.collapse()}
-							expandFunction={() => ref.current?.expand()}
 						/>
 						<SidebarInset>
 							<div className="h-full w-full">
