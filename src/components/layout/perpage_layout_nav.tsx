@@ -33,15 +33,8 @@ export const PerpageLayoutNav = (
 			<main className="min-h-screen bg-background">
 				<PeriodContextProvider>
 					<SidebarProvider>
-						<NavSidebar
-							isCollapsed={isCollapsed}
-						/>
-						<SidebarInset>
-							<div className="h-full w-full">
-								<SidebarTrigger className="-ml-1" />
-								{props.children}
-							</div>{" "}
-						</SidebarInset>
+						<NavSidebar isCollapsed={isCollapsed} />
+						<SidebarInset>{props.children}</SidebarInset>
 					</SidebarProvider>
 				</PeriodContextProvider>
 			</main>

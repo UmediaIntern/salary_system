@@ -41,8 +41,9 @@ function PageEmployeesContent() {
 		}
 	}
 
+  // TODO: layout issue
 	return (
-		<div className="flex h-full w-full flex-col">
+		<div className="h-full w-full flex flex-col">
 			<Header
 				title={t("employees", { ns: "nav" })}
 				showOptions
@@ -51,7 +52,7 @@ function PageEmployeesContent() {
 			<div className="m-4 h-0 grow">
 				<Tabs
 					defaultValue={EmployeeTableEnumValues[0]}
-					className="flex h-full w-full flex-col"
+					className="h-full flex flex-col bg-red-100"
 				>
 					<TabsList className={"grid w-full grid-cols-3"}>
 						{EmployeeTableEnumValues.map((option) => {
@@ -66,7 +67,7 @@ function PageEmployeesContent() {
 							);
 						})}
 					</TabsList>
-					<div className="mt-2 h-0 grow">
+					<div className="mt-2 h-0 bg-green-100 grow">
 						{EmployeeTableEnumValues.map((option) => {
 							return (
 								<TabsContent

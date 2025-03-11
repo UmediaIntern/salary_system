@@ -12,7 +12,7 @@ import { i18n, locales } from '~/components/lang_config'
 const PageParameters: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
 	return (
-		<div className="flex h-screen flex-col">
+		<div className="flex h-full flex-col">
 			<Header title={t("table.parameters")} showOptions />
 
 			<div className="m-4 h-0 grow rounded-md border-2">
