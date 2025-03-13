@@ -12,13 +12,13 @@ import { Header } from "~/components/header";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useToast } from "~/components/ui/use-toast";
-import PeriodSelector from "~/components/period_selector";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
+import { PeriodSelector } from "~/components/period_selector";
+import { Dialog } from "~/components/ui/dialog";
 import { ToastAction } from "~/components/ui/toast";
 
-import { useTranslation } from 'next-i18next'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { i18n, locales } from '~/components/lang_config'
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { i18n, locales } from "~/components/lang_config";
 import { type I18nType } from "~/lib/utils/i18n_type";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 
@@ -62,15 +62,17 @@ const PageHome: NextPageWithLayout = () => {
 	const { selectedPeriod, selectedPayDate } = usePeriodContext();
 	const { toast } = useToast();
 	const [open, setOpen] = useState(false);
-	const { t } = useTranslation(['common', 'nav'])
+	const { t } = useTranslation(["common", "nav"]);
 
 	return (
 		<>
-			<Header title={t("functions", { ns: "nav" })} showOptions className="mb-4" />
+			<Header
+				title={t("functions", { ns: "nav" })}
+				showOptions
+				className="mb-4"
+			/>
 			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogContent>
-					<PeriodSelector />
-				</DialogContent>
+				<PeriodSelector />
 			</Dialog>
 			<motion.div
 				className="m-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3"
@@ -87,8 +89,9 @@ const PageHome: NextPageWithLayout = () => {
 							if (!selectedPeriod || !selectedPayDate) {
 								toast({
 									title: "",
-									description:
-										t("others.select_period_and_issue_date"),
+									description: t(
+										"others.select_period_and_issue_date"
+									),
 									action: (
 										<ToastAction
 											altText="Go to select period and paydate"
@@ -122,11 +125,16 @@ const PageHome: NextPageWithLayout = () => {
 };
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
-	return ({
+	return {
 		props: {
-			...(await serverSideTranslations(locale, ["common", "nav"], i18n, locales)),
-		}
-	});
+			...(await serverSideTranslations(
+				locale,
+				["common", "nav"],
+				i18n,
+				locales
+			)),
+		},
+	};
 };
 
 PageHome.getLayout = function getLayout(page: React.ReactElement) {

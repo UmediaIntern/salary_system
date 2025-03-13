@@ -13,15 +13,14 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useToast } from "~/components/ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
-import PeriodSelector from "~/components/period_selector";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
+import { PeriodSelector } from "~/components/period_selector";
+import { Dialog } from "~/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { i18n, locales } from '~/components/lang_config'
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { i18n, locales } from "~/components/lang_config";
 import { type I18nType } from "~/lib/utils/i18n_type";
 import { usePeriodContext } from "~/components/context/period_context_provider";
-
 
 type FunctionLinkData = CardFunctionData & { url: string | null };
 
@@ -39,15 +38,17 @@ const ReportHomePage: NextPageWithLayout = () => {
 	const { selectedPeriod } = usePeriodContext();
 	const { toast } = useToast();
 	const [open, setOpen] = useState(false);
-	const { t } = useTranslation(['common', 'nav']);
+	const { t } = useTranslation(["common", "nav"]);
 
 	return (
 		<>
-			<Header title={t("reports", {ns: "nav"})} showOptions className="mb-4" />
+			<Header
+				title={t("reports", { ns: "nav" })}
+				showOptions
+				className="mb-4"
+			/>
 			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogContent>
-					<PeriodSelector />
-				</DialogContent>
+				<PeriodSelector />
 			</Dialog>
 			<motion.div
 				className="m-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3"
@@ -108,9 +109,16 @@ ReportHomePage.getLayout = function getLayout(page: React.ReactElement) {
 export default ReportHomePage;
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
-  return ({props: {
-    ...(await serverSideTranslations(locale, ["common", "nav"], i18n, locales)),
-  }});
+	return {
+		props: {
+			...(await serverSideTranslations(
+				locale,
+				["common", "nav"],
+				i18n,
+				locales
+			)),
+		},
+	};
 };
 
 const container = {

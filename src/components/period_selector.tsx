@@ -12,6 +12,7 @@ import {
 import { SessionStorage } from "~/utils/session_storage";
 import { Button } from "./ui/button";
 import {
+	DialogContent,
 	DialogClose,
 	DialogDescription,
 	DialogHeader,
@@ -23,7 +24,7 @@ import { DatePicker } from "./ui/date-picker";
 import { usePeriodContext } from "./context/period_context_provider";
 import { useQueryHandle } from "./query_boundary/query_handle";
 
-export default function PeriodSelector() {
+export function PeriodSelector() {
 	const { t } = useTranslation("common");
 
 	const getPeriod = api.function.getPeriod.useQuery();
@@ -47,7 +48,7 @@ export default function PeriodSelector() {
 	}
 
 	return (
-		<>
+		<DialogContent>
 			<DialogHeader>
 				<DialogTitle>{t("others.period")}</DialogTitle>
 				<DialogDescription>
@@ -127,6 +128,6 @@ export default function PeriodSelector() {
 					{t("button.save")}
 				</Button>
 			</DialogClose>
-		</>
+		</DialogContent>
 	);
 }

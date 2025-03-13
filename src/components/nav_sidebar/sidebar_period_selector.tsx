@@ -1,12 +1,11 @@
-import { Dialog, DialogContent } from "../ui/dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
+import { Dialog, DialogTrigger } from "~/components/ui/dialog";
 import { ChevronsUpDown, FlagTriangleRight } from "lucide-react";
 import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "~/components/ui/sidebar";
-import PeriodSelector from "../period_selector";
+import { PeriodSelector } from "../period_selector";
 import { usePeriodContext } from "../context/period_context_provider";
 import { useTranslation } from "react-i18next";
 
@@ -40,9 +39,7 @@ export function SidebarPeriodSelector() {
 							<ChevronsUpDown className="ml-auto" />
 						</SidebarMenuButton>
 					</DialogTrigger>
-					<DialogContent>
-						<PeriodSelector />
-					</DialogContent>
+					<PeriodSelector />
 				</Dialog>
 			</SidebarMenuItem>
 		</SidebarMenu>
