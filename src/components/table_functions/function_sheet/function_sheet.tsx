@@ -34,25 +34,23 @@ export function TableFunctionSheet({
 	const { t } = useTranslation(["common", "nav"]);
 
 	return (
-		<div className={cn(className, "flex h-full items-center")}>
-			<Sheet open={openSheet} onOpenChange={setOpenSheet}>
-				<SheetContent className="w-[50%] px-10 py-6">
-					<ScrollArea className="h-full w-full px-2">
-						<SheetHeader>
-							<SheetTitle>
-								{`${t(`button.${mode}`)!}${t(
-									"button.form"
-								)} (${t(getTableNameKey(tableType))})`}
-							</SheetTitle>
-							<SheetDescription>
-								{modeDescription(t, mode)}
-							</SheetDescription>
-						</SheetHeader>
-						{children}
-						<ScrollBar orientation="horizontal" />
-					</ScrollArea>
-				</SheetContent>
-			</Sheet>
-		</div>
+		<Sheet open={openSheet} onOpenChange={setOpenSheet}>
+			<SheetContent className={cn("sm:max-w-[33vw] px-10 py-6", className)}>
+				<ScrollArea className="h-full w-full px-2">
+					<SheetHeader>
+						<SheetTitle>
+							{`${t(`button.${mode}`)!}${t("button.form")} (${t(
+								getTableNameKey(tableType)
+							)})`}
+						</SheetTitle>
+						<SheetDescription>
+							{modeDescription(t, mode)}
+						</SheetDescription>
+					</SheetHeader>
+					{children}
+					<ScrollBar orientation="horizontal" />
+				</ScrollArea>
+			</SheetContent>
+		</Sheet>
 	);
 }

@@ -87,17 +87,13 @@ export const employee_payment_columns = ({
 			);
 		},
 		cell: ({ row }) => {
-      // TODO: Should use data with Frontend Type instead of data in table?
+			// TODO: Should use data with Frontend Type instead of data in table?
 			return <PaymentFunctionComponent data={row.original} />;
 		},
 	}),
 ];
 
-function PaymentFunctionComponent({
-	data,
-}: {
-	data: PaymentRowItem;
-}) {
+function PaymentFunctionComponent({ data }: { data: PaymentRowItem }) {
 	const { setOpen, setMode, setData } = usePaymentFunctionContext();
 
 	return (
@@ -127,8 +123,8 @@ export function employeePaymentMapper(
 export function EmployeePaymentTable() {
 	return (
 		<EmployeePaymentFunctionContextProvider>
-      <DataTableUpdate/>
-      <EmployeePaymentFunctions />
+			<DataTableUpdate />
+			<EmployeePaymentFunctions />
 		</EmployeePaymentFunctionContextProvider>
 	);
 }
