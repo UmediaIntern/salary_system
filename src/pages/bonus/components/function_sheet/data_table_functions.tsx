@@ -34,15 +34,7 @@ import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { getSchema } from "../../schemas/get_schemas";
 import { modeDescription } from "~/lib/utils/helper_function";
 import { type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-
-import z from "zod";
-import { BonusWorkTypeBatchCreateForm } from "./batch_create_form/bonus_work_type_batch_create_form";
-import { BonusDepartmentBatchCreateForm } from "./batch_create_form/bonus_department_batch_create_form";
-import { BonusPositionBatchCreateForm } from "./batch_create_form/bonus_position_batch_create_form";
-import { BonusSeniorityBatchCreateForm } from "./batch_create_form/bonus_seniority_batch_create_form";
 import { bonusToolbarFunctionsContext } from "./bonus_functions_context";
-
-import { BonusBatchUpdateForm } from "./batch_update_form";
 import { type FunctionMode } from "../context/data_table_context";
 import { BonusExcelDownloader } from "../excel_download/bonus_excel_downloader";
 import { BonusExcelUpload } from "../excel_upload/bonus_excel_upload";
@@ -51,18 +43,6 @@ interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
 	bonusType: BonusTypeEnumType;
 }
-
-// export type FunctionMode =
-// 	| "create"
-// 	| "batch_create"
-// 	| "update"
-// 	| "batch_update"
-// 	| "delete"
-// 	| "auto_calculate"
-// 	| "excel_download"
-// 	| "excel_upload"
-// 	| "initialize"
-// 	| "none";
 
 export function DataTableFunctions({
 	tableType,
@@ -155,22 +135,6 @@ export function DataTableFunctions({
 								{modeDescription(t, mode)}
 							</DialogDescription>
 						</DialogHeader>
-
-						{mode == "batch_create" && (
-							<BatchCreateForm
-								bonusType={bonusType}
-								tableType={tableType}
-								schema={schema}
-								setOpen={setOpen}
-							/>
-						)}
-						{mode == "batch_update" && (
-							<BonusBatchUpdateForm
-								bonusType={bonusType}
-								tableType={tableType}
-								setOpen={setOpen}
-							/>
-						)}
 						{(mode == "create" || mode == "update") && (
 							<ScrollArea className="h-full w-full">
 								<BonusForm
@@ -212,58 +176,58 @@ export function DataTableFunctions({
 	}
 }
 
-function BatchCreateForm({
-	tableType,
-	bonusType,
-	schema,
-	setOpen,
-}: {
-	tableType: TableEnum;
-	bonusType: BonusTypeEnumType;
-	schema: any;
-	setOpen: (open: boolean) => void;
-}) {
-	const mode = "batch_create";
-	if (tableType == "TableBonusWorkType")
-		return (
-			<BonusWorkTypeBatchCreateForm
-				bonusType={bonusType}
-				formSchema={z.object({ content: z.array(schema) })}
-				mode={mode}
-				closeSheet={() => setOpen(false)}
-			/>
-		);
-	if (tableType == "TableBonusDepartment")
-		return (
-			<BonusDepartmentBatchCreateForm
-				bonusType={bonusType}
-				formSchema={z.object({ content: z.array(schema) })}
-				mode={mode}
-				closeSheet={() => setOpen(false)}
-			/>
-		);
-	if (tableType == "TableBonusPosition")
-		return (
-			<BonusPositionBatchCreateForm
-				bonusType={bonusType}
-				formSchema={z.object({ content: z.array(schema) })}
-				mode={mode}
-				closeSheet={() => setOpen(false)}
-			/>
-		);
-	// if (tableType == "TableBonusPositionType") return <BonusPositionTypeBatchCreateForm
-	// 	bonusType={bonusType}
-	// 	formSchema={z.object({ content: z.array(schema) })}
-	// 	mode={mode}
-	// 	closeSheet={() => setOpen(false)}
-	// />;
-	if (tableType == "TableBonusSeniority")
-		return (
-			<BonusSeniorityBatchCreateForm
-				bonusType={bonusType}
-				formSchema={z.object({ content: z.array(schema) })}
-				mode={mode}
-				closeSheet={() => setOpen(false)}
-			/>
-		);
-}
+// function BatchCreateForm({
+// 	tableType,
+// 	bonusType,
+// 	schema,
+// 	setOpen,
+// }: {
+// 	tableType: TableEnum;
+// 	bonusType: BonusTypeEnumType;
+// 	schema: any;
+// 	setOpen: (open: boolean) => void;
+// }) {
+// 	const mode = "batch_create";
+// 	if (tableType == "TableBonusWorkType")
+// 		return (
+// 			<BonusWorkTypeBatchCreateForm
+// 				bonusType={bonusType}
+// 				formSchema={z.object({ content: z.array(schema) })}
+// 				mode={mode}
+// 				closeSheet={() => setOpen(false)}
+// 			/>
+// 		);
+// 	if (tableType == "TableBonusDepartment")
+// 		return (
+// 			<BonusDepartmentBatchCreateForm
+// 				bonusType={bonusType}
+// 				formSchema={z.object({ content: z.array(schema) })}
+// 				mode={mode}
+// 				closeSheet={() => setOpen(false)}
+// 			/>
+// 		);
+// 	if (tableType == "TableBonusPosition")
+// 		return (
+// 			<BonusPositionBatchCreateForm
+// 				bonusType={bonusType}
+// 				formSchema={z.object({ content: z.array(schema) })}
+// 				mode={mode}
+// 				closeSheet={() => setOpen(false)}
+// 			/>
+// 		);
+// if (tableType == "TableBonusPositionType") return <BonusPositionTypeBatchCreateForm
+// 		bonusType={bonusType}
+// 		formSchema={z.object({ content: z.array(schema) })}
+// 		mode={mode}
+// 	c	loseSheet={() => setOpen(false)}
+// />;
+// 	if (tableType == "TableBonusSeniority")
+// 		return (
+// 			<BonusSeniorityBatchCreateForm
+// 				bonusType={bonusType}
+// 				formSchema={z.object({ content: z.array(schema) })}
+// 				mode={mode}
+// 				closeSheet={() => setOpen(false)}
+// 			/>
+// 		);
+// }

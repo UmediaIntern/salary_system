@@ -2,15 +2,15 @@ import { useContext, useEffect } from "react";
 import { api } from "~/utils/api";
 import { type TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { ArrowUpDown } from "lucide-react";
 import { createColumnHelper } from "@tanstack/react-table";
 
 // Component
 import { Sheet } from "~/components/ui/sheet";
-import { Button } from "~/components/ui/button";
-import { LoadingSpinner } from "~/components/loading";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
-import { ColumnHeaderBaseComponent } from "~/components/data_table/column_header_component";
+import {
+	ColumnHeaderBaseComponent,
+	ColumnHeaderComponent,
+} from "~/components/data_table/column_header_component";
 
 // Type
 import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";
@@ -26,13 +26,15 @@ import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_fu
 // Bonus Table Component
 import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
 import { BonusForm } from "../components/function_sheet/bonus_form";
-import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 
 // Bonus All Schema
 import { bonusAllSchema } from "../schemas/configurations/bonus_all_schema";
 import { type BonusAllFEType } from "~/server/api/types/bonus_all_type";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { Dialog } from "~/components/ui/dialog";
+import { ConfirmDialog } from "~/components/table_functions/confirm_dialog";
+import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 
 export type RowItem = {
 	id: number;
@@ -55,30 +57,20 @@ export const bonus_all_columns = ({
 		columnHelper.accessor(key, {
 			header: ({ column }) => {
 				return (
-					<div className="flex justify-center">
-						<div className="text-center font-medium">
-							<Button
-								variant="ghost"
-								onClick={() =>
-									column.toggleSorting(
-										column.getIsSorted() === "asc"
-									)
-								}
-							>
-								{t(`table.${key}`)}
-								<ArrowUpDown className="ml-2 h-4 w-4" />
-							</Button>
-						</div>
-					</div>
+					<ColumnHeaderComponent column={column}>
+						{t(`table.${key}`)}
+					</ColumnHeaderComponent>
 				);
 			},
 			cell: ({ row }) => {
 				switch (key) {
 					default:
 						return (
-							<div className="text-center font-medium">
-								{(row.original[key] as string | number).toString() ?? ""}
-							</div>
+							<ColumnCellComponent>
+								{(
+									row.original[key] as string | number
+								).toString() ?? ""}
+							</ColumnCellComponent>
 						);
 				}
 			},
@@ -144,6 +136,13 @@ export function BonusAllTable({
 	const getBonusAll = api.bonus.getBonusAll.useQuery({
 		period_id,
 		bonus_type,
+	});
+
+	const ctx = api.useUtils();
+	const deleteBonusAll = api.bonus.deleteBonusAll.useMutation({
+		onSuccess: () => {
+			void ctx.bonus.getBonusAll.invalidate();
+		},
 	});
 
 	const filterKey: RowItemKey = "parameters";
@@ -213,11 +212,23 @@ export function BonusAllTable({
 							)}
 						</FunctionsSheetContent>
 					</Sheet>
-					<ConfirmDialog
+					<Dialog
 						open={open && mode === "delete"}
 						onOpenChange={setOpen}
-						schema={bonusAllSchema}
-					/>
+						aria-hidden={false}
+					>
+						<ConfirmDialog
+							onClick={() =>
+								selectedData &&
+								deleteBonusAll.mutate({ id: selectedData.id })
+							}
+							data={
+								bonusAllSchema
+									.omit({ id: true })
+									.safeParse(selectedData).data
+							}
+						/>
+					</Dialog>
 				</BonusToolbarFunctionsProvider>
 			) : (
 				<></>
