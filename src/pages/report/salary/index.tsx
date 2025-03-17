@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { z } from 'zod';
+import { z } from "zod";
 
 // Translation
 import { useTranslation } from "next-i18next";
@@ -25,21 +25,23 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "~/components/ui/sheet";
-import ExcelViewer from "./ExcelViewer";
+import { ExcelViewer } from "./ExcelViewer";
 
 // Functions
 import { api } from "~/utils/api";
 import { getExcelData, getDefaults } from "./utils";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 
-
-
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
 	return (
 		<>
-			<div className="flex h-full flex-col p-4">
-				<Header title={t("transaction.month_salary_report")} showOptions className="mb-4" />
+			<Header
+				title={t("transaction.month_salary_report")}
+				showOptions
+				className="mb-4"
+			/>
+			<div className="w-full min-h-0 grow p-4">
 				<ExportPage />
 			</div>
 		</>
@@ -47,10 +49,11 @@ const Salary: NextPageWithLayout = () => {
 };
 
 Salary.getLayout = function getLayout(page: React.ReactElement) {
-	const { t } = useTranslation("common");
 	return (
 		<RootLayout>
-			<PerpageLayoutNav pageTitle={t("transaction.month_salary_report")}>{page}</PerpageLayoutNav>
+			<PerpageLayoutNav pageTitle="month_salary_report">
+				{page}
+			</PerpageLayoutNav>
 		</RootLayout>
 	);
 };
@@ -59,16 +62,23 @@ export default Salary;
 
 function ExportPage() {
 	const { selectedPeriod } = usePeriodContext();
-	const getExcelA = api.transaction.getAllTransaction.useQuery({period_id: selectedPeriod?.period_id ?? 0});
+	const getExcelA = api.transaction.getAllTransaction.useQuery({
+		period_id: selectedPeriod?.period_id ?? 0,
+	});
 	const [selectedSheetIndex, setSelectedSheetIndex] = useState(0);
 
 	const [toExcludedColumns, setToExcludedColumns] = useState([
-		"id", "create_by", "create_date", "update_by", "update_date", "disable"
+		"id",
+		"create_by",
+		"create_date",
+		"update_by",
+		"update_date",
+		"disable",
 	]);
 
 	const [toDisplayData, setToDisplayData] = useState<any>(null);
-	
-	function ExcludeDataColumn(dataList: any, excludedColumns: Array<string>) {
+
+	function excludeDataColumn(dataList: any, excludedColumns: Array<string>) {
 		interface keyValuePair {
 			[key: string]: any;
 		}
@@ -87,19 +97,21 @@ function ExportPage() {
 				name: sheetName,
 				data: sheetData,
 			};
-		})
+		});
 	}
 
 	function createSchema() {
-		console.log(getExcelA.data);
-		const keys = (getExcelA.isFetched) ? Object.keys(
-			getExcelA!.data!.map((sheet: any) => (sheet.data.length > 0) ? sheet.data[0] : [])[selectedSheetIndex]
-		) : [];
+		const keys = getExcelA.isFetched
+			? Object.keys(
+					getExcelA!.data!.map((sheet: any) =>
+						sheet.data.length > 0 ? sheet.data[0] : []
+					)[selectedSheetIndex]
+			  )
+			: [];
 		const schemaShape = keys.reduce((acc: any, key) => {
 			if (toExcludedColumns.includes(key)) {
 				acc[key] = z.boolean().optional().default(false);
-			}
-			else {
+			} else {
 				acc[key] = z.boolean().optional().default(true);
 			}
 			return acc;
@@ -109,73 +121,67 @@ function ExportPage() {
 	}
 
 	function FilterComponent() {
-		const [formValues, setFormValues] = useState(
-			getDefaults(createSchema())
-		)
 		const [open, setOpen] = useState(false);
 		return (
-			<>
-				<Sheet open={open} onOpenChange={setOpen}>
-					<SheetTrigger>
-						<Button variant="outline">Keys</Button>
-					</SheetTrigger>
-					<SheetContent className="w-[40%]">
-						<SheetHeader>
-							<SheetTitle>
-							</SheetTitle>
-							<SheetDescription>
-							</SheetDescription>
-						</SheetHeader>
-						<ScrollArea className="h-[85%] w-full">
-							<StandardForm
-								formSchema={createSchema()}
-								formConfig={undefined}
-								defaultValue={getDefaults(createSchema())}
-								formSubmit={(data) => {
-									setOpen(false)
-									// changeShowKeys("Sheet1", data);
-									let newExcludedColumns = [];
-									for (const [key, value] of Object.entries(data)) {
-										if (!value) newExcludedColumns.push(key);
-									}
-									setToExcludedColumns(newExcludedColumns);
-									setToDisplayData(
-										getExcelData(ExcludeDataColumn(getExcelA.data!, newExcludedColumns))
-									);
-								}}
-								buttonText={"save"}
-								closeSheet={() => setOpen(false)}
-							/>
-							<ScrollBar orientation="horizontal" />
-						</ScrollArea>
-						
-					</SheetContent>
-				</Sheet>
-			</>
+			<Sheet open={open} onOpenChange={setOpen}>
+				<SheetTrigger>
+					<Button variant="outline">Keys</Button>
+				</SheetTrigger>
+				<SheetContent className="w-[40%]">
+					<SheetHeader>
+						<SheetTitle></SheetTitle>
+						<SheetDescription></SheetDescription>
+					</SheetHeader>
+					<ScrollArea className="h-[85%] w-full">
+						<StandardForm
+							formSchema={createSchema()}
+							formConfig={undefined}
+							defaultValue={getDefaults(createSchema())}
+							formSubmit={(data) => {
+								setOpen(false);
+								// changeShowKeys("Sheet1", data);
+								const newExcludedColumns = [];
+								for (const [key, value] of Object.entries(
+									data
+								)) {
+									if (!value) newExcludedColumns.push(key);
+								}
+								setToExcludedColumns(newExcludedColumns);
+								setToDisplayData(
+									getExcelData(
+										excludeDataColumn(
+											getExcelA.data!,
+											newExcludedColumns
+										)
+									)
+								);
+							}}
+							buttonText={"save"}
+							closeSheet={() => setOpen(false)}
+						/>
+						<ScrollBar orientation="horizontal" />
+					</ScrollArea>
+				</SheetContent>
+			</Sheet>
 		);
 	}
 
-	return (
-		<>
-			{getExcelA.isFetched ? (
-				<>
-					<div className="grow">
-						<ExcelViewer
-							original_sheets={
-								toDisplayData ?? getExcelData(ExcludeDataColumn(getExcelA.data!, toExcludedColumns))
-							}
-							filter_component={<FilterComponent />}
-							selectedSheetIndex={selectedSheetIndex}
-							setSelectedSheetIndex={setSelectedSheetIndex}
-						/>
-					</div>
-				</>
-			) : (
-				<div className="flex grow items-center justify-center">
-					<LoadingSpinner />
-				</div>
-			)}
-		</>
+	return getExcelA.isFetched ? (
+		<ExcelViewer
+			original_sheets={
+				toDisplayData ??
+				getExcelData(
+					excludeDataColumn(getExcelA.data!, toExcludedColumns)
+				)
+			}
+			filter_component={<FilterComponent />}
+			selectedSheetIndex={selectedSheetIndex}
+			setSelectedSheetIndex={setSelectedSheetIndex}
+		/>
+	) : (
+		<div className="flex grow items-center justify-center">
+			<LoadingSpinner />
+		</div>
 	);
 }
 

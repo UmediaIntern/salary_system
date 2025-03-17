@@ -30,6 +30,8 @@ import { Baseline, PaintBucket } from "lucide-react";
 import { ColorPickerWrapper } from "./ColorPickerWrapper";
 
 import { useTranslation } from "react-i18next";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
+import { cn } from "~/lib/utils";
 
 const DEFAULT_TEXT_COLOR = "#000000";
 const DEFAULT_BACKGROUND_COLOR = "#ffffff";
@@ -87,8 +89,8 @@ const handleExportExcel = async (
 	}
 
 	if (datas) {
-		datas.map((sheetdata: ExcelSheetWithColor, si: number) => {
-			let name = sheetdata.sheetName;
+		datas.map((sheetdata: ExcelSheetWithColor, _si: number) => {
+			const name = sheetdata.sheetName;
 			const worksheet = workbook.addWorksheet(
 				name === "" ? "blank" : name
 			);
@@ -96,44 +98,50 @@ const handleExportExcel = async (
 				if (!sheetdata.data) return;
 				sheetdata.data.map((row: Block[], i: number) => {
 					if (i === 0) {
-						worksheet.addRow(row.map((cell: Block) => Translate(`table.${cell.content}`)));
-					}
-					else {
-						worksheet.addRow(row.map((cell: Block) => cell.content));
+						worksheet.addRow(
+							row.map((cell: Block) =>
+								Translate(`table.${cell.content}`)
+							)
+						);
+					} else {
+						worksheet.addRow(
+							row.map((cell: Block) => cell.content)
+						);
 					}
 				});
 			} catch {}
 
 			if (sheetdata.data)
-			sheetdata.data.forEach((row: Block[], ri: number) => {
-				row.forEach((cellProps: Block, ci: number) => {
-					const cellName = getCellName(ri, ci);
-					const cell = worksheet.getCell(cellName);
+				sheetdata.data.forEach((row: Block[], ri: number) => {
+					row.forEach((cellProps: Block, ci: number) => {
+						const cellName = getCellName(ri, ci);
+						const cell = worksheet.getCell(cellName);
 
-					// Set text color
-					if (cellProps.textColor) {
-						const textColor = cellProps.textColor.substring(1); // Remove '#' from color code
-						cell.font = { color: { argb: textColor } };
-					}
+						// Set text color
+						if (cellProps.textColor) {
+							const textColor = cellProps.textColor.substring(1); // Remove '#' from color code
+							cell.font = { color: { argb: textColor } };
+						}
 
-					// Set background color
-					if (cellProps.backgroundColor) {
-						const bgColor = cellProps.backgroundColor.substring(1); // Remove '#' from color code
-						cell.fill = {
-							type: "pattern",
-							pattern: "solid",
-							fgColor: { argb: bgColor },
+						// Set background color
+						if (cellProps.backgroundColor) {
+							const bgColor =
+								cellProps.backgroundColor.substring(1); // Remove '#' from color code
+							cell.fill = {
+								type: "pattern",
+								pattern: "solid",
+								fgColor: { argb: bgColor },
+							};
+						}
+
+						cell.border = {
+							top: { style: "thin" },
+							left: { style: "thin" },
+							bottom: { style: "thin" },
+							right: { style: "thin" },
 						};
-					}
-
-					cell.border = {
-						top: { style: "thin" },
-						left: { style: "thin" },
-						bottom: { style: "thin" },
-						right: { style: "thin" },
-					};
+					});
 				});
-			});
 		});
 	}
 
@@ -150,48 +158,45 @@ const handleExportExcel = async (
 	URL.revokeObjectURL(url);
 };
 
-const ExcelViewer: React.FC<ExcelViewerProps> = ({ 
+export function ExcelViewer({
 	original_sheets,
 	selectedSheetIndex,
 	setSelectedSheetIndex,
 	filter_component,
-}) => {
+}: ExcelViewerProps) {
 	const [mode, setMode] = useState("view");
 	const [selectedCell, setSelectedCell] = useState<{
 		rowIndex: number;
 		colIndex: number;
 	}>({ rowIndex: -1, colIndex: -1 });
-	
+
 	const [sheets, setSheets] = useState<ExcelSheetWithColor[]>([]);
-	const [lastValidSheets, setLastValidSheets] = useState<
-		ExcelSheetWithColor[]
-	>([]);
 
 	const { t } = useTranslation(["common"]);
 
 	useEffect(() => {
-		let tmpSheets: ExcelSheetWithColor[] = [];
+		const tmpSheets: ExcelSheetWithColor[] = [];
 		original_sheets.map((s: ExcelSheet) => {
-			let tmpSheetName = s.sheetName;
-			let tmpSheetData: Block[][] | null = (s.data) ? s.data.map(
-				(row: string[], row_index: number) => {
-					return row.map((cell: string, col_index: number) => {
-						if (row_index === 0) {
-							return {
-								content: cell,
-								textColor: DEFAULT_TEXT_COLOR,
-								backgroundColor:
-									DEFAULT_HEADER_BACKGROUND_COLOR,
-							};
-						} else
-							return {
-								content: cell,
-								textColor: DEFAULT_TEXT_COLOR,
-								backgroundColor: DEFAULT_BACKGROUND_COLOR,
-							};
-					});
-				}
-			) : null;
+			const tmpSheetName = s.sheetName;
+			const tmpSheetData: Block[][] | null = s.data
+				? s.data.map((row: string[], row_index: number) => {
+						return row.map((cell: string, _col_index: number) => {
+							if (row_index === 0) {
+								return {
+									content: cell,
+									textColor: DEFAULT_TEXT_COLOR,
+									backgroundColor:
+										DEFAULT_HEADER_BACKGROUND_COLOR,
+								};
+							} else
+								return {
+									content: cell,
+									textColor: DEFAULT_TEXT_COLOR,
+									backgroundColor: DEFAULT_BACKGROUND_COLOR,
+								};
+						});
+				  })
+				: null;
 			tmpSheets.push({
 				sheetName: tmpSheetName,
 				data: tmpSheetData,
@@ -230,6 +235,7 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 									(sheetdata: ExcelSheetWithColor) => {
 										return (
 											<SelectItem
+												key={sheetdata.sheetName}
 												value={sheetdata.sheetName}
 											>
 												{sheetdata.sheetName}
@@ -245,48 +251,6 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 		);
 	}
 
-	function getTableContent(
-		query: "content" | "textColor" | "backgroundColor",
-		sheetIndex: number,
-		rowIndex: number,
-		colIndex: number
-	) {
-
-		if (!sheetIndex && !rowIndex && !colIndex) {
-			sheetIndex = selectedSheetIndex;
-			rowIndex = selectedCell.rowIndex;
-			colIndex = selectedCell.colIndex;
-		} else if (!sheetIndex || !rowIndex || !colIndex) return "";
-
-		if (sheetIndex < 0 || rowIndex < 0 || colIndex < 0) return "";
-
-		let selectedBlock: Block;
-		sheets.map((sheet: ExcelSheetWithColor, si: number) => {
-			if (si === sheetIndex) {
-				if (sheet.data)
-				sheet.data.map((row: Block[], ri: number) => {
-					if (ri === rowIndex) {
-						row.map((cell: Block, ci: number) => {
-							if (ci === colIndex) {
-								selectedBlock = cell;
-							}
-						});
-					}
-				});
-			}
-		});
-
-		const toReturn = query === "content"
-						? selectedBlock!.content
-						: query === "textColor"
-						? selectedBlock!.textColor
-						: selectedBlock!.backgroundColor;
-
-		console.log("selected Block: ", selectedBlock!.content, selectedBlock!.textColor, selectedBlock!.backgroundColor);
-
-		return toReturn;
-	}
-
 	function changeSheets(
 		sheetIndex: number,
 		rowIndex: number,
@@ -294,33 +258,35 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 		key: "content" | "textColor" | "backgroundColor",
 		newValue: string
 	) {
-		let tmpSheets: ExcelSheetWithColor[] = [];
+		const tmpSheets: ExcelSheetWithColor[] = [];
 		sheets.map((s: ExcelSheetWithColor, si: number) => {
-			let tmpSheetName = s.sheetName;
-			let tmpSheetData: Block[][] | null = s.data ? s.data.map(
-				(row: Block[], ri: number) => {
-					return row.map((cell: Block, ci: number) => {
-						if (
-							si === sheetIndex &&
-							ri === rowIndex &&
-							ci === colIndex
-						)
-							return {
-								content:
-									key === "content" ? newValue : cell.content,
-								textColor:
-									key === "textColor"
-										? newValue
-										: cell.textColor,
-								backgroundColor:
-									key === "backgroundColor"
-										? newValue
-										: cell.backgroundColor,
-							};
-						else return cell;
-					});
-				}
-			) : null;
+			const tmpSheetName = s.sheetName;
+			const tmpSheetData: Block[][] | null = s.data
+				? s.data.map((row: Block[], ri: number) => {
+						return row.map((cell: Block, ci: number) => {
+							if (
+								si === sheetIndex &&
+								ri === rowIndex &&
+								ci === colIndex
+							)
+								return {
+									content:
+										key === "content"
+											? newValue
+											: cell.content,
+									textColor:
+										key === "textColor"
+											? newValue
+											: cell.textColor,
+									backgroundColor:
+										key === "backgroundColor"
+											? newValue
+											: cell.backgroundColor,
+								};
+							else return cell;
+						});
+				  })
+				: null;
 			tmpSheets.push({
 				sheetName: tmpSheetName,
 				data: tmpSheetData,
@@ -332,99 +298,83 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 	function SheetTable() {
 		const selectedSheet = sheets[selectedSheetIndex]!;
 		return (
-			<>
-				{/* <Button onClick={() => console.log(sheets)}>Console Log Sheets</Button> */}
-				{selectedSheet && selectedSheet.data ? (
-					<div className="mt-4 w-full overflow-x-auto  rounded border bg-white p-4 shadow-md">
-						<table className="w-full border-collapse border border-zinc-950">
-							<thead>
-								<tr>
-									{selectedSheet.data && selectedSheet.data[0]!.map(
-										(cell, index) => (
-											<th
-												key={index}
-												className={`inset-0 border border-zinc-950 px-4 py-2 leading-6 truncate`}
-												style={{
-													backgroundColor:
-														cell.backgroundColor,
-												}}
-											>
-												<div
-													style={{
-														color: cell.textColor,
-													}}
-												>
-													{t(`table.${cell.content}`)}
-												</div>
-											</th>
-										)
-									)}
-								</tr>
-							</thead>
-							<tbody>
-								{selectedSheet.data && selectedSheet.data
-									.slice(1)
-									.map((row, rowIndex) => (
-										<tr key={rowIndex}>
-											{row.map((cell, cellIndex) => (
-												<td
-													key={cellIndex}
-													className={`relative px-4 py-2 leading-6 truncate ${formatColor(
-														cell.textColor,
-														"text"
-													)} ${formatColor(
-														cell.backgroundColor,
-														"background"
-													)}`}
-													onClick={() => {
-														setSelectedCell({
-															rowIndex:
-																rowIndex + 1,
-															colIndex: cellIndex,
-														});
-													}}
-													style={{
-														color: cell.textColor,
-														backgroundColor:
-															cell.backgroundColor,
-													}}
-												>
-													<div
-														className={`absolute inset-0 border ${
-															selectedCell.rowIndex -
-																1 ===
-																rowIndex &&
-															selectedCell.colIndex ===
-																cellIndex &&
-															mode === "edit"
-																? "border-2 border-blue-600"
-																: "border-gray-400"
-														}`}
-													></div>
-													<div className="relative z-10">
-														{
-															(typeof cell.content) == "string" ? cell.content : 
-															(typeof cell.content) == "boolean" ? (cell.content ? "Y" : "N") : 
-															cell.content
-														}
-													</div>
-												</td>
-											))}
-										</tr>
-									))}
-							</tbody>
-						</table>
-					</div>
-				) : <div>
-
-				</div>
-				}
-			</>
+			selectedSheet?.data?.[0] && (
+				<table className="w-full border-collapse border">
+					<thead>
+						<tr>
+							{selectedSheet.data[0].map((cell, index) => (
+								<th
+									key={index}
+									className={`inset-0 truncate border px-4 py-2 leading-6`}
+									style={{
+										backgroundColor: cell.backgroundColor,
+									}}
+								>
+									<div
+										style={{
+											color: cell.textColor,
+										}}
+									>
+										{t(`table.${cell.content}`)}
+									</div>
+								</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{selectedSheet.data.slice(1).map((row, rowIndex) => (
+							<tr key={rowIndex}>
+								{row.map((cell, cellIndex) => (
+									<td
+										key={cellIndex}
+										className={`relative truncate px-4 py-2 leading-6 ${formatColor(
+											cell.textColor,
+											"text"
+										)} ${formatColor(
+											cell.backgroundColor,
+											"background"
+										)}`}
+										onClick={() => {
+											setSelectedCell({
+												rowIndex: rowIndex + 1,
+												colIndex: cellIndex,
+											});
+										}}
+										style={{
+											color: cell.textColor,
+											backgroundColor:
+												cell.backgroundColor,
+										}}
+									>
+										<div
+											className={cn(
+												"absolute inset-0 border",
+												selectedCell.rowIndex - 1 ===
+													rowIndex &&
+													selectedCell.colIndex ===
+														cellIndex &&
+													mode === "edit" &&
+													"border-2 border-primary"
+											)}
+										></div>
+										<div className="relative z-10">
+											{typeof cell.content == "string"
+												? cell.content
+												: typeof cell.content ==
+												  "boolean"
+												? cell.content
+													? "Y"
+													: "N"
+												: cell.content}
+										</div>
+									</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			)
 		);
-	}
-
-	function noDataComponent() {
-
 	}
 
 	function BgColorControlComponent() {
@@ -440,11 +390,17 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 					<PopoverContent className="w-auto p-0">
 						<ColorPickerWrapper
 							initialColor={
-								(sheets[selectedSheetIndex]!.data ?? []).findLast((rows, r_idx) => 
-									r_idx === selectedCell.rowIndex)?.findLast((cols, c_idx) => 
-									c_idx === selectedCell.colIndex)?.backgroundColor ?? DEFAULT_BACKGROUND_COLOR
+								(sheets[selectedSheetIndex]!.data ?? [])
+									.findLast(
+										(rows, r_idx) =>
+											r_idx === selectedCell.rowIndex
+									)
+									?.findLast(
+										(cols, c_idx) =>
+											c_idx === selectedCell.colIndex
+									)?.backgroundColor ??
+								DEFAULT_BACKGROUND_COLOR
 							}
-							
 							setFinalColor={(newColor: string) => {
 								changeSheets(
 									selectedSheetIndex,
@@ -475,9 +431,15 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 					<PopoverContent className="w-auto p-0">
 						<ColorPickerWrapper
 							initialColor={
-								(sheets[selectedSheetIndex]!.data ?? []).findLast((rows, r_idx) => 
-								r_idx === selectedCell.rowIndex)?.findLast((cols, c_idx) => 
-								c_idx === selectedCell.colIndex)?.textColor ?? DEFAULT_BACKGROUND_COLOR
+								(sheets[selectedSheetIndex]!.data ?? [])
+									.findLast(
+										(rows, r_idx) =>
+											r_idx === selectedCell.rowIndex
+									)
+									?.findLast(
+										(cols, c_idx) =>
+											c_idx === selectedCell.colIndex
+									)?.textColor ?? DEFAULT_BACKGROUND_COLOR
 							}
 							setFinalColor={(newColor: string) => {
 								changeSheets(
@@ -498,46 +460,38 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 
 	function ColorControlComponent() {
 		return (
-			<>
-				{mode == "edit" && (
-					<>
-						<div className="">
-							<BgColorControlComponent />
-						</div>
-						<div className="mr-2">
-							<TextColorControlComponent />
-						</div>
-					</>
-				)}
-			</>
+			mode == "edit" && (
+				<>
+					<div className="">
+						<BgColorControlComponent />
+					</div>
+					<div className="mr-2">
+						<TextColorControlComponent />
+					</div>
+				</>
+			)
 		);
 	}
 
 	function EditButton() {
 		return (
-			<>
-				<Button
-					className="mr-2"
-					variant={mode === "view" ? "outline" : "destructive"}
-					onClick={() => {
-						if (mode === "view") {
-							setMode("edit");
-							setSelectedCell({
-								rowIndex: -1,
-								colIndex: -1,
-							});
-						} else if (mode === "edit") {
-							setMode("view");
-							setSelectedCell({
-								rowIndex: -1,
-								colIndex: -1,
-							});
-						}
-					}}
-				>
-					{mode === "view" ? "Edit" : "Done"}
-				</Button>
-			</>
+			<Button
+				className="mr-2"
+				variant={mode === "view" ? "outline" : "destructive"}
+				onClick={() => {
+					if (mode === "view") {
+						setMode("edit");
+					} else if (mode === "edit") {
+						setMode("view");
+					}
+					setSelectedCell({
+						rowIndex: -1,
+						colIndex: -1,
+					});
+				}}
+			>
+				{mode === "view" ? "Edit" : "Done"}
+			</Button>
 		);
 	}
 
@@ -577,13 +531,13 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 						<DialogFooter>
 							<Button
 								type="submit"
-								onClick={() =>
+								onClick={() => {
 									handleExportExcel(
 										sheets,
 										`${filename}.xlsx`,
 										t
-									)
-								}
+									);
+								}}
 							>
 								Download
 							</Button>
@@ -595,21 +549,24 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 	}
 
 	return (
-		<>
-			<div className="full-w mb-4 grid grid-cols-4">
+		<div className="flex h-full flex-col">
+			<div className="mb-4 flex flex-row justify-between">
 				<div className="flex space-x-4">
 					<SelectSheetComponent />
 					{filter_component}
 				</div>
-				<div className="col-start-4 flex items-center justify-end">
+				<div className="flex">
 					<ColorControlComponent />
 					<EditButton />
 					<DownloadButton />
 				</div>
 			</div>
-			<SheetTable />
-		</>
+			<div className="relative min-h-0 w-full grow rounded-md bg-muted">
+				<ScrollArea className="h-full w-full p-4">
+					<SheetTable />
+					<ScrollBar orientation="horizontal" />
+				</ScrollArea>
+			</div>
+		</div>
 	);
-};
-
-export default ExcelViewer;
+}
