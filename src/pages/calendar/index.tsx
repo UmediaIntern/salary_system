@@ -1,6 +1,6 @@
 import { RootLayout } from "~/components/layout/root_layout";
 import { type NextPageWithLayout } from "../_app";
-import { type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { Header } from "~/components/header";
 import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
 import { useTranslation } from "react-i18next";
@@ -8,9 +8,35 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { i18n, locales } from "~/components/lang_config";
 import { Calendar } from "~/components/ui/calendar";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { YearlyCalendarGrid } from "./yearly_calendar_grid";
+import { format, startOfToday, add } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { MonthGrid } from "./month_grid";
 
 const PageCalendar: NextPageWithLayout = () => {
 	const { t } = useTranslation(["nav", "common"]);
+
+	const today = startOfToday();
+	const [selectedYear, setSelectedYear] = useState(format(today, "y"));
+  const [selectedMonth, setSelectedMonth] = useState(format(today, "MMM-yyyy"));
+
+	// const firstDaySelectedYear = parse(selectedYear, "y", new Date());
+
+	function previousYear() {
+		const firstDayNextYear = add(selectedYear, { years: -1 });
+		setSelectedYear(format(firstDayNextYear, "y"));
+	}
+
+	function nextYear() {
+		const firstDayNextYear = add(selectedYear, { years: 1 });
+		setSelectedYear(format(firstDayNextYear, "y"));
+	}
+
+  function setToday() {
+		setSelectedYear(format(today, "y"));
+  }
+
 	return (
 		<>
 			{/* Header */}
@@ -18,37 +44,49 @@ const PageCalendar: NextPageWithLayout = () => {
 			<div className="flex h-full min-h-0 w-full grow flex-col">
 				{/* Toolbar */}
 				<div className="h-16 shrink-0 px-4 py-2">
-					<div className="flex h-full w-full justify-center rounded-md bg-secondary">
-						Functions
+					<div className="flex h-full w-full items-center justify-between rounded-md bg-secondary">
+            {/* Left side */}
+						<div className="flex flex-row items-center gap-2 px-2">
+							<Button
+								onClick={previousYear}
+								variant="outline"
+								className="h-8 w-8 p-0"
+							>
+								<ChevronLeft />
+							</Button>
+							<div className="flex items-center align-middle font-bold">
+								{format(selectedYear, "yyyy")}
+							</div>
+							<Button
+								onClick={nextYear}
+								variant="outline"
+								className="h-8 w-8 p-0"
+							>
+								<ChevronRight />
+							</Button>
+							<Button className="h-8 py-0 px-1" onClick={setToday}> Today </Button>
+						</div>
 					</div>
 				</div>
 				<div className="flex min-h-0 grow flex-row ">
 					{/* left pane */}
-					<div className="flex w-1/4 max-w-[400px] flex-col items-center p-4">
-						<div className="flex w-full justify-center rounded-md bg-secondary">
-							<Calendar
-								mode="single"
-								fixedWeeks
-								captionLayout="dropdown-buttons"
-								fromYear={new Date().getFullYear() - 30}
-								toYear={new Date().getFullYear() + 30}
-								className="w-fit"
-							/>
-						</div>
-					</div>
+					{/* <div className="flex w-1/4 max-w-[400px] flex-col items-center p-4"> */}
+					{/* 	<div className="flex w-full justify-center rounded-md bg-secondary"> */}
+					{/* 		<Calendar */}
+					{/* 			mode="single" */}
+					{/* 			fixedWeeks */}
+					{/* 			captionLayout="dropdown-buttons" */}
+					{/* 			fromYear={new Date().getFullYear() - 30} */}
+					{/* 			toYear={new Date().getFullYear() + 30} */}
+					{/* 			className="w-fit" */}
+					{/* 		/> */}
+					{/* 	</div> */}
+					{/* </div> */}
 					{/* main calendar */}
 					<div className="grow">
 						<ScrollArea className="h-full">
-							<div className="flex flex-1 flex-col gap-4 p-4">
-								<div className="grid auto-rows-min gap-4 md:grid-cols-5">
-									{Array.from({ length: 20 }).map((_, i) => (
-										<div
-											key={i}
-											className="aspect-square rounded-xl bg-muted/50"
-										/>
-									))}
-								</div>
-							</div>
+							<YearlyCalendarGrid yearStart={selectedYear} />
+              {/* <MonthGrid monthStart={selectedMonth} /> */}
 						</ScrollArea>
 					</div>
 				</div>
@@ -60,7 +98,7 @@ const PageCalendar: NextPageWithLayout = () => {
 PageCalendar.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<RootLayout>
-			<PerpageLayoutNav pageTitle="roles">{page}</PerpageLayoutNav>
+			<PerpageLayoutNav pageTitle="calendar">{page}</PerpageLayoutNav>
 		</RootLayout>
 	);
 };
@@ -79,29 +117,3 @@ export const getStaticProps = async ({ locale }: { locale: string }) => {
 		},
 	};
 };
-
-// function CompCalendarView({ target_date }: { target_date: string }) {
-// 	const [currenMonth, setCurrentMonth] = useState(
-// 		getDayInMonth(target_date, null)
-// 	);
-// 	const { monthIndex } = useContext(calendarContext);
-//
-// 	useEffect(() => {
-// 		setCurrentMonth(getDayInMonth(target_date, monthIndex));
-// 	}, [monthIndex]);
-//
-// 	return (
-// 		<>
-// 			<div className="flex h-full flex-col">
-// 				<CalendarHeader target_date={target_date} />
-// 				<div className="flex h-0 flex-grow">
-// 					{/* <ScrollArea className="w-full"> */}
-// 					<MonthView month={currenMonth} target_date={target_date} />
-// 					{/* </ScrollArea> */}
-// 				</div>
-// 				<CalendarAddEvent />
-// 				<CalendarUpdateEvent />
-// 			</div>
-// 		</>
-// 	);
-// }

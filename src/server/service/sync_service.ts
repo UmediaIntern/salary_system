@@ -586,6 +586,7 @@ export class SyncService {
 	): Promise<EmployeeDataDecType[]> {
 		if (func == FunctionsEnum.Enum.month_salary) {
 			// 定義需支付的員工狀態列表
+      // TODO
 			const paid_status: WorkStatusEnumType[] = [
 				WorkStatusEnum.Values.RegularEmployee,
 				WorkStatusEnum.Values.ForeignWorker,
