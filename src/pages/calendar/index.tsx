@@ -6,10 +6,7 @@ import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
 import { useTranslation } from "react-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { i18n, locales } from "~/components/lang_config";
-import { Calendar } from "~/components/ui/calendar";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { YearlyCalendarGrid } from "./yearly_calendar_grid";
-import { format, startOfToday, add } from "date-fns";
+import { format, startOfToday, add, startOfMonth } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { MonthGrid } from "./month_grid";
@@ -19,7 +16,9 @@ const PageCalendar: NextPageWithLayout = () => {
 
 	const today = startOfToday();
 	const [selectedYear, setSelectedYear] = useState(format(today, "y"));
-  const [selectedMonth, setSelectedMonth] = useState(format(today, "MMM-yyyy"));
+	const [selectedMonth, setSelectedMonth] = useState<Date>(
+		startOfMonth(today)
+	);
 
 	// const firstDaySelectedYear = parse(selectedYear, "y", new Date());
 
@@ -33,9 +32,9 @@ const PageCalendar: NextPageWithLayout = () => {
 		setSelectedYear(format(firstDayNextYear, "y"));
 	}
 
-  function setToday() {
+	function setToday() {
 		setSelectedYear(format(today, "y"));
-  }
+	}
 
 	return (
 		<>
@@ -45,7 +44,7 @@ const PageCalendar: NextPageWithLayout = () => {
 				{/* Toolbar */}
 				<div className="h-16 shrink-0 px-4 py-2">
 					<div className="flex h-full w-full items-center justify-between rounded-md bg-secondary">
-            {/* Left side */}
+						{/* Left side */}
 						<div className="flex flex-row items-center gap-2 px-2">
 							<Button
 								onClick={previousYear}
@@ -64,11 +63,18 @@ const PageCalendar: NextPageWithLayout = () => {
 							>
 								<ChevronRight />
 							</Button>
-							<Button className="h-8 py-0 px-1" onClick={setToday}> Today </Button>
+							<Button
+								className="h-8 px-1 py-0"
+								onClick={setToday}
+							>
+								{" "}
+								Today{" "}
+							</Button>
 						</div>
 					</div>
 				</div>
-				<div className="flex min-h-0 grow flex-row ">
+				{/* Main content */}
+				<div className="flex min-h-0 grow flex-row">
 					{/* left pane */}
 					{/* <div className="flex w-1/4 max-w-[400px] flex-col items-center p-4"> */}
 					{/* 	<div className="flex w-full justify-center rounded-md bg-secondary"> */}
@@ -83,11 +89,13 @@ const PageCalendar: NextPageWithLayout = () => {
 					{/* 	</div> */}
 					{/* </div> */}
 					{/* main calendar */}
-					<div className="grow">
-						<ScrollArea className="h-full">
-							<YearlyCalendarGrid yearStart={selectedYear} />
-              {/* <MonthGrid monthStart={selectedMonth} /> */}
-						</ScrollArea>
+					<div className="relative grow">
+						<div className="h-full w-full px-4">
+							<MonthGrid monthStart={selectedMonth} />
+						</div>
+						{/* <ScrollArea className="relative min-h-full h-full bg-green-400"> */}
+						{/* 	<YearlyCalendarGrid yearStart={selectedYear} /> */}
+						{/* </ScrollArea> */}
 					</div>
 				</div>
 			</div>

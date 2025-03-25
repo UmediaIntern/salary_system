@@ -110,13 +110,7 @@ export function employeePaymentMapper(
 	employeePaymentData: EmployeePaymentFEType[]
 ): PaymentRowItem[] {
 	return employeePaymentData.map((d) => {
-		return {
-			...d,
-			long_service_allowance_type: d.long_service_allowance_type,
-			start_date: d.start_date,
-			end_date: d.end_date,
-			functions: d.functions,
-		};
+		return d;
 	});
 }
 

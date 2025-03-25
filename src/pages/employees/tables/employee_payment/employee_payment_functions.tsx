@@ -20,8 +20,7 @@ import { useEmployeeTableContext } from "../../components/context/data_table_con
 import { getExcelData } from "~/components/file_operations/excel_utils";
 
 export function EmployeePaymentFunctionMenu() {
-	const { setMode, setOpenDialog } =
-		usePaymentFunctionContext();
+	const { setMode, setOpenDialog } = usePaymentFunctionContext();
 
 	return (
 		<FunctionMenu>
@@ -111,7 +110,7 @@ export function EmployeePaymentFunctions() {
 		formSchema: employeePaymentSchema,
 		formConfig: [
 			{ key: "id", config: { hidden: true } },
-			{ key: "emp_no", config: { fixed: true } }
+			{ key: "emp_no", config: { fixed: true } },
 		],
 		formSubmit: (d) => {
 			updateEmployeePayment.mutate(d);
@@ -177,7 +176,6 @@ export function EmployeePaymentFunctions() {
 				{/* Adjust base salary */}
 				{mode === "adjust_base_salary" && <AdjustBaseSalaryDialog />}
 				{/* Download excel */}
-				{/* Fix type later */}
 				{mode === "excel_download" && (
 					<ExcelDownload
 						data={getExcelData(
