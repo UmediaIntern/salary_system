@@ -25,7 +25,7 @@ const PageHome: NextPageWithLayout = () => {
 	}
 
 	if (data && status === "authenticated") {
-		if (data?.actions) {
+		if (data?.functions) {
 			void Router.replace("/functions");
 		} else {
 			void Router.replace("/settings");

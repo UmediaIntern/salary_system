@@ -99,11 +99,11 @@ interface NavSidebarProp extends HTMLAttributes<HTMLDivElement> {
 // https://www.flaticon.com/free-icon-font/coins_7928197?related_id=7928197
 export function NavSidebar({}: NavSidebarProp) {
 	const pathname = usePathname();
-	const { isLoading, data } = api.access.accessByRole.useQuery(); // isError, error
+	const { isSuccess, data } = api.access.accessByRole.useQuery(); // isError, error
 
 	const { t } = useTranslation(["nav", "common"]);
 
-	if (isLoading) {
+	if (!isSuccess) {
 		return <></>;
 	}
 
@@ -114,13 +114,11 @@ export function NavSidebar({}: NavSidebarProp) {
 			</SidebarHeader>
 			<SidebarContent>
 				{/* Action */}
-				{data?.actions && (
-					<SidebarGroupLinks
-						groupTitle={t("actions")}
-						navLinks={navLinks.action}
-						currentPath={pathname}
-					/>
-				)}
+				<SidebarGroupLinks
+					groupTitle={t("actions")}
+					navLinks={navLinks.action}
+					currentPath={pathname}
+				/>
 				{/* Setting */}
 				<SidebarGroupLinks
 					groupTitle={t("configurations")}

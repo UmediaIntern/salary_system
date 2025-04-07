@@ -1,5 +1,5 @@
 import { container } from "tsyringe";
-import { createTRPCRouter, userProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, userProcedure } from "~/server/api/trpc";
 import { accessiblePages } from "../types/access_page_type";
 import { AccessService } from "~/server/service/access_service";
 
@@ -13,4 +13,12 @@ export const accessRouter = createTRPCRouter({
 
 			return accessService.getAccessByRole(role);
 		}),
+		
+	getAllAccess: publicProcedure
+		.output(accessiblePages.array())
+		.query(async () => {
+			const accessService = container.resolve(AccessService);
+
+			return accessService.getAllAccess();
+		})
 });

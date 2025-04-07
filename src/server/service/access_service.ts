@@ -38,15 +38,24 @@ export class AccessService {
 	async createAccessData(role: RolesEnumType, access: AccessiblePagesType) {
 		await AccessSetting.create(
 			{
+				...access,
 				auth_l: role,
-				actions: access.actions,
-				settings: access.settings,
-				report: access.report,
-				roles: access.roles,
 				disabled: false,
 				create_by: "system",
 				update_by: "system",
 			}
 		);
+	}
+
+	async getAllAccess(): Promise<AccessiblePagesType[]> {
+		const accessSettings = await AccessSetting.findAll(
+			{
+				where: {
+					disabled: false,
+				},
+				raw: true,
+			},
+		);
+		return accessSettings;
 	}
 }

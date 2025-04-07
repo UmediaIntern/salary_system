@@ -52,8 +52,12 @@ export default withAuth(
 		const accessible = parseAccessible.data.result.data.json;
 
 		const guarded =
-			guardRoute(request, "/functions", accessible.actions) ??
-			guardRoute(request, "/parameters", accessible.actions) ??
+			guardRoute(request, "/functions", accessible.functions) ??
+			guardRoute(request, "/synchronize", accessible.synchronize) ??
+			guardRoute(request, "/employees", accessible.employees) ??
+			guardRoute(request, "/parameters", accessible.parameters) ??
+			guardRoute(request, "/bonus", accessible.bonus) ??
+			guardRoute(request, "/calendar", accessible.calendar) ??
 			guardRoute(request, "/roles", accessible.roles) ??
 			guardRoute(request, "/settings", accessible.settings);
 		if (guarded !== null) {

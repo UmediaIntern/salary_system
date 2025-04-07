@@ -32,9 +32,7 @@ import { BankSetting } from "~/server/database/entity/SALARY/bank_setting";
 import { BasicInfo } from "~/server/database/entity/SALARY/basic_info";
 import { BonusSetting } from "~/server/database/entity/SALARY/bonus_setting";
 import { EmployeeAccount } from "~/server/database/entity/SALARY/employee_account";
-import { where } from "sequelize";
 import { BonusAll } from "~/server/database/entity/SALARY/bonus_all";
-import { createLevelAPI } from "../types/level_type";
 import { LevelService } from "~/server/service/level_service";
 import { Notification } from "~/server/database/entity/SALARY/notification";
 // import { EHRService } from "~/server/service/ehr_service";
@@ -122,38 +120,62 @@ export const debugRouter = createTRPCRouter({
 	syncTables: publicProcedure
 		.input(
 			z.object({
+				table_name_list: z.enum([
+					"EmployeeBonus",
+					"AccessSetting",
+					"AttendanceSetting",
+					"BankSetting",
+					"BasicInfo",
+					"BonusAll",
+					"BonusDepartment",
+					"BonusPosition",
+					"BonusSeniority",
+					"BonusWorkType",
+					"BonusSetting",
+					"EmployeeAccount",
+					"EmployeePayment",
+					"EmployeeTrust",
+					"EmployeeData",
+					"InsuranceRateSetting",
+					"LevelRange",
+					"Level",
+					"TrustMoney",
+					"SalaryIncomeTax",
+					"Transaction",
+					"Notification",
+				]).array(),
 				force: z.boolean().nullable(),
 				alter: z.boolean().nullable(),
 			})
 		)
 		.query(async ({ input }) => {
-			const table_list = [
-				// EmployeeBonus
-				// AccessSetting,
-				// AttendanceSetting,
-				// BankSetting,
-				// BasicInfo,
-				// BonusAll,
-				// BonusDepartment,
-				// BonusPosition,
-				// BonusPositionType,
-				// BonusSeniority,
-				// BonusWorkType,
-				// BonusSetting,
-				// EmployeeAccount,
-				// EmployeeBonus,
-				// EmployeePayment,
-				// EmployeeTrust,
-				// EmployeeData,
-				// InsuranceRateSetting,
-				// LevelRange,
-				// Level,
-				// TrustMoney,
-				// SalaryIncomeTax,
-				// Transaction,
-				Notification,
-			];
-			const promises = table_list.map(async (model) => {
+			const table_map = {
+				"EmployeeBonus": EmployeeBonus,
+				"AccessSetting": AccessSetting,
+				"AttendanceSetting": AttendanceSetting,
+				"BankSetting": BankSetting,
+				"BasicInfo": BasicInfo,
+				"BonusAll": BonusAll,
+				"BonusDepartment": BonusDepartment,
+				"BonusPosition": BonusPosition,
+				"BonusSeniority": BonusSeniority,
+				"BonusWorkType": BonusWorkType,
+				"BonusSetting": BonusSetting,
+				"EmployeeAccount": EmployeeAccount,
+				"EmployeePayment": EmployeePayment,
+				"EmployeeTrust": EmployeeTrust,
+				"EmployeeData": EmployeeData,
+				"InsuranceRateSetting": InsuranceRateSetting,
+				"LevelRange": LevelRange,
+				"Level": Level,
+				"TrustMoney": TrustMoney,
+				"SalaryIncomeTax": SalaryIncomeTax,
+				"Transaction": Transaction,
+				"Notification": Notification,
+			};
+
+			const promises = input.table_name_list.map(async (table_name) => {
+				const model = table_map[table_name];
 				try {
 					if (input.force) {
 						await model.sync({ force: true });
@@ -244,5 +266,4 @@ export const debugRouter = createTRPCRouter({
 			);
 			// await levelService.rescheduleLevel();
 		}),
-	
 });

@@ -15,10 +15,23 @@ export class AccessSetting extends Model<
 	declare id: CreationOptional<number>;
 	declare auth_l: number;
 
-	declare actions: boolean;
-	declare report: boolean;
-	declare roles: boolean;
+	// actions access
+	declare functions: boolean;
+	declare synchronize: boolean;
+	declare employees: boolean;
+	declare employees_write: boolean;
+	declare employees_read_level: number;
+	declare parameters: boolean;
+	declare parameters_write: boolean;
+	declare bonus: boolean;
+	declare calendar: boolean;
+	declare calendar_write: boolean;
+
+	// settings access
 	declare settings: boolean;
+	declare roles: boolean;
+	declare report: boolean;
+
 	declare disabled: boolean;
 
 	// timestamps!
@@ -43,7 +56,44 @@ export function initAccessSetting(sequelize: Sequelize) {
 				allowNull: false,
 				unique: true,
 			},
-			actions: {
+			functions: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			synchronize: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			employees: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			employees_write: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			employees_read_level: {
+				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+				defaultValue: 0,
+			},
+			parameters: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			parameters_write: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			bonus: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			calendar: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+			},
+			calendar_write: {
 				type: DataTypes.BOOLEAN,
 				allowNull: false,
 			},
