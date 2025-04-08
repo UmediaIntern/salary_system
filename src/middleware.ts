@@ -60,6 +60,7 @@ export default withAuth(
 			guardRoute(request, "/calendar", accessible.calendar) ??
 			guardRoute(request, "/roles", accessible.roles) ??
 			guardRoute(request, "/settings", accessible.settings);
+			guardRoute(request, "/report", accessible.report);
 		if (guarded !== null) {
 			return guarded;
 		}

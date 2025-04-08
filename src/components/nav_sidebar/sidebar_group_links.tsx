@@ -14,16 +14,17 @@ export type NavLinkEntry = {
 	icon: LucideIcon;
 	url: string;
 	collapsed: boolean;
+	accessible: boolean;
 };
 
 interface SidebarGroupLinksProp {
-  groupTitle: string;
+	groupTitle: string;
 	navLinks: NavLinkEntry[];
 	currentPath: string;
 }
 
 export function SidebarGroupLinks({
-  groupTitle,
+	groupTitle,
 	navLinks,
 	currentPath,
 }: SidebarGroupLinksProp) {
@@ -33,28 +34,31 @@ export function SidebarGroupLinks({
 		<SidebarGroup>
 			<SidebarGroupLabel>{groupTitle}</SidebarGroupLabel>
 			<SidebarMenu>
-				{navLinks.map((link) => (
-					<SidebarMenuItem key={link.title}>
-						<SidebarMenuButton
-							tooltip={t(link.title)}
-							asChild
-							isActive={currentPath === link.url}
-						>
-							<Link
-								key={link.url}
-								href={link.url}
-								onClick={() => {
-									if (link.collapsed) {
-										// props.collapseFunction();
-									}
-								}}
-							>
-								{link.icon && <link.icon />}
-								<span>{t(link.title)}</span>
-							</Link>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				))}
+				{navLinks.map(
+					(link) =>
+						link.accessible && (
+							<SidebarMenuItem key={link.title}>
+								<SidebarMenuButton
+									tooltip={t(link.title)}
+									asChild
+									isActive={currentPath === link.url}
+								>
+									<Link
+										key={link.url}
+										href={link.url}
+										onClick={() => {
+											if (link.collapsed) {
+												// props.collapseFunction();
+											}
+										}}
+									>
+										{link.icon && <link.icon />}
+										<span>{t(link.title)}</span>
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						)
+				)}
 			</SidebarMenu>
 		</SidebarGroup>
 	);
