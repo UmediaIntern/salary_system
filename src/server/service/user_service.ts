@@ -9,23 +9,35 @@ import {
 	type createUserService,
 	type updateUserService,
 } from "../api/types/user_type";
-import { AccessSetting } from "../database/entity/SALARY/access_setting";
+import { Access } from "../database/entity/SALARY/access";
 
 @injectable()
 export class UserService {
 	async createUser({
 		emp_no,
 		password,
-		auth_role,
+		role,
 		start_date,
 		end_date,
 	}: z.infer<typeof createUserService>): Promise<User> {
 		const salt = await bcrypt.genSalt();
 		const hash = await bcrypt.hash(password, salt);
 
+		const access = await Access.findOne({
+			where: {
+				role: role,
+				disabled: false,
+			},
+		});
+
+		if (access == null) {
+			throw new BaseResponseError(`Access role=${role} does not exist`);
+		}
+
 		const newUser = await User.create({
 			emp_no: emp_no,
 			hash: hash,
+			access_id: access.id,
 			start_date: get_date_string(start_date ?? new Date()),
 			end_date: end_date ? get_date_string(end_date) : null,
 			disabled: false,
@@ -34,6 +46,16 @@ export class UserService {
 		});
 
 		return newUser;
+	}
+
+	async getAllUser(): Promise<User[]> {
+		const users = await User.findAll({
+			where: {
+				disabled: false,
+			},
+			include: "access",
+		});
+		return users;
 	}
 
 	async getUserByEmpNo(emp_no: string): Promise<User | null> {
@@ -52,7 +74,7 @@ export class UserService {
 				},
 				disabled: false,
 			},
-      include: AccessSetting
+			include: Access,
 		});
 		return user;
 	}
@@ -79,7 +101,7 @@ export class UserService {
 	async updateUser({
 		emp_no,
 		password,
-		auth_role,
+		role,
 		start_date,
 		end_date,
 	}: z.infer<typeof updateUserService>): Promise<void> {

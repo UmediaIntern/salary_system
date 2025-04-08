@@ -6,7 +6,7 @@ export const accessiblePages = z.object({
 	synchronize: z.boolean().default(false),
 	employees: z.boolean().default(false),
 	employees_write: z.boolean().default(false),
-	employees_read_level: z.number().default(0),
+	employees_r_lv: z.number().default(0),
 	parameters: z.boolean().default(false),
 	parameters_write: z.boolean().default(false),
 	bonus: z.boolean().default(false),

@@ -5,25 +5,23 @@ import {
 	type InferCreationAttributes,
 	type CreationOptional,
 	type Sequelize,
-	type ForeignKey,
 } from "sequelize";
 import { User } from "./user";
 
-export class AccessSetting extends Model<
-	InferAttributes<AccessSetting>,
-	InferCreationAttributes<AccessSetting>
+export class Access extends Model<
+	InferAttributes<Access>,
+	InferCreationAttributes<Access>
 > {
 	// id can be undefined during creation when using `autoIncrement`
 	declare id: CreationOptional<number>;
-	declare auth_role: string;
-	declare userId: ForeignKey<User["id"]>;
+	declare role: string;
 
 	// actions access
 	declare functions: boolean;
 	declare synchronize: boolean;
 	declare employees: boolean;
 	declare employees_write: boolean;
-	declare employees_read_level: number;
+	declare employees_r_lv: number;
 	declare parameters: boolean;
 	declare parameters_write: boolean;
 	declare bonus: boolean;
@@ -44,17 +42,23 @@ export class AccessSetting extends Model<
 	// updatedAt can be undefined during creation
 	declare update_date: CreationOptional<Date>;
 	declare update_by: string;
+
+	static associate() {
+		Access.hasMany(User, {
+			foreignKey: "access_id",
+		});
+	}
 }
 
-export function initAccessSetting(sequelize: Sequelize) {
-	AccessSetting.init(
+export function initAccess(sequelize: Sequelize) {
+	Access.init(
 		{
 			id: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				autoIncrement: true,
 				primaryKey: true,
 			},
-			auth_role: {
+			role: {
 				type: DataTypes.STRING(128),
 				allowNull: false,
 				unique: true,
@@ -75,7 +79,7 @@ export function initAccessSetting(sequelize: Sequelize) {
 				type: DataTypes.BOOLEAN,
 				allowNull: false,
 			},
-			employees_read_level: {
+			employees_r_lv: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				defaultValue: 0,
@@ -133,11 +137,9 @@ export function initAccessSetting(sequelize: Sequelize) {
 		},
 		{
 			sequelize,
-			tableName: "U_ACCESS_SETTING",
+			tableName: "U_ACCESS",
 			createdAt: "create_date",
 			updatedAt: "update_date",
 		}
 	);
-
-  AccessSetting.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 }

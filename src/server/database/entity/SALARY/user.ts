@@ -5,8 +5,10 @@ import {
 	type InferCreationAttributes,
 	type CreationOptional,
 	type Sequelize,
+	type ForeignKey,
+	NonAttribute,
 } from "sequelize";
-import { AccessSetting } from "./access_setting";
+import { Access } from "./access";
 
 export class User extends Model<
 	InferAttributes<User>,
@@ -20,6 +22,10 @@ export class User extends Model<
 	declare end_date: string | null;
 	declare disabled: boolean;
 
+	// relations
+	declare access_id: ForeignKey<Access["id"]>;
+	declare access: NonAttribute<Access>;
+
 	// timestamps!
 	// createdAt can be undefined during creation
 	declare create_date: CreationOptional<Date>;
@@ -27,6 +33,14 @@ export class User extends Model<
 	// updatedAt can be undefined during creation
 	declare update_date: CreationOptional<Date>;
 	declare update_by: string;
+
+	static associate() {
+		User.belongsTo(Access, {
+			foreignKey: "access_id",
+			targetKey: "id",
+			as: "access",
+		});
+	}
 }
 
 export function initUser(sequelize: Sequelize) {
@@ -80,6 +94,4 @@ export function initUser(sequelize: Sequelize) {
 			updatedAt: "update_date",
 		}
 	);
-
-	User.hasOne(AccessSetting, { sourceKey: "id" });
 }

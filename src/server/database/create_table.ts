@@ -2,13 +2,12 @@ import { container } from "tsyringe";
 import { Database } from "./client";
 import { initLevelRange } from "./entity/SALARY/level_range";
 import { initLevel } from "./entity/SALARY/level";
-import { initAccessSetting } from "./entity/SALARY/access_setting";
+import { Access, initAccess } from "./entity/SALARY/access";
 import { initAttendanceSetting } from "./entity/SALARY/attendance_setting";
 import { initBankSetting } from "./entity/SALARY/bank_setting";
 import { initBasicInfo } from "./entity/SALARY/basic_info";
 import { initBonusWorkType } from "./entity/SALARY/bonus_work_type";
 import { initBonusDepartment } from "./entity/SALARY/bonus_department";
-// import { initBonusPositionType } from "./entity/SALARY/bonus_position_type";
 import { initBonusPosition } from "./entity/SALARY/bonus_position";
 import { initBonusSeniority } from "./entity/SALARY/bonus_seniority";
 import { initBonusSetting } from "./entity/SALARY/bonus_setting";
@@ -22,7 +21,7 @@ import { initPerformanceLevel } from "./entity/SALARY/performance_level";
 import { initTransaction } from "./entity/SALARY/transaction";
 import { initTrustMoney } from "./entity/SALARY/trust_money";
 import { batchCreateSalaryIncomeTax } from "./entity/SALARY/salary_income_tax";
-import { initUser } from "./entity/SALARY/user";
+import { initUser, User } from "./entity/SALARY/user";
 import { initEmployeeBonus } from "./entity/SALARY/employee_bonus";
 import { initBonusAll } from "./entity/SALARY/bonus_all";
 import { initIncomeTaxSetting } from "./entity/SALARY/income_tax_setting";
@@ -32,7 +31,7 @@ import { initNotification } from "./entity/SALARY/notification";
 const sequelize = container.resolve(Database).connection;
 console.log("Init Database Tables")
 
-initAccessSetting(sequelize);
+initAccess(sequelize);
 initAttendanceSetting(sequelize);
 initBankSetting(sequelize);
 initBasicInfo(sequelize);
@@ -58,6 +57,9 @@ initTransaction(sequelize);
 initTrustMoney(sequelize);
 initUser(sequelize);
 initNotification(sequelize);
-// initEmployeeDataMut(sequelize);
-
 initIncomeTaxSetting(sequelize);
+
+User.associate();
+Access.associate();
+
+console.log("Database Tables Initialized")

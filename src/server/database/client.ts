@@ -71,6 +71,6 @@ export class Database {
 			}
 		);
 
-    return sequelize
+    	return sequelize
 	}
 }

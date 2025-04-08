@@ -3,7 +3,7 @@ import {
 	type AccessiblePagesType,
 	accessiblePages,
 } from "../api/types/access_page_type";
-import { AccessSetting } from "../database/entity/SALARY/access_setting";
+import { Access } from "../database/entity/SALARY/access";
 import "reflect-metadata";
 
 @injectable()
@@ -17,10 +17,10 @@ export class AccessService {
 			return accessiblePages.parse({});
 		}
 
-		const accessSettings = await AccessSetting.findOne(
+		const accessSettings = await Access.findOne(
 			{
 				where: {
-					auth_role: role,
+					role: role,
 					disabled: false,
 				},
 			}
@@ -35,10 +35,10 @@ export class AccessService {
 	}
 
 	async createAccessData(role: string, access: AccessiblePagesType) {
-		await AccessSetting.create(
+		await Access.create(
 			{
 				...access,
-				auth_role: role,
+				role: role,
 				disabled: false,
 				create_by: "system",
 				update_by: "system",
@@ -47,7 +47,7 @@ export class AccessService {
 	}
 
 	async getAllAccess(): Promise<AccessiblePagesType[]> {
-		const accessSettings = await AccessSetting.findAll(
+		const accessSettings = await Access.findAll(
 			{
 				where: {
 					disabled: false,

@@ -25,7 +25,7 @@ import { TrustMoney } from "~/server/database/entity/SALARY/trust_money";
 import { Level } from "~/server/database/entity/SALARY/level";
 import { LevelRange } from "~/server/database/entity/SALARY/level_range";
 import { AttendanceSetting } from "~/server/database/entity/SALARY/attendance_setting";
-import { AccessSetting } from "~/server/database/entity/SALARY/access_setting";
+import { Access } from "~/server/database/entity/SALARY/access";
 import { BankSetting } from "~/server/database/entity/SALARY/bank_setting";
 import { BasicInfo } from "~/server/database/entity/SALARY/basic_info";
 import { BonusSetting } from "~/server/database/entity/SALARY/bonus_setting";
@@ -34,6 +34,8 @@ import { BonusAll } from "~/server/database/entity/SALARY/bonus_all";
 import { LevelService } from "~/server/service/level_service";
 import { Notification } from "~/server/database/entity/SALARY/notification";
 import { User } from "~/server/database/entity/SALARY/user";
+import { user } from "../types/user_type";
+import { UserService } from "~/server/service/user_service";
 
 export const debugRouter = createTRPCRouter({
 	getDatabases: publicProcedure.query(async () => {
@@ -121,7 +123,7 @@ export const debugRouter = createTRPCRouter({
 					.enum([
 						"User",
 						"EmployeeBonus",
-						"AccessSetting",
+						"Access",
 						"AttendanceSetting",
 						"BankSetting",
 						"BasicInfo",
@@ -152,7 +154,7 @@ export const debugRouter = createTRPCRouter({
 			const table_map = {
 				User: User,
 				EmployeeBonus: EmployeeBonus,
-				AccessSetting: AccessSetting,
+				Access: Access,
 				AttendanceSetting: AttendanceSetting,
 				BankSetting: BankSetting,
 				BasicInfo: BasicInfo,
@@ -176,6 +178,7 @@ export const debugRouter = createTRPCRouter({
 			};
 
 			const promises = input.table_name_list.map(async (table_name) => {
+				console.log("syncing table", table_name);
 				const model = table_map[table_name];
 				try {
 					if (input.force) {
@@ -188,6 +191,8 @@ export const debugRouter = createTRPCRouter({
 					return {
 						msg: `error ${(e as Error).message}`,
 					};
+				} finally {
+					console.log("synced table", table_name);
 				}
 			});
 			await Promise.all(promises);
@@ -224,16 +229,20 @@ export const debugRouter = createTRPCRouter({
 	resolveUser: userProcedure.query(({ ctx }) => {
 		return ctx;
 	}),
+	getAllUsers: publicProcedure.query(async () => {
+		const userService = container.resolve(UserService);
+		return await userService.getAllUser();
+	}),
 	createAccessSetting: publicProcedure
 		.input(
 			z.object({
-				auth_role: z.string(),
+				role: z.string(),
 				access: accessiblePages,
 			})
 		)
 		.mutation(async ({ input }) => {
 			const accessService = container.resolve(AccessService);
-			await accessService.createAccessData(input.auth_role, input.access);
+			await accessService.createAccessData(input.role, input.access);
 		}),
 
 	createHolidaysType: publicProcedure

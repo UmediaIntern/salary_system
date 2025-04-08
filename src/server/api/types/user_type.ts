@@ -4,7 +4,7 @@ import { Id, dateAll, dateCreate } from "./common_type";
 export const user = z.object({
 	emp_no: z.string(),
 	password: z.string(),
-	auth_role: z.string(),
+	role: z.string(),
 });
 
 export const createUserAPI = user.merge(dateCreate);
