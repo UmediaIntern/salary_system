@@ -1,13 +1,8 @@
 import { z } from "zod";
 
-import { Id, dateAll, dateCreate, user } from "./common_type";
+import { Id } from "./common_type";
 import { bonusTypeEnum } from "./bonus_type_enum";
 import { WorkTypeEnum } from "./work_type_enum";
-
-export const createUserAPI = user.merge(dateAll);
-export const createUserService = user.merge(dateCreate);
-export const updateUserAPI = user.merge(dateAll).partial().merge(Id);
-export const updateUserService = user.merge(dateCreate).partial()//.merge(Id);
 
 const BasicInfo = z.object({
 	issue_date: z.date(),

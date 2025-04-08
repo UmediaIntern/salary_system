@@ -5,7 +5,9 @@ import {
 	type InferCreationAttributes,
 	type CreationOptional,
 	type Sequelize,
+	type ForeignKey,
 } from "sequelize";
+import { User } from "./user";
 
 export class AccessSetting extends Model<
 	InferAttributes<AccessSetting>,
@@ -13,7 +15,8 @@ export class AccessSetting extends Model<
 > {
 	// id can be undefined during creation when using `autoIncrement`
 	declare id: CreationOptional<number>;
-	declare auth_l: number;
+	declare auth_role: string;
+	declare userId: ForeignKey<User["id"]>;
 
 	// actions access
 	declare functions: boolean;
@@ -51,8 +54,8 @@ export function initAccessSetting(sequelize: Sequelize) {
 				autoIncrement: true,
 				primaryKey: true,
 			},
-			auth_l: {
-				type: DataTypes.INTEGER.UNSIGNED,
+			auth_role: {
+				type: DataTypes.STRING(128),
 				allowNull: false,
 				unique: true,
 			},
@@ -135,4 +138,6 @@ export function initAccessSetting(sequelize: Sequelize) {
 			updatedAt: "update_date",
 		}
 	);
+
+  AccessSetting.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 }

@@ -5,22 +5,8 @@ import {
 	type InferCreationAttributes,
 	type CreationOptional,
 	type Sequelize,
-	/* Association, */
-	/* HasManyAddAssociationMixin, */
-	/* HasManyCountAssociationsMixin, */
-	/* HasManyCreateAssociationMixin, */
-	/* HasManyGetAssociationsMixin, */
-	/* HasManyHasAssociationMixin, */
-	/* HasManySetAssociationsMixin, */
-	/* HasManyAddAssociationsMixin, */
-	/* HasManyHasAssociationsMixin, */
-	/* HasManyRemoveAssociationMixin, */
-	/* HasManyRemoveAssociationsMixin, */
-	/* ModelDefined, */
-	/* Optional, */
-	/* NonAttribute, */
-	/* ForeignKey, */
 } from "sequelize";
+import { AccessSetting } from "./access_setting";
 
 export class User extends Model<
 	InferAttributes<User>,
@@ -30,7 +16,6 @@ export class User extends Model<
 	declare id: CreationOptional<number>;
 	declare emp_no: string;
 	declare hash: string; // for nullable fields
-	declare auth_l: number;
 	declare start_date: string;
 	declare end_date: string | null;
 	declare disabled: boolean;
@@ -59,10 +44,6 @@ export function initUser(sequelize: Sequelize) {
 			},
 			hash: {
 				type: DataTypes.STRING(128),
-				allowNull: false,
-			},
-			auth_l: {
-				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 			},
 			start_date: {
@@ -99,4 +80,6 @@ export function initUser(sequelize: Sequelize) {
 			updatedAt: "update_date",
 		}
 	);
+
+	User.hasOne(AccessSetting, { sourceKey: "id" });
 }

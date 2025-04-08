@@ -1,5 +1,4 @@
 import { injectable } from "tsyringe";
-import { type RolesEnumType } from "../api/types/role_type";
 import {
 	type AccessiblePagesType,
 	accessiblePages,
@@ -12,7 +11,7 @@ export class AccessService {
 	/* constructor() { } */
 
 	async getAccessByRole(
-		role: RolesEnumType | null
+		role: string | null
 	): Promise<AccessiblePagesType> {
 		if (role === null) {
 			return accessiblePages.parse({});
@@ -21,7 +20,7 @@ export class AccessService {
 		const accessSettings = await AccessSetting.findOne(
 			{
 				where: {
-					auth_l: role,
+					auth_role: role,
 					disabled: false,
 				},
 			}
@@ -35,11 +34,11 @@ export class AccessService {
 		return ret;
 	}
 
-	async createAccessData(role: RolesEnumType, access: AccessiblePagesType) {
+	async createAccessData(role: string, access: AccessiblePagesType) {
 		await AccessSetting.create(
 			{
 				...access,
-				auth_l: role,
+				auth_role: role,
 				disabled: false,
 				create_by: "system",
 				update_by: "system",

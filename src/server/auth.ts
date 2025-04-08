@@ -11,7 +11,6 @@ import { env } from "~/env.mjs";
 import * as bcrypt from "bcrypt";
 import { BaseResponseError } from "./errors/base_response_error";
 import { UserService } from "./service/user_service";
-import { RolesEnum, type RolesEnumType } from "./api/types/role_type";
 import { type DefaultJWT } from "next-auth/jwt";
 import { initUser } from "./database/entity/SALARY/user";
 import { Database } from "./database/client";
@@ -24,7 +23,7 @@ import { Database } from "./database/client";
  */
 interface ExtendedTokenInfo {
 	emp_no: string;
-	role: RolesEnumType;
+	role: string;
 }
 
 interface JWTUser extends DefaultUser, ExtendedTokenInfo {
@@ -143,18 +142,18 @@ export const authOptions: NextAuthOptions = {
 					throw new BaseResponseError("Wrong password");
 				}
 
-				const parseRole = RolesEnum.safeParse(user.auth_l);
-				if (!parseRole.success) {
-					throw new BaseResponseError(
-						`Internal Error: Wrong user role`
-					);
-				}
+				// const parseRole = RolesEnum.safeParse(user.auth_l);
+				// if (!parseRole.success) {
+				// 	throw new BaseResponseError(
+				// 		`Internal Error: Wrong user role`
+				// 	);
+				// }
 				// console.log(parseRole.data);
 
 				const jwtUser: JWTUser = {
 					id: user.id.toString(),
 					emp_no: user.emp_no,
-					role: parseRole.data,
+					role: "admin", 
 				};
 
 				return jwtUser;

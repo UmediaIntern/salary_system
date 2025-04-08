@@ -38,8 +38,3 @@ export const empData = z.object({
 	position_type: z.string(),
 }).partial();
 
-export const user = z.object({
-	emp_no: z.string(),
-	password: z.string(),
-	auth_l: z.number(),
-});

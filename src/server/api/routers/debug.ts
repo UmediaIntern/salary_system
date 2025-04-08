@@ -7,7 +7,6 @@ import {
 	userProcedure,
 } from "~/server/api/trpc";
 import { Database } from "~/server/database/client";
-import { RolesEnum } from "../types/role_type";
 import { accessiblePages } from "../types/access_page_type";
 import { AccessService } from "~/server/service/access_service";
 import { HolidaysTypeService } from "~/server/service/holidays_type_service";
@@ -22,7 +21,6 @@ import { EmployeeData } from "~/server/database/entity/SALARY/employee_data";
 import { InsuranceRateSetting } from "~/server/database/entity/SALARY/insurance_rate_setting";
 import { EmployeePayment } from "~/server/database/entity/SALARY/employee_payment";
 import { EmployeeTrust } from "~/server/database/entity/SALARY/employee_trust";
-// import { EmployeeDataMut } from "~/server/database/entity/SALARY/employee_data_mut";
 import { TrustMoney } from "~/server/database/entity/SALARY/trust_money";
 import { Level } from "~/server/database/entity/SALARY/level";
 import { LevelRange } from "~/server/database/entity/SALARY/level_range";
@@ -35,8 +33,7 @@ import { EmployeeAccount } from "~/server/database/entity/SALARY/employee_accoun
 import { BonusAll } from "~/server/database/entity/SALARY/bonus_all";
 import { LevelService } from "~/server/service/level_service";
 import { Notification } from "~/server/database/entity/SALARY/notification";
-// import { EHRService } from "~/server/service/ehr_service";
-// import { EmployeeDataService } from "~/server/service/employee_data_service";
+import { User } from "~/server/database/entity/SALARY/user";
 
 export const debugRouter = createTRPCRouter({
 	getDatabases: publicProcedure.query(async () => {
@@ -120,58 +117,62 @@ export const debugRouter = createTRPCRouter({
 	syncTables: publicProcedure
 		.input(
 			z.object({
-				table_name_list: z.enum([
-					"EmployeeBonus",
-					"AccessSetting",
-					"AttendanceSetting",
-					"BankSetting",
-					"BasicInfo",
-					"BonusAll",
-					"BonusDepartment",
-					"BonusPosition",
-					"BonusSeniority",
-					"BonusWorkType",
-					"BonusSetting",
-					"EmployeeAccount",
-					"EmployeePayment",
-					"EmployeeTrust",
-					"EmployeeData",
-					"InsuranceRateSetting",
-					"LevelRange",
-					"Level",
-					"TrustMoney",
-					"SalaryIncomeTax",
-					"Transaction",
-					"Notification",
-				]).array(),
+				table_name_list: z
+					.enum([
+						"User",
+						"EmployeeBonus",
+						"AccessSetting",
+						"AttendanceSetting",
+						"BankSetting",
+						"BasicInfo",
+						"BonusAll",
+						"BonusDepartment",
+						"BonusPosition",
+						"BonusSeniority",
+						"BonusWorkType",
+						"BonusSetting",
+						"EmployeeAccount",
+						"EmployeePayment",
+						"EmployeeTrust",
+						"EmployeeData",
+						"InsuranceRateSetting",
+						"LevelRange",
+						"Level",
+						"TrustMoney",
+						"SalaryIncomeTax",
+						"Transaction",
+						"Notification",
+					])
+					.array(),
 				force: z.boolean().nullable(),
 				alter: z.boolean().nullable(),
 			})
 		)
 		.query(async ({ input }) => {
 			const table_map = {
-				"EmployeeBonus": EmployeeBonus,
-				"AccessSetting": AccessSetting,
-				"AttendanceSetting": AttendanceSetting,
-				"BankSetting": BankSetting,
-				"BasicInfo": BasicInfo,
-				"BonusAll": BonusAll,
-				"BonusDepartment": BonusDepartment,
-				"BonusPosition": BonusPosition,
-				"BonusSeniority": BonusSeniority,
-				"BonusWorkType": BonusWorkType,
-				"BonusSetting": BonusSetting,
-				"EmployeeAccount": EmployeeAccount,
-				"EmployeePayment": EmployeePayment,
-				"EmployeeTrust": EmployeeTrust,
-				"EmployeeData": EmployeeData,
-				"InsuranceRateSetting": InsuranceRateSetting,
-				"LevelRange": LevelRange,
-				"Level": Level,
-				"TrustMoney": TrustMoney,
-				"SalaryIncomeTax": SalaryIncomeTax,
-				"Transaction": Transaction,
-				"Notification": Notification,
+				User: User,
+				EmployeeBonus: EmployeeBonus,
+				AccessSetting: AccessSetting,
+				AttendanceSetting: AttendanceSetting,
+				BankSetting: BankSetting,
+				BasicInfo: BasicInfo,
+				BonusAll: BonusAll,
+				BonusDepartment: BonusDepartment,
+				BonusPosition: BonusPosition,
+				BonusSeniority: BonusSeniority,
+				BonusWorkType: BonusWorkType,
+				BonusSetting: BonusSetting,
+				EmployeeAccount: EmployeeAccount,
+				EmployeePayment: EmployeePayment,
+				EmployeeTrust: EmployeeTrust,
+				EmployeeData: EmployeeData,
+				InsuranceRateSetting: InsuranceRateSetting,
+				LevelRange: LevelRange,
+				Level: Level,
+				TrustMoney: TrustMoney,
+				SalaryIncomeTax: SalaryIncomeTax,
+				Transaction: Transaction,
+				Notification: Notification,
 			};
 
 			const promises = input.table_name_list.map(async (table_name) => {
@@ -226,13 +227,13 @@ export const debugRouter = createTRPCRouter({
 	createAccessSetting: publicProcedure
 		.input(
 			z.object({
-				role: RolesEnum,
+				auth_role: z.string(),
 				access: accessiblePages,
 			})
 		)
 		.mutation(async ({ input }) => {
 			const accessService = container.resolve(AccessService);
-			await accessService.createAccessData(input.role, input.access);
+			await accessService.createAccessData(input.auth_role, input.access);
 		}),
 
 	createHolidaysType: publicProcedure

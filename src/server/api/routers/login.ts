@@ -4,8 +4,7 @@ import * as bcrypt from "bcrypt";
 import { UserService } from "~/server/service/user_service";
 import { container } from "tsyringe";
 import { BaseResponseError } from "../../errors/base_response_error";
-import { createUserAPI } from "../types/parameters_input_type";
-import { get_date_string } from "~/server/service/helper_function";
+import { createUserAPI } from "../types/user_type";
 
 export const loginRouter = createTRPCRouter({
 	login: publicProcedure
@@ -35,7 +34,6 @@ export const loginRouter = createTRPCRouter({
 				throw new BaseResponseError("User does not exist");
 			}
 			await userService.updateUser({
-				id: user.id,
 				emp_no: input.emp_no,
 				password: input.password,
 			});
@@ -45,16 +43,7 @@ export const loginRouter = createTRPCRouter({
 		.input(createUserAPI)
 		.mutation(async ({ input }) => {
 			const userService = container.resolve(UserService);
-			const user = await userService.createUser({
-				...input,
-				start_date: input.start_date
-					? get_date_string(input.start_date)
-					: null,
-				end_date: input.end_date
-					? get_date_string(input.end_date)
-					: null,
-			});
-
+			const user = await userService.createUser(input);
 			return user;
 		}),
 
