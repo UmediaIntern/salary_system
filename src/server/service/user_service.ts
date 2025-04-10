@@ -6,10 +6,12 @@ import { BaseResponseError } from "../errors/base_response_error";
 import { get_date_string, select_value } from "./helper_function";
 import { type z } from "zod";
 import {
+	userAndAccess,
 	type createUserService,
 	type updateUserService,
 } from "../api/types/user_type";
 import { Access } from "../database/entity/SALARY/access";
+import { stringToDate, stringToDateNullable } from "../api/types/z_utils";
 
 @injectable()
 export class UserService {
@@ -53,7 +55,7 @@ export class UserService {
 			where: {
 				disabled: false,
 			},
-			include: "access",
+			include: [User.associations.access],
 		});
 		return users;
 	}
@@ -74,7 +76,7 @@ export class UserService {
 				},
 				disabled: false,
 			},
-			include: Access,
+			include: User.associations.access,
 		});
 		return user;
 	}
@@ -138,5 +140,42 @@ export class UserService {
 		if (destroyedRows[0] == 0) {
 			throw new BaseResponseError("Delete error");
 		}
+	}
+
+	async authUser(
+		emp_no: string,
+		password: string
+	): Promise<z.infer<typeof userAndAccess>> {
+		const user = await this.getUserByEmpNo(emp_no);
+
+		if (!user) {
+			throw new BaseResponseError("User does not exist");
+		}
+
+		const match = await bcrypt.compare(password, user.hash);
+		if (!match) {
+			throw new BaseResponseError("Wrong password");
+		}
+
+		console.log("user", user);
+
+		if (!user.access) {
+			throw new BaseResponseError("User access does not exist");
+		}
+
+		const userAccess = userAndAccess.safeParse({
+			...user.dataValues,
+			access: user.access.dataValues,
+			start_date: stringToDate.parse(user.start_date),
+			end_date: stringToDateNullable.parse(user.end_date),
+		});
+
+		if (!userAccess.success) {
+			throw new BaseResponseError(
+				`User access parse error ${userAccess.error.message}`
+			);
+		}
+
+		return userAccess.data;
 	}
 }

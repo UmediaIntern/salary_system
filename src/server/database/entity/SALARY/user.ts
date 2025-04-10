@@ -6,7 +6,8 @@ import {
 	type CreationOptional,
 	type Sequelize,
 	type ForeignKey,
-	NonAttribute,
+	type NonAttribute,
+	type Association,
 } from "sequelize";
 import { Access } from "./access";
 
@@ -24,7 +25,7 @@ export class User extends Model<
 
 	// relations
 	declare access_id: ForeignKey<Access["id"]>;
-	declare access: NonAttribute<Access>;
+	declare access?: NonAttribute<Access>;
 
 	// timestamps!
 	// createdAt can be undefined during creation
@@ -41,6 +42,9 @@ export class User extends Model<
 			as: "access",
 		});
 	}
+	declare static associations: {
+		access: Association<User, Access>;
+	};
 }
 
 export function initUser(sequelize: Sequelize) {

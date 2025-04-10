@@ -124,36 +124,14 @@ export const authOptions: NextAuthOptions = {
 					password: credentials?.password ?? "",
 				};
 
-				const userService = container.resolve(UserService);
-
 				// NOTE: Make sure User table is initialized, such that getUserByEmpNo works
-				const sequelize = container.resolve(Database).connection;
-				initUser(sequelize);
-
-				// TODO: move following to user service
-				const user = await userService.getUserByEmpNo(input.emp_no);
-
-				if (!user) {
-					throw new BaseResponseError("User does not exist");
-				}
-
-				const match = await bcrypt.compare(input.password, user.hash);
-				if (!match) {
-					throw new BaseResponseError("Wrong password");
-				}
-
-				// const parseRole = RolesEnum.safeParse(user.auth_l);
-				// if (!parseRole.success) {
-				// 	throw new BaseResponseError(
-				// 		`Internal Error: Wrong user role`
-				// 	);
-				// }
-				// console.log(parseRole.data);
+				const userService = container.resolve(UserService);
+				const user = await userService.authUser(input.emp_no, input.password);
 
 				const jwtUser: JWTUser = {
 					id: user.id.toString(),
 					emp_no: user.emp_no,
-					role: "admin", 
+					role: user.access.role, 
 				};
 
 				return jwtUser;

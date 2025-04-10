@@ -65,9 +65,9 @@ export default function Login() {
 				toast({
 					title: "Error",
 					description: (
-						<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+						<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4 overflow-x-scroll">
 							<code className="text-white">
-								{JSON.stringify(res?.error, null, 2)}
+								{res?.error}
 							</code>
 						</pre>
 					),

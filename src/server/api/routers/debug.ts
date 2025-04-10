@@ -233,6 +233,12 @@ export const debugRouter = createTRPCRouter({
 		const userService = container.resolve(UserService);
 		return await userService.getAllUser();
 	}),
+	getUserByEmpNo: publicProcedure
+		.input(z.object({ emp_no: z.string() }))
+		.query(async ({ input }) => {
+			const userService = container.resolve(UserService);
+			return await userService.getUserByEmpNo(input.emp_no);
+		}),
 	createAccessSetting: publicProcedure
 		.input(
 			z.object({
