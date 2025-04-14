@@ -1,9 +1,7 @@
 import { CalendarDays } from "lucide-react";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { RootLayout } from "~/components/layout/root_layout";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -11,19 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "~/components/ui/command";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "~/components/ui/popover";
+
 import {
 	HoverCard,
 	HoverCardContent,
@@ -35,12 +21,12 @@ import { type ReactElement } from "react";
 import { Header } from "~/components/header";
 import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
 import { useSession } from "next-auth/react";
-import { TeamMemberTable } from "./team_member_table";
 import { useTranslation } from "react-i18next";
 
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { i18n, locales } from '~/components/lang_config'
-
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { i18n, locales } from "~/components/lang_config";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Roles } from "./components/roles/roles";
 
 type EmployeeInfo = {
 	username: string;
@@ -49,20 +35,26 @@ type EmployeeInfo = {
 	avatarImgSource: string;
 };
 
-type IdentityType = {
-	identity: string;
-	description: string;
-};
-
 const PageRoles: NextPageWithLayout = () => {
-  const { t } = useTranslation(['nav', 'common']);
+	const { t } = useTranslation(["nav", "common"]);
 	return (
 		<>
 			{/* header */}
 			<Header title={t("roles")} showOptions />
-			<CurrentUserCard />
-			<div>
-				<TeamMemberTable />
+			<div className="flex grow flex-col p-4">
+				<CurrentUserCard />
+				<Tabs defaultValue="roles" className="flex grow flex-col pt-4">
+					<TabsList className="grid w-[500px] grid-cols-2">
+						<TabsTrigger value="roles">Roles</TabsTrigger>
+						<TabsTrigger value="accounts">Accounts</TabsTrigger>
+					</TabsList>
+					<TabsContent value="roles" className="w-full grow pt-4">
+						<Roles />
+					</TabsContent>
+					<TabsContent value="accounts" className="w-full grow pt-2">
+						<div></div>
+					</TabsContent>
+				</Tabs>
 			</div>
 		</>
 	);
@@ -86,7 +78,7 @@ function CurrentUserCard() {
 
 	return (
 		<>
-			<Card className="m-4">
+			<Card className="">
 				<CardHeader>
 					<CardTitle>Administrator</CardTitle>
 					<CardDescription>
@@ -111,7 +103,6 @@ function CurrentUserCard() {
 								<CompHoverCard info={info} />
 							</div>
 						</div>
-						<CompRoleDropdown />
 					</div>
 				</CardContent>
 			</Card>
@@ -119,57 +110,6 @@ function CurrentUserCard() {
 	);
 }
 
-function CompRoleDropdown() {
-	const identitylist: IdentityType[] = [
-		{
-			identity: "Viewer",
-			description: "Can view and comment.",
-		},
-		{
-			identity: "Developer",
-			description: "Can view, comment and edit.",
-		},
-		{
-			identity: "Billing",
-			description: "Can view, comment and manage billing.",
-		},
-		{
-			identity: "Owner",
-			description: "Admin-level access to all resources.",
-		},
-	];
-	return (
-		<Popover>
-			<PopoverTrigger asChild>
-				<Button variant="outline" className="ml-auto">
-					Owner{" "}
-					<ChevronDownIcon className="ml-2 h-4 w-4 text-muted-foreground" />
-				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="p-0" align="end">
-				<Command>
-					<CommandInput placeholder="Select new role..." />
-					<CommandList>
-						<CommandEmpty>No roles found.</CommandEmpty>
-						<CommandGroup>
-							{identitylist.map((props: IdentityType) => (
-								<CommandItem
-									key={props.identity}
-									className="teamaspace-y-1 flex flex-col items-start px-4 py-2"
-								>
-									<p>{props.identity}</p>
-									<p className="text-sm text-muted-foreground">
-										{props.description}
-									</p>
-								</CommandItem>
-							))}
-						</CommandGroup>
-					</CommandList>
-				</Command>
-			</PopoverContent>
-		</Popover>
-	);
-}
 
 function CompHoverCard({ info }: { info: EmployeeInfo }) {
 	return (
@@ -226,8 +166,14 @@ PageRoles.getLayout = function getLayout(page: ReactElement) {
 export default PageRoles;
 
 export const getStaticProps = async ({ locale }: { locale: string }) => {
-  return ({props: {
-    ...(await serverSideTranslations(locale, ["common", "nav"], i18n, locales)),
-  }});
+	return {
+		props: {
+			...(await serverSideTranslations(
+				locale,
+				["common", "nav"],
+				i18n,
+				locales
+			)),
+		},
+	};
 };
-

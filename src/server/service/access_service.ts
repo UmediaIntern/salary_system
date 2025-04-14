@@ -1,10 +1,9 @@
 import { injectable } from "tsyringe";
-import {
-	type AccessiblePagesType,
-	accessiblePages,
-} from "../api/types/access_page_type";
+import { accessFE, accessFEType, AccessiblePages } from "../api/types/access_page_type";
 import { Access } from "../database/entity/SALARY/access";
 import "reflect-metadata";
+import { BaseResponseError } from "../errors/base_response_error";
+import { InternalServerError } from "../errors/internal_server_error";
 
 @injectable()
 export class AccessService {
@@ -12,9 +11,9 @@ export class AccessService {
 
 	async getAccessByRole(
 		role: string | null
-	): Promise<AccessiblePagesType> {
+	): Promise<accessFEType> {
 		if (role === null) {
-			return accessiblePages.parse({});
+			throw new BaseResponseError("Role is null", 400);
 		}
 
 		const accessSettings = await Access.findOne(
@@ -27,26 +26,14 @@ export class AccessService {
 		);
 
 		if (accessSettings === null) {
-			return accessiblePages.parse({});
+			throw new InternalServerError(`Access settings not found for user ${role}`);
 		}
 
-		const ret = accessiblePages.parse(accessSettings);
+		const ret = accessFE.parse(accessSettings);
 		return ret;
 	}
 
-	async createAccessData(role: string, access: AccessiblePagesType) {
-		await Access.create(
-			{
-				...access,
-				role: role,
-				disabled: false,
-				create_by: "system",
-				update_by: "system",
-			}
-		);
-	}
-
-	async getAllAccess(): Promise<AccessiblePagesType[]> {
+	async getAllAccess(): Promise<accessFEType[]> {
 		const accessSettings = await Access.findAll(
 			{
 				where: {
@@ -56,5 +43,17 @@ export class AccessService {
 			},
 		);
 		return accessSettings;
+	}
+
+	async createAccessData(role: string, access: AccessiblePages) {
+		await Access.create(
+			{
+				...access,
+				role: role,
+				disabled: false,
+				create_by: "system",
+				update_by: "system",
+			}
+		);
 	}
 }

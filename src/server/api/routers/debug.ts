@@ -34,7 +34,6 @@ import { BonusAll } from "~/server/database/entity/SALARY/bonus_all";
 import { LevelService } from "~/server/service/level_service";
 import { Notification } from "~/server/database/entity/SALARY/notification";
 import { User } from "~/server/database/entity/SALARY/user";
-import { user } from "../types/user_type";
 import { UserService } from "~/server/service/user_service";
 
 export const debugRouter = createTRPCRouter({
