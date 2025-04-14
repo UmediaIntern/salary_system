@@ -23,6 +23,7 @@ import { onPromise } from "~/utils/on_promise";
 const createAccessFormSchema = z.object({
 	role_name: z.string().nonempty("Role name is required"),
 });
+
 export function CreateRoleDialog() {
 	const form = useForm<z.infer<typeof createAccessFormSchema>>({
 		resolver: zodResolver(createAccessFormSchema),
