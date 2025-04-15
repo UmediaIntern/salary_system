@@ -2,6 +2,7 @@ import { container } from "tsyringe";
 import { createTRPCRouter, publicProcedure, userProcedure } from "~/server/api/trpc";
 import { AccessService } from "~/server/service/access_service";
 import { accessFE } from "../types/access_page_type";
+import { z } from "zod";
 
 export const accessRouter = createTRPCRouter({
 	accessByRole: userProcedure
@@ -20,5 +21,12 @@ export const accessRouter = createTRPCRouter({
 			const accessService = container.resolve(AccessService);
 			const allAccess = await accessService.getAllAccess();
 			return allAccess
-		})
+		}),
+
+  createAccess: userProcedure
+    .input(z.object({role_name: z.string()}))
+    .mutation(async ({ input }) => {
+      const accessService = container.resolve(AccessService);
+      await accessService.createAccessData(input.role_name, null);
+    })
 });

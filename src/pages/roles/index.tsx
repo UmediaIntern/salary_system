@@ -38,17 +38,17 @@ type EmployeeInfo = {
 const PageRoles: NextPageWithLayout = () => {
 	const { t } = useTranslation(["nav", "common"]);
 	return (
-		<>
+		<div className="h-full w-full flex flex-col">
 			{/* header */}
 			<Header title={t("roles")} showOptions />
-			<div className="flex grow flex-col p-4">
+			<div className="flex grow h-0 flex-col p-4">
 				<CurrentUserCard />
 				<Tabs defaultValue="roles" className="flex grow flex-col pt-4">
 					<TabsList className="grid w-[500px] grid-cols-2">
 						<TabsTrigger value="roles">Roles</TabsTrigger>
 						<TabsTrigger value="accounts">Accounts</TabsTrigger>
 					</TabsList>
-					<TabsContent value="roles" className="w-full grow pt-4">
+					<TabsContent value="roles" className="w-full grow pt-4 h-0">
 						<Roles />
 					</TabsContent>
 					<TabsContent value="accounts" className="w-full grow pt-2">
@@ -56,7 +56,7 @@ const PageRoles: NextPageWithLayout = () => {
 					</TabsContent>
 				</Tabs>
 			</div>
-		</>
+    </div>
 	);
 };
 

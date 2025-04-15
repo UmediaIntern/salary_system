@@ -8,12 +8,8 @@ import {
 import CredentialsProvider from "next-auth/providers/credentials";
 import { container } from "tsyringe";
 import { env } from "~/env.mjs";
-import * as bcrypt from "bcrypt";
-import { BaseResponseError } from "./errors/base_response_error";
 import { UserService } from "./service/user_service";
 import { type DefaultJWT } from "next-auth/jwt";
-import { initUser } from "./database/entity/SALARY/user";
-import { Database } from "./database/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

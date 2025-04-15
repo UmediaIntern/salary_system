@@ -24,11 +24,27 @@ import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { CreateRoleDialog } from "./create_role_dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { accessiblePages } from "~/server/api/types/access_page_type";
+import { createAccessAPI } from "~/server/api/types/access_page_type";
 import { z } from "zod";
 import { onPromise } from "~/utils/on_promise";
+import { cn } from "~/lib/utils";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
-const accessiblePagesFormSchema = accessiblePages;
+const accessiblePagesFormSchema = createAccessAPI;
+
+const formFieldKeysType = accessiblePagesFormSchema.keyof().array();
+const formFieldKeys: z.infer<typeof formFieldKeysType> = [
+	"functions",
+	"synchronize",
+	"employees",
+	"parameters",
+	"bonus",
+	"calendar",
+	"settings",
+	"roles",
+	"report",
+];
+
 export function Roles() {
 	const allRoles = api.access.getAllAccess.useQuery();
 	const { isPending, content, data } = useQueryHandle(allRoles);
@@ -36,6 +52,7 @@ export function Roles() {
 		typeof accessiblePagesFormSchema
 	> | null>(null);
 
+  console.log("data", selectedRole)
 	const form = useForm<z.infer<typeof accessiblePagesFormSchema>>({
 		resolver: zodResolver(accessiblePagesFormSchema),
 		defaultValues: selectedRole ?? {},
@@ -47,6 +64,12 @@ export function Roles() {
 		}
 	}, [data]);
 
+  useEffect(() => {
+    if (selectedRole) {
+      form.reset(selectedRole);
+    }
+  }, [form, selectedRole]);
+
 	const onSubmit = (values: z.infer<typeof accessiblePagesFormSchema>) => {
 		console.log("Submitted values:", values);
 		// Add your save logic here
@@ -54,7 +77,7 @@ export function Roles() {
 
 	return (
 		<div className="flex h-full flex-row gap-x-4">
-			<Card className="h-full w-1/5">
+			<Card className="h-full w-1/5 min-w-[300px]">
 				<div className="flex flex-row items-center p-4">
 					<CardHeader className="p-0">
 						<CardTitle>Roles</CardTitle>
@@ -74,16 +97,26 @@ export function Roles() {
 				</div>
 
 				<Separator />
-				<CardContent>
+				<CardContent className="flex flex-col gap-y-2 p-4">
 					{isPending
 						? content
 						: data.map((access) => (
-								<div key={access.id}>{access.role}</div>
+								<div
+									className={cn(
+										"w-full rounded-md border p-4",
+										access.role === selectedRole?.role &&
+											"bg-secondary"
+									)}
+									key={access.id}
+									onClick={() => setSelectedRole(access)}
+								>
+									{access.role}
+								</div>
 						  ))}
 				</CardContent>
 			</Card>
-			<div className="h-full grow">
-				<div className="flex flex-col gap-y-4">
+			<div className="grow">
+				<ScrollArea className="h-full pr-4">
 					<Form {...form}>
 						<form
 							onSubmit={onPromise<void>(
@@ -96,32 +129,40 @@ export function Roles() {
 									Pages
 								</h3>
 								<div className="space-y-4">
-									<FormField
-										control={form.control}
-										name="functions"
-										render={({ field }) => (
-											<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-												<div className="space-y-0.5">
-													<FormLabel>
-														Marketing emails
-													</FormLabel>
-													<FormDescription>
-														Receive emails about new
-														products, features, and
-														more.
-													</FormDescription>
-												</div>
-												<FormControl>
-													<Switch
-														checked={field.value}
-														onCheckedChange={
-															field.onChange
-														}
-													/>
-												</FormControl>
-											</FormItem>
-										)}
-									/>
+									{formFieldKeys.map((key) => {
+										return (
+											<FormField
+												key={key}
+												control={form.control}
+												name={key}
+												render={({ field }) => (
+													<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+														<div className="space-y-0.5">
+															<FormLabel>
+																{key}
+															</FormLabel>
+															<FormDescription>
+																Access the
+																functions in the 
+																{key} page.
+															</FormDescription>
+														</div>
+														<FormControl>
+															<Switch
+																checked={
+																	field.value ===
+																	true
+																}
+																onCheckedChange={
+																	field.onChange
+																}
+															/>
+														</FormControl>
+													</FormItem>
+												)}
+											/>
+										);
+									})}
 								</div>
 							</div>
 							<div className="flex w-full flex-row justify-end">
@@ -132,7 +173,7 @@ export function Roles() {
 							</div>
 						</form>
 					</Form>
-				</div>
+				</ScrollArea>
 			</div>
 		</div>
 	);

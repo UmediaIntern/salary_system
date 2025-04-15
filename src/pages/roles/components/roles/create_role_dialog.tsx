@@ -18,6 +18,7 @@ import {
 	FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { api } from "~/utils/api";
 import { onPromise } from "~/utils/on_promise";
 
 const createAccessFormSchema = z.object({
@@ -32,8 +33,11 @@ export function CreateRoleDialog() {
 		},
 	});
 
+  const createAccess = api.access.createAccess.useMutation();
+
 	function onSubmit(values: z.infer<typeof createAccessFormSchema>) {
 		console.log(values);
+    createAccess.mutate(values);
 	}
 
 	return (
