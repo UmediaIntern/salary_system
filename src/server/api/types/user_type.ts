@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { Id, dateAll, dateCreate, dateMetaFE } from "./common_type";
-import { accessiblePages } from "./access_page_type";
+import { Id, dateCreate, metadata } from "./common_type";
+import { accessFE } from "./access_page_type";
+import { stringToDate, stringToDateNullable } from "./z_utils";
 
 export const user = z.object({
 	emp_no: z.string(),
@@ -10,8 +11,8 @@ export const user = z.object({
 
 export const createUserAPI = user.merge(dateCreate);
 export const createUserService = user.merge(dateCreate);
-export const updateUserAPI = user.merge(dateAll).partial().merge(Id);
-export const updateUserService = user.merge(dateCreate).partial();
+
+export const updateUserService = user.omit({role: true});
 
 export const userAndAccess = z
 	.object({
@@ -19,7 +20,13 @@ export const userAndAccess = z
 		hash: z.string(),
 		disabled: z.boolean(),
 		access_id: z.number(),
-		access: accessiblePages.merge(z.object({ role: z.string() })),
+		access: accessFE,
 	})
-	.merge(dateMetaFE)
+	.merge(
+		z.object({
+			start_date: stringToDate,
+			end_date: stringToDateNullable,
+		})
+	)
+	.merge(metadata)
 	.merge(Id);

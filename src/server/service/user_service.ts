@@ -3,7 +3,7 @@ import { injectable } from "tsyringe";
 import { User } from "../database/entity/SALARY/user";
 import { Op } from "sequelize";
 import { BaseResponseError } from "../errors/base_response_error";
-import { get_date_string, select_value } from "./helper_function";
+import { get_date_string } from "./helper_function";
 import { type z } from "zod";
 import {
 	userAndAccess,
@@ -11,7 +11,6 @@ import {
 	type updateUserService,
 } from "../api/types/user_type";
 import { Access } from "../database/entity/SALARY/access";
-import { stringToDate, stringToDateNullable } from "../api/types/z_utils";
 
 @injectable()
 export class UserService {
@@ -50,14 +49,23 @@ export class UserService {
 		return newUser;
 	}
 
-	async getAllUser(): Promise<User[]> {
+	async getAllUser(): Promise<z.infer<typeof userAndAccess>[]> {
 		const users = await User.findAll({
 			where: {
 				disabled: false,
 			},
 			include: [User.associations.access],
 		});
-		return users;
+
+		const ret = userAndAccess.array().safeParse(users);
+
+		if (!ret.success) {
+			throw new BaseResponseError(
+				`User access parse error ${ret.error.message}`
+			);
+		}
+
+		return ret.data;
 	}
 
 	async getUserByEmpNo(emp_no: string): Promise<User | null> {
@@ -103,32 +111,23 @@ export class UserService {
 	async updateUser({
 		emp_no,
 		password,
-		role,
-		start_date,
-		end_date,
 	}: z.infer<typeof updateUserService>): Promise<void> {
-		const user = await this.getUserByEmpNo(emp_no!);
+		const user = await this.getUserByEmpNo(emp_no);
 		if (user == null) {
 			throw new BaseResponseError("User does not exist");
 		}
 
-		let hash: string | null = null;
-
-		if (password != null) {
-			const salt = await bcrypt.genSalt();
-			hash = await bcrypt.hash(password, salt);
+		if (!user.access) {
+			throw new BaseResponseError("User access does not exist");
 		}
 
 		await this.deleteUser(user.id);
-
-		await User.create({
-			emp_no: select_value(emp_no, user.emp_no),
-			hash: select_value(hash, user.hash)!,
-			start_date: select_value(start_date, user.start_date)!,
-			end_date: select_value(end_date, user.end_date),
-			disabled: false,
-			create_by: "system",
-			update_by: "system",
+		await this.createUser({
+			emp_no: emp_no,
+			password: password,
+			role: user.access.role,
+			start_date: null,
+			end_date: null,
 		});
 	}
 
@@ -157,18 +156,11 @@ export class UserService {
 			throw new BaseResponseError("Wrong password");
 		}
 
-		console.log("user", user);
-
 		if (!user.access) {
 			throw new BaseResponseError("User access does not exist");
 		}
 
-		const userAccess = userAndAccess.safeParse({
-			...user.dataValues,
-			access: user.access.dataValues,
-			start_date: stringToDate.parse(user.start_date),
-			end_date: stringToDateNullable.parse(user.end_date),
-		});
+		const userAccess = userAndAccess.safeParse(user);
 
 		if (!userAccess.success) {
 			throw new BaseResponseError(
