@@ -1,20 +1,22 @@
 import { injectable } from "tsyringe";
 import {
 	accessFE,
-	accessFEType,
+	AccessFEType,
 	accessiblePages,
 	AccessiblePages,
+	updateAccessAPI,
 } from "../api/types/access_page_type";
 import { Access } from "../database/entity/SALARY/access";
 import "reflect-metadata";
 import { BaseResponseError } from "../errors/base_response_error";
 import { InternalServerError } from "../errors/internal_server_error";
+import { z } from "zod";
 
 @injectable()
 export class AccessService {
 	/* constructor() { } */
 
-	async getAccessByRole(role: string | null): Promise<accessFEType> {
+	async getAccessByRole(role: string | null): Promise<AccessFEType> {
 		if (role === null) {
 			throw new BaseResponseError("Role is null", 400);
 		}
@@ -36,7 +38,7 @@ export class AccessService {
 		return ret;
 	}
 
-	async getAllAccess(): Promise<accessFEType[]> {
+	async getAllAccess(): Promise<AccessFEType[]> {
 		const accessSettings = await Access.findAll({
 			where: {
 				disabled: false,
@@ -58,5 +60,14 @@ export class AccessService {
 			create_by: "system",
 			update_by: "system",
 		});
+	}
+
+	async updateAccessData(data: z.infer<typeof updateAccessAPI>) {
+		await Access.update(
+			{
+				...data,
+			},
+			{ where: { id: data.id } }
+		);
 	}
 }

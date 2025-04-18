@@ -10,29 +10,30 @@ import {
 } from "~/components/ui/form";
 import { Switch } from "~/components/ui/switch";
 import { onPromise } from "~/utils/on_promise";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createAccessAPI } from "~/server/api/types/access_page_type";
+import {
+	type AccessFEType,
+	updateAccessAPI,
+} from "~/server/api/types/access_page_type";
 import { type z } from "zod";
 import { type PropsWithChildren, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { api } from "~/utils/api";
 
-const accessiblePagesFormSchema = createAccessAPI;
+const accessiblePagesFormSchema = updateAccessAPI;
 const fieldKey = accessiblePagesFormSchema.keyof();
 type FormFieldKeyType = z.infer<typeof fieldKey>;
 
-export function AccessForm({
-	selectedRole,
-}: {
-	selectedRole: z.infer<typeof accessiblePagesFormSchema>;
-}) {
+export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 	const form = useForm<z.infer<typeof accessiblePagesFormSchema>>({
 		resolver: zodResolver(accessiblePagesFormSchema),
 	});
 
 	const { reset, watch } = form;
 	const [isChange, setIsChange] = useState(false);
+	const updateAccess = api.access.updateAccess.useMutation();
 
 	useEffect(() => {
 		reset(selectedRole);
@@ -59,7 +60,7 @@ export function AccessForm({
 
 	const onSubmit = (values: z.infer<typeof accessiblePagesFormSchema>) => {
 		console.log("Submitted values:", values);
-		// Add your save logic here
+		updateAccess.mutate(values);
 	};
 
 	return (

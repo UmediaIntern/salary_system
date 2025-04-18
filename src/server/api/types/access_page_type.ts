@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { Id } from "./common_type";
 
-
 const roleInfo = z.object({
 	role: z.string(),
-})
+});
 
 export const accessiblePages = z.object({
 	// actions access
@@ -25,8 +24,11 @@ export const accessiblePages = z.object({
 });
 export type AccessiblePages = z.infer<typeof accessiblePages>;
 
+export const createAccessAPI = accessiblePages.merge(roleInfo);
+export const updateAccessAPI = accessiblePages
+	.partial()
+	.merge(roleInfo)
+	.merge(Id);
 
-export const createAccessAPI = accessiblePages.merge(roleInfo)
-
-export const accessFE = accessiblePages.merge(Id).merge(roleInfo)
-export type accessFEType = z.infer<typeof accessFE>;
+export const accessFE = accessiblePages.merge(Id).merge(roleInfo);
+export type AccessFEType = z.infer<typeof accessFE>;

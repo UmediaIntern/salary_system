@@ -13,21 +13,16 @@ import { useEffect, useState } from "react";
 import { Separator } from "~/components/ui/separator";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { CreateRoleDialog } from "./create_role_dialog";
-import { type z } from "zod";
 import { cn } from "~/lib/utils";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { AccessForm } from "./access_form";
-import { createAccessAPI } from "~/server/api/types/access_page_type";
-
-const accessiblePagesFormSchema = createAccessAPI;
+import { type AccessFEType } from "~/server/api/types/access_page_type";
 
 export function Roles() {
 	const allRoles = api.access.getAllAccess.useQuery();
 	const { isPending, content, data } = useQueryHandle(allRoles);
 
-	const [selectedRole, setSelectedRole] = useState<z.infer<
-		typeof accessiblePagesFormSchema
-	> | null>(null);
+	const [selectedRole, setSelectedRole] = useState<AccessFEType | null>(null);
 
 	useEffect(() => {
 		if (data?.[0]) {
