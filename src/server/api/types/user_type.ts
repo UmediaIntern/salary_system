@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Id, dateCreate, metadata } from "./common_type";
+import { Id, dateCreate, dateFE, metadata } from "./common_type";
 import { accessFE } from "./access_page_type";
 import { stringToDate, stringToDateNullable } from "./z_utils";
 
@@ -12,7 +12,15 @@ export const user = z.object({
 export const createUserAPI = user.merge(dateCreate);
 export const createUserService = user.merge(dateCreate);
 
-export const updateUserService = user.omit({role: true});
+export const updateUserService = z.object({
+	emp_no: z.string(),
+	password: z.string(),
+});
+
+export const changeUserRoleService = z.object({
+	emp_no: z.string(),
+	role: z.string(),
+});
 
 export const userAndAccess = z
 	.object({
@@ -30,3 +38,7 @@ export const userAndAccess = z
 	)
 	.merge(metadata)
 	.merge(Id);
+
+export const userAndAccessFE = userAndAccess
+	.omit({ start_date: true, end_date: true })
+	.merge(dateFE);

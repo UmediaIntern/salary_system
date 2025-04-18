@@ -29,10 +29,6 @@ export const loginRouter = createTRPCRouter({
 		.input(z.object({ emp_no: z.string(), password: z.string() }))
 		.mutation(async ({ input }) => {
 			const userService = container.resolve(UserService);
-			const user = await userService.getUserByEmpNo(input.emp_no);
-			if (!user) {
-				throw new BaseResponseError("User does not exist");
-			}
 			await userService.updateUser({
 				emp_no: input.emp_no,
 				password: input.password,

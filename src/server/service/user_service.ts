@@ -6,6 +6,7 @@ import { BaseResponseError } from "../errors/base_response_error";
 import { get_date_string } from "./helper_function";
 import { type z } from "zod";
 import {
+	type changeUserRoleService,
 	userAndAccess,
 	type createUserService,
 	type updateUserService,
@@ -131,6 +132,27 @@ export class UserService {
 		});
 	}
 
+	async changeUserRole({
+		emp_no,
+		role,
+	}: z.infer<typeof changeUserRoleService>): Promise<void> {
+		const user = await this.getUserByEmpNo(emp_no);
+		if (user == null) {
+			throw new BaseResponseError("User does not exist");
+		}
+
+		const access = await Access.findOne({
+			where: {
+				role: role,
+				disabled: false,
+			},
+		});
+		if (access == null) {
+			throw new BaseResponseError(`Access role=${role} does not exist`);
+		}
+
+		await User.update({ access_id: access.id }, { where: { id: user.id } });
+	}
 	async deleteUser(id: number): Promise<void> {
 		const destroyedRows = await User.update(
 			{ disabled: true },

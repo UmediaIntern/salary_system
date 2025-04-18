@@ -29,29 +29,6 @@ import { useTranslation } from "react-i18next";
 import { api } from "~/utils/api";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
-type IdentityType = {
-	identity: string;
-	description: string;
-};
-const identitylist: IdentityType[] = [
-	{
-		identity: "Viewer",
-		description: "Can view and comment.",
-	},
-	{
-		identity: "Developer",
-		description: "Can view, comment and edit.",
-	},
-	{
-		identity: "Billing",
-		description: "Can view, comment and manage billing.",
-	},
-	{
-		identity: "Owner",
-		description: "Admin-level access to all resources.",
-	},
-];
-
 type EmployeeInfo = {
 	username: string;
 	role: string;
@@ -85,6 +62,10 @@ export function Accounts() {
 					<CommandGroup heading="Employees">
 						<CommandItem value="-" className="hidden" />
 						{data.map((emp) => {
+							const empInfo: EmployeeInfo = {
+								username: emp.emp_no,
+								role: emp.access.role,
+							};
 							return (
 								<CommandItem
 									key={emp.emp_no}
@@ -92,13 +73,8 @@ export function Accounts() {
 										"teamaspace-y-1 flex flex-row items-center justify-between px-4 py-2"
 									}
 								>
-									<UserItemComp
-										info={{
-											username: emp.emp_no,
-											role: emp.access.role,
-										}}
-									/>
-									<SelectRole />
+									<UserItemComp info={empInfo} />
+									<SelectRole info={empInfo} />
 								</CommandItem>
 							);
 						})}
@@ -109,27 +85,36 @@ export function Accounts() {
 	);
 }
 
-function SelectRole() {
+function SelectRole({ info }: { info: EmployeeInfo }) {
+	const allRoles = api.access.getAllAccess.useQuery();
+	const { isPending, content, data } = useQueryHandle(allRoles);
+
+	const onValueChange = (value: string) => {
+		console.log("Selected value:", value);
+	};
+
 	return (
-		<Select>
+		<Select defaultValue={info.role} onValueChange={onValueChange}>
 			<SelectTrigger className="w-[180px]">
 				<SelectValue placeholder="Select a Role" />
 			</SelectTrigger>
 			<SelectContent>
 				<SelectGroup>
 					<SelectLabel>Access</SelectLabel>
-					{identitylist.map((identity) => {
-						return (
-							<SelectItem
-								key={identity.identity}
-								value={identity.identity}
-								className="cursor-pointer"
-								title={identity.description}
-							>
-								{identity.identity}
-							</SelectItem>
-						);
-					})}
+					{isPending
+						? content
+						: data.map((role) => {
+								return (
+									<SelectItem
+										key={role.id}
+										value={role.role}
+										className="cursor-pointer"
+										title={role.role}
+									>
+										{role.role}
+									</SelectItem>
+								);
+						  })}
 				</SelectGroup>
 			</SelectContent>
 		</Select>

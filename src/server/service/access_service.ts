@@ -1,16 +1,16 @@
 import { injectable } from "tsyringe";
 import {
 	accessFE,
-	AccessFEType,
+	type AccessFEType,
 	accessiblePages,
-	AccessiblePages,
-	updateAccessAPI,
+	type AccessiblePages,
+	type updateAccessAPI,
 } from "../api/types/access_page_type";
 import { Access } from "../database/entity/SALARY/access";
 import "reflect-metadata";
 import { BaseResponseError } from "../errors/base_response_error";
 import { InternalServerError } from "../errors/internal_server_error";
-import { z } from "zod";
+import { type z } from "zod";
 
 @injectable()
 export class AccessService {
