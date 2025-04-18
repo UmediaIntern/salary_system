@@ -43,9 +43,10 @@ export class AccessService {
 			where: {
 				disabled: false,
 			},
-			raw: true,
 		});
-		return accessSettings;
+
+		const ret = accessFE.array().parse(accessSettings);
+		return ret;
 	}
 
 	async createAccessData(role: string, access: AccessiblePages | null) {

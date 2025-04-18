@@ -7,20 +7,20 @@ const roleInfo = z.object({
 
 export const accessiblePages = z.object({
 	// actions access
-	functions: z.coerce.boolean().default(false),
-	synchronize: z.coerce.boolean().default(false),
-	employees: z.coerce.boolean().default(false),
-	employees_write: z.coerce.boolean().default(false),
-	employees_r_lv: z.coerce.number().default(0),
-	parameters: z.coerce.boolean().default(false),
-	parameters_write: z.coerce.boolean().default(false),
-	bonus: z.coerce.boolean().default(false),
-	calendar: z.coerce.boolean().default(false),
-	calendar_write: z.coerce.boolean().default(false),
+	functions: z.boolean().default(false),
+	synchronize: z.boolean().default(false),
+	employees: z.boolean().default(false),
+	employees_write: z.boolean().default(false),
+	employees_r_lv: z.number().default(0),
+	parameters: z.boolean().default(false),
+	parameters_write: z.boolean().default(false),
+	bonus: z.boolean().default(false),
+	calendar: z.boolean().default(false),
+	calendar_write: z.boolean().default(false),
 	// settings access
-	settings: z.coerce.boolean().default(false),
-	roles: z.coerce.boolean().default(false),
-	report: z.coerce.boolean().default(false),
+	settings: z.boolean().default(false),
+	roles: z.boolean().default(false),
+	report: z.boolean().default(false),
 });
 export type AccessiblePages = z.infer<typeof accessiblePages>;
 

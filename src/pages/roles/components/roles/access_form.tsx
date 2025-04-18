@@ -33,7 +33,13 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 
 	const { reset, watch } = form;
 	const [isChange, setIsChange] = useState(false);
-	const updateAccess = api.access.updateAccess.useMutation();
+
+	const ctx = api.useUtils();
+	const updateAccess = api.access.updateAccess.useMutation({
+		onSuccess: () => {
+			void ctx.access.invalidate();
+		}
+	});
 
 	useEffect(() => {
 		reset(selectedRole);
@@ -60,6 +66,7 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 
 	const onSubmit = (values: z.infer<typeof accessiblePagesFormSchema>) => {
 		console.log("Submitted values:", values);
+		setIsChange(false);
 		updateAccess.mutate(values);
 	};
 
