@@ -16,25 +16,32 @@ import { ExcelDownload } from "~/components/file_operations/excel_download";
 import { ExcelUpload } from "~/components/file_operations/excel_upload";
 import { useEmployeeTableContext } from "../../components/context/data_table_context_provider";
 import { getExcelData } from "~/components/file_operations/excel_utils";
+import { useAccessContext } from "~/components/context/access_context_provider";
 
 export function EmployeeTrustFunctionMenu() {
 	const { setMode, setOpenDialog } = useTrustFunctionContext();
+	const { access } = useAccessContext();
+
+	const enableAccess = access.employees_write;
 
 	return (
 		<FunctionMenu>
 			<FunctionMenuOption.ExcelDownload
+				disabled={!enableAccess}
 				onClick={() => {
 					setMode("excel_download");
 					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.ExcelUpload
+				disabled={!enableAccess}
 				onClick={() => {
 					setMode("excel_upload");
 					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.Initialize
+				disabled={!enableAccess}
 				onClick={() => setMode("initialize")}
 			/>
 		</FunctionMenu>
@@ -81,8 +88,8 @@ export function EmployeeTrustFunctions() {
 	const updateForm = buildStandardFormProps({
 		formSchema: employeeTrustSchema,
 		formConfig: [
-			{ key: "id", 	config: { hidden: true } }, 
-			{ key: "emp_no", config: { fixed: true } }
+			{ key: "id", config: { hidden: true } },
+			{ key: "emp_no", config: { fixed: true } },
 		],
 		formSubmit: (d) => {
 			updateEmployeeTrust.mutate(d);

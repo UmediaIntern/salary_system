@@ -16,6 +16,7 @@ import {
 	usePaymentFunctionContext,
 } from "./employee_payment_provider";
 import { EmployeePaymentFunctions } from "./employee_payment_functions";
+import { useAccessContext } from "~/components/context/access_context_provider";
 
 const columnHelper = createColumnHelper<PaymentRowItem>();
 
@@ -95,6 +96,7 @@ export const employee_payment_columns = ({
 
 function PaymentFunctionComponent({ data }: { data: PaymentRowItem }) {
 	const { setOpen, setMode, setData } = usePaymentFunctionContext();
+	const { access } = useAccessContext();
 
 	return (
 		<FunctionsComponent
@@ -102,6 +104,7 @@ function PaymentFunctionComponent({ data }: { data: PaymentRowItem }) {
 			setMode={setMode}
 			data={data}
 			setData={setData}
+      disabled={!access.employees_write}
 		/>
 	);
 }

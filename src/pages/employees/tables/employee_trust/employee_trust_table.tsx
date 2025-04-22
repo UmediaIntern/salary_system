@@ -16,6 +16,7 @@ import {
 	useTrustFunctionContext,
 } from "./employee_trust_provider";
 import { EmployeeTrustFunctions } from "./employee_trust_functions";
+import { useAccessContext } from "~/components/context/access_context_provider";
 
 const columnHelper = createColumnHelper<TrustRowItem>();
 
@@ -85,6 +86,7 @@ function TrustFunctionComponent({
 	data: TrustRowItem;
 }) {
 	const { setOpen, setMode, setData } = useTrustFunctionContext();
+	const { access } = useAccessContext();
 
 	return (
 		<FunctionsComponent
@@ -92,6 +94,7 @@ function TrustFunctionComponent({
 			setMode={setMode}
 			data={data}
 			setData={setData}
+      disabled={!access.employees_write}
 		/>
 	);
 }

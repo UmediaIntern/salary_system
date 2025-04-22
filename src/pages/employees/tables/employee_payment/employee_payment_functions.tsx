@@ -18,34 +18,43 @@ import { ExcelDownload } from "~/components/file_operations/excel_download";
 import { ExcelUpload } from "~/components/file_operations/excel_upload";
 import { useEmployeeTableContext } from "../../components/context/data_table_context_provider";
 import { getExcelData } from "~/components/file_operations/excel_utils";
+import { useAccessContext } from "~/components/context/access_context_provider";
 
 export function EmployeePaymentFunctionMenu() {
 	const { setMode, setOpenDialog } = usePaymentFunctionContext();
+	const { access } = useAccessContext();
+
+	const enableAccess = access.employees_write;
 
 	return (
 		<FunctionMenu>
 			<FunctionMenuOption.ExcelDownload
+				disabled={!enableAccess}
 				onClick={() => {
 					setMode("excel_download");
 					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.ExcelUpload
+				disabled={!enableAccess}
 				onClick={() => {
 					setMode("excel_upload");
 					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.Initialize
+				disabled={!enableAccess}
 				onClick={() => setMode("initialize")}
 			/>
 			<FunctionMenuOption.AutoCalculate
+				disabled={!enableAccess}
 				onClick={() => {
 					setMode("auto_calculate");
 					setOpenDialog(true);
 				}}
 			/>
 			<FunctionMenuOption.AdjustBaseSalary
+				disabled={!enableAccess}
 				onClick={() => {
 					setMode("adjust_base_salary");
 					setOpenDialog(true);

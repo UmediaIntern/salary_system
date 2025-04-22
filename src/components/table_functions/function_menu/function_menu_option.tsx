@@ -1,5 +1,5 @@
 import {
-    ArrowUpFromLine,
+	ArrowUpFromLine,
 	Calculator,
 	Download,
 	PenSquare,
@@ -26,21 +26,22 @@ export function FunctionMenuOptionBase({
 	disabled,
 }: FunctionMenuOptionProps) {
 	return (
-		<DropdownMenuItem
-			className="cursor-pointer"
-			// disabled={disabled}		// * Comment for debug
-			onClick={onClick}
-		>
-			<Icon
-				className={cn(
-					"mr-2 h-4 w-4",
-					disabled && "stroke-muted-foreground"
-				)}
-			/>
-			<span className={cn(disabled && "stroke-muted-foreground")}>
-				{itemName}
-			</span>
-		</DropdownMenuItem>
+		<div className={cn(disabled && "cursor-not-allowed")}>
+			<DropdownMenuItem
+				disabled={disabled} // * Comment for debug
+				onClick={onClick}
+			>
+				<Icon
+					className={cn(
+						"mr-2 h-4 w-4",
+						disabled && "stroke-muted-foreground"
+					)}
+				/>
+				<span className={cn(disabled && "stroke-muted-foreground")}>
+					{itemName}
+				</span>
+			</DropdownMenuItem>
+		</div>
 	);
 }
 
@@ -71,5 +72,8 @@ export const FunctionMenuOption = {
 	ExcelUpload: createOptionComponent("excel_upload", PenSquare),
 	Initialize: createOptionComponent("initialize", RefreshCcw),
 	AutoCalculate: createOptionComponent("auto_calculate", Calculator),
-	AdjustBaseSalary: createOptionComponent("adjust_base_salary", ArrowUpFromLine),
+	AdjustBaseSalary: createOptionComponent(
+		"adjust_base_salary",
+		ArrowUpFromLine
+	),
 };

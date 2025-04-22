@@ -10,6 +10,7 @@ import {
 	type FunctionsItem,
 } from "~/pages/parameters/components/context/data_table_context";
 import { FunctionMenuOption } from "../table_functions/function_menu/function_menu_option";
+import { cn } from "~/lib/utils";
 
 export type FunctionsItemKey = keyof FunctionsItem;
 
@@ -18,6 +19,7 @@ interface FunctionsComponentProps<TMode, TData extends object> {
 	setMode: (mode: TMode) => void;
 	data: TData & DataWithFunctions;
 	setData: (data: TData & DataWithFunctions) => void;
+	disabled?: boolean;
 }
 
 export function FunctionsComponent<TMode, TData extends object>({
@@ -25,20 +27,33 @@ export function FunctionsComponent<TMode, TData extends object>({
 	setMode,
 	data,
 	setData,
+	disabled = false,
 }: FunctionsComponentProps<TMode, TData>) {
 	const funcKey: FunctionsItemKey[] = ["creatable", "updatable", "deletable"];
 
 	return (
 		<DropdownMenu modal={false}>
-			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="sm" className="h-8 lg:flex">
-					<PencilLine className="cursor-pointer stroke-[1.5]" />
-				</Button>
-			</DropdownMenuTrigger>
+			<div
+				className={cn(
+					"cursor-pointer",
+					disabled && "cursor-not-allowed"
+				)}
+			>
+				<DropdownMenuTrigger asChild>
+					<Button
+						disabled={disabled}
+						variant="ghost"
+						size="sm"
+						className="h-8 lg:flex"
+					>
+						<PencilLine className=" stroke-[1.5]" />
+					</Button>
+				</DropdownMenuTrigger>
+			</div>
 			<DropdownMenuContent align="end" className="w-[120px]">
 				{funcKey.map((key) => {
-					// const disabled = !(data?.functions[key] ?? false);
-					const disabled = !(data ? (data.functions ? data.functions[key] : false) : false);
+					const disable_mode = !(data?.functions[key] ?? false);
+					// const disabled = !(data ? (data.functions ? data.functions[key] : false) : false);
 					const mode =
 						key == "creatable"
 							? "create"
@@ -54,7 +69,7 @@ export function FunctionsComponent<TMode, TData extends object>({
 										setData(data);
 										setOpen(true);
 									}}
-									disabled={disabled}
+									disabled={disable_mode}
 								/>
 							)}
 
@@ -65,7 +80,7 @@ export function FunctionsComponent<TMode, TData extends object>({
 										setData(data);
 										setOpen(true);
 									}}
-									disabled={disabled}
+									disabled={disable_mode}
 								/>
 							)}
 
@@ -76,7 +91,7 @@ export function FunctionsComponent<TMode, TData extends object>({
 										setData(data);
 										setOpen(true);
 									}}
-									disabled={disabled}
+									disabled={disable_mode}
 								/>
 							)}
 						</div>
