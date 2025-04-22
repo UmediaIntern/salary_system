@@ -2,26 +2,29 @@ import { api } from "~/utils/api";
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable as DataTableWithFunctions } from "../components/data_table";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
-import { LoadingSpinner } from "~/components/loading";
 import { type TableComponentProps } from "../tables_view";
 import { formatDate } from "~/lib/utils/format_date";
 import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
 import { type BankSettingFEType } from "~/server/api/types/bank_setting_type";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
-import { useContext } from "react";
 import { bankSchema } from "../schemas/configurations/bank_schema";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
 import { Sheet } from "~/components/ui/sheet";
-import dataTableContext, {
+import {
 	type FunctionsItem,
 	type FunctionMode,
 } from "../components/context/data_table_context";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
-import { ColumnHeaderBaseComponent, ColumnHeaderComponent } from "~/components/data_table/column_header_component";
+import {
+	ColumnHeaderBaseComponent,
+	ColumnHeaderComponent,
+} from "~/components/data_table/column_header_component";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
+import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export type RowItem = {
 	bank_name: string;
@@ -92,7 +95,6 @@ export const bank_columns = ({
 		cell: ({ row }) => {
 			return (
 				<FunctionsComponent
-					t={t}
 					setOpen={setOpen}
 					setMode={setMode}
 					data={row.original}
@@ -110,15 +112,15 @@ export function bankSettingMapper(
 		return {
 			id: d.id,
 			bank_name: d.bank_name,
-			bank_code: d.bank_code,
+			bank_code: d.bank_code.toString(),
 			org_name: d.org_name,
-			org_code: d.org_code,
+			org_code: d.org_code.toString(),
 			start_date: d.start_date,
 			end_date: d.end_date,
-			// functions: d.functions,
-			functions: {
-				deletable: true,
-			}
+			functions: d.functions,
+			// functions: {
+			// 	deletable: true,
+			// }
 		};
 	});
 }
@@ -131,33 +133,16 @@ interface BankTableProps extends TableComponentProps {
 
 export function BankTable({ period_id, viewOnly }: BankTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { open, setOpen, mode, setMode, setData } =
-		useContext(dataTableContext);
+	const { open, setOpen, mode, setMode, setData } = useDataTableContext();
 
-	const { isLoading, isError, data, error } =
-		api.parameters.getCurrentBankSetting.useQuery({ period_id });
+	const getBankSetting = api.parameters.getCurrentBankSetting.useQuery({
+		period_id,
+	});
+	const { isPending, content, data } = useQueryHandle(getBankSetting);
 	const filterKey: RowItemKey = "bank_name";
 
-	if (isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
-		// const err_msg = error.message;
-		// const emptyError = true;
-		// return emptyError ? (
-		// 	<EmptyTable
-		// 		err_msg={err_msg}
-		// 		selectedTableType="TableBankSetting"
-		// 	/>
-		// ) : (
-		// 	<></>
-		// );
+	if (isPending) {
+		return content;
 	}
 
 	return !viewOnly ? (
@@ -168,11 +153,16 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
 				<DataTableWithFunctions
 					columns={bank_columns({ t, setOpen, setMode, setData })}
-					data={bankSettingMapper(data!)}
+					data={bankSettingMapper(data)}
 					filterColumnKey={filterKey}
-					original_columns={
-						["bank_name", "bank_code", "org_name", "org_code", "start_date", "end_date"]
-					}
+					original_columns={[
+						"bank_name",
+						"bank_code",
+						"org_name",
+						"org_code",
+						"start_date",
+						"end_date",
+					]}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
 					<ParameterForm
@@ -194,7 +184,7 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 	) : (
 		<DataTableWithoutFunctions
 			columns={bank_columns({ t, setOpen, setMode, setData })}
-			data={bankSettingMapper(data!)}
+			data={bankSettingMapper(data)}
 			filterColumnKey={filterKey}
 		/>
 	);

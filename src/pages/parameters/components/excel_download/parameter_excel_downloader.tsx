@@ -1,8 +1,7 @@
-import {useContext } from "react";
 import { useTranslation } from "react-i18next";
-import dataTableContext from "../context/data_table_context";
 import { getExcelData } from "~/components/file_operations/excel_utils";
 import { ExcelDownload } from "~/components/file_operations/excel_download";
+import { useDataTableContext } from "../context/data_table_context_provider";
 
 
 function getTableName(table_name: string) {
@@ -23,7 +22,7 @@ export function ParameterExcelDownloader({
 }: {
 	table_name: string;
 }) {
-	const { selectedTable } = useContext(dataTableContext);
+	const { selectedTable } = useDataTableContext();
 	const { t } = useTranslation();
 
 	const shouldTranspose = ["TableInsurance", "TableAttendance"].includes(table_name);

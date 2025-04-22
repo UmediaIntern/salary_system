@@ -1,5 +1,5 @@
-import React, { useState, type PropsWithChildren } from "react";
-import dataTableContext, { FunctionMode } from "./data_table_context";
+import React, { useContext, useState, type PropsWithChildren } from "react";
+import { type FunctionMode } from "./data_table_context";
 import {
 	type ParameterTableEnum,
 	ParameterTableEnumValues,
@@ -13,7 +13,23 @@ export type TableObject = {
 	table: Table<any>;
 };
 
-export default function DataTableContextProvider({
+const dataTableContext = React.createContext<{
+	selectedTableType: ParameterTableEnum;
+	setSelectedTableType: (table: ParameterTableEnum) => void;
+	selectedTab: TabsEnumType;
+	setSelectedTab: (tab: TabsEnumType) => void;
+	selectedTable: TableObject | null;
+	setSelectedTable: (table: TableObject | null) => void;
+	mode: FunctionMode;
+	setMode: (mode: FunctionMode) => void;
+	open: boolean;
+	setOpen: (open: boolean) => void;
+	data: any;
+	setData: (data: any) => void;
+} | null >(null);
+
+
+export function DataTableContextProvider({
 	children,
 }: PropsWithChildren<DataTableContextProviderProps>) {
 	const [selectedTableType, setSelectedTableType] = useState<ParameterTableEnum>(ParameterTableEnumValues[0]);
@@ -43,4 +59,14 @@ export default function DataTableContextProvider({
 			{children}
 		</dataTableContext.Provider>
 	);
+}
+
+export function useDataTableContext() {
+	const context = useContext(dataTableContext);
+	if (context === null) {
+		throw new Error(
+			"Data Table Context must be used within a DataTableContextProvider"
+		);
+	}
+	return context;
 }

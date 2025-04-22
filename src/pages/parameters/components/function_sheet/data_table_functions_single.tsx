@@ -1,15 +1,11 @@
-import { useContext } from "react";
-import { useTranslation } from "react-i18next";
-import dataTableContext from "../context/data_table_context";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
+import { useDataTableContext } from "../context/data_table_context_provider";
 
 export function DataTableFunctions() {
-	const { t } = useTranslation(['common', 'nav']);
-	const { setOpen, setMode, data, setData } = useContext(dataTableContext);
+	const { setOpen, setMode, data, setData } = useDataTableContext();
 
 	return (
 		<FunctionsComponent
-			t={t}
 			setOpen={setOpen}
 			setMode={setMode}
 			data={data}

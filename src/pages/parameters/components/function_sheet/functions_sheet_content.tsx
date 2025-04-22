@@ -6,10 +6,10 @@ import {
 	SheetTitle,
 } from "~/components/ui/sheet";
 import { type TFunction } from "i18next";
-import { type PropsWithChildren, useContext } from "react";
-import dataTableContext from "../context/data_table_context";
+import { type PropsWithChildren } from "react";
 import { getTableNameKey } from "../context/data_table_enum";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { useDataTableContext } from "../context/data_table_context_provider";
 
 export type FunctionsItem = {
 	create: boolean;
@@ -28,7 +28,7 @@ export function FunctionsSheetContent({
 	period_id,
 	children,
 }: FunctionsSheetProps) {
-	const { mode, selectedTableType } = useContext(dataTableContext);
+	const { mode, selectedTableType } = useDataTableContext();
 	return (
 		<SheetContent className="w-[50%] px-10 py-6">
 			<ScrollArea className="h-full w-full px-2">

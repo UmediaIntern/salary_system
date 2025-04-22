@@ -5,14 +5,11 @@ import { ArrowUpDown } from "lucide-react";
 import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
 import { c_EndDateStr, c_StartDateStr } from "../constant";
-import { LoadingSpinner } from "~/components/loading";
 import { formatDate } from "~/lib/utils/format_date";
 import { type TableComponentProps } from "../tables_view";
-// import { EmptyTable } from "./empty_table";
 import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
-import { useContext, useEffect } from "react";
-import dataTableContext from "../components/context/data_table_context";
+import { useEffect } from "react";
 import { Sheet } from "~/components/ui/sheet";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { incomeTaxSchema } from "../schemas/configurations/income_tax_schema";
@@ -20,6 +17,8 @@ import { FunctionsSheetContent } from "../components/function_sheet/functions_sh
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import { type IncomeTaxSettingFEType } from "~/server/api/types/income_tax_setting_type";
+import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 const formula = "If (發薪日 - 入境日期) > [外勞入境天數門檻] then\n\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\nElse\n\tIf 薪資所得稅扣繳總額 < (最低基本工資-免稅額)*[最低工資倍率] then \n\t\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\n\tElse\n\t\tTax=薪資扣繳總額*[薪資所得扣繳總額比率2]\n\tEnd_If\nEnd_If";
 
@@ -115,14 +114,6 @@ export function incomeTaxSettingMapper(
 			parameters: c_EndDateStr,
 			value: data.end_date,
 		},
-		// {
-		// 	parameters: c_CreateDateStr,
-		// 	value: formatDate("hour", data.create_date) ?? "",
-		// },
-		// {
-		// 	parameters: c_UpdateDateStr,
-		// 	value: formatDate("hour", data.update_date) ?? "",
-		// },
 	];
 }
 
@@ -139,36 +130,22 @@ export function IncomeTaxSettingTable({
 
 	const { t } = useTranslation(["common"]);
 	const { selectedTab, open, setOpen, mode, setData } =
-		useContext(dataTableContext);
+		useDataTableContext();
 
-	const { isLoading, isError, data, error } =
+	const getIncomeTaxSetting =
 		api.incomeTaxSetting.getCurrentIncomeTaxSetting.useQuery({ period_id });
+  const { isPending, content, data } = useQueryHandle(getIncomeTaxSetting);
 	const filterKey: RowItemKey = "parameters";
 
 	useEffect(() => {
 		if (data && selectedTab === "current") {
 			setData(data);
 		}
-	}, [data, selectedTab]);
+	}, [data, selectedTab, setData]);
 
-	if (isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
-		// const err_msg = error.message;
-		// const emptyError = true;
-		// return emptyError ? (
-		// 	<EmptyTable err_msg={err_msg} selectedTableType="TableIncomeTaxSetting" />
-		// ) : (
-		// 	<></>
-		// );
-	}
+  if (isPending) {
+    return content;
+  }
 
 	return (
 		<>

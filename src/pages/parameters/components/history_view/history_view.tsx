@@ -8,7 +8,6 @@ import {
 import ApiFunctionsProvider, {
 	apiFunctionsContext,
 } from "../context/api_context_provider";
-import dataTableContext from "../context/data_table_context";
 import { getTableColumn, getTableMapper } from "../../tables/table_columns";
 import { DataTable } from "./data_table";
 import { useTranslation } from "react-i18next";
@@ -24,9 +23,10 @@ import { HistoryViewMenu } from "~/components/data_table/history_view/history_vi
 import { useHistoryState } from "~/components/data_table/history_view/use_history_state";
 import { buildDateSelectOptions } from "~/components/data_table/history_view/utils";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { useDataTableContext } from "../context/data_table_context_provider";
 
 export default function HistoryView() {
-	const { selectedTableType } = useContext(dataTableContext);
+	const { selectedTableType } = useDataTableContext();
 
 	return (
 		<>
@@ -40,7 +40,7 @@ export default function HistoryView() {
 function CompHistoryView() {
 	const { t } = useTranslation(["common"]);
 	const { selectedTableType, setOpen, setMode, setData } =
-		useContext(dataTableContext);
+		useDataTableContext();
 
 	const queryFunctions = useContext(apiFunctionsContext);
 	const queryFunction =

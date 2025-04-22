@@ -4,7 +4,6 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { DataTable as DataTableWithFunctions } from "../components/data_table";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
-import { LoadingSpinner } from "~/components/loading";
 import { type TableComponentProps } from "../tables_view";
 import { formatDate } from "~/lib/utils/format_date";
 import { type LevelFEType } from "~/server/api/types/level_type";
@@ -15,15 +14,16 @@ import { type TFunction } from "i18next";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { levelSchema } from "../schemas/configurations/level_schema";
 import { useTranslation } from "react-i18next";
-import { useContext } from "react";
 import { Sheet } from "~/components/ui/sheet";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
-import dataTableContext, {
-	FunctionsItem,
+import {
+	type FunctionsItem,
 	type FunctionMode,
 } from "../components/context/data_table_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
+import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export type RowItem = {
 	level: number;
@@ -100,7 +100,6 @@ export const level_columns = ({
 			cell: ({ row }) => {
 				return (
 					<FunctionsComponent
-						t={t}
 						setOpen={setOpen}
 						setMode={setMode}
 						data={row.original}
@@ -131,22 +130,15 @@ interface LevelTableProps extends TableComponentProps {
 
 export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, setMode, open, setOpen, setData } = useContext(dataTableContext);
+	const { mode, setMode, open, setOpen, setData } = useDataTableContext();
 
-	const { isLoading, isError, data, error } =
+	const getLevel =
 		api.parameters.getCurrentLevel.useQuery({ period_id });
+  const { isPending, content, data } = useQueryHandle(getLevel);
 	const filterKey: RowItemKey = "level";
 
-	if (isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
+	if (isPending) {
+    return content;
 	}
 
 	return !viewOnly ? (
@@ -162,7 +154,7 @@ export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 						setMode,
 						setData,
 					})}
-					data={levelMapper(data!)}
+					data={levelMapper(data)}
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
@@ -184,7 +176,7 @@ export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 				setMode,
 				setData,
 			})}
-			data={levelMapper(data!)}
+			data={levelMapper(data)}
 			filterColumnKey={filterKey}
 		/>
 	);

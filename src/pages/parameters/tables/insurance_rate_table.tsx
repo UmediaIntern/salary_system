@@ -5,21 +5,20 @@ import { ArrowUpDown } from "lucide-react";
 import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
 import { c_EndDateStr, c_StartDateStr } from "../constant";
-import { LoadingSpinner } from "~/components/loading";
 import { formatDate } from "~/lib/utils/format_date";
 import { type TableComponentProps } from "../tables_view";
-import { EmptyTable } from "./empty_table";
 import { useTranslation } from "react-i18next";
 import { type InsuranceRateSettingFEType } from "~/server/api/types/insurance_rate_setting_type";
 import { type TFunction } from "i18next";
-import { useContext, useEffect } from "react";
-import dataTableContext from "../components/context/data_table_context";
+import { useEffect } from "react";
 import { Sheet } from "~/components/ui/sheet";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { insuranceSchema } from "../schemas/configurations/insurance_schema";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
+import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export type RowItem = {
 	parameters: string;
@@ -126,14 +125,6 @@ export function insuranceRateMapper(
 			parameters: c_EndDateStr,
 			value: data.end_date,
 		},
-		// {
-		// 	parameters: c_CreateDateStr,
-		// 	value: formatDate("hour", data.create_date) ?? "",
-		// },
-		// {
-		// 	parameters: c_UpdateDateStr,
-		// 	value: formatDate("hour", data.update_date) ?? "",
-		// },
 	];
 }
 
@@ -148,35 +139,21 @@ export function InsuranceRateTable({
 }: InsuranceRateTableProps) {
 	const { t } = useTranslation(["common"]);
 	const { selectedTab, open, setOpen, mode, setData } =
-		useContext(dataTableContext);
+		useDataTableContext();
 
-	const { isLoading, isError, data, error } =
+	const getInsurance =
 		api.parameters.getCurrentInsuranceRateSetting.useQuery({ period_id });
+  const { isPending, content, data } = useQueryHandle(getInsurance);
 	const filterKey: RowItemKey = "parameters";
 
 	useEffect(() => {
 		if (data && selectedTab === "current") {
 			setData(data);
 		}
-	}, [data, selectedTab]);
+	}, [data, selectedTab, setData]);
 
-	if (isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
-		// const err_msg = error.message;
-		// const emptyError = true;
-		// return emptyError ? (
-		// 	<EmptyTable err_msg={err_msg} selectedTableType="TableInsurance" />
-		// ) : (
-		// 	<></>
-		// );
+	if (isPending) {
+		return content; 
 	}
 
 	return (

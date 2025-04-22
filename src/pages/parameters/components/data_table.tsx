@@ -2,12 +2,11 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { DataTableToolbar } from "./data_table_toolbar";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
-import { useContext } from "react";
-import dataTableContext from "./context/data_table_context";
 import { TabsEnum } from "./context/tabs_enum";
 import CompHistoryView from "./history_view/history_view";
 import CurrentView from "./current_view/current_view";
 import { hasHistory } from "./data_table_tabs_config";
+import { useDataTableContext } from "./context/data_table_context_provider";
 
 interface DataTableProps<TData> {
 	columns: ColumnDef<TData, any>[];
@@ -27,7 +26,7 @@ export function DataTable<TData>({
 }: DataTableProps<TData>) {
 
 	const { selectedTab, setSelectedTab, selectedTableType } =
-		useContext(dataTableContext);
+		useDataTableContext()
 
 	return (
 		<Tabs

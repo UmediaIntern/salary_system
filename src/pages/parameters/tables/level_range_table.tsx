@@ -4,7 +4,6 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { DataTable as DataTableWithFunctions } from "../components/data_table";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
-import { LoadingSpinner } from "~/components/loading";
 import { type TableComponentProps } from "../tables_view";
 import { useTranslation } from "react-i18next";
 import { type LevelRangeFEType } from "~/server/api/types/level_range_type";
@@ -16,13 +15,14 @@ import { levelRangeSchema } from "../schemas/configurations/level_range_schema";
 import { Sheet } from "~/components/ui/sheet";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { SelectLevelField } from "../components/function_sheet/form_fields/select_level_field";
-import dataTableContext, {
+import {
 	type FunctionsItem,
 	type FunctionMode,
 } from "../components/context/data_table_context";
-import { useContext } from "react";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
+import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export type RowItem = {
 	type: string;
@@ -32,7 +32,7 @@ export type RowItem = {
 	end_date: Date | null;
 	functions: FunctionsItem;
 };
-type RowItemKey = keyof RowItem;
+type RowItemKey = keyof Omit<RowItem, "functions">;
 
 const columnHelper = createColumnHelper<RowItem>();
 
@@ -95,7 +95,7 @@ export const level_range_columns = ({
 							);
 						default:
 							return (
-								<div className="text-center font-medium">{`${row.original[key]}`}</div>
+								<div className="text-center font-medium">{`${row.original[key].toString()}`}</div>
 							);
 					}
 				},
@@ -114,7 +114,6 @@ export const level_range_columns = ({
 			cell: ({ row }) => {
 				return (
 					<FunctionsComponent
-						t={t}
 						setOpen={setOpen}
 						setMode={setMode}
 						data={row.original}
@@ -151,21 +150,14 @@ interface LevelRangeTableProps extends TableComponentProps {
 export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 	const { t } = useTranslation(["common"]);
 	const { mode, setMode, open, setOpen, setData, data: dd } =
-		useContext(dataTableContext);
-	const { isLoading, isError, data, error } =
+		useDataTableContext();
+	const getLevelRange =
 		api.parameters.getCurrentLevelRange.useQuery({ period_id });
+  const {isPending, content, data} = useQueryHandle(getLevelRange);
 	const filterKey: RowItemKey = "type";
 
-	if (isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
+	if (isPending) {
+		return content;
 	}
 
 	const columns = level_range_columns({
@@ -184,7 +176,7 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen} aria-hidden={false}>
 				<DataTableWithFunctions
 					columns={columns}
-					data={levelRangeMapper(data!)}
+					data={levelRangeMapper(data)}
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
@@ -215,9 +207,8 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 	) : (
 		<DataTableWithoutFunctions
 			columns={columns}
-			data={levelRangeMapper(data!)}
+			data={levelRangeMapper(data)}
 			filterColumnKey={filterKey}
 		/>
 	);
 }
-/* defaultValue={{start_date: new Date()}} */

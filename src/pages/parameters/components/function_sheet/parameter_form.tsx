@@ -2,10 +2,11 @@ import { type z } from "zod";
 import { useContext } from "react";
 import { parameterToolbarFunctionsContext } from "./parameter_functions_context";
 import { type FormConfig } from "~/components/ui/custom-form/types";
-import dataTableContext, {
+import {
 	type FunctionMode,
 } from "../context/data_table_context";
 import { StandardForm } from "~/components/form/default/form_standard";
+import { useDataTableContext } from "../context/data_table_context_provider";
 
 interface ParameterFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
@@ -22,7 +23,7 @@ export function ParameterForm<SchemaType extends z.AnyZodObject>({
 	mode,
 	closeSheet,
 }: ParameterFormProps<SchemaType>) {
-	const { data } = useContext(dataTableContext);
+	const { data } = useDataTableContext();
 	const functions = useContext(parameterToolbarFunctionsContext);
 	const createFunction = functions.createFunction!;
 	const updateFunction = functions.updateFunction!;

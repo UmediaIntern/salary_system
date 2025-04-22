@@ -3,21 +3,21 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
 import { c_EndDateStr, c_StartDateStr } from "../constant";
-import { LoadingSpinner } from "~/components/loading";
 import { type TableComponentProps } from "../tables_view";
 import { formatDate } from "~/lib/utils/format_date";
 import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
 import { type AttendanceSettingFEType } from "~/server/api/types/attendance_setting_type";
 import { Sheet } from "~/components/ui/sheet";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { attendanceSchema } from "../schemas/configurations/attendance_schema";
-import dataTableContext from "../components/context/data_table_context";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { useDataTableContext } from "../components/context/data_table_context_provider";
 
 type RowItem = {
 	parameters: string;
@@ -122,14 +122,6 @@ export function attendanceMapper(
 			parameters: c_EndDateStr,
 			value: data.end_date,
 		},
-		// {
-		// 	parameters: c_CreateDateStr,
-		// 	value: formatDate("hour", data.create_date) ?? "",
-		// },
-		// {
-		// 	parameters: c_UpdateDateStr,
-		// 	value: formatDate("hour", data.update_date) ?? "",
-		// },
 	];
 }
 
@@ -141,12 +133,13 @@ interface AttendanceTableProps extends TableComponentProps {
 
 export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { isLoading, isError, data, error } =
+	const getAttendance =
 		api.parameters.getCurrentAttendanceSetting.useQuery({ period_id });
+  const { isPending, content, data } = useQueryHandle(getAttendance);
 	const filterKey: RowItemKey = "parameters";
 
 	const { selectedTab, open, setOpen, mode, setData } =
-		useContext(dataTableContext);
+		useDataTableContext();
 
 	useEffect(() => {
 		if (data && selectedTab === "current") {
@@ -154,24 +147,9 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 		}
 	}, [data, setData, selectedTab]);
 
-	if (isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
-		// const err_msg = error.message;
-		// const emptyError = true;
-		// return emptyError ? (
-		// 	<EmptyTable err_msg={err_msg} selectedTableType="TableAttendance" />
-		// ) : (
-		// 	<></>
-		// );
-	}
+  if (isPending) {
+    return content;
+  }
 
 	return (
 		<>

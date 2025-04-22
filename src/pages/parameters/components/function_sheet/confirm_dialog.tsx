@@ -1,13 +1,13 @@
-import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import dataTableContext from "../context/data_table_context";
 import { parameterToolbarFunctionsContext } from "./parameter_functions_context";
 import GeneralTable from "~/components/table_functions/general_table";
 import { z } from "zod";
 import { zodOptionalDate } from "~/lib/utils/zod_types";
+import { useDataTableContext } from "../context/data_table_context_provider";
+import { useContext } from "react";
 
 export function ConfirmDialog<SchemaType extends z.AnyZodObject>(
     {
@@ -21,7 +21,7 @@ export function ConfirmDialog<SchemaType extends z.AnyZodObject>(
     }
 ) {
     const { t } = useTranslation();
-    const { data } = useContext(dataTableContext);
+    const { data } = useDataTableContext();
     const displayData = schema.omit({ id: true }).merge(z.object({ end_date: zodOptionalDate() })).safeParse(data).data;
     const context = useContext(parameterToolbarFunctionsContext);
     const deleteFunction = context.deleteFunction!;

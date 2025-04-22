@@ -26,7 +26,11 @@ export function useQueryHandle<TData, TError extends InferrableClientTypes>(
 		return {
 			data: undefined,
 			isPending: true,
-			content: <LoadingSpinner />,
+			content: (
+				<div className="flex grow items-center justify-center">
+					<LoadingSpinner />
+				</div>
+			),
 		};
 	}
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, type ComponentType } from "react";
+import { createElement, useEffect, useState, type ComponentType } from "react";
 import {
 	ResizableHandle,
 	ResizablePanel,
@@ -16,8 +16,7 @@ import {
 	type LucideIcon,
 	Table,
 } from "lucide-react";
-import DataTableContextProvider from "./components/context/data_table_context_provider";
-import dataTableContext from "./components/context/data_table_context";
+import { DataTableContextProvider, useDataTableContext } from "./components/context/data_table_context_provider";
 import { getTableNameKey } from "./components/context/data_table_enum";
 import { Separator } from "~/components/ui/separator";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -115,7 +114,7 @@ function CompTablesSelector() {
 		ParameterTableEnumValues[0]
 	);
 
-	const { setSelectedTableType } = useContext(dataTableContext);
+	const { setSelectedTableType } = useDataTableContext();
 
 	const tableComponentMap: Record<ParameterTableEnum, TableComponent> =
 		ParameterTableEnumValues.reduce((map, table) => {
@@ -168,7 +167,7 @@ function CompTablesSelector() {
 }
 
 function CompTableView() {
-	const { selectedTableType } = useContext(dataTableContext);
+	const { selectedTableType } = useDataTableContext();
 	const { selectedPeriod } = usePeriodContext();;
 
 	const { t } = useTranslation(['common']);
@@ -180,7 +179,7 @@ function CompTableView() {
 			).map((selectedTableType) => {
 				return (
 					<div key={selectedTableType} className="flex h-full">
-						{selectedPeriod ? React.createElement<TableComponentProps>(
+						{selectedPeriod ? createElement<TableComponentProps>(
 							getTableComponent(selectedTableType).component,
 							{ period_id: selectedPeriod.period_id }
 						) : <p>{t("others.select_period")}</p>}

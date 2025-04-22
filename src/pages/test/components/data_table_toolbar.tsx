@@ -1,13 +1,12 @@
-import { useContext } from "react";
 import { LoadingSpinner } from "~/components/loading";
-import dataTableContext from "~/pages/parameters/components/context/data_table_context";
+import { useDataTableContext } from "~/pages/parameters/components/context/data_table_context_provider";
 
 interface DataTableToolbarProps<TData> {
 	filterColumnKey?: keyof TData;
 }
 
 export function DataTableToolbar<TData>({}: DataTableToolbarProps<TData>) {
-	const { selectedTable } = useContext(dataTableContext);
+	const { selectedTable } = useDataTableContext();
 	const table = selectedTable?.table;
 
 	if (!table) {

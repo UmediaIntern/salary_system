@@ -1,8 +1,6 @@
 import { DataTableViewOptions } from "../../../components/data_table/toolbar/data_table_view_options";
 import { TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ParameterToolbarFunctionsProvider from "./function_sheet/parameter_functions_context";
-import { useContext } from "react";
-import dataTableContext from "./context/data_table_context";
 import { DataTableFunctions as DataTableFunctionsSingle } from "./function_sheet/data_table_functions_single";
 import { DataTableFunctions } from "./function_sheet/data_table_functions";
 import { LoadingSpinner } from "~/components/loading";
@@ -13,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { StatsPanel } from "~/components/data_table/toolbar/stats_panel";
 import { DataTableToolbarWrapper } from "~/components/data_table/toolbar/data_table_toolbar_wrapper";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { useDataTableContext } from "./context/data_table_context_provider";
 
 interface DataTableToolbarProps<TData> {
 	filterColumnKey?: keyof TData;
@@ -23,8 +22,7 @@ export function DataTableToolbar<TData>({
 	filterColumnKey,
 	showTabs,
 }: DataTableToolbarProps<TData>) {
-	const { data, selectedTableType, selectedTable } =
-		useContext(dataTableContext);
+	const { data, selectedTableType, selectedTable } = useDataTableContext();
 	const { selectedPeriod } = usePeriodContext();
 	const table = selectedTable?.table;
 	const { t } = useTranslation(["common"]);
@@ -41,14 +39,20 @@ export function DataTableToolbar<TData>({
 		<DataTableToolbarWrapper>
 			{/* search bar */}
 			<div className="flex">
-				<ToolbarFilter table={table} filterColumnKey={filterColumnKey} />
+				<ToolbarFilter
+					table={table}
+					filterColumnKey={filterColumnKey}
+				/>
 				<StatsPanel table={table} />
 			</div>
 			{/* tabs */}
 			<div className="flex">
 				{showTabs !== false && (
 					<TabsList className="grid h-8 w-96 grid-cols-2">
-						<TabsTrigger value={TabsEnum.Enum.current} className="h-6">
+						<TabsTrigger
+							value={TabsEnum.Enum.current}
+							className="h-6"
+						>
 							{t("table.current")}
 						</TabsTrigger>
 						<TabsTrigger
@@ -63,7 +67,7 @@ export function DataTableToolbar<TData>({
 			</div>
 			<div className="flex">
 				<DataTableViewOptions table={table} />
-				<div className="max-w-24 ml-2">
+				<div className="ml-2 max-w-24">
 					{selectedPeriod && (
 						<ParameterToolbarFunctionsProvider
 							selectedTableType={selectedTableType}
@@ -71,7 +75,9 @@ export function DataTableToolbar<TData>({
 						>
 							<div className="flex">
 								{data && <DataTableFunctionsSingle />}
-								<DataTableFunctions tableType={selectedTableType} />
+								<DataTableFunctions
+									tableType={selectedTableType}
+								/>
 							</div>
 						</ParameterToolbarFunctionsProvider>
 					)}
