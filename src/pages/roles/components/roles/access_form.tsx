@@ -130,7 +130,7 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 							/>
 						</FormSwitchFieldComp>
 
-						<FormSwitchFieldComp form={form} name="settings" />
+						<FormSwitchFieldComp disabled form={form} name="settings" />
 						<FormSwitchFieldComp form={form} name="roles" />
 						<FormSwitchFieldComp form={form} name="report" />
 					</div>
@@ -149,11 +149,13 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 interface FormSwitchFieldCompProps {
 	form: UseFormReturn<z.infer<typeof accessiblePagesFormSchema>>;
 	name: FormFieldKeyType;
+	disabled?: boolean;
 }
 function FormSwitchFieldComp({
 	children,
 	form,
 	name,
+	disabled = false,
 }: PropsWithChildren<FormSwitchFieldCompProps>) {
 	return (
 		<FormField
@@ -164,6 +166,7 @@ function FormSwitchFieldComp({
 				<FormItem className="flex flex-col rounded-lg border p-3 shadow-sm">
 					<FormItemComp label={name}>
 						<Switch
+							disabled={disabled}
 							checked={field.value === true}
 							onCheckedChange={field.onChange}
 						/>

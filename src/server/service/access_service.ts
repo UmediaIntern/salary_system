@@ -54,6 +54,8 @@ export class AccessService {
 		if (accessibleData === null) {
 			accessibleData = accessiblePages.parse({});
 		}
+		// Force settings to true
+		accessibleData.settings = true;
 		await Access.create({
 			...accessibleData,
 			role: role,
@@ -64,6 +66,8 @@ export class AccessService {
 	}
 
 	async updateAccessData(data: z.infer<typeof updateAccessAPI>) {
+		// Force settings to true
+		data.settings = true;
 		await Access.update(
 			{
 				...data,

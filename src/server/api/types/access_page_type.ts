@@ -18,7 +18,7 @@ export const accessiblePages = z.object({
 	calendar: z.boolean().default(false),
 	calendar_write: z.boolean().default(false),
 	// settings access
-	settings: z.boolean().default(false),
+	settings: z.boolean().default(true),
 	roles: z.boolean().default(false),
 	report: z.boolean().default(false),
 });

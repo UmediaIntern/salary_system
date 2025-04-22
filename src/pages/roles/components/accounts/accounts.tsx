@@ -11,14 +11,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
 	Command,
-	CommandDialog,
 	CommandEmpty,
 	CommandGroup,
 	CommandInput,
 	CommandItem,
 	CommandList,
-	CommandSeparator,
-	CommandShortcut,
 } from "~/components/ui/command";
 import {
 	HoverCard,
@@ -88,9 +85,18 @@ export function Accounts() {
 function SelectRole({ info }: { info: EmployeeInfo }) {
 	const allRoles = api.access.getAllAccess.useQuery();
 	const { isPending, content, data } = useQueryHandle(allRoles);
+	const ctx = api.useUtils()
+	const updateUserRole = api.user.updateUserRole.useMutation({
+		onSuccess: () => {
+			void ctx.user.getAllUser.refetch();
+		},
+	});
 
 	const onValueChange = (value: string) => {
-		console.log("Selected value:", value);
+		updateUserRole.mutate({
+			emp_no: info.username,
+			role: value,
+		});
 	};
 
 	return (

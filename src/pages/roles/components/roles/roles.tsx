@@ -25,10 +25,10 @@ export function Roles() {
 	const [selectedRole, setSelectedRole] = useState<AccessFEType | null>(null);
 
 	useEffect(() => {
-		if (data?.[0]) {
+		if (data?.[0] && !selectedRole) {
 			setSelectedRole(data[0]);
 		}
-	}, [data]);
+	}, [data, selectedRole]);
 
 
 	return (
