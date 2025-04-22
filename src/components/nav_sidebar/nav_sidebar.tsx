@@ -1,6 +1,5 @@
 import { usePathname } from "next/navigation";
 import { type HTMLAttributes } from "react";
-import { api } from "~/utils/api";
 import {
 	GanttChartSquare,
 	LayoutGrid,
@@ -22,10 +21,11 @@ import {
 } from "~/components/ui/sidebar";
 import { SidebarPeriodSelector } from "./sidebar_period_selector";
 import { SidebarGroupLinks, type NavLinkEntry } from "./sidebar_group_links";
-import { type AccessiblePagesType } from "~/server/api/types/access_page_type";
+import { type AccessFEType } from "~/server/api/types/access_page_type";
+import { useAccessContext } from "../context/access_context_provider";
 
 function navLinks(
-	data: AccessiblePagesType
+	data: AccessFEType
 ): Record<"action" | "setting" | "test", NavLinkEntry[]> {
 	return {
 		action: [
@@ -113,13 +113,9 @@ interface NavSidebarProp extends HTMLAttributes<HTMLDivElement> {
 // https://www.flaticon.com/free-icon-font/coins_7928197?related_id=7928197
 export function NavSidebar({}: NavSidebarProp) {
 	const pathname = usePathname();
-	const { isSuccess, data } = api.access.accessByRole.useQuery(); // isError, error
+	const { access } = useAccessContext();
 
 	const { t } = useTranslation(["nav", "common"]);
-
-	if (!isSuccess) {
-		return <></>;
-	}
 
 	return (
 		<Sidebar variant="inset" collapsible="icon">
@@ -130,19 +126,19 @@ export function NavSidebar({}: NavSidebarProp) {
 				{/* Action */}
 				<SidebarGroupLinks
 					groupTitle={t("actions")}
-					navLinks={navLinks(data).action}
+					navLinks={navLinks(access).action}
 					currentPath={pathname}
 				/>
 				{/* Setting */}
 				<SidebarGroupLinks
 					groupTitle={t("configurations")}
-					navLinks={navLinks(data).setting}
+					navLinks={navLinks(access).setting}
 					currentPath={pathname}
 				/>
 				{/* Test */}
 				<SidebarGroupLinks
 					groupTitle={t("configurations")}
-					navLinks={navLinks(data).test}
+					navLinks={navLinks(access).test}
 					currentPath={pathname}
 				/>
 				{/* */}

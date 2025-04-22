@@ -210,7 +210,6 @@ export class EmployeeTrustService {
 			groupedEmployeeTrustRecords[record.emp_no]!.push(record);
 		});
 
-		// 将分组后的记录转换为数组格式，并映射为前端格式
 		const groupedRecordsArray = Object.values(groupedEmployeeTrustRecords);
 		const allEmployeeTrustFE = await Promise.all(
 			groupedRecordsArray.map(
@@ -220,13 +219,6 @@ export class EmployeeTrustService {
 					)
 			)
 		);
-		// let cnt = 0;
-		// allEmployeeTrustFE.forEach((emp_trust_list) => {
-		// 	emp_trust_list.forEach((emp_trust) => {
-		// 		emp_trust.id = cnt;
-		// 		cnt += 1;
-		// 	});
-		// });
 		return allEmployeeTrustFE;
 	}
 
@@ -251,13 +243,10 @@ export class EmployeeTrustService {
 				emp_trust_reserve,
 				employeeTrust.emp_trust_reserve
 			),
-			// org_trust_reserve_enc: employeeTrust.org_trust_reserve_enc,
 			emp_special_trust_incent: select_value(
 				emp_special_trust_incent,
 				employeeTrust.emp_special_trust_incent
 			),
-			// org_special_trust_incent_enc: employeeTrust.org_special_trust_incent_enc,
-			// entry_date: select_value(entry_date, employeeTrust.entry_date),
 			start_date: select_value(start_date, employeeTrust.start_date),
 			end_date: select_value(end_date, employeeTrust.end_date),
 		});

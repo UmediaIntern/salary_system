@@ -1,8 +1,9 @@
 import Head from "next/head";
-import { useState, type PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 import { NavSidebar } from "~/components/nav_sidebar/nav_sidebar";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { PeriodContextProvider } from "../context/period_context_provider";
+import { AccessContextProvider } from "../context/access_context_provider";
 
 type PerpageLayoutProp = {
 	pageTitle: string;
@@ -11,8 +12,6 @@ type PerpageLayoutProp = {
 export const PerpageLayoutNav = (
 	props: PropsWithChildren<PerpageLayoutProp>
 ) => {
-	const [isCollapsed, setIsCollapsed] = useState(false);
-
 	return (
 		<>
 			<Head>
@@ -27,14 +26,16 @@ export const PerpageLayoutNav = (
 				/>
 			</Head>
 			<main className="min-h-screen bg-background">
-				<PeriodContextProvider>
-					<SidebarProvider className="max-h-screen">
-						<NavSidebar isCollapsed={isCollapsed} />
-						<SidebarInset className="min-w-0">
-							{props.children}
-						</SidebarInset>
-					</SidebarProvider>
-				</PeriodContextProvider>
+				<AccessContextProvider>
+					<PeriodContextProvider>
+						<SidebarProvider className="max-h-screen">
+							<NavSidebar isCollapsed={false} />
+							<SidebarInset className="min-w-0">
+								{props.children}
+							</SidebarInset>
+						</SidebarProvider>
+					</PeriodContextProvider>
+				</AccessContextProvider>
 			</main>
 		</>
 	);
