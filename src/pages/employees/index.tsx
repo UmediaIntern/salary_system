@@ -22,10 +22,10 @@ import {
 } from "./employee_tables";
 import { TabMountGuard } from "./components/context/tab_mount_guard";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { SelectPeriodAlert } from "~/components/select_period_alert";
 
 function PageEmployeesContent() {
-	const { setSelectedTableType } =
-		useEmployeeTableContext();
+	const { setSelectedTableType } = useEmployeeTableContext();
 	const { t } = useTranslation(["common", "nav"]);
 
 	function getTable(table_type: EmployeeTableEnum) {
@@ -42,7 +42,7 @@ function PageEmployeesContent() {
 	}
 
 	return (
-		<div className="h-full w-full flex flex-col">
+		<div className="flex h-full w-full flex-col">
 			<Header
 				title={t("employees", { ns: "nav" })}
 				showOptions
@@ -51,7 +51,7 @@ function PageEmployeesContent() {
 			<div className="m-4 h-0 grow">
 				<Tabs
 					defaultValue={EmployeeTableEnumValues[0]}
-					className="h-full flex flex-col"
+					className="flex h-full flex-col"
 				>
 					<TabsList className={"grid w-full grid-cols-3"}>
 						{EmployeeTableEnumValues.map((option) => {
@@ -59,7 +59,7 @@ function PageEmployeesContent() {
 								<TabsTrigger
 									key={option}
 									value={option}
-                  onClick={() => setSelectedTableType(option)}
+									onClick={() => setSelectedTableType(option)}
 								>
 									{t(getTableNameKey(option))}
 								</TabsTrigger>
@@ -74,9 +74,9 @@ function PageEmployeesContent() {
 									value={option}
 									className="h-full"
 								>
-                  <TabMountGuard tableType={option}>
-                    {getTable(option)}
-                  </TabMountGuard>
+									<TabMountGuard tableType={option}>
+										{getTable(option)}
+									</TabMountGuard>
 								</TabsContent>
 							);
 						})}
@@ -89,10 +89,13 @@ function PageEmployeesContent() {
 
 const PageEmployees: NextPageWithLayout = () => {
 	const { selectedPeriod } = usePeriodContext();
-	const { t } = useTranslation(["common", "nav"]);
 
 	if (selectedPeriod === null) {
-		return <p>{t("others.select_period")}</p>;
+		return (
+			<div className="m-4 grow">
+				<SelectPeriodAlert />
+			</div>
+		);
 	}
 
 	return (
