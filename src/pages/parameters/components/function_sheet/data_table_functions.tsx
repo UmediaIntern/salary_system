@@ -1,16 +1,9 @@
 import { cn } from "~/lib/utils";
 import { useState } from "react";
-import {
-	type LucideIcon,
-	Download,
-	EllipsisVertical,
-	Plus,
-	Upload,
-} from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import {
 	DropdownMenu,
-	DropdownMenuItem,
 	DropdownMenuContent,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
@@ -21,7 +14,6 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "~/components/ui/dialog";
 
 import { Button } from "~/components/ui/button";
@@ -33,6 +25,8 @@ import { ParameterExcelDownloader } from "../excel_download/parameter_excel_down
 import { ParameterExcelUpload } from "../excel_upload/parameter_excel_uplaod";
 import { ParameterForm } from "./parameter_form";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
+import { useDataTableContext } from "../context/data_table_context_provider";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -55,6 +49,7 @@ export function DataTableFunctions({
 	const { t } = useTranslation(["common", "nav"]);
 	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
+	const { enableFunctions } = useDataTableContext();
 
 	// ========================= Additional Condition for Schema =====================================
 	const schema = getSchema(tableType);
@@ -78,26 +73,27 @@ export function DataTableFunctions({
 							{t("others.functions")}
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<CompTriggerItem
-							mode={"excel_download"}
-							itemName={t("button.excel_download")}
-							icon={Download}
+						<FunctionMenuOption.ExcelDownload
+							disabled={!enableFunctions}
+							onClick={() => {
+								setMode("excel_download");
+								setOpen(true);
+							}}
 						/>
-						<CompTriggerItem
-							mode={"excel_upload"}
-							itemName={t("button.excel_upload")}
-							icon={Upload}
+						<FunctionMenuOption.ExcelUpload
+							disabled={!enableFunctions}
+							onClick={() => {
+								setMode("excel_upload");
+								setOpen(true);
+							}}
 						/>
-						<CompTriggerItem
-							mode={"create"}
-							itemName={t("button.create")}
-							icon={Plus}
+						<FunctionMenuOption.Create
+							disabled={!enableFunctions}
+							onClick={() => {
+								setMode("create");
+								setOpen(true);
+							}}
 						/>
-						{/* <CompTriggerItem
-							mode={"initialize"}
-							itemName={t("button.initialize")}
-							icon={RefreshCcw}
-						/> */}
 					</DropdownMenuContent>
 				</DropdownMenu>
 				{/* Sheet */}
@@ -134,25 +130,4 @@ export function DataTableFunctions({
 			</Dialog>
 		</div>
 	);
-
-	function CompTriggerItem(props: {
-		mode: FunctionMode;
-		itemName: string;
-		icon: LucideIcon;
-	}) {
-		return (
-			<DialogTrigger
-				className="w-full"
-				onClick={() => {
-					setMode(props.mode);
-					setOpen(true);
-				}}
-			>
-				<DropdownMenuItem className="cursor-pointer">
-					<props.icon className="mr-2 h-4 w-4" />
-					<span>{props.itemName}</span>
-				</DropdownMenuItem>
-			</DialogTrigger>
-		);
-	}
 }

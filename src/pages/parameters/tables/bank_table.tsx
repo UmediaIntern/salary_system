@@ -11,10 +11,7 @@ import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { bankSchema } from "../schemas/configurations/bank_schema";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
 import { Sheet } from "~/components/ui/sheet";
-import {
-	type FunctionsItem,
-	type FunctionMode,
-} from "../components/context/data_table_context";
+import { type FunctionsItem } from "../components/context/data_table_context";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
@@ -40,17 +37,7 @@ type RowItemKey = keyof RowItem;
 const columnHelper = createColumnHelper<RowItem>();
 const f = ["bank_name", "org_name", "start_date", "end_date"] as const;
 
-export const bank_columns = ({
-	t,
-	setOpen,
-	setMode,
-	setData,
-}: {
-	t: TFunction<[string], undefined>;
-	setOpen: (open: boolean) => void;
-	setMode: (mode: FunctionMode) => void;
-	setData: (data: RowItem) => void;
-}) => [
+export const bank_columns = ({ t }: { t: TFunction<[string], undefined> }) => [
 	...f.map((key) =>
 		columnHelper.accessor(key, {
 			header: ({ column }) => {
@@ -93,17 +80,25 @@ export const bank_columns = ({
 			);
 		},
 		cell: ({ row }) => {
-			return (
-				<FunctionsComponent
-					setOpen={setOpen}
-					setMode={setMode}
-					data={row.original}
-					setData={setData}
-				/>
-			);
+			return <BankSettingFunctionComponent data={row.original} />;
 		},
 	}),
 ];
+
+function BankSettingFunctionComponent({ data }: { data: RowItem }) {
+	const { setOpen, setMode, setData, enableFunctions } =
+		useDataTableContext();
+
+	return (
+		<FunctionsComponent
+			setOpen={setOpen}
+			setMode={setMode}
+			data={data}
+			setData={setData}
+			disabled={!enableFunctions}
+		/>
+	);
+}
 
 export function bankSettingMapper(
 	bankSettingData: BankSettingFEType[]
@@ -133,7 +128,7 @@ interface BankTableProps extends TableComponentProps {
 
 export function BankTable({ period_id, viewOnly }: BankTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { open, setOpen, mode, setMode, setData } = useDataTableContext();
+	const { open, setOpen, mode } = useDataTableContext();
 
 	const getBankSetting = api.parameters.getCurrentBankSetting.useQuery({
 		period_id,
@@ -152,7 +147,7 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 		>
 			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
 				<DataTableWithFunctions
-					columns={bank_columns({ t, setOpen, setMode, setData })}
+					columns={bank_columns({ t })}
 					data={bankSettingMapper(data)}
 					filterColumnKey={filterKey}
 					original_columns={[
@@ -183,7 +178,7 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 		</ParameterToolbarFunctionsProvider>
 	) : (
 		<DataTableWithoutFunctions
-			columns={bank_columns({ t, setOpen, setMode, setData })}
+			columns={bank_columns({ t })}
 			data={bankSettingMapper(data)}
 			filterColumnKey={filterKey}
 		/>

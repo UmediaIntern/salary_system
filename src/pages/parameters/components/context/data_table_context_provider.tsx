@@ -6,8 +6,9 @@ import {
 } from "../../parameter_tables";
 import { TabsEnum, type TabsEnumType } from "./tabs_enum";
 import { type Table } from "@tanstack/react-table";
+import { useAccessContext } from "~/components/context/access_context_provider";
 
-interface DataTableContextProviderProps { }
+interface DataTableContextProviderProps {}
 
 export type TableObject = {
 	table: Table<any>;
@@ -20,21 +21,31 @@ const dataTableContext = React.createContext<{
 	setSelectedTab: (tab: TabsEnumType) => void;
 	selectedTable: TableObject | null;
 	setSelectedTable: (table: TableObject | null) => void;
+	enableFunctions: boolean;
+	setEnableFunctions: (enableFunctions: boolean) => void;
 	mode: FunctionMode;
 	setMode: (mode: FunctionMode) => void;
 	open: boolean;
 	setOpen: (open: boolean) => void;
 	data: any;
 	setData: (data: any) => void;
-} | null >(null);
-
+} | null>(null);
 
 export function DataTableContextProvider({
 	children,
 }: PropsWithChildren<DataTableContextProviderProps>) {
-	const [selectedTableType, setSelectedTableType] = useState<ParameterTableEnum>(ParameterTableEnumValues[0]);
-	const [selectedTab, setSelectedTab] = useState<TabsEnumType>(TabsEnum.Enum.current);
-	const [selectedTable, setSelectedTable] = useState<TableObject | null>(null);
+	const { access } = useAccessContext();
+
+	const [selectedTableType, setSelectedTableType] =
+		useState<ParameterTableEnum>(ParameterTableEnumValues[0]);
+	const [selectedTab, setSelectedTab] = useState<TabsEnumType>(
+		TabsEnum.Enum.current
+	);
+	const [selectedTable, setSelectedTable] = useState<TableObject | null>(
+		null
+	);
+	const [enableFunctions, setEnableFunctions] = useState<boolean>(access.parameters_write);
+
 	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
 	const [data, setData] = useState<any>(null);
@@ -48,6 +59,8 @@ export function DataTableContextProvider({
 				setSelectedTab,
 				selectedTable,
 				setSelectedTable,
+        enableFunctions,
+        setEnableFunctions,
 				mode,
 				setMode,
 				open,

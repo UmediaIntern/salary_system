@@ -17,7 +17,6 @@ import { FunctionsSheetContent } from "../components/function_sheet/functions_sh
 import { SelectLevelField } from "../components/function_sheet/form_fields/select_level_field";
 import {
 	type FunctionsItem,
-	type FunctionMode,
 } from "../components/context/data_table_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
@@ -38,15 +37,8 @@ const columnHelper = createColumnHelper<RowItem>();
 
 export const level_range_columns = ({
 	t,
-	setOpen,
-	setMode,
-	setData,
 }: {
 	t: TFunction<[string], undefined>;
-	period_id: number;
-	setOpen: (open: boolean) => void;
-	setMode: (mode: FunctionMode) => void;
-	setData: (data: RowItem) => void;
 }) => {
 	const f: RowItemKey[] = [
 		"type",
@@ -81,21 +73,25 @@ export const level_range_columns = ({
 					switch (key) {
 						case "start_date":
 							return (
-								<div className="text-center font-medium">{`${formatDate(
-									"day",
-									row.original.start_date
-								) ?? ""
-									}`}</div>
+								<div className="text-center font-medium">{`${
+									formatDate(
+										"day",
+										row.original.start_date
+									) ?? ""
+								}`}</div>
 							);
 						case "end_date":
 							return (
-								<div className="text-center font-medium">{`${formatDate("day", row.original.end_date) ??
+								<div className="text-center font-medium">{`${
+									formatDate("day", row.original.end_date) ??
 									""
-									}`}</div>
+								}`}</div>
 							);
 						default:
 							return (
-								<div className="text-center font-medium">{`${row.original[key].toString()}`}</div>
+								<div className="text-center font-medium">{`${row.original[
+									key
+								].toString()}`}</div>
 							);
 					}
 				},
@@ -112,18 +108,26 @@ export const level_range_columns = ({
 				);
 			},
 			cell: ({ row }) => {
-				return (
-					<FunctionsComponent
-						setOpen={setOpen}
-						setMode={setMode}
-						data={row.original}
-						setData={setData}
-					/>
-				);
+				return <LevelRangeFunctionComponent data={row.original} />;
 			},
 		}),
 	];
 };
+
+function LevelRangeFunctionComponent({ data }: { data: RowItem }) {
+	const { setOpen, setMode, setData, enableFunctions } =
+		useDataTableContext();
+
+	return (
+		<FunctionsComponent
+			setOpen={setOpen}
+			setMode={setMode}
+			data={data}
+			setData={setData}
+			disabled={!enableFunctions}
+		/>
+	);
+}
 
 export function levelRangeMapper(
 	levelRangeData: LevelRangeFEType[]
@@ -149,11 +153,16 @@ interface LevelRangeTableProps extends TableComponentProps {
 
 export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, setMode, open, setOpen, setData, data: dd } =
-		useDataTableContext();
-	const getLevelRange =
-		api.parameters.getCurrentLevelRange.useQuery({ period_id });
-  const {isPending, content, data} = useQueryHandle(getLevelRange);
+	const {
+		mode,
+		open,
+    setOpen,
+		data: dd,
+	} = useDataTableContext();
+	const getLevelRange = api.parameters.getCurrentLevelRange.useQuery({
+		period_id,
+	});
+	const { isPending, content, data } = useQueryHandle(getLevelRange);
 	const filterKey: RowItemKey = "type";
 
 	if (isPending) {
@@ -162,10 +171,6 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 
 	const columns = level_range_columns({
 		t,
-		period_id,
-		setOpen,
-		setMode,
-		setData,
 	});
 
 	return !viewOnly ? (
@@ -173,7 +178,11 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 			selectedTableType={"TableLevelRange"}
 			period_id={period_id}
 		>
-			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen} aria-hidden={false}>
+			<Sheet
+				open={open && mode !== "delete"}
+				onOpenChange={setOpen}
+				aria-hidden={false}
+			>
 				<DataTableWithFunctions
 					columns={columns}
 					data={levelRangeMapper(data)}
@@ -202,7 +211,11 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
-			<ConfirmDialog open={open && mode === "delete"} onOpenChange={setOpen} schema={levelRangeSchema} />
+			<ConfirmDialog
+				open={open && mode === "delete"}
+				onOpenChange={setOpen}
+				schema={levelRangeSchema}
+			/>
 		</ParameterToolbarFunctionsProvider>
 	) : (
 		<DataTableWithoutFunctions

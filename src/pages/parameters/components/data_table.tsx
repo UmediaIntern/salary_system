@@ -13,14 +13,12 @@ interface DataTableProps<TData> {
 	data: TData[];
 	filterColumnKey?: keyof TData;
 	showTabs?: boolean;
-
 	original_columns?: Array<string>;
 }
 
 export function DataTable<TData>({
 	columns,
 	data,
-	/* filterColumnKey, */
 	showTabs,
 	original_columns
 }: DataTableProps<TData>) {
@@ -43,7 +41,6 @@ export function DataTable<TData>({
 		>
 			<div className="flex h-full flex-col">
 				<DataTableToolbar
-					/* filterColumnKey={filterColumnKey} */
 					showTabs={showTabs}
 				/>
 				<Separator />

@@ -7,9 +7,7 @@ import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/compon
 import { type TableComponentProps } from "../tables_view";
 import { formatDate } from "~/lib/utils/format_date";
 import { type LevelFEType } from "~/server/api/types/level_type";
-import {
-	FunctionsComponent,
-} from "~/components/data_table/functions_component";
+import { FunctionsComponent } from "~/components/data_table/functions_component";
 import { type TFunction } from "i18next";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { levelSchema } from "../schemas/configurations/level_schema";
@@ -18,7 +16,6 @@ import { Sheet } from "~/components/ui/sheet";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import {
 	type FunctionsItem,
-	type FunctionMode,
 } from "../components/context/data_table_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
@@ -31,84 +28,87 @@ export type RowItem = {
 	end_date: Date | null;
 	functions: FunctionsItem;
 };
-type RowItemKey = keyof RowItem;
+type RowItemKey = keyof Omit<RowItem, "functions">;
 
 const columnHelper = createColumnHelper<RowItem>();
 
-export const level_columns = ({
-	t,
-	setOpen,
-	setMode,
-	setData,
-}: {
-	t: TFunction<[string], undefined>;
-	setOpen: (open: boolean) => void;
-	setMode: (mode: FunctionMode) => void;
-	setData: (data: RowItem) => void;
-}) => [
-		...["level", "start_date", "end_date"].map((key: string) =>
-			columnHelper.accessor(key as RowItemKey, {
-				header: ({ column }) => {
-					return (
-						<div className="flex justify-center">
-							<div className="text-center font-medium">
-								<Button
-									variant="ghost"
-									onClick={() =>
-										column.toggleSorting(
-											column.getIsSorted() === "asc"
-										)
-									}
-								>
-									{t(`table.${key}`)}
-									<ArrowUpDown className="ml-2 h-4 w-4" />
-								</Button>
-							</div>
-						</div>
-					);
-				},
-				cell: ({ row }) => {
-					switch (key) {
-						case "start_date":
-							return (
-								<div className="text-center font-medium">{`${formatDate("day", row.original.start_date) ?? ""}`}</div>
-							);
-						case "end_date":
-							return (
-								<div className="text-center font-medium">{`${formatDate("day", row.original.end_date) ?? ""}`}</div>
-							);
-						default:
-							return (
-								<div className="text-center font-medium">{`${row.original[
-									key as RowItemKey
-								]?.toString()}`}</div>
-							);
-					}
-				},
-			})
-		),
-		columnHelper.accessor("functions", {
-			header: () => {
+const f = ["level", "start_date", "end_date"] as const;
+export const level_columns = ({ t }: { t: TFunction<[string], undefined> }) => [
+	...f.map((key: RowItemKey) =>
+		columnHelper.accessor(key, {
+			header: ({ column }) => {
 				return (
 					<div className="flex justify-center">
 						<div className="text-center font-medium">
-							{t(`others.functions`)}
+							<Button
+								variant="ghost"
+								onClick={() =>
+									column.toggleSorting(
+										column.getIsSorted() === "asc"
+									)
+								}
+							>
+								{t(`table.${key}`)}
+								<ArrowUpDown className="ml-2 h-4 w-4" />
+							</Button>
 						</div>
 					</div>
 				);
 			},
 			cell: ({ row }) => {
-				return (
-					<FunctionsComponent
-						setOpen={setOpen}
-						setMode={setMode}
-						data={row.original}
-						setData={setData}
-					/>
-				);
+				switch (key) {
+					case "start_date":
+						return (
+							<div className="text-center font-medium">{`${
+								formatDate("day", row.original.start_date) ?? ""
+							}`}</div>
+						);
+					case "end_date":
+						return (
+							<div className="text-center font-medium">{`${
+								formatDate("day", row.original.end_date) ?? ""
+							}`}</div>
+						);
+					default:
+						return (
+							<div className="text-center font-medium">{`${row.original[
+								key as RowItemKey
+							]?.toString()}`}</div>
+						);
+				}
 			},
-		}),
-	];
+		})
+	),
+	columnHelper.accessor("functions", {
+		header: () => {
+			return (
+				<div className="flex justify-center">
+					<div className="text-center font-medium">
+						{t(`others.functions`)}
+					</div>
+				</div>
+			);
+		},
+		cell: ({ row }) => {
+			return <LevelFunctionComponent data={row.original} />;
+		},
+	}),
+];
+
+function LevelFunctionComponent({ data }: { data: RowItem }) {
+	const { setOpen, setMode, setData, enableFunctions } =
+		useDataTableContext();
+
+	return (
+		<FunctionsComponent
+			setOpen={setOpen}
+			setMode={setMode}
+			data={data}
+			setData={setData}
+			disabled={!enableFunctions}
+		/>
+	);
+}
 
 export function levelMapper(levelData: LevelFEType[]): RowItem[] {
 	return levelData.map((d) => {
@@ -130,15 +130,14 @@ interface LevelTableProps extends TableComponentProps {
 
 export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, setMode, open, setOpen, setData } = useDataTableContext();
+	const { mode, open, setOpen } = useDataTableContext();
 
-	const getLevel =
-		api.parameters.getCurrentLevel.useQuery({ period_id });
-  const { isPending, content, data } = useQueryHandle(getLevel);
+	const getLevel = api.parameters.getCurrentLevel.useQuery({ period_id });
+	const { isPending, content, data } = useQueryHandle(getLevel);
 	const filterKey: RowItemKey = "level";
 
 	if (isPending) {
-    return content;
+		return content;
 	}
 
 	return !viewOnly ? (
@@ -150,9 +149,6 @@ export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 				<DataTableWithFunctions
 					columns={level_columns({
 						t,
-						setOpen,
-						setMode,
-						setData,
 					})}
 					data={levelMapper(data)}
 					filterColumnKey={filterKey}
@@ -166,15 +162,16 @@ export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
-			<ConfirmDialog open={open && mode === "delete"} onOpenChange={setOpen} schema={levelSchema} />
+			<ConfirmDialog
+				open={open && mode === "delete"}
+				onOpenChange={setOpen}
+				schema={levelSchema}
+			/>
 		</ParameterToolbarFunctionsProvider>
 	) : (
 		<DataTableWithoutFunctions
 			columns={level_columns({
 				t,
-				setOpen,
-				setMode,
-				setData,
 			})}
 			data={levelMapper(data)}
 			filterColumnKey={filterKey}

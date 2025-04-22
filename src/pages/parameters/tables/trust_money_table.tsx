@@ -13,10 +13,7 @@ import { FunctionsComponent } from "~/components/data_table/functions_component"
 import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { trustMoneySchema } from "../schemas/configurations/trust_money_schema";
 import { Sheet } from "~/components/ui/sheet";
-import {
-	type FunctionsItem,
-	type FunctionMode,
-} from "../components/context/data_table_context";
+import { type FunctionsItem } from "../components/context/data_table_context";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
@@ -32,30 +29,26 @@ export type RowItem = {
 	end_date: Date | null;
 	functions: FunctionsItem;
 };
-type RowItemKey = keyof RowItem;
+type RowItemKey = keyof Omit<RowItem, "functions">;
 
 const columnHelper = createColumnHelper<RowItem>();
 
+const f = [
+	"position",
+	"position_type",
+	"org_trust_reserve_limit",
+	"org_special_trust_incent_limit",
+	"start_date",
+	"end_date",
+] as const;
+
 export const trust_money_columns = ({
 	t,
-	setOpen,
-	setMode,
-	setData,
 }: {
 	t: TFunction<[string], undefined>;
-	setOpen: (open: boolean) => void;
-	setMode: (mode: FunctionMode) => void;
-	setData: (data: RowItem) => void;
 }) => [
-	...[
-		"position",
-		"position_type",
-		"org_trust_reserve_limit",
-		"org_special_trust_incent_limit",
-		"start_date",
-		"end_date",
-	].map((key: string) =>
-		columnHelper.accessor(key as RowItemKey, {
+	...f.map((key: RowItemKey) =>
+		columnHelper.accessor(key, {
 			header: ({ column }) => {
 				return (
 					<div className="flex justify-center">
@@ -92,8 +85,8 @@ export const trust_money_columns = ({
 					default:
 						return (
 							<div className="text-center font-medium">{`${row.original[
-								key as RowItemKey
-							]?.toString()}`}</div>
+								key
+							].toString()}`}</div>
 						);
 				}
 			},
@@ -110,17 +103,25 @@ export const trust_money_columns = ({
 			);
 		},
 		cell: ({ row }) => {
-			return (
-				<FunctionsComponent
-					setOpen={setOpen}
-					setMode={setMode}
-					data={row.original}
-					setData={setData}
-				/>
-			);
+			return <TrustMoneyFunctionComponent data={row.original} />;
 		},
 	}),
 ];
+
+function TrustMoneyFunctionComponent({ data }: { data: RowItem }) {
+	const { setOpen, setMode, setData, enableFunctions } =
+		useDataTableContext();
+
+	return (
+		<FunctionsComponent
+			setOpen={setOpen}
+			setMode={setMode}
+			data={data}
+			setData={setData}
+			disabled={!enableFunctions}
+		/>
+	);
+}
 
 export function trustMoneyMapper(
 	TrustMoneyData: TrustMoneyFEType[]
@@ -149,7 +150,7 @@ interface TrustMoneyTableProps extends TableComponentProps {
 
 export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, setMode, open, setOpen, setData } = useDataTableContext();
+	const { mode, open, setOpen } = useDataTableContext();
 
 	const getTrustMoney = api.parameters.getCurrentTrustMoney.useQuery({
 		period_id,
@@ -170,9 +171,6 @@ export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 				<DataTableWithFunctions
 					columns={trust_money_columns({
 						t,
-						setOpen,
-						setMode,
-						setData,
 					})}
 					data={trustMoneyMapper(data)}
 					filterColumnKey={filterKey}
@@ -196,7 +194,7 @@ export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 		</ParameterToolbarFunctionsProvider>
 	) : (
 		<DataTableWithoutFunctions
-			columns={trust_money_columns({ t, setOpen, setMode, setData })}
+			columns={trust_money_columns({ t })}
 			data={trustMoneyMapper(data)}
 			filterColumnKey={filterKey}
 		/>

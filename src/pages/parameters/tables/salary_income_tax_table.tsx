@@ -13,10 +13,7 @@ import { type TFunction } from "i18next";
 import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { salaryIncomeTaxSchema } from "../schemas/configurations/salary_income_tax_schema";
 import { Sheet } from "~/components/ui/sheet";
-import {
-	type FunctionsItem,
-	type FunctionMode,
-} from "../components/context/data_table_context";
+import { type FunctionsItem } from "../components/context/data_table_context";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
@@ -32,30 +29,25 @@ export type RowItem = {
 	end_date: Date | null;
 	functions: FunctionsItem;
 };
-type RowItemKey = keyof RowItem;
+type RowItemKey = keyof Omit<RowItem, "functions">;
 
 const columnHelper = createColumnHelper<RowItem>();
 
+const f = [
+	"salary_start",
+	"salary_end",
+	"dependent",
+	"tax_amount",
+	"start_date",
+	"end_date",
+] as const;
 export const salary_income_tax_columns = ({
 	t,
-	setOpen,
-	setMode,
-	setData,
 }: {
 	t: TFunction<[string], undefined>;
-	setOpen: (open: boolean) => void;
-	setMode: (mode: FunctionMode) => void;
-	setData: (data: RowItem) => void;
 }) => [
-	...[
-		"salary_start",
-		"salary_end",
-		"dependent",
-		"tax_amount",
-		"start_date",
-		"end_date",
-	].map((key: string) =>
-		columnHelper.accessor(key as RowItemKey, {
+	...f.map((key: RowItemKey) =>
+		columnHelper.accessor(key, {
 			header: ({ column }) => {
 				return (
 					<div className="flex justify-center">
@@ -110,17 +102,25 @@ export const salary_income_tax_columns = ({
 			);
 		},
 		cell: ({ row }) => {
-			return (
-				<FunctionsComponent
-					setOpen={setOpen}
-					setMode={setMode}
-					data={row.original}
-					setData={setData}
-				/>
-			);
+			return <SalaryIncomeTaxFunctionComponent data={row.original} />;
 		},
 	}),
 ];
+
+function SalaryIncomeTaxFunctionComponent({ data }: { data: RowItem }) {
+	const { setOpen, setMode, setData, enableFunctions } =
+		useDataTableContext();
+
+	return (
+		<FunctionsComponent
+			setOpen={setOpen}
+			setMode={setMode}
+			data={data}
+			setData={setData}
+			disabled={!enableFunctions}
+		/>
+	);
+}
 
 export function salaryIncomeTaxMapper(
 	salaryIncomeTaxData: SalaryIncomeTaxFEType[]
@@ -150,7 +150,7 @@ export function SalaryIncomeTaxTable({
 	period_id,
 }: SalaryIncomeTaxTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, setMode, open, setOpen, setData } = useDataTableContext();
+	const { mode, open, setOpen } = useDataTableContext();
 
 	const getSalaryIncomeTax =
 		api.parameters.getCurrentSalaryIncomeTax.useQuery({ period_id });
@@ -169,9 +169,6 @@ export function SalaryIncomeTaxTable({
 				<DataTableWithFunctions
 					columns={salary_income_tax_columns({
 						t,
-						setOpen,
-						setMode,
-						setData,
 					})}
 					data={salaryIncomeTaxMapper(data)}
 					filterColumnKey={filterKey}
@@ -197,9 +194,6 @@ export function SalaryIncomeTaxTable({
 		<DataTableWithoutFunctions
 			columns={salary_income_tax_columns({
 				t,
-				setOpen,
-				setMode,
-				setData,
 			})}
 			data={salaryIncomeTaxMapper(data)}
 			filterColumnKey={filterKey}
