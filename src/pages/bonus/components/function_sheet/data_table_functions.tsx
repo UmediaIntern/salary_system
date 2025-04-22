@@ -1,18 +1,9 @@
 import { cn } from "~/lib/utils";
 import { useContext, useState } from "react";
-import {
-	type LucideIcon,
-	NotebookPen,
-	EllipsisVertical,
-	Download,
-	Upload,
-	Calculator,
-	CirclePlus,
-} from "lucide-react";
+import { EllipsisVertical, CirclePlus } from "lucide-react";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import {
 	DropdownMenu,
-	DropdownMenuItem,
 	DropdownMenuContent,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
@@ -23,7 +14,6 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "~/components/ui/dialog";
 
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
@@ -38,6 +28,10 @@ import { bonusToolbarFunctionsContext } from "./bonus_functions_context";
 import { type FunctionMode } from "../context/data_table_context";
 import { BonusExcelDownloader } from "../excel_download/bonus_excel_downloader";
 import { BonusExcelUpload } from "../excel_upload/bonus_excel_upload";
+import {
+	FunctionMenuOption,
+	FunctionMenuOptionBase,
+} from "~/components/table_functions/function_menu/function_menu_option";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -52,9 +46,6 @@ export function DataTableFunctions({
 	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
 	const { t } = useTranslation(["common", "nav"]);
-	const functions = useContext(bonusToolbarFunctionsContext);
-	const autoCalculateFunction = functions.autoCalculateFunction;
-	const batchUpdateFunction = functions.batchUpdateFunction;
 
 	// ========================= Additional Condition for Schema =====================================
 	const schema = getSchema(tableType);
@@ -78,35 +69,26 @@ export function DataTableFunctions({
 							{t("others.functions")}
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<CompTriggerItem
-							mode={"excel_download"}
-							itemName={t("button.excel_download")}
-							icon={Download}
+						<FunctionMenuOption.ExcelDownload
+							onClick={() => {
+								setMode("excel_download");
+								setOpen(true);
+							}}
 						/>
-						<CompTriggerItem
-							mode={"excel_upload"}
-							itemName={t("button.excel_upload")}
-							icon={Upload}
+						<FunctionMenuOption.ExcelUpload
+							onClick={() => {
+								setMode("excel_upload");
+								setOpen(true);
+							}}
 						/>
-						<CompTriggerItem
-							mode={"create_with_blank"}
+						<FunctionMenuOptionBase
+							onClick={() => {
+								setMode("create_with_blank");
+								setOpen(true);
+							}}
 							itemName={t("button.create_with_blank")}
 							icon={CirclePlus}
 						/>
-						{batchUpdateFunction && (
-							<CompTriggerItem
-								mode={"batch_update"}
-								itemName={t("button.batch_update")}
-								icon={NotebookPen}
-							/>
-						)}
-						{autoCalculateFunction && (
-							<CompTriggerItem
-								mode={"auto_calculate"}
-								itemName={t("button.auto_calculate")}
-								icon={Calculator}
-							/>
-						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 				{/* Sheet */}
@@ -153,27 +135,6 @@ export function DataTableFunctions({
 			</Dialog>
 		</div>
 	);
-
-	function CompTriggerItem(props: {
-		mode: FunctionMode;
-		itemName: string;
-		icon: LucideIcon;
-	}) {
-		return (
-			<DialogTrigger
-				className="w-full"
-				onClick={() => {
-					setMode(props.mode);
-					setOpen(true);
-				}}
-			>
-				<DropdownMenuItem className="cursor-pointer">
-					<props.icon className="mr-2 h-4 w-4" />
-					<span>{props.itemName}</span>
-				</DropdownMenuItem>
-			</DialogTrigger>
-		);
-	}
 }
 
 // function BatchCreateForm({
