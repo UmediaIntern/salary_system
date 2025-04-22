@@ -25,11 +25,15 @@ export function Roles() {
 	const [selectedRole, setSelectedRole] = useState<AccessFEType | null>(null);
 
 	useEffect(() => {
-		if (data?.[0] && !selectedRole) {
+		if (!selectedRole && data?.[0]) {
 			setSelectedRole(data[0]);
 		}
-	}, [data, selectedRole]);
 
+		if (selectedRole && data) {
+			const selected = data.find((role) => role.id === selectedRole.id);
+			selected && setSelectedRole(selected);
+		}
+	}, [data, selectedRole]);
 
 	return (
 		<div className="flex h-full flex-row gap-x-4">
