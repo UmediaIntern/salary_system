@@ -78,6 +78,7 @@ export function Roles() {
 			<div className="grow">
 				<ScrollArea className="h-full pr-4">
 					{selectedRole && <AccessForm selectedRole={selectedRole} />}
+          {/* TODO: Delete role */}
 				</ScrollArea>
 			</div>
 		</div>

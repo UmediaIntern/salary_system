@@ -33,11 +33,18 @@ export function CreateRoleDialog() {
 		},
 	});
 
-  const createAccess = api.access.createAccess.useMutation();
+	const ctx = api.useUtils();
+	const createAccess = api.access.createAccess.useMutation({
+		onSuccess: () => {
+			void ctx.access.getAllAccess.invalidate();
+		},
+	});
 
 	function onSubmit(values: z.infer<typeof createAccessFormSchema>) {
 		console.log(values);
-    createAccess.mutate(values);
+    // TODO: disable button
+		createAccess.mutate(values);
+    // TODO: close dialog
 	}
 
 	return (

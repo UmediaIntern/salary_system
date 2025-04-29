@@ -21,6 +21,7 @@ import { type PropsWithChildren, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { api } from "~/utils/api";
+import { useRouter } from "next/router";
 
 const accessiblePagesFormSchema = updateAccessAPI;
 const fieldKey = accessiblePagesFormSchema.keyof();
@@ -63,6 +64,34 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 		});
 		return () => unsubscribe();
 	}, [selectedRole, watch]);
+
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleWindowClose = (e: BeforeUnloadEvent) => {
+      if (isChange) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    const handleRouteChange = (url: string) => {
+      if (isChange && !confirm('You have unsaved changes, do you really want to leave?')) {
+        // Cancel route change
+        router.events.emit('routeChangeError');
+        throw 'Route change aborted';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleWindowClose);
+    router.events.on('routeChangeStart', handleRouteChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleWindowClose);
+      router.events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [isChange, router]);
 
 	const onSubmit = (values: z.infer<typeof accessiblePagesFormSchema>) => {
 		console.log("Submitted values:", values);
