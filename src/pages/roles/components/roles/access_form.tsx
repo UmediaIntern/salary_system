@@ -8,27 +8,26 @@ import {
 	FormLabel,
 	FormMessage,
 } from "~/components/ui/form";
-import { Switch } from "~/components/ui/switch";
 import { onPromise } from "~/utils/on_promise";
-import { useForm, type UseFormReturn } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	type AccessFEType,
 	updateAccessAPI,
 } from "~/server/api/types/access_page_type";
 import { type z } from "zod";
-import { type PropsWithChildren, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { api } from "~/utils/api";
-import { useRouter } from "next/router";
 import { useToast } from "~/components/ui/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useRoleCommandContext } from "../role_command_context";
+import { FormSwitchFieldComp } from "./access_form_fields";
+import { useExitWarning } from "~/components/hooks/use_exit_warning";
 
 const accessiblePagesFormSchema = updateAccessAPI;
 const fieldKey = accessiblePagesFormSchema.keyof();
-type FormFieldKeyType = z.infer<typeof fieldKey>;
 
 export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 	const form = useForm<z.infer<typeof accessiblePagesFormSchema>>({
@@ -94,37 +93,7 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 		return () => unsubscribe();
 	}, [selectedRole, watch]);
 
-	const router = useRouter();
-
-	useEffect(() => {
-		const handleWindowClose = (e: BeforeUnloadEvent) => {
-			if (isChange) {
-				e.preventDefault();
-				e.returnValue = "";
-			}
-		};
-
-		const handleRouteChange = (url: string) => {
-			if (
-				isChange &&
-				!confirm(
-					"You have unsaved changes, do you really want to leave?"
-				)
-			) {
-				// Cancel route change
-				router.events.emit("routeChangeError");
-				throw "Route change aborted";
-			}
-		};
-
-		window.addEventListener("beforeunload", handleWindowClose);
-		router.events.on("routeChangeStart", handleRouteChange);
-
-		return () => {
-			window.removeEventListener("beforeunload", handleWindowClose);
-			router.events.off("routeChangeStart", handleRouteChange);
-		};
-	}, [isChange, router]);
+  useExitWarning(isChange);
 
 	const onSubmit = (values: z.infer<typeof accessiblePagesFormSchema>) => {
 		console.log("Submitted values:", values);
@@ -230,58 +199,3 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 	);
 }
 
-interface FormSwitchFieldCompProps {
-	form: UseFormReturn<z.infer<typeof accessiblePagesFormSchema>>;
-	name: FormFieldKeyType;
-	disabled?: boolean;
-}
-function FormSwitchFieldComp({
-	children,
-	form,
-	name,
-	disabled = false,
-}: PropsWithChildren<FormSwitchFieldCompProps>) {
-	return (
-		<FormField
-			key={name}
-			control={form.control}
-			name={name}
-			render={({ field }) => (
-				<FormItem className="flex flex-col rounded-lg border p-3 shadow-sm">
-					<FormItemComp label={name}>
-						<Switch
-							disabled={disabled}
-							checked={field.value === true}
-							onCheckedChange={field.onChange}
-						/>
-					</FormItemComp>
-					{field.value && children}
-				</FormItem>
-			)}
-		/>
-	);
-}
-
-function FormItemComp({
-	label,
-	children,
-}: PropsWithChildren<{ label: string }>) {
-	return (
-		<div className="flex flex-row items-center justify-between">
-			<FormDescComp label={label} />
-			<FormControl>{children}</FormControl>
-		</div>
-	);
-}
-
-function FormDescComp({ label }: { label: string }) {
-	return (
-		<div className="space-y-0.5">
-			<FormLabel>{label}</FormLabel>
-			<FormDescription>
-				Access the functions in the
-				{label} page.
-			</FormDescription>
-		</div>
-	);
-}
