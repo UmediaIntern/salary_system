@@ -49,19 +49,22 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 
 	const deleteAccess = api.access.deleteAccess.useMutation({
 		onError: (error) => {
-      if (error.message.includes("user is connected")) {
-        toast({
-          title: "You cannot delete this role",
-          description: "Some user is connected to this role",
-          action: (
-            <ToastAction altText="Goto acccounts page to unlink">
-              <Button variant="outline" onClick={() => setSelectedTab("accounts")}>
-                Accounts
-              </Button>
-            </ToastAction>
-          ),
-        });
-      }
+			if (error.message.includes("user is connected")) {
+				toast({
+					title: "You cannot delete this role",
+					description: "Some user is connected to this role",
+					action: (
+						<ToastAction altText="Goto acccounts page to unlink">
+							<Button
+								variant="outline"
+								onClick={() => setSelectedTab("accounts")}
+							>
+								Accounts
+							</Button>
+						</ToastAction>
+					),
+				});
+			}
 		},
 		onSuccess: () => {
 			void ctx.access.invalidate();
@@ -157,9 +160,12 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 								render={({ field }) => (
 									<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
 										<div className="min-w-[300px] space-y-0.5">
-											<FormLabel>Employee Read Level</FormLabel>
+											<FormLabel>
+												Employee Read Level
+											</FormLabel>
 											<FormDescription>
-                        You can view employee under this level
+												You can view employee under this
+												level
 											</FormDescription>
 										</div>
 										<FormControl>
@@ -197,12 +203,20 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 							form={form}
 							name="settings"
 						/>
-						<FormSwitchFieldComp form={form} name="roles" />
+						<FormSwitchFieldComp
+							form={form}
+							name="roles"
+							disabled={selectedRole.is_admin}
+						/>
 						<FormSwitchFieldComp form={form} name="report" />
 					</div>
 				</div>
 				<div className="flex w-full flex-row justify-between">
-					<Button onClick={onDelete} variant="destructive">
+					<Button
+						onClick={onDelete}
+						variant="destructive"
+						disabled={selectedRole.is_admin}
+					>
 						<Trash />
 						Delete
 					</Button>

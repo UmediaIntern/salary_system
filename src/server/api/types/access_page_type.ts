@@ -3,6 +3,7 @@ import { Id } from "./common_type";
 
 const roleInfo = z.object({
 	role: z.string(),
+  is_admin: z.boolean().default(false),
 });
 
 export const accessiblePages = z.object({

@@ -15,6 +15,7 @@ export class Access extends Model<
 	// id can be undefined during creation when using `autoIncrement`
 	declare id: CreationOptional<number>;
 	declare role: string;
+  declare is_admin: boolean;
 
 	// actions access
 	declare functions: boolean;
@@ -63,6 +64,11 @@ export function initAccess(sequelize: Sequelize) {
 				allowNull: false,
 				unique: true,
 			},
+      is_admin: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
 			functions: {
 				type: DataTypes.BOOLEAN,
 				allowNull: false,

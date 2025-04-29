@@ -24,10 +24,10 @@ export const accessRouter = createTRPCRouter({
 	}),
 
 	createAccess: userProcedure
-		.input(z.object({ role_name: z.string() }))
+		.input(z.object({ role_name: z.string(), is_admin: z.boolean().optional().default(false) }))
 		.mutation(async ({ input }) => {
 			const accessService = container.resolve(AccessService);
-			await accessService.createAccessData(input.role_name, null);
+			await accessService.createAccessData(input.role_name, null, input.is_admin);
 		}),
 
 	updateAccess: userProcedure

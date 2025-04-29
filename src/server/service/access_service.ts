@@ -50,7 +50,7 @@ export class AccessService {
 		return ret;
 	}
 
-	async createAccessData(role: string, access: AccessiblePages | null) {
+	async createAccessData(role: string, access: AccessiblePages | null, is_admin: boolean) {
 		let accessibleData = access;
 		if (accessibleData === null) {
 			accessibleData = accessiblePages.parse({});
@@ -60,6 +60,7 @@ export class AccessService {
 		await Access.create({
 			...accessibleData,
 			role: role,
+      is_admin: is_admin,
 			disabled: false,
 			create_by: "system",
 			update_by: "system",
@@ -69,6 +70,9 @@ export class AccessService {
 	async updateAccessData(data: z.infer<typeof updateAccessAPI>) {
 		// Force settings to true
 		data.settings = true;
+    if (data.is_admin) {
+      data.roles = true
+    }
 		await Access.update(
 			{
 				...data,
@@ -78,7 +82,11 @@ export class AccessService {
 	}
 
   async deleteAccessData(id: number) {
-		// Force settings to true
+    const access =await Access.findByPk(id)
+    if (access?.is_admin) {
+      throw new BaseResponseError("Cannot delete admin access", 400);
+    }
+    
 		const connectedUser = await User.findOne(
 			{ where: { access_id: id } }
 		);
