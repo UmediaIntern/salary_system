@@ -36,4 +36,11 @@ export const accessRouter = createTRPCRouter({
 			const accessService = container.resolve(AccessService);
 			await accessService.updateAccessData(input);
 		}),
+  
+  deleteAccess: publicProcedure 
+    .input(z.object({ role_id: z.number() }))
+    .mutation(async ({ input }) => {
+			const accessService = container.resolve(AccessService);
+			await accessService.deleteAccessData(input.role_id);
+    })
 });

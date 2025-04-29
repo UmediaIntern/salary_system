@@ -31,7 +31,11 @@ export function Roles() {
 
 		if (selectedRole && data) {
 			const selected = data.find((role) => role.id === selectedRole.id);
-			selected && setSelectedRole(selected);
+			if (selected) {
+				setSelectedRole(selected);
+			} else {
+				data[0] && setSelectedRole(data[0]);
+			}
 		}
 	}, [data, selectedRole]);
 
@@ -78,7 +82,7 @@ export function Roles() {
 			<div className="grow">
 				<ScrollArea className="h-full pr-4">
 					{selectedRole && <AccessForm selectedRole={selectedRole} />}
-          {/* TODO: Delete role */}
+					{/* TODO: Delete role */}
 				</ScrollArea>
 			</div>
 		</div>

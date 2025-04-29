@@ -1,4 +1,4 @@
-import { Save } from "lucide-react";
+import { Save, Trash } from "lucide-react";
 import {
 	Form,
 	FormControl,
@@ -22,6 +22,9 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { api } from "~/utils/api";
 import { useRouter } from "next/router";
+import { useToast } from "~/components/ui/use-toast";
+import { ToastAction } from "@radix-ui/react-toast";
+import { useRoleCommandContext } from "../role_command_context";
 
 const accessiblePagesFormSchema = updateAccessAPI;
 const fieldKey = accessiblePagesFormSchema.keyof();
@@ -34,12 +37,35 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 
 	const { reset, watch } = form;
 	const [isChange, setIsChange] = useState(false);
+	const { setSelectedTab } = useRoleCommandContext();
+	const { toast } = useToast();
 
 	const ctx = api.useUtils();
 	const updateAccess = api.access.updateAccess.useMutation({
 		onSuccess: () => {
 			void ctx.access.invalidate();
-		}
+		},
+	});
+
+	const deleteAccess = api.access.deleteAccess.useMutation({
+		onError: (error) => {
+      if (error.message.includes("user is connected")) {
+        toast({
+          title: "You cannot delete this role",
+          description: "Some user is connected to this role",
+          action: (
+            <ToastAction altText="Goto acccounts page to unlink">
+              <Button variant="outline" onClick={() => setSelectedTab("accounts")}>
+                Accounts
+              </Button>
+            </ToastAction>
+          ),
+        });
+      }
+		},
+		onSuccess: () => {
+			void ctx.access.invalidate();
+		},
 	});
 
 	useEffect(() => {
@@ -65,38 +91,46 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 		return () => unsubscribe();
 	}, [selectedRole, watch]);
 
+	const router = useRouter();
 
-  const router = useRouter();
+	useEffect(() => {
+		const handleWindowClose = (e: BeforeUnloadEvent) => {
+			if (isChange) {
+				e.preventDefault();
+				e.returnValue = "";
+			}
+		};
 
-  useEffect(() => {
-    const handleWindowClose = (e: BeforeUnloadEvent) => {
-      if (isChange) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
+		const handleRouteChange = (url: string) => {
+			if (
+				isChange &&
+				!confirm(
+					"You have unsaved changes, do you really want to leave?"
+				)
+			) {
+				// Cancel route change
+				router.events.emit("routeChangeError");
+				throw "Route change aborted";
+			}
+		};
 
-    const handleRouteChange = (url: string) => {
-      if (isChange && !confirm('You have unsaved changes, do you really want to leave?')) {
-        // Cancel route change
-        router.events.emit('routeChangeError');
-        throw 'Route change aborted';
-      }
-    };
+		window.addEventListener("beforeunload", handleWindowClose);
+		router.events.on("routeChangeStart", handleRouteChange);
 
-    window.addEventListener('beforeunload', handleWindowClose);
-    router.events.on('routeChangeStart', handleRouteChange);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleWindowClose);
-      router.events.off('routeChangeStart', handleRouteChange);
-    };
-  }, [isChange, router]);
+		return () => {
+			window.removeEventListener("beforeunload", handleWindowClose);
+			router.events.off("routeChangeStart", handleRouteChange);
+		};
+	}, [isChange, router]);
 
 	const onSubmit = (values: z.infer<typeof accessiblePagesFormSchema>) => {
 		console.log("Submitted values:", values);
 		setIsChange(false);
 		updateAccess.mutate(values);
+	};
+
+	const onDelete = () => {
+		deleteAccess.mutate({ role_id: selectedRole.id });
 	};
 
 	return (
@@ -159,13 +193,21 @@ export function AccessForm({ selectedRole }: { selectedRole: AccessFEType }) {
 							/>
 						</FormSwitchFieldComp>
 
-						<FormSwitchFieldComp disabled form={form} name="settings" />
+						<FormSwitchFieldComp
+							disabled
+							form={form}
+							name="settings"
+						/>
 						<FormSwitchFieldComp form={form} name="roles" />
 						<FormSwitchFieldComp form={form} name="report" />
 					</div>
 				</div>
-				<div className="flex w-full flex-row justify-end">
-					<Button className="ml-auto" disabled={!isChange}>
+				<div className="flex w-full flex-row justify-between">
+					<Button onClick={onDelete} variant="destructive">
+						<Trash />
+						Delete
+					</Button>
+					<Button type="submit" disabled={!isChange}>
 						<Save />
 						Save
 					</Button>

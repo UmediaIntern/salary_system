@@ -12,16 +12,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Roles } from "./components/roles/roles";
 import { CurrentUserCard } from "./components/current_user_card";
 import { Accounts } from "./components/accounts/accounts";
+import {
+	RoleCommandContextProvider,
+	roleTabEnum,
+	useRoleCommandContext,
+} from "./components/role_command_context";
 
 const PageRoles: NextPageWithLayout = () => {
 	const { t } = useTranslation(["nav", "common"]);
+	const { selectedTab, setSelectedTab } = useRoleCommandContext();
+
 	return (
 		<div className="flex h-full w-full flex-col">
 			{/* header */}
 			<Header title={t("roles")} showOptions />
 			<div className="flex h-0 grow flex-col p-4">
 				<CurrentUserCard />
-				<Tabs defaultValue="roles" className="flex grow flex-col pt-4">
+				<Tabs
+					defaultValue={roleTabEnum.Values.roles}
+					value={selectedTab}
+					onValueChange={(value) => {
+						const selectedTab = roleTabEnum.parse(value);
+						setSelectedTab(selectedTab);
+					}}
+					className="flex grow flex-col pt-4"
+				>
 					<TabsList className="grid w-[500px] grid-cols-2">
 						<TabsTrigger value="roles">Roles</TabsTrigger>
 						<TabsTrigger value="accounts">Accounts</TabsTrigger>
@@ -41,7 +56,9 @@ const PageRoles: NextPageWithLayout = () => {
 PageRoles.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<RootLayout>
-			<PerpageLayoutNav pageTitle="roles">{page}</PerpageLayoutNav>
+			<PerpageLayoutNav pageTitle="roles">
+				<RoleCommandContextProvider>{page}</RoleCommandContextProvider>
+			</PerpageLayoutNav>
 		</RootLayout>
 	);
 };

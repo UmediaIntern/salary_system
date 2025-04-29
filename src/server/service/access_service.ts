@@ -11,6 +11,7 @@ import "reflect-metadata";
 import { BaseResponseError } from "../errors/base_response_error";
 import { InternalServerError } from "../errors/internal_server_error";
 import { type z } from "zod";
+import { User } from "../database/entity/SALARY/user";
 
 @injectable()
 export class AccessService {
@@ -75,4 +76,23 @@ export class AccessService {
 			{ where: { id: data.id } }
 		);
 	}
+
+  async deleteAccessData(id: number) {
+		// Force settings to true
+		const connectedUser = await User.findOne(
+			{ where: { access_id: id } }
+		);
+
+    if (connectedUser !== null) {
+      throw new BaseResponseError("Cannot delete access, user is connected", 400);
+    }
+
+    await Access.update(
+      {
+        disabled: true,
+      },
+      { where: { id: id } }
+    );
+	}
+
 }
