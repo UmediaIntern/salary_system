@@ -1,4 +1,8 @@
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+	createTRPCRouter,
+	publicProcedure,
+	userProcedure,
+} from "~/server/api/trpc";
 import { container } from "tsyringe";
 import { BaseResponseError } from "../../errors/base_response_error";
 import { z } from "zod";
@@ -13,13 +17,13 @@ import {
 } from "../types/employee_payment_type";
 import { EmployeePaymentMapper } from "~/server/database/mapper/employee_payment_mapper";
 import { ValidateService } from "~/server/service/validate_service";
-import { select_value } from "~/server/service/helper_function";
-import { EmployeePayment } from "~/server/database/entity/SALARY/employee_payment";
+import { getRoleFromCtx } from "../helper";
+import { AccessService } from "~/server/service/access_service";
 
 export const employeePaymentRouter = createTRPCRouter({
-	getCurrentEmployeePayment: publicProcedure
+	getCurrentEmployeePayment: userProcedure
 		.input(z.object({ period_id: z.number() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
 			const employeePaymentService = container.resolve(
 				EmployeePaymentService
 			);
@@ -28,7 +32,18 @@ export const employeePaymentRouter = createTRPCRouter({
 					input.period_id
 				);
 
-			return employeePaymentFE;
+      // Filter by access
+			const role = getRoleFromCtx(ctx);
+			const accessService = container.resolve(AccessService);
+			const access = await accessService.getAccessByRole(role);
+			if (!access.employees) {
+				throw new BaseResponseError("Access denied", 403);
+			}
+			const accessibleEmpData = employeePaymentFE.filter((emp) => {
+				return (emp.position ?? 0) <= access.employees_r_lv;
+			});
+
+			return accessibleEmpData;
 		}),
 
 	getAllEmployeePayment: publicProcedure
@@ -45,21 +60,6 @@ export const employeePaymentRouter = createTRPCRouter({
 
 			return employeePayment;
 		}),
-
-	// getAllFutureEmployeePayment: publicProcedure
-	// 	.output(z.array(z.array(employeePaymentFE)))
-	// 	.query(async () => {
-	// 		const employeePaymentService = container.resolve(
-	// 			EmployeePaymentService
-	// 		);
-	// 		const employeePayment =
-	// 			await employeePaymentService.getAllFutureEmployeePayment();
-	// 		if (employeePayment == null) {
-	// 			throw new BaseResponseError("EmployeePayment does not exist");
-	// 		}
-
-	// 		return employeePayment;
-	// 	}),
 
 	createEmployeePayment: publicProcedure
 		.input(employeePaymentCreateAPI)
@@ -102,20 +102,24 @@ export const employeePaymentRouter = createTRPCRouter({
 
 			return await employeePaymentMapper.decode(newdata);
 		}),
-	
+
 	batchCreateEmployeePayment: publicProcedure
 		.input(employeePaymentBatchCreateAPI)
 		.mutation(async ({ input }) => {
-			const employeePaymentService = container.resolve(EmployeePaymentService);
-			const employeePaymentMapper = container.resolve(EmployeePaymentMapper);
+			const employeePaymentService = container.resolve(
+				EmployeePaymentService
+			);
+			const employeePaymentMapper = container.resolve(
+				EmployeePaymentMapper
+			);
 			const validateService = container.resolve(ValidateService);
 
-			const newDatas = input.map(async(i) => {
+			const newDatas = input.map(async (i) => {
 				const previousEmployeePaymentFE =
-				await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
-					i.emp_no,
-					i.start_date ?? new Date()
-				);
+					await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
+						i.emp_no,
+						i.start_date ?? new Date()
+					);
 				if (!previousEmployeePaymentFE) {
 					throw new BaseResponseError(
 						`EmployeePayment for emp_no: ${i.emp_no} not exists yet`
@@ -126,19 +130,20 @@ export const employeePaymentRouter = createTRPCRouter({
 					...i,
 					end_date: null,
 				});
-				
-				const newData = await employeePaymentService.createEmployeePayment({
-					...i,
-					end_date: null,
-				})
+
+				const newData =
+					await employeePaymentService.createEmployeePayment({
+						...i,
+						end_date: null,
+					});
 
 				await employeePaymentService.rescheduleEmployeePayment();
 
 				return await employeePaymentMapper.decode(newData);
-			})
+			});
 
 			return newDatas;
-	}),
+		}),
 
 	updateEmployeePayment: publicProcedure
 		.input(updateEmployeePaymentAPI)

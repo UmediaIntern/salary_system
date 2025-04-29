@@ -36,5 +36,5 @@ export const empData = z.object({
 	department: z.string(),
 	position: z.number(),
 	position_type: z.string(),
-}).partial();
+});
 

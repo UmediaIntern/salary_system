@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, userProcedure } from "~/server/api/trpc";
 import { container } from "tsyringe";
 import { z } from "zod";
 import { EmployeeTrustService } from "~/server/service/employee_trust_service";
@@ -11,19 +11,33 @@ import { EmployeeTrustMapper } from "~/server/database/mapper/employee_trust_map
 import { ValidateService } from "~/server/service/validate_service";
 import { BaseResponseError } from "../../errors/base_response_error";
 import { select_value } from "~/server/service/helper_function";
+import { getRoleFromCtx } from "../helper";
+import { AccessService } from "~/server/service/access_service";
 
 export const employeeTrustRouter = createTRPCRouter({
-	getCurrentEmployeeTrust: publicProcedure
+	getCurrentEmployeeTrust: userProcedure 
 		.input(z.object({ period_id: z.number() }))
     .output(z.array(employeeTrustFE))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
 			const employeeTrustService =
 				container.resolve(EmployeeTrustService);
 			const current_employee_trustFE =
 				await employeeTrustService.getCurrentEmployeeTrustFE(
 					input.period_id
 				);
-			return current_employee_trustFE;
+
+      // Filter by access
+      const role = getRoleFromCtx(ctx);
+			const accessService = container.resolve(AccessService);
+			const access = await accessService.getAccessByRole(role);
+			if (!access.employees) {
+				throw new BaseResponseError("Access denied", 403);
+			}
+			const accessibleEmpData = current_employee_trustFE.filter((emp) => {
+				return (emp.position ?? 0) <= access.employees_r_lv;
+			});
+
+			return accessibleEmpData;
 		}),
 	
 	getCurrentEmployeeTrustByEmpNo: publicProcedure

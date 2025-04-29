@@ -1,4 +1,8 @@
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+	createTRPCRouter,
+	publicProcedure,
+	userProcedure,
+} from "~/server/api/trpc";
 import { container } from "tsyringe";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
 import { BaseResponseError } from "../../errors/base_response_error";
@@ -12,23 +16,37 @@ import { EHRService } from "~/server/service/ehr_service";
 import { EmployeePaymentService } from "~/server/service/employee_payment_service";
 import { EmployeeTrustService } from "~/server/service/employee_trust_service";
 import { LongServiceEnum } from "../types/long_service_enum";
-import { EmpAll } from "~/server/database/entity/UMEDIA/emp_all";
+import { type EmpAll } from "~/server/database/entity/UMEDIA/emp_all";
 import { WorkStatusEnum } from "../types/work_status_enum";
+import { AccessService } from "~/server/service/access_service";
+import { getRoleFromCtx } from "../helper";
 var XLSX = require("xlsx");
 
 export const employeeDataRouter = createTRPCRouter({
-	getCurrentEmployeeDataWithInfo: publicProcedure
+	getCurrentEmployeeDataWithInfo: userProcedure
 		.input(z.object({ period_id: z.number() }))
-		.query(async ({ input }) => {
+		.query(async ({ ctx, input }) => {
 			const employeeDataService = container.resolve(EmployeeDataService);
 			const employeeData =
 				await employeeDataService.getCurrentEmployeeData(
 					input.period_id
 				);
+
+      // Filter by access
+      const role = getRoleFromCtx(ctx);
+			const accessService = container.resolve(AccessService);
+			const access = await accessService.getAccessByRole(role);
+			if (!access.employees) {
+				throw new BaseResponseError("Access denied", 403);
+			}
+      const accessibleEmpData = employeeData.filter((emp) => {
+        return emp.position <= access.employees_r_lv;
+      });
+
 			const employee_data_mapper = container.resolve(EmployeeDataMapper);
 			const empDataWithInfo =
 				await employee_data_mapper.getEmployeeDataWithInfo(
-					employeeData,
+					accessibleEmpData,
 					input.period_id
 				);
 			return empDataWithInfo;
@@ -125,7 +143,7 @@ export const employeeDataRouter = createTRPCRouter({
 						registration_date: data["到職日期"],
 						quit_date: data["離職日期"] ?? null,
 						license_id: data["身份字號"],
-						bank_account_taiwan:  "abcd", // data["帳號2"] ?? // TODO: what is the default
+						bank_account_taiwan: "abcd", // data["帳號2"] ?? // TODO: what is the default
 						bank_account_foreign: data["外幣帳號"] ?? "", // TODO: what is the default
 						received_elderly_benefits: false,
 					};
