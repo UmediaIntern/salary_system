@@ -2,6 +2,7 @@
   "selects": "選擇",
   "actions": "功能",
 	"configurations": "設置",
+	"maintainance": "維護",
   "period": "期別",
   "functions": "計算薪資",
   "synchronize": "同步",
@@ -11,5 +12,6 @@
   "settings": "設定",
 	"roles": "身份",
 	"report": "報表",
-  "calendar": "日曆"
+  "calendar": "日曆",
+  "import": "匯入"
 }
