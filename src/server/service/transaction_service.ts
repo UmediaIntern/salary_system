@@ -378,7 +378,7 @@ export class TransactionService {
 			welfare_contribution: welfare_contribution,						// 福利金提撥
 			group_insurance_deduction: group_insurance_deduction,			// 團保費代扣
 			g_i_deduction_promotion: g_i_deduction_promotion,				// 團保費代扣_升等
-			dorm_deduction: dorm_deduction,				// 住宿代扣款
+			dorm_deduction: dorm_deduction,									// 住宿代扣款
 			income_tax: income_tax,											// 薪資所得稅
 			bonus_tax: bonus_tax,											// 獎金所得稅
 			fixed_deposit_deduction: fixed_deposit_deduction,				// 定存扣款

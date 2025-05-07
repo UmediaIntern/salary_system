@@ -15,6 +15,7 @@ export const WorkStatusEnum = z.enum([
 	"Intern",
 	"ContractEmployee",
 	"DailyWage",
+	"Boss"
 ]);
 export type WorkStatusEnumType = z.infer<typeof WorkStatusEnum>;
 
@@ -33,6 +34,7 @@ export const DBWorkStatusEnum = z.enum([
 	"建教生",
 	"約聘人員",
 	"日薪制",
+	"總經理"
 ]);
 export type DBWorkStatusEnumType = z.infer<typeof DBWorkStatusEnum>;
 
@@ -52,6 +54,7 @@ const workStatusMapping: Record<WorkStatusEnumType, DBWorkStatusEnumType> = {
     Intern: "建教生",
     ContractEmployee: "約聘人員",
     DailyWage: "日薪制",
+	Boss: "總經理"
 };
 
 export function convertToDBWorkStatusEnum(status: WorkStatusEnumType): DBWorkStatusEnumType {
