@@ -2,6 +2,7 @@
   "selects": "Select",
   "actions": "Actions",
 	"configurations": "Configurations",
+	"maintainance": "Maintainance",
   "period": "Period",
   "functions": "Functions",
   "synchronize": "Synchronize",
@@ -11,5 +12,6 @@
   "settings": "Settings",
 	"roles": "Roles",
 	"report": "Reports",
-  "calendar": "Calendar"
+  "calendar": "Calendar",
+  "import": "Import"
 }

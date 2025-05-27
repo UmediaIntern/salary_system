@@ -26,7 +26,7 @@ import { useAccessContext } from "../context/access_context_provider";
 
 function navLinks(
 	data: AccessFEType
-): Record<"action" | "setting" | "test", NavLinkEntry[]> {
+): Record<"action" | "setting" | "maintainance", NavLinkEntry[]> {
 	return {
 		action: [
 			{
@@ -95,13 +95,20 @@ function navLinks(
 				accessible: data.report,
 			},
 		],
-		test: [
+		maintainance: [
 			{
 				title: "test transaction",
 				icon: CircleDollarSign,
 				url: "/test",
 				collapsed: false,
 				accessible: false,
+			},
+			{
+				title: "import",
+				icon: CircleDollarSign,
+				url: "/import",
+				collapsed: false,
+				accessible: true,
 			},
 		],
 	};
@@ -137,8 +144,8 @@ export function NavSidebar({}: NavSidebarProp) {
 				/>
 				{/* Test */}
 				<SidebarGroupLinks
-					groupTitle={t("configurations")}
-					navLinks={navLinks(access).test}
+					groupTitle={t("maintainance")}
+					navLinks={navLinks(access).maintainance}
 					currentPath={pathname}
 				/>
 				{/* */}
