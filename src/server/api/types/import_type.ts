@@ -4,211 +4,238 @@ import { WorkTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
 
 export const importFields = z.object({
-  // 部門
-	department: z.string(),
-  // 員工編號
-	emp_no: z.string(),
-  // 姓名
-	emp_name: z.string(),
+/** 薪資期間 ID */
+period_id: z.number(),
+/** 發薪日期 */
+issue_date: z.string(),
+/** 發薪別 */
+pay_type: z.string(),
 
+// 勞工相關信息
+/** 部門 */
+department: z.string(),
+/** 員工編號 */
+emp_no: z.string(),
+/** 員工姓名 */
+emp_name: z.string(),
+/** 成本分類 */
+cost_category: CostCategoryEnum,
+/** 工作類別 */
+work_type: WorkTypeEnum,
+/** 工作形態 */
+work_status: WorkStatusEnum,
+/** 職等 */
+position: z.number(),
+/** 職級 */
+position_type: z.string(),
+/** 團保類別 */
+group_insurance_type: z.string(),
+/** 殘障等級 */
+disabilty_level: z.string(),
+/** 性別 */
+sex_type: z.string(),
+/** 身份(居留)證字號 */
+license_id: z.string(),
+/** 扶養人數 */
+dependents: z.number(),
+/** 健保眷口數 */
+healthcare_dependents: z.number(),
+/** 入境日期 */
+entry_date: z.string().nullable(),
+/** 到職日期 */
+registration_date: z.string(),
+/** 離職日期 */
+quit_date: z.string().nullable(),
+/** 台幣帳號 */
+bank_account_taiwan: z.string(),
+/** 外幣帳號 */
+bank_account_foreign: z.string(),
+/** 已領老年給付 */
+received_elderly_benefits: z.boolean(),
+/** 年資 */
+seniority: z.number(),
+/** 年度在職天數 */
+annual_days_in_service: z.number(),
+/** 試用期滿 */
+probation_period_over: z.boolean(),
+/** 勞保 */
+l_i: z.number(),
+/** 健保 */
+h_i: z.number(),
+/** 勞退 */
+l_r: z.number(),
+/** 職災 */
+occupational_injury: z.number(),
 
-  // 身份字號
-	license_id: z.string(),
-  // 帳號1
-	bank_account_taiwan: z.string(),
-  // 帳號2
-	bank_account_foreign: z.string(),
+// 加項
+/** 底薪 */
+base_salary: z.number(),
+/** 主管津貼 */
+supervisor_allowance: z.number(),
+/** 職務津貼 */
+occupational_allowance: z.number(),
+/** 久任津貼 */
+long_service_allowance: z.number(),
+/** 補助津貼 */
+subsidy_allowance: z.number(),
+/** 伙食津貼 */
+food_allowance: z.number(),
+/** 應發底薪 */
+gross_salary: z.number(),
+/** 輪班津貼 */
+shift_allowance: z.number(),
+/** 專業証照津貼 */
+professional_cert_allowance: z.number(),
+/** 全勤獎金 */
+full_attendance_bonus: z.number(),
+/** 營運績效獎金 */
+operational_performance_bonus: z.number(),
+/** 職務績效獎金 */
+occupational_performance_bonus: z.number(),
+/** 補發薪資 */
+reissue_salary: z.number(),
+/** 不休假代金 */
+non_leave_compensation: z.number(),
+/** 退職所得 */
+retirement_income: z.number(),
+/** 專案獎金 */
+project_bonus: z.number(),
+/** 季績效獎金 */
+quarterly_performance_bonus: z.number(),
+/** 平日134加班時數 */
+weekday_134_overtime_hours: z.number(),
+/** 平日167加班時數 */
+weekday_167_overtime_hours: z.number(),
+/** 休息日134加班時數 */
+rest_134_overtime_hours: z.number(),
+/** 休息日167加班時數 */
+rest_167_overtime_hours: z.number(),
+/** 休息日267加班時數 */
+rest_267_overtime_hours: z.number(),
+/** 平日134加班時數(稅) */
+weekday_134_tax_overtime_hours: z.number(),
+/** 平日167加班時數(稅) */
+weekday_167_tax_overtime_hours: z.number(),
+/** 休息日134加班時數(稅) */
+rest_134_tax_overtime_hours: z.number(),
+/** 休息日167加班時數(稅) */
+rest_167_tax_overtime_hours: z.number(),
+/** 休息日267加班時數(稅) */
+rest_267_tax_overtime_hours: z.number(),
+/** 平日加班費 */
+weekday_overtime_pay: z.number(),
+/** 休息日加班費 */
+rest_overtime_pay: z.number(),
+/** 超時加班費 */
+exceed_overtime_pay: z.number(),
+/** 勞保加項 */
+l_i_addition_previous: z.number(),
+/** 健保加項 */
+h_i_addition_previous: z.number(),
+/** 其他加項 */
+other_addition: z.number(),
+/** 其他加項稅 */
+other_addition_tax: z.number(),
 
-  // 幣別	
-  // 匯率
-  // 外幣金額
-  // 台幣金額
+// 減項
+/** 特別事假扣款 */
+special_personal_leave_deduct: z.number(),
+/** 請假扣款 */
+leave_deduction: z.number(),
+/** 員工信託提存金 */
+emp_trust_reserve: z.number(),
+/** 特別信託獎勵金_員工 */
+emp_special_trust_incent: z.number(),
+/** 勞保扣除額 */
+l_i_deduction: z.number(),
+/** 健保扣除額 */
+h_i_deduction: z.number(),
+/** 福利金提撥 */
+welfare_contribution: z.number(),
+/** 團保費代扣 */
+group_insurance_deduction: z.number(),
+/** 團保費代扣_升等 */
+g_i_deduction_promotion: z.number(),
+/** 住宿代扣款 */
+dorm_deduction: z.number(),
+/** 薪資所得稅 */
+income_tax: z.number(),
+/** 獎金所得稅 */
+bonus_tax: z.number(),
+/** 定存扣款 */
+fixed_deposit_deduction: z.number(),
+/** 法院薪資扣押款 */
+court_salary_garnishment: z.number(),
+/** 所得稅代扣 */
+income_tax_deduction: z.number(),
+/** 勞退金自提 */
+l_r_self: z.number(),
+/** 停車費 */
+parking_fee: z.number(),
+/** 仲介費 */
+brokerage_fee: z.number(),
+/** 二代健保 */
+v_2_h_i: z.number(),
+/** 勞保減項 */
+l_i_deduction_previous: z.number(),
+/** 健保減項 */
+h_i_deduction_previous: z.number(),
+/** 其他減項 */
+other_deduction: z.number(),
+/** 其他減項稅 */
+other_deduction_tax: z.number(),
+/** 減項小計 */
+deduction_subtotal: z.number(),
 
-  // 年資
-	seniority: z.number(),
-  // 年度在職天數
-	annual_days_in_service: z.number(),
-  // 已領老年給付
-	received_elderly_benefits: z.boolean(),
-  // 試用期滿
-	probation_period_over: z.boolean(),
-  // 成本類別
-  cost_category: CostCategoryEnum,
-  // 工作類別
-	work_type: WorkTypeEnum,
-  // 工作型態
-	work_status: WorkStatusEnum,
-  // 職等
-	position: z.number(),
-  // 職級
-	position_type: z.string(),
-  // 團保類別
-	group_insurance_type: z.string(),
-  // 性別
-	sex_type: z.string(),
-  // 殘障等級
-	disabilty_level: z.string(),
-  // 扶養人數
-	dependents: z.number(),
-  // 健保眷口數
-	healthcare_dependents: z.number(),
+/** 課稅所得 */
+taxable_income: z.number(),
+/** 薪資所得扣繳總額 */
+salary_income_deduction: z.number(),
+/** 課稅小計 */
+taxable_subtotal: z.number(),
+/** 非課稅小計 */
+non_taxable_subtotal: z.number(),
+/** 工資墊償 */
+salary_advance: z.number(),
+/** 公司勞保負擔(60%) */
+l_i_pay: z.number(),
+/** 公司健保負擔(60%) */
+h_i_pay: z.number(),
+/** 公司團保負擔 */
+group_insurance_pay: z.number(),
+/** 勞退金提撥 */
+l_r_contribution: z.number(),
+/** 勞退金提撥_舊制 */
+old_l_r_contribution: z.number(),
+/** 公司獎勵金 */
+org_trust_reserve: z.number(),
+/** 特別信託獎勵金_公司 */
+org_special_trust_incent: z.number(),
+/** 薪資區隔 */
+salary_range: z.number(),
+/** 薪資總額 */
+total_salary: z.number(),
+/** 實發金額 */
+net_salary: z.number(),
+/** 工作天數 */
+work_day: z.number(),
+/** 勞保天數 */
+l_i_day: z.number(),
+/** 健保天數 */
+h_i_day: z.number(),
+/** 備註 */
+note: z.string(),
 
-  // 入境日期
-	entry_date: z.string().nullable(),
-  // 到職日期
-	registration_date: z.string(),
-  // 離職日期
-	quit_date: z.string().nullable(),
-  // 勞保
-	l_i: z.number(),
-  // 健保
-	h_i: z.number(),
-  // 勞退
-	l_r: z.number(),
-  // 職災
-	occupational_injury: z.number(),
-  // 底薪
-  // 主管津貼
-  // 職務津貼
-  // 久任津貼
-  // 補助津貼
-  // 伙食津貼
-  // 應發底薪
-  // 全勤獎金
-  // 職務績效獎金
-  // 輪班津貼
-  // 專業證照津貼
-  // 補發薪資
-  // 不休假代金
-  // 營運考核獎金
-  // 專案獎金
-  // 年終獎金
-  // 年終考核獎金
-  // 季績效獎金
-  // 勞保加項
-  // 健保加項
-  // 其他加項
-  // 其他加項稅
-  // 加班1_時數
-  // 加班2_時數
-  // 加班稅1_時數
-  // 加班稅2_時數
-  // 假日加班時數
-  // 假日加班時數_半
-  // 休加班1_時數
-  // 休加班2_時數	
-  // 休加班3_時數
-  // 休加班稅1_時數
-  // 休加班稅2_時數
-  // 休加班稅3_時數	
-  // 國加班0_時數
-  // 國加班1_時數
-  // 國加班2_時數
-  // 國加班稅1_時數
-  // 國加班稅2_時數
-  // 例加班0_時數	
-  // 例假日加班_時數
-  // 例假日加班稅_時數
-  // 平日加班費
-  // 假日加班費
-  // 超時加班費
-  // 特休
-	special_leave: z.number(),
-  // 補休
-	compensatory_leave: z.number(),
-  // 特休時間
-  // 補休時間
-  // 當月特休
-  // 當月補休
-  // 當月特休時間
-  // 當月補休時間
-  // 事假
-	personal_leave: z.number(),
-  // 病假
-	sick_leave: z.number(),
-  // 事假時數
-  // 病假時數
-  // 特別事假
-	special_personal_leave: z.number(),
-  // 特別事假扣款
-  // 有全勤事假
-	full_attendance_personal_leave: z.number(),
-  // 有全勤病假
-	full_attendance_sick_leave: z.number(),
-  // 請假扣款
-  // 不休假
-  // 不休假時數
-  // 不休假特休時數
-	non_leave_special: z.number(),
-  // 不休假補休1時數
-	non_leave_compensatory_1: z.number(),
-  // 不休假補休2時數
-	non_leave_compensatory_2: z.number(),
-  // 不休假補休3時數
-	non_leave_compensatory_3: z.number(),
-  // 不休假補休4時數
-	non_leave_compensatory_4: z.number(),
-  // 不休假補休5時數	
-	non_leave_compensatory_5: z.number(),
-  // 員工信託提存金
-  // 勞保扣除額
-  // 健保扣除額
-  // 福利金提撥
-  // 夜點費
-  // 股票貸款
-  // 定存金額
-  // 車輛貸款
-  // 團保費代扣_升等	
-  // 團保費代扣
-  // 住宿代扣款
-  // 薪資所得稅
-  // 獎金所得稅
-  // 勞保減項
-  // 健減加項
-  // 法院薪資扣押款
-  // 其他減項
-  // 其他減項稅
-  // 所得稅代扣
-  // 勞退金自提
-  // 停車費
-  // 仲介費
-  // 減項小計
-  // 課稅所得
-  // 薪資所得扣繳總額
-  // 課稅小計
-  // 非課稅小計
-  // 工資墊償
-  // 勞保費
-  // 健保費
-  // 團保費
-  // 薪資區隔
-  // 薪資總額
-  // 實發金額
-  // 工作天數
-	work_day: z.number(),
-  // 勞保天數
-  // 健保天數
-  // 勞保追加
-  // 健保追加
-  // 端午獎金
-  // 中秋獎金
-  // 備註
-  // 獎金比率
-  // 列印
-  // 勞退金提撥	
-  // 勞退金提撥_舊制	
-  // 考核比率
-  // 考核獎金
-  // 退職所得
-  // 二代健保
-  // 原底薪
-  // 原應發底薪
-  // 原伙食津貼
-  // 原主管津貼	
-  // 原職務津貼	
-  // 持股信託_YN	
-  // 特別信託獎勵金員工
-
+/** 外幣幣別 */
+currency_foreign: z.string(),
+/** 匯率 */
+exchange_rate: z.number(),
+/** 外幣金額 */
+currency_amount_foreign: z.number(),
+/** 台幣金額 */
+currency_amount_taiwan: z.number(),
+/** 持股信託_YN */
+has_trust: z.boolean()
 });
 
 export type ImportFieldsType = z.infer<typeof importFields>;

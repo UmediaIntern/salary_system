@@ -200,7 +200,8 @@ export function EmployeePaymentFunctions() {
 				)}
 				{mode === "excel_upload" && (
 					<DialogContent className="flex max-h-[80vh] max-w-[80vw] p-8">
-						<ExcelUpload />
+            {/* TODO: This is bad */}
+						<ExcelUpload onClick={(data) => batchCreateEmployeePayment.mutate(data)} />
 					</DialogContent>
 				)}
 			</Dialog>
