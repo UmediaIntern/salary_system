@@ -22,12 +22,12 @@ import { dateCreateF, systemF, systemKeys } from "../../mapper/mapper_utils";
 
 const dbEmployeeData = z.object({
 	period_id: z.number(),
-	emp_no: z.string(),
-	emp_name: z.string(),
+	emp_no: z.string(), //員工編號
+	emp_name: z.string(), //員工姓名
 	position: z.number(), //職等
 	position_type: z.string(), //職級
 	group_insurance_type: z.string(), //團保類別
-	department: z.string(),
+	department: z.string(), //部門
 	work_type: WorkTypeEnum, //工作類別
 	disabilty_level: z.string().nullable(), //殘障等級
 	sex_type: z.string(), //性別
@@ -82,25 +82,24 @@ export class EmployeeData extends Model<
 	// id can be undefined during creation when using `autoIncrement`
 	declare id: CreationOptional<number>;
 	declare period_id: number;
-	declare emp_no: string;
-	declare emp_name: string;
-	declare position: number; //職等
-	declare position_type: string; //職級
-	declare group_insurance_type: string;
-	declare department: string;
-	declare work_type: WorkTypeEnumType; //工作類別
-	declare work_status: DBWorkStatusEnumType; //工作型態
-	declare disabilty_level: string | null;
-	declare sex_type: string;
-	declare dependents: number | null;
-	declare healthcare_dependents: number | null;
-	declare registration_date: string;
-	declare quit_date: string | null;
-	declare license_id: string | null;
-	declare bank_account_taiwan: string;
-	declare bank_account_foreign: string | null;
-	declare received_elderly_benefits: boolean;
-
+	declare emp_no: string; // 員工編號
+	declare emp_name: string; // 員工姓名
+	declare position: number; // 職等
+	declare position_type: string; // 職級
+	declare group_insurance_type: string; // 團保類別
+	declare department: string; // 部門
+	declare work_type: WorkTypeEnumType; // 工作類別
+	declare work_status: DBWorkStatusEnumType; // 工作型態
+	declare disabilty_level: string | null; // 殘障等級
+	declare sex_type: string; // 性別
+	declare dependents: number | null; // 扶養人數
+	declare healthcare_dependents: number | null; // 健保眷口數
+	declare registration_date: string; // 到職日期
+	declare quit_date: string | null; // 離職日期
+	declare license_id: string | null; // 身分證字號
+	declare bank_account_taiwan: string; // 台幣帳號
+	declare bank_account_foreign: string | null; // 外幣帳號
+	declare received_elderly_benefits: boolean; //是否領取老年給付
 	// timestamps!
 	// createdAt can be undefined during creation
 	declare create_date: CreationOptional<Date>;

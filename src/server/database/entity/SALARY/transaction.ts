@@ -15,136 +15,257 @@ export class Transaction extends Model<
 	InferCreationAttributes<Transaction>
 > {
 	// id can be undefined during creation when using `autoIncrement`
+	/** 識別碼 */
 	declare id: CreationOptional<number>;
+	/** 薪資期間 ID */
 	declare period_id: number;
-	declare issue_date: string; // 發新日期
-	declare pay_type: string; // 發薪別
-
+	/** 發薪日期 */
+	declare issue_date: string;
+	/** 發薪別 */
+	declare pay_type: string;
+  
 	// 勞工相關信息
-	declare department: string; // 部門
-	declare emp_no: string; // 員工編號
-	declare emp_name: string; // 員工姓名
-	declare cost_category: CostCategoryEnumType; // 成本分類
-	declare work_type: WorkTypeEnumType; // 工作類別
-	declare work_status: WorkStatusEnumType; // 工作形態
-	declare position: number; // 職等
-	declare position_type: string; // 職級
-	declare group_insurance_type: string; // 團保類別
-	declare disabilty_level: string; // 殘障等級
-	declare sex_type: string; // 性別
-	declare license_id: string; // 身份(居留)證字號
-	declare dependents: number; // 扶養人數
-	declare healthcare_dependents: number; // 健保眷口數
-	declare entry_date: string | null; // 入境日期
-	declare registration_date: string; // 到職日期
-	declare quit_date: string | null; // 離職日期
-	declare bank_account_taiwan: string; // 台幣帳號
-	declare bank_account_foreign: string; // 外幣帳號
-	declare received_elderly_benefits: boolean; // 已領老年給付
-	declare seniority: number; // 年資
-	declare annual_days_in_service: number; // 年度在職天數
-	declare probation_period_over: boolean; // 試用期滿
-	declare l_i: number; // 勞保
-	declare h_i: number; // 健保
-	declare l_r: number; // 勞退
-	declare occupational_injury: number; // 職災
-
+	/** 部門 */
+	declare department: string;
+	/** 員工編號 */
+	declare emp_no: string;
+	/** 員工姓名 */
+	declare emp_name: string;
+	/** 成本分類 */
+	declare cost_category: CostCategoryEnumType;
+	/** 工作類別 */
+	declare work_type: WorkTypeEnumType;
+	/** 工作形態 */
+	declare work_status: WorkStatusEnumType;
+	/** 職等 */
+	declare position: number;
+	/** 職級 */
+	declare position_type: string;
+	/** 團保類別 */
+	declare group_insurance_type: string;
+	/** 殘障等級 */
+	declare disabilty_level: string;
+	/** 性別 */
+	declare sex_type: string;
+	/** 身份(居留)證字號 */
+	declare license_id: string;
+	/** 扶養人數 */
+	declare dependents: number;
+	/** 健保眷口數 */
+	declare healthcare_dependents: number;
+	/** 入境日期 */
+	declare entry_date: string | null;
+	/** 到職日期 */
+	declare registration_date: string;
+	/** 離職日期 */
+	declare quit_date: string | null;
+	/** 台幣帳號 */
+	declare bank_account_taiwan: string;
+	/** 外幣帳號 */
+	declare bank_account_foreign: string;
+	/** 已領老年給付 */
+	declare received_elderly_benefits: boolean;
+	/** 年資 */
+	declare seniority: number;
+	/** 年度在職天數 */
+	declare annual_days_in_service: number;
+	/** 試用期滿 */
+	declare probation_period_over: boolean;
+	/** 勞保 */
+	declare l_i: number;
+	/** 健保 */
+	declare h_i: number;
+	/** 勞退 */
+	declare l_r: number;
+	/** 職災 */
+	declare occupational_injury: number;
+  
 	// 加項
-	declare base_salary: number; // 底薪
-	declare supervisor_allowance: number; // 主管津貼
-	declare occupational_allowance: number; // 職務津貼
-	declare long_service_allowance: number; //久任津貼
-	declare subsidy_allowance: number; // 補助津貼
-	declare food_allowance: number; // 伙食津貼
-	declare gross_salary: number; // 應發底薪
-	declare shift_allowance: number; // 輪班津貼
-	declare professional_cert_allowance: number; // 專業証照津貼
-	declare full_attendance_bonus: number; // 全勤獎金
-	declare operational_performance_bonus: number; // 營運績效獎金
-	declare occupational_performance_bonus: number; // 職務績效獎金
-	declare reissue_salary: number; // 補發薪資
-	declare non_leave_compensation: number; // 不休假代金
-	declare retirement_income: number; // 退職所得
-	declare project_bonus: number; // 專案獎金
-	declare quarterly_performance_bonus: number; // 季績效獎金
-	declare weekday_134_overtime_hours: number; // 平日134加班時數
-	declare weekday_167_overtime_hours: number; // 平日167加班時數
-	declare rest_134_overtime_hours: number; 	// 休息日134加班時數
-	declare rest_167_overtime_hours: number; 	// 休息日167加班時數
-	declare rest_267_overtime_hours: number; 	// 休息日267加班時數
-	declare weekday_134_tax_overtime_hours: number; // 平日134加班時數(稅)
-	declare weekday_167_tax_overtime_hours: number; // 平日167加班時數(稅)
-	declare rest_134_tax_overtime_hours: number; 	// 休息日134加班時數(稅)
-	declare rest_167_tax_overtime_hours: number; 	// 休息日167加班時數(稅)
-	declare rest_267_tax_overtime_hours: number; 	// 休息日267加班時數(稅)
-	declare weekday_overtime_pay: number; // 平日加班費
-	declare rest_overtime_pay: number; // 休息日加班費
-	declare exceed_overtime_pay: number; // 超時加班費
-	declare l_i_addition_previous: number; // 勞保加項
-	declare h_i_addition_previous: number; // 健保加項
-	declare other_addition: number; // 其他加項
-	declare other_addition_tax: number; // 其他加項稅
-
+	/** 底薪 */
+	declare base_salary: number;
+	/** 主管津貼 */
+	declare supervisor_allowance: number;
+	/** 職務津貼 */
+	declare occupational_allowance: number;
+	/** 久任津貼 */
+	declare long_service_allowance: number;
+	/** 補助津貼 */
+	declare subsidy_allowance: number;
+	/** 伙食津貼 */
+	declare food_allowance: number;
+	/** 應發底薪 */
+	declare gross_salary: number;
+	/** 輪班津貼 */
+	declare shift_allowance: number;
+	/** 專業証照津貼 */
+	declare professional_cert_allowance: number;
+	/** 全勤獎金 */
+	declare full_attendance_bonus: number;
+	/** 營運績效獎金 */
+	declare operational_performance_bonus: number;
+	/** 職務績效獎金 */
+	declare occupational_performance_bonus: number;
+	/** 補發薪資 */
+	declare reissue_salary: number;
+	/** 不休假代金 */
+	declare non_leave_compensation: number;
+	/** 退職所得 */
+	declare retirement_income: number;
+	/** 專案獎金 */
+	declare project_bonus: number;
+	/** 季績效獎金 */
+	declare quarterly_performance_bonus: number;
+	/** 平日134加班時數 */
+	declare weekday_134_overtime_hours: number;
+	/** 平日167加班時數 */
+	declare weekday_167_overtime_hours: number;
+	/** 休息日134加班時數 */
+	declare rest_134_overtime_hours: number;
+	/** 休息日167加班時數 */
+	declare rest_167_overtime_hours: number;
+	/** 休息日267加班時數 */
+	declare rest_267_overtime_hours: number;
+	/** 平日134加班時數(稅) */
+	declare weekday_134_tax_overtime_hours: number;
+	/** 平日167加班時數(稅) */
+	declare weekday_167_tax_overtime_hours: number;
+	/** 休息日134加班時數(稅) */
+	declare rest_134_tax_overtime_hours: number;
+	/** 休息日167加班時數(稅) */
+	declare rest_167_tax_overtime_hours: number;
+	/** 休息日267加班時數(稅) */
+	declare rest_267_tax_overtime_hours: number;
+	/** 平日加班費 */
+	declare weekday_overtime_pay: number;
+	/** 休息日加班費 */
+	declare rest_overtime_pay: number;
+	/** 超時加班費 */
+	declare exceed_overtime_pay: number;
+	/** 勞保加項 */
+	declare l_i_addition_previous: number;
+	/** 健保加項 */
+	declare h_i_addition_previous: number;
+	/** 其他加項 */
+	declare other_addition: number;
+	/** 其他加項稅 */
+	declare other_addition_tax: number;
+  
 	// 減項
-	// TODO: 請假時數
-	declare special_personal_leave_deduct: number; // 特別事假扣款
-	declare leave_deduction: number; // 請假扣款
-	declare emp_trust_reserve: number; // 員工信託提存金
-	declare emp_special_trust_incent: number; // 特別信託獎勵金_員工
-	declare l_i_deduction: number; // 勞保扣除額
-	declare h_i_deduction: number; // 健保扣除額
-	declare welfare_contribution: number; // 福利金提撥
-	declare group_insurance_deduction: number; // 團保費代扣
-	declare g_i_deduction_promotion: number; // 團保費代扣_升等
-	declare dorm_deduction: number; // 住宿代扣款
-	declare income_tax: number; // 薪資所得稅
-	declare bonus_tax: number; // 獎金所得稅
-	declare fixed_deposit_deduction: number; // 定存扣款
-	declare court_salary_garnishment: number; // 法院薪資扣押款
-	declare income_tax_deduction: number; // 所得稅代扣
-	declare l_r_self: number; // 勞退金自提
-	declare parking_fee: number; // 停車費
-	declare brokerage_fee: number; // 仲介費
-	declare v_2_h_i: number; // 二代健保
-	declare l_i_deduction_previous: number; // 勞保減項
-	declare h_i_deduction_previous: number; // 健保減項
-	declare other_deduction: number; // 其他減項
-	declare other_deduction_tax: number; // 其他減項稅
-	declare deduction_subtotal: number; // 減項小計
-
-	declare taxable_income: number; // 課稅所得
-	declare salary_income_deduction: number; // 薪資所得扣繳總額
-	declare taxable_subtotal: number; // 課稅小計
-	declare non_taxable_subtotal: number; // 非課說小計
-	declare salary_advance: number; // 工資墊償
-	declare l_i_pay: number; // 公司勞保負擔(60%)
-	declare h_i_pay: number; // 公司健保負擔(60%)
-	declare group_insurance_pay: number; // 公司團保負擔
-	declare l_r_contribution: number; // 勞退金提撥
-	declare old_l_r_contribution: number; // 勞退金提撥_舊制
-	declare org_trust_reserve: number; // 公司獎勵金
-	declare org_special_trust_incent: number; // 特別信託獎勵金_公司
-	declare salary_range: number; // 薪資區隔
-	declare total_salary: number; // 薪資總額
-	declare net_salary: number; // 實發金額
-	declare work_day: number; // 工作天數
-	declare l_i_day: number; // 勞保天數
-	declare h_i_day: number; // 健保天數
-	declare note: string; // 備註
-
-	declare currency_foreign: string; // 外幣幣別
-	declare exchange_rate: number; // 匯率
-	declare currency_amount_foreign: number; // 外幣金額
-	declare currency_amount_taiwan: number; // 台幣金額
-	declare has_trust: boolean; // 持股信託_YN
-	declare disable: boolean; // 是否禁用
-
-	declare create_date: CreationOptional<Date>; // 建立日期
-	declare create_by: string; // 建立者
-	declare update_date: CreationOptional<Date>; // 更新日期
-	declare update_by: string; // 更新者
+	/** 特別事假扣款 */
+	declare special_personal_leave_deduct: number;
+	/** 請假扣款 */
+	declare leave_deduction: number;
+	/** 員工信託提存金 */
+	declare emp_trust_reserve: number;
+	/** 特別信託獎勵金_員工 */
+	declare emp_special_trust_incent: number;
+	/** 勞保扣除額 */
+	declare l_i_deduction: number;
+	/** 健保扣除額 */
+	declare h_i_deduction: number;
+	/** 福利金提撥 */
+	declare welfare_contribution: number;
+	/** 團保費代扣 */
+	declare group_insurance_deduction: number;
+	/** 團保費代扣_升等 */
+	declare g_i_deduction_promotion: number;
+	/** 住宿代扣款 */
+	declare dorm_deduction: number;
+	/** 薪資所得稅 */
+	declare income_tax: number;
+	/** 獎金所得稅 */
+	declare bonus_tax: number;
+	/** 定存扣款 */
+	declare fixed_deposit_deduction: number;
+	/** 法院薪資扣押款 */
+	declare court_salary_garnishment: number;
+	/** 所得稅代扣 */
+	declare income_tax_deduction: number;
+	/** 勞退金自提 */
+	declare l_r_self: number;
+	/** 停車費 */
+	declare parking_fee: number;
+	/** 仲介費 */
+	declare brokerage_fee: number;
+	/** 二代健保 */
+	declare v_2_h_i: number;
+	/** 勞保減項 */
+	declare l_i_deduction_previous: number;
+	/** 健保減項 */
+	declare h_i_deduction_previous: number;
+	/** 其他減項 */
+	declare other_deduction: number;
+	/** 其他減項稅 */
+	declare other_deduction_tax: number;
+	/** 減項小計 */
+	declare deduction_subtotal: number;
+  
+	/** 課稅所得 */
+	declare taxable_income: number;
+	/** 薪資所得扣繳總額 */
+	declare salary_income_deduction: number;
+	/** 課稅小計 */
+	declare taxable_subtotal: number;
+	/** 非課說小計 */
+	declare non_taxable_subtotal: number;
+	/** 工資墊償 */
+	declare salary_advance: number;
+	/** 公司勞保負擔(60%) */
+	declare l_i_pay: number;
+	/** 公司健保負擔(60%) */
+	declare h_i_pay: number;
+	/** 公司團保負擔 */
+	declare group_insurance_pay: number;
+	/** 勞退金提撥 */
+	declare l_r_contribution: number;
+	/** 勞退金提撥_舊制 */
+	declare old_l_r_contribution: number;
+	/** 公司獎勵金 */
+	declare org_trust_reserve: number;
+	/** 特別信託獎勵金_公司 */
+	declare org_special_trust_incent: number;
+	/** 薪資區隔 */
+	declare salary_range: number;
+	/** 薪資總額 */
+	declare total_salary: number;
+	/** 實發金額 */
+	declare net_salary: number;
+	/** 工作天數 */
+	declare work_day: number;
+	/** 勞保天數 */
+	declare l_i_day: number;
+	/** 健保天數 */
+	declare h_i_day: number;
+	/** 備註 */
+	declare note: string;
+  
+	/** 外幣幣別 */
+	declare currency_foreign: string;
+	/** 匯率 */
+	declare exchange_rate: number;
+	/** 外幣金額 */
+	declare currency_amount_foreign: number;
+	/** 台幣金額 */
+	declare currency_amount_taiwan: number;
+	/** 持股信託_YN */
+	declare has_trust: boolean;
+	/** 是否禁用 */
+	declare disable: boolean;
+  
+	/** 建立日期 */
+	declare create_date: CreationOptional<Date>;
+	/** 建立者 */
+	declare create_by: string;
+	/** 更新日期 */
+	declare update_date: CreationOptional<Date>;
+	/** 更新者 */
+	declare update_by: string;
 }
 
+/**
+ * Initialize the Transaction model.
+ * @param {Sequelize} sequelize - Sequelize instance.
+ */
 export function initTransaction(sequelize: Sequelize) {
 	Transaction.init(
 		{
@@ -159,7 +280,7 @@ export function initTransaction(sequelize: Sequelize) {
 			},
 			issue_date: {
 				type: DataTypes.STRING(128),
-				comment: "發新日期",
+				comment: "發薪日期",
 			},
 			pay_type: {
 				type: DataTypes.STRING(128),
