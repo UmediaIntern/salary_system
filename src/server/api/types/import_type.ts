@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { CostCategoryEnum } from "./cost_category_type";
+import { WorkTypeEnum } from "./work_type_enum";
+import { WorkStatusEnum } from "./work_status_enum";
 
 export const importFields = z.object({
   // 部門
@@ -9,25 +12,61 @@ export const importFields = z.object({
 	emp_name: z.string(),
 
 
+  // 身份字號
+	license_id: z.string(),
+  // 帳號1
+	bank_account_taiwan: z.string(),
+  // 帳號2
+	bank_account_foreign: z.string(),
+
+  // 幣別	
+  // 匯率
+  // 外幣金額
+  // 台幣金額
+
+  // 年資
+	seniority: z.number(),
+  // 年度在職天數
+	annual_days_in_service: z.number(),
+  // 已領老年給付
+	received_elderly_benefits: z.boolean(),
+  // 試用期滿
+	probation_period_over: z.boolean(),
   // 成本類別
-
+  cost_category: CostCategoryEnum,
   // 工作類別
-
+	work_type: WorkTypeEnum,
   // 工作型態
+	work_status: WorkStatusEnum,
   // 職等
 	position: z.number(),
   // 職級
+	position_type: z.string(),
   // 團保類別
+	group_insurance_type: z.string(),
   // 性別
+	sex_type: z.string(),
+  // 殘障等級
+	disabilty_level: z.string(),
   // 扶養人數
+	dependents: z.number(),
   // 健保眷口數
+	healthcare_dependents: z.number(),
+
   // 入境日期
+	entry_date: z.string().nullable(),
   // 到職日期
+	registration_date: z.string(),
   // 離職日期
+	quit_date: z.string().nullable(),
   // 勞保
+	l_i: z.number(),
   // 健保
+	h_i: z.number(),
   // 勞退
+	l_r: z.number(),
   // 職災
+	occupational_injury: z.number(),
   // 底薪
   // 主管津貼
   // 職務津貼
@@ -154,25 +193,13 @@ export const importFields = z.object({
   // 端午獎金
   // 中秋獎金
   // 備註
-  // 身份字號
-  // 帳號2
-  // 帳號1
-  // 幣別	
-  // 匯率
-  // 外幣金額
-  // 台幣金額
   // 獎金比率
   // 列印
-  // 年度在職天數
   // 勞退金提撥	
   // 勞退金提撥_舊制	
-  // 年資
   // 考核比率
   // 考核獎金
-  // 試用期滿
-  // 殘障等級
   // 退職所得
-  // 已領老年給付
   // 二代健保
   // 原底薪
   // 原應發底薪
