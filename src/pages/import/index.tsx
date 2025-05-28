@@ -19,6 +19,7 @@ import {
 	CarouselPrevious,
 	type CarouselApi,
 } from "~/components/ui/carousel";
+import { ExcelUpload } from "~/components/file_operations/excel_upload";
 
 export function CarouselDApiDemo() {
 	const [api, setApi] = useState<CarouselApi>();
@@ -39,32 +40,41 @@ export function CarouselDApiDemo() {
 	}, [api]);
 
 	return (
-			<Carousel setApi={setApi} className="flex flex-col w-full h-full">
-				<CarouselContent className="h-full">
-					{Array.from({ length: 5 }).map((_, index) => (
-						<CarouselItem key={index}>
-							<Card className="h-full">
-								<CardContent className="grow h-full flex items-center justify-center p-6">
-									<span className="text-4xl font-semibold">
-										{index + 1}
-									</span>
-								</CardContent>
-							</Card>
-						</CarouselItem>
-					))}
-				</CarouselContent>
+		<Carousel setApi={setApi} className="flex h-full w-full flex-col">
+			<CarouselContent className="h-full">
+				<CarouselItem key={0}>
+					<Card className="h-full">
+						<CardContent className="flex h-full grow items-center justify-center p-6">
+							<span className="text-4xl font-semibold">
+								<ExcelUpload />
+							</span>
+						</CardContent>
+					</Card>
+				</CarouselItem>
+				{Array.from({ length: 4 }).map((_, index) => (
+					<CarouselItem key={index + 1}>
+						<Card className="h-full">
+							<CardContent className="flex h-full grow items-center justify-center p-6">
+								<span className="text-4xl font-semibold">
+									{index + 2}
+								</span>
+							</CardContent>
+						</Card>
+					</CarouselItem>
+				))}
+			</CarouselContent>
 
-				<div className="flex w-full flex-row justify-between py-4 h-16">
-					<CarouselDots />
-					<div className="flex flex-row gap-2">
-						<CarouselPrevious className="relative left-0 right-0 top-0 translate-x-0 translate-y-0" />
-						<div className="py-2 text-center text-sm text-muted-foreground">
-							Slide {current} of {count}
-						</div>
-						<CarouselNext className="relative left-0 right-0 top-0 translate-x-0 translate-y-0" />
+			<div className="flex h-16 w-full flex-row justify-between py-4">
+				<CarouselDots />
+				<div className="flex flex-row gap-2">
+					<CarouselPrevious className="relative left-0 right-0 top-0 translate-x-0 translate-y-0" />
+					<div className="py-2 text-center text-sm text-muted-foreground">
+						Slide {current} of {count}
 					</div>
+					<CarouselNext className="relative left-0 right-0 top-0 translate-x-0 translate-y-0" />
 				</div>
-			</Carousel>
+			</div>
+		</Carousel>
 	);
 }
 const PageImport: NextPageWithLayout = () => {
