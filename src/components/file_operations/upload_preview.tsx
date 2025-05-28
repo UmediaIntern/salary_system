@@ -38,7 +38,7 @@ export function UploadPreview({ datas, onClick }: UploadPreviewProps) {
 	}, [datas]);
 
 	return (
-		<div className="flex h-full w-full flex-col">
+		<div className="flex h-full w-full flex-col pb-4">
 			<div className="flex w-full flex-col gap-2">
 				{/* Tabs list */}
 				{isMultiSheet && (
@@ -67,7 +67,8 @@ export function UploadPreview({ datas, onClick }: UploadPreviewProps) {
 
 				{selectedKey && datas[selectedKey] && (
 					<div className="flex rounded-sm border-2 border-muted">
-						<ScrollArea className="max-h-[55vh] w-full">
+            {/* TODO: the max-h is bad */}
+						<ScrollArea className="max-h-[45vh] w-full">
 							<PreviewTable data={datas[selectedKey]} />
 							<ScrollBar orientation="horizontal" hidden={true} />
 						</ScrollArea>

@@ -13,7 +13,13 @@ import {
 import { zodOptionalDate } from "~/lib/utils/zod_types";
 import { DateDialog } from "../../components/function_sheet/date_dialog";
 import { AdjustBaseSalaryDialog } from "../../components/function_sheet/adjust_base_salary_dialog";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "~/components/ui/dialog";
 import { ExcelDownload } from "~/components/file_operations/excel_download";
 import { ExcelUpload } from "~/components/file_operations/excel_upload";
 import { useEmployeeTableContext } from "../../components/context/data_table_context_provider";
@@ -199,9 +205,20 @@ export function EmployeePaymentFunctions() {
 					/>
 				)}
 				{mode === "excel_upload" && (
-					<DialogContent className="flex max-h-[80vh] max-w-[80vw] p-8">
-            {/* TODO: This is bad */}
-						<ExcelUpload onClick={(data) => batchCreateEmployeePayment.mutate(data)} />
+					<DialogContent className="flex h-[80vh] max-w-[80vw] flex-col p-8">
+						<DialogHeader>
+							<DialogTitle>Upload excel</DialogTitle>
+							<DialogDescription>
+								Upload employee payment excel
+							</DialogDescription>
+						</DialogHeader>
+						{/* TODO: This is bad */}
+						<ExcelUpload
+							onClick={(data) => {
+								batchCreateEmployeePayment.mutate(data);
+								setOpenDialog(false);
+							}}
+						/>
 					</DialogContent>
 				)}
 			</Dialog>
