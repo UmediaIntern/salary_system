@@ -491,5 +491,22 @@
       "title": "自動計算確認",
       "description": "請選擇需一個日期。系統將在該日期生效時更新勞保、健保、勞退和職災。"
     }
+  },
+  "work_status": {
+    "regular_employee": "一般員工",
+    "resigned_employee": "離職人員",
+    "foreign_worker": "外籍勞工",
+    "resigned_employee_partial_month": "當月離職人員破月",
+    "resigned_employee_full_month": "當月離職人員全月",
+    "new_employee_partial_month": "當月新進人員破月",
+    "new_employee_full_month": "當月新進人員全月",
+    "general_manager": "總經理",
+    "consultant": "顧問",
+    "new_employee": "當月新進人員",
+    "part_time_worker": "工讀生",
+    "intern": "建教生",
+    "contract_employee": "約聘人員",
+    "daily_wage": "日薪制",
+    "boss": "總經理"
   }
 }
