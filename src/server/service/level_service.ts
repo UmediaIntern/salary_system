@@ -21,7 +21,7 @@ import {
 	stringToDate,
 	stringToDateNullable,
 } from "../api/types/z_utils";
-import { subDays } from "date-fns";
+import { addDays, subDays } from "date-fns";
 @injectable()
 export class LevelService {
 	private readonly levelMapper: BaseMapper<
@@ -323,7 +323,7 @@ export class LevelService {
 								);
 							} else {
 								level_range_service.emptyInfluencedLevelRange(
-									dateToString.parse(subDays(stringToDate.parse(level.end_date),1)),
+									dateToString.parse(addDays(stringToDate.parse(level.end_date),1)),
 									dateToString.parse(new_end_date)
 								);
 							}
