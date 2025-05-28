@@ -73,19 +73,17 @@ export const level_range_columns = ({
 					switch (key) {
 						case "start_date":
 							return (
-								<div className="text-center font-medium">{`${
-									formatDate(
-										"day",
-										row.original.start_date
-									) ?? ""
-								}`}</div>
+								<div className="text-center font-medium">{`${formatDate(
+									"day",
+									row.original.start_date
+								) ?? ""
+									}`}</div>
 							);
 						case "end_date":
 							return (
-								<div className="text-center font-medium">{`${
-									formatDate("day", row.original.end_date) ??
+								<div className="text-center font-medium">{`${formatDate("day", row.original.end_date) ??
 									""
-								}`}</div>
+									}`}</div>
 							);
 						default:
 							return (
@@ -115,12 +113,13 @@ export const level_range_columns = ({
 };
 
 function LevelRangeFunctionComponent({ data }: { data: RowItem }) {
-	const { setOpen, setMode, setData, enableFunctions } =
+	const { setOpenSheet, setOpenDialog, setMode, setData, enableFunctions } =
 		useDataTableContext();
 
 	return (
 		<FunctionsComponent
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			data={data}
 			setData={setData}
@@ -155,8 +154,10 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 	const { t } = useTranslation(["common"]);
 	const {
 		mode,
-		open,
-    setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		data: dd,
 	} = useDataTableContext();
 	const getLevelRange = api.parameters.getCurrentLevelRange.useQuery({
@@ -179,8 +180,8 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 			period_id={period_id}
 		>
 			<Sheet
-				open={open && mode !== "delete"}
-				onOpenChange={setOpen}
+				open={openSheet && mode !== "delete"}
+				onOpenChange={setOpenSheet}
 				aria-hidden={false}
 			>
 				<DataTableWithFunctions
@@ -207,13 +208,13 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 							},
 						]}
 						mode={mode}
-						closeSheet={() => setOpen(false)}
+						closeSheet={() => setOpenSheet(false)}
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
+				open={openDialog && mode === "delete"}
+				onOpenChange={setOpenDialog}
 				schema={levelRangeSchema}
 			/>
 		</ParameterToolbarFunctionsProvider>

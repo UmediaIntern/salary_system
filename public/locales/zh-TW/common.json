@@ -468,7 +468,9 @@
     "start_calculate_month_salary": "月薪計算",
     "start_calculate_month_salary_button": "開始計算",
     "transaction": "薪資異動檔",
-    "new_data_start_date": "新資料開始時間"
+    "new_data_start_date": "新資料開始時間",
+    "true": "是",
+    "false": "否"
   },
   "sync_page": {
     "show_all": "所有員工",

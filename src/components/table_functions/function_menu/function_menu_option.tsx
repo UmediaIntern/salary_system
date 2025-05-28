@@ -70,7 +70,7 @@ export const FunctionMenuOption = {
 	Delete: createOptionComponent("delete", Trash2),
 	ExcelDownload: createOptionComponent("excel_download", Download),
 	ExcelUpload: createOptionComponent("excel_upload", PenSquare),
-	Initialize: createOptionComponent("initialize", RefreshCcw),
+	// Initialize: createOptionComponent("initialize", RefreshCcw),
 	AutoCalculate: createOptionComponent("auto_calculate", Calculator),
 	AdjustBaseSalary: createOptionComponent(
 		"adjust_base_salary",

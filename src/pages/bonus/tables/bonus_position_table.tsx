@@ -94,11 +94,12 @@ export const bonus_position_columns = ({
 ];
 
 function BonusFunctionComponent({ data }: { data: RowItem }) {
-	const { setOpen, setMode, setData } = useBonusFunctionContext();
+	const { setOpenSheet, setOpenDialog, setMode, setData } = useBonusFunctionContext();
 	return (
 		<FunctionsComponent
 			data={data}
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			setData={setData}
 		/>
@@ -135,8 +136,10 @@ export function BonusPositionTable({
 	const { t } = useTranslation(["common"]);
 	const {
 		data: selectedData,
-		open,
-		setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		mode,
 		setData,
 	} = useBonusFunctionContext();
@@ -176,7 +179,7 @@ export function BonusPositionTable({
 			period_id={period_id}
 			bonus_type={bonus_type}
 		>
-			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 				{bonusPositionMapper(data!) && (
 					<DataTableWithFunctions
 						columns={bonus_position_columns({ t })}
@@ -194,7 +197,7 @@ export function BonusPositionTable({
 							formConfig={undefined}
 							mode={mode}
 							defaultValue={{ ...selectedData }}
-							closeSheet={() => setOpen(false)}
+							closeSheet={() => setOpenSheet(false)}
 						/>
 					)}
 					{mode === "update" && (
@@ -205,14 +208,14 @@ export function BonusPositionTable({
 							]}
 							mode={mode}
 							defaultValue={{ ...selectedData }}
-							closeSheet={() => setOpen(false)}
+							closeSheet={() => setOpenSheet(false)}
 						/>
 					)}
 				</FunctionsSheetContent>
 			</Sheet>
 			<Dialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
+				open={openDialog && mode === "delete"}
+				onOpenChange={setOpenDialog}
 				aria-hidden={false}
 			>
 				<ConfirmDialog

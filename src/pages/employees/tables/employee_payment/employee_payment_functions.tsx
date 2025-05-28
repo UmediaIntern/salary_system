@@ -48,10 +48,10 @@ export function EmployeePaymentFunctionMenu() {
 					setOpenDialog(true);
 				}}
 			/>
-			<FunctionMenuOption.Initialize
+			{/* <FunctionMenuOption.Initialize
 				disabled={!enableAccess}
 				onClick={() => setMode("initialize")}
-			/>
+			/> */}
 			<FunctionMenuOption.AutoCalculate
 				disabled={!enableAccess}
 				onClick={() => {
@@ -71,7 +71,7 @@ export function EmployeePaymentFunctionMenu() {
 }
 
 export function EmployeePaymentFunctions() {
-	const { data, open, setOpen, mode, openDialog, setOpenDialog } =
+	const { data, openSheet, setOpenSheet, mode, openDialog, setOpenDialog } =
 		usePaymentFunctionContext();
 
 	const ctx = api.useUtils();
@@ -114,11 +114,11 @@ export function EmployeePaymentFunctions() {
 
 		formSubmit: (d) => {
 			createEmployeePayment.mutate(d);
-			setOpen(false);
+			setOpenSheet(false);
 		},
 		buttonText: "create",
 		defaultValue: data ? createFormSchema.safeParse(data).data : undefined,
-		closeSheet: () => setOpen(false),
+		closeSheet: () => setOpenSheet(false),
 	});
 
 	const updateForm = buildStandardFormProps({
@@ -129,13 +129,13 @@ export function EmployeePaymentFunctions() {
 		],
 		formSubmit: (d) => {
 			updateEmployeePayment.mutate(d);
-			setOpen(false);
+			setOpenSheet(false);
 		},
 		buttonText: "update",
 		defaultValue: data
 			? employeePaymentSchema.safeParse(data).data
 			: undefined,
-		closeSheet: () => setOpen(false),
+		closeSheet: () => setOpenSheet(false),
 	});
 
 	const { selectedTable } = useEmployeeTableContext();
@@ -143,8 +143,8 @@ export function EmployeePaymentFunctions() {
 	return (
 		<>
 			<TableFunctionSheet
-				openSheet={open && mode !== "delete"}
-				setOpenSheet={setOpen}
+				openSheet={openSheet && mode !== "delete"}
+				setOpenSheet={setOpenSheet}
 				mode={mode}
 				tableType={"TableEmployeePayment"}
 			>

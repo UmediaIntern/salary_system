@@ -138,7 +138,7 @@ export function InsuranceRateTable({
 	viewOnly,
 }: InsuranceRateTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { selectedTab, open, setOpen, mode, setData } =
+	const { selectedTab, openSheet, setOpenSheet, openDialog, setOpenDialog, mode, setData } =
 		useDataTableContext();
 
 	const getInsurance =
@@ -163,7 +163,7 @@ export function InsuranceRateTable({
 					selectedTableType={"TableInsurance"}
 					period_id={period_id}
 				>
-					<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+					<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 						<DataTableWithFunctions
 							columns={insurance_rate_columns({ t })}
 							data={data ? insuranceRateMapper([data]) : []}
@@ -175,12 +175,12 @@ export function InsuranceRateTable({
 								formConfig={[{ key: "id", config: { hidden: true } }]}
 								mode={mode}
 								closeSheet={() => {
-									setOpen(false);
+									setOpenSheet(false);
 								}}
 							/>
 						</FunctionsSheetContent>
 					</Sheet>
-					<ConfirmDialog open={open && mode === "delete"} onOpenChange={setOpen} schema={insuranceSchema} />
+					<ConfirmDialog open={openDialog && mode === "delete"} onOpenChange={setOpenDialog} schema={insuranceSchema} />
 				</ParameterToolbarFunctionsProvider>
 			) : (
 				<DataTableWithoutFunctions

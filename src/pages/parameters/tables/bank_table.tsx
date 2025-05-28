@@ -57,14 +57,12 @@ export const bank_columns = ({ t }: { t: TFunction<[string], undefined> }) => [
 						content = `(${row.original.org_code})${row.original.org_name}`;
 						break;
 					case "start_date":
-						content = `${
-							formatDate("day", row.original.start_date) ?? ""
-						}`;
+						content = `${formatDate("day", row.original.start_date) ?? ""
+							}`;
 						break;
 					case "end_date":
-						content = `${
-							formatDate("day", row.original.end_date) ?? ""
-						}`;
+						content = `${formatDate("day", row.original.end_date) ?? ""
+							}`;
 						break;
 				}
 				return <ColumnCellComponent>{content}</ColumnCellComponent>;
@@ -86,12 +84,13 @@ export const bank_columns = ({ t }: { t: TFunction<[string], undefined> }) => [
 ];
 
 function BankSettingFunctionComponent({ data }: { data: RowItem }) {
-	const { setOpen, setMode, setData, enableFunctions } =
+	const { setOpenSheet, setOpenDialog, setMode, setData, enableFunctions } =
 		useDataTableContext();
 
 	return (
 		<FunctionsComponent
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			data={data}
 			setData={setData}
@@ -128,7 +127,7 @@ interface BankTableProps extends TableComponentProps {
 
 export function BankTable({ period_id, viewOnly }: BankTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { open, setOpen, mode } = useDataTableContext();
+	const { openSheet, setOpenSheet, openDialog, setOpenDialog, mode } = useDataTableContext();
 
 	const getBankSetting = api.parameters.getCurrentBankSetting.useQuery({
 		period_id,
@@ -145,7 +144,7 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 			selectedTableType={"TableBankSetting"}
 			period_id={period_id}
 		>
-			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 				<DataTableWithFunctions
 					columns={bank_columns({ t })}
 					data={bankSettingMapper(data)}
@@ -165,14 +164,14 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 						formConfig={[{ key: "id", config: { hidden: true } }]}
 						mode={mode}
 						closeSheet={() => {
-							setOpen(false);
+							setOpenSheet(false);
 						}}
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
+				open={openDialog && mode === "delete"}
+				onOpenChange={setOpenDialog}
 				schema={bankSchema}
 			/>
 		</ParameterToolbarFunctionsProvider>

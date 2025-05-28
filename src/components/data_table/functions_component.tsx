@@ -15,7 +15,8 @@ import { cn } from "~/lib/utils";
 export type FunctionsItemKey = keyof FunctionsItem;
 
 interface FunctionsComponentProps<TMode, TData extends object> {
-	setOpen: (open: boolean) => void;
+	setOpenSheet: (open: boolean) => void;
+	setOpenDialog: (open: boolean) => void;
 	setMode: (mode: TMode) => void;
 	data: TData & DataWithFunctions;
 	setData: (data: TData & DataWithFunctions) => void;
@@ -23,7 +24,8 @@ interface FunctionsComponentProps<TMode, TData extends object> {
 }
 
 export function FunctionsComponent<TMode, TData extends object>({
-	setOpen,
+	setOpenSheet,
+	setOpenDialog,
 	setMode,
 	data,
 	setData,
@@ -58,8 +60,8 @@ export function FunctionsComponent<TMode, TData extends object>({
 						key == "creatable"
 							? "create"
 							: key == "updatable"
-							? "update"
-							: "delete";
+								? "update"
+								: "delete";
 					return (
 						<div key={key}>
 							{key == "creatable" && (
@@ -67,7 +69,7 @@ export function FunctionsComponent<TMode, TData extends object>({
 									onClick={() => {
 										setMode(mode as TMode);
 										setData(data);
-										setOpen(true);
+										setOpenSheet(true);
 									}}
 									disabled={disable_mode}
 								/>
@@ -78,7 +80,7 @@ export function FunctionsComponent<TMode, TData extends object>({
 									onClick={() => {
 										setMode(mode as TMode);
 										setData(data);
-										setOpen(true);
+										setOpenSheet(true);
 									}}
 									disabled={disable_mode}
 								/>
@@ -89,7 +91,7 @@ export function FunctionsComponent<TMode, TData extends object>({
 									onClick={() => {
 										setMode(mode as TMode);
 										setData(data);
-										setOpen(true);
+										setOpenDialog(true);
 									}}
 									disabled={disable_mode}
 								/>

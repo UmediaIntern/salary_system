@@ -14,7 +14,7 @@ export type TrustFunctionModes =
 	| "delete"
 	| "excel_download"
 	| "excel_upload"
-	| "initialize"
+	// | "initialize"
 	| "auto_calculate";
 
 const employeeTrustFunctionContext = createTableFunctionContext<
@@ -26,27 +26,27 @@ export function EmployeeTrustFunctionContextProvider({
 	children,
 }: PropsWithChildren) {
 	const {
-		open,
-		setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		mode,
 		setMode,
 		data,
 		setData,
-		openDialog,
-		setOpenDialog,
 	} = useTableFunctionState<TrustFunctionModes, TrustRowItem>("none");
 
 	return (
 		<employeeTrustFunctionContext.Provider
 			value={{
-				open,
-				setOpen,
+				openSheet,
+				setOpenSheet,
+				openDialog,
+				setOpenDialog,
 				mode,
 				setMode,
 				data,
 				setData,
-				openDialog,
-				setOpenDialog,
 			}}
 		>
 			{children}

@@ -40,16 +40,16 @@ export function EmployeeTrustFunctionMenu() {
 					setOpenDialog(true);
 				}}
 			/>
-			<FunctionMenuOption.Initialize
+			{/* <FunctionMenuOption.Initialize
 				disabled={!enableAccess}
 				onClick={() => setMode("initialize")}
-			/>
+			/> */}
 		</FunctionMenu>
 	);
 }
 
 export function EmployeeTrustFunctions() {
-	const { data, open, setOpen, mode, openDialog, setOpenDialog } =
+	const { data, openSheet, setOpenSheet, mode, openDialog, setOpenDialog } =
 		useTrustFunctionContext();
 
 	const ctx = api.useUtils();
@@ -77,12 +77,12 @@ export function EmployeeTrustFunctions() {
 		formSchema: createFormSchema,
 		formSubmit: (d) => {
 			createEmployeeTrust.mutate(d);
-			setOpen(false);
+			setOpenSheet(false);
 		},
 		formConfig: [{ key: "emp_no", config: { fixed: true } }],
 		buttonText: "create",
 		defaultValue: data ? createFormSchema.safeParse(data).data : undefined, // TODO: move this into buildStandardFormProps function
-		closeSheet: () => setOpen(false),
+		closeSheet: () => setOpenSheet(false),
 	});
 
 	const updateForm = buildStandardFormProps({
@@ -93,13 +93,13 @@ export function EmployeeTrustFunctions() {
 		],
 		formSubmit: (d) => {
 			updateEmployeeTrust.mutate(d);
-			setOpen(false);
+			setOpenSheet(false);
 		},
 		buttonText: "update",
 		defaultValue: data
 			? employeeTrustSchema.safeParse(data).data
 			: undefined,
-		closeSheet: () => setOpen(false),
+		closeSheet: () => setOpenSheet(false),
 	});
 
 	const { selectedTable } = useEmployeeTableContext();
@@ -107,8 +107,8 @@ export function EmployeeTrustFunctions() {
 	return (
 		<>
 			<TableFunctionSheet
-				openSheet={open && mode !== "delete"}
-				setOpenSheet={setOpen}
+				openSheet={openSheet && mode !== "delete"}
+				setOpenSheet={setOpenSheet}
 				mode={mode}
 				tableType={"TableEmployeeTrust"}
 			>

@@ -39,7 +39,7 @@ export default function HistoryView() {
 
 function CompHistoryView() {
 	const { t } = useTranslation(["common"]);
-	const { selectedTableType, setOpen, setMode, setData } =
+	const { selectedTableType, setOpenSheet, setOpenDialog, setMode, setData } =
 		useDataTableContext();
 
 	const queryFunctions = useContext(apiFunctionsContext);
@@ -133,16 +133,9 @@ function CompHistoryView() {
 			<ResizableHandle />
 			<ResizablePanel defaultSize={70}>
 				{data.filter((e) => e[0]?.id === selectedData?.id).length >
-				0 ? (
+					0 ? (
 					<DataTable
-						columns={getTableColumn(
-							selectedTableType,
-							t,
-							selectedPeriod!.period_id,
-							setOpen,
-							setMode,
-							setData
-						)}
+						columns={getTableColumn(selectedTableType, t)}
 						data={getTableMapper(selectedTableType)!(
 							data.filter(
 								(e) => e[0]?.id === selectedData?.id
