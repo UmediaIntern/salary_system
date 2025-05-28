@@ -461,7 +461,7 @@ export const parametersRouter = createTRPCRouter({
 				...input,
 				end_date: null,
 			});
-			// await levelService.rescheduleLevel();
+			await levelService.rescheduleLevel();
 			return newdata;
 		}),
 
@@ -471,7 +471,7 @@ export const parametersRouter = createTRPCRouter({
 			const levelService = container.resolve(LevelService);
 			const new_input = input.map((e) => ({ ...e, end_date: null }));
 			const newdata = await levelService.batchCreateLevel(new_input);
-			// await levelService.rescheduleLevel();
+			await levelService.rescheduleLevel();
 			return newdata;
 		}),
 
@@ -574,7 +574,7 @@ export const parametersRouter = createTRPCRouter({
 		.mutation(async ({ input }) => {
 			const levelService = container.resolve(LevelService);
 			const newdata = await levelService.updateLevel(input);
-			// await levelService.rescheduleLevel();
+			await levelService.rescheduleLevel();
 			return newdata;
 		}),
 
@@ -584,7 +584,7 @@ export const parametersRouter = createTRPCRouter({
 			const { input } = opts;
 			const levelService = container.resolve(LevelService);
 			await levelService.deleteLevel(input.id);
-			// await levelService.rescheduleLevel();
+			await levelService.rescheduleLevel();
 		}),
 
 	createPerformanceLevel: publicProcedure

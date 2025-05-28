@@ -16,7 +16,12 @@ import { Op } from "sequelize";
 import { EHRService } from "./ehr_service";
 import { BaseMapper } from "../database/mapper/base_mapper";
 import { LevelRangeService } from "./level_range_service";
-import { dateToString, stringToDate, stringToDateNullable } from "../api/types/z_utils";
+import {
+	dateToString,
+	stringToDate,
+	stringToDateNullable,
+} from "../api/types/z_utils";
+import { subDays } from "date-fns";
 
 @injectable()
 export class LevelService {
@@ -36,15 +41,16 @@ export class LevelService {
 	): Promise<Level> {
 		const d = createLevelService.parse(data);
 		const start_date = d.start_date ? new Date(d.start_date) : new Date();
-		const start_date_adjust = new Date(
-			start_date.setFullYear(start_date.getFullYear(), 0, 1)
-		);
-		const end_date = new Date(
-			start_date.setFullYear(start_date.getFullYear(), 11, 31)
-		);
+		const end_date = d.end_date;
+		// const start_date_adjust = new Date(
+		// 	start_date.setFullYear(start_date.getFullYear(), 0, 1)
+		// );
+		// const end_date = new Date(
+		// 	start_date.setFullYear(start_date.getFullYear(), 11, 31)
+		// );
 		const level = await this.levelMapper.encode({
 			...d,
-			start_date: start_date_adjust,
+			start_date: start_date,
 			end_date: end_date,
 			disabled: false,
 			create_by: "system",
@@ -54,7 +60,7 @@ export class LevelService {
 			where: {
 				level: level.level,
 				start_date: level.start_date,
-				end_date: level.end_date,
+				// end_date: level.end_date,
 				disabled: false,
 			},
 		});
@@ -62,7 +68,9 @@ export class LevelService {
 			throw new Error(
 				`Data already exist type:${
 					existed_data.level
-				}, start_date: ${start_date.toDateString()}, end_date: ${end_date.toDateString()}`
+				}, start_date: ${start_date.toDateString()}, end_date: ${
+					existed_data.end_date == null ? "null" : existed_data.end_date
+				}`
 			);
 		}
 		const newData = await Level.create(level, {
@@ -291,37 +299,39 @@ export class LevelService {
 				stringToDate.parse(a).getTime() -
 				stringToDate.parse(b).getTime()
 		);
+		console.log(startDates);
 
-		startDates.forEach((startDate, index) => {
+		const promises = startDates.map(async (startDate, index) => {
 			const levels = groupedLevels[startDate];
-			levels!.forEach((level) => {
+			const tasks = levels!.map(async (level) => {
 				if (index < startDates.length - 1) {
 					const nextStartDate = stringToDate.parse(
 						startDates[index + 1]
 					);
-					level.end_date = dateToString.parse(
-						new Date(nextStartDate.getDate() - 1)
-					);
+					const new_end_date = subDays(new Date(nextStartDate), 1);
+					if (level.end_date != dateToString.parse(new_end_date)) {
+						await this.deleteLevel(level.id);
+						await this.createLevel({
+							start_date: stringToDate.parse(startDate),
+							end_date: new_end_date,
+							level: level.level,
+						});
+					}
 				} else {
-					level.end_date = null; // or some other default value
+					if (level.end_date != null) {
+						await this.deleteLevel(level.id);
+						await this.createLevel({
+							start_date: stringToDate.parse(startDate),
+							end_date: null,
+							level: level.level,
+						});
+					}
 				}
 			});
-		});
 
-		await Promise.all(
-			Object.keys(groupedLevels).map((startDate) => {
-				return Promise.all(
-					groupedLevels[startDate]!.map((level) =>
-						this.updateLevel({
-							id: level.id,
-							start_date: stringToDate.parse(startDate),
-							end_date: stringToDateNullable.parse(level.end_date),
-							level: level.level,
-						})
-					)
-				);
-			})
-		);
+			return Promise.all(tasks);
+		});
+		await Promise.all(promises);
 	}
 
 	private async getLevelAfterSelectValue({
