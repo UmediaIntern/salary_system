@@ -7,6 +7,10 @@ import { UploadPreview } from "./upload_preview";
 import { extractData, recoverMultiSheetData } from "./excel_upload_utils";
 
 interface ExcelUploadProps {
+  // Single sheet 
+  // Obj[]
+  // Multiple sheet
+  // sheet_name -> Obj[]
 	onClick?: (data: any) => void;
 }
 
@@ -31,12 +35,11 @@ export function ExcelUpload({ onClick }: ExcelUploadProps) {
 	}, [data]);
 
 	return (
-		<>
+		<div className="grow w-full">
 			<Tabs
 				defaultValue="upload"
 				value={view}
 				onValueChange={setView}
-				className="w-full"
 			>
 				<TabsList className="mb-2 grid w-full grid-cols-2">
 					<TabsTrigger value="upload">
@@ -81,6 +84,6 @@ export function ExcelUpload({ onClick }: ExcelUploadProps) {
 					)}
 				</TabsContent>
 			</Tabs>
-		</>
+		</div>
 	);
 }
