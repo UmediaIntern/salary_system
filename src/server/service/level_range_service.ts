@@ -13,10 +13,11 @@ import {
 import { EHRService } from "./ehr_service";
 import { Op } from "sequelize";
 import { LevelRangeMapper } from "../database/mapper/level_range_mapper";
+import { dateToString, stringToDate } from "../api/types/z_utils";
 
 @injectable()
 export class LevelRangeService {
-	constructor(private readonly levelRangeMapper: LevelRangeMapper) { }
+	constructor(private readonly levelRangeMapper: LevelRangeMapper) {}
 
 	async createLevelRange(
 		data: z.infer<typeof createLevelRangeService>
@@ -251,5 +252,60 @@ export class LevelRangeService {
 			},
 		});
 		return levelList != null;
+	}
+
+	async emptyInfluencedLevelRange(
+		start_date_string: string,
+		end_date_string: string | null
+	): Promise<void> {
+		if (end_date_string != null) {
+			const deleteList = await LevelRange.findAll({
+				where: {
+					start_date: {
+						[Op.between]: [start_date_string, end_date_string],
+					},
+					disabled: false,
+				},
+			});
+			await Promise.all(
+				deleteList.map(async (levelRange) => {
+					await this.deleteLevelRange(levelRange.id);
+				})
+			);
+			const rescheduleList = await LevelRange.findAll({
+				where: {
+					end_date: {
+						[Op.between]: [start_date_string, end_date_string],
+					},
+					disabled: false,
+				},
+			});
+			await Promise.all(
+				rescheduleList.map(async (levelRange) => {
+					await this.createLevelRange({
+						type: levelRange.type,
+						level_start_id: levelRange.level_start_id,
+						level_end_id: levelRange.level_end_id,
+						start_date: stringToDate.parse(levelRange.start_date),
+						end_date: stringToDate.parse(end_date_string),
+					});
+					await this.deleteLevelRange(levelRange.id);
+				})
+			);
+		} else {
+			const deleteList = await LevelRange.findAll({
+				where: {
+					start_date: {
+						[Op.gte]: start_date_string,
+					},
+					disabled: false,
+				},
+			});
+			await Promise.all(
+				deleteList.map(async (levelRange) => {
+					await this.deleteLevelRange(levelRange.id);
+				})
+			);
+		}
 	}
 }

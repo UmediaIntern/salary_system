@@ -25,7 +25,10 @@ import { type Period } from "../database/entity/UMEDIA/period";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { createEmployeeDataService } from "../api/types/employee_data_type";
 import { Op } from "sequelize";
-import { WorkStatusEnum, WorkStatusEnumType } from "../api/types/work_status_enum";
+import {
+	WorkStatusEnum,
+	WorkStatusEnumType,
+} from "../api/types/work_status_enum";
 import { z } from "zod";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 
@@ -235,7 +238,7 @@ export class SyncService {
 			WorkStatusEnum.Values.RegularEmployee,
 			WorkStatusEnum.Values.ForeignWorker,
 			WorkStatusEnum.Values.ResignedEmployeePartialMonth,
-			WorkStatusEnum.Values.ResignedEmployeeFullMonth, 
+			WorkStatusEnum.Values.ResignedEmployeeFullMonth,
 			WorkStatusEnum.Values.NewEmployeePartialMonth,
 			WorkStatusEnum.Values.NewEmployeeFullMonth,
 		];
@@ -409,10 +412,13 @@ export class SyncService {
 		func: FunctionsEnumType,
 		period_id: number
 	): Promise<SyncData[] | null> {
+		const previous_period_id = await this.getPreviousPeriodId(period_id);
+		const previous_cand_paid_emps = await this.getCandPaidEmployees(func, previous_period_id);
+		const previous_cand_emp_no_list = previous_cand_paid_emps.map((emp) => emp.emp_no);
+		await this.createNewMonthData(period_id,previous_cand_emp_no_list);
 		const cand_paid_emps = await this.getCandPaidEmployees(func, period_id); // 獲取候選需支付員工數據
-
 		const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
-		await this.createNewMonthData(period_id, cand_emp_no_list);
+
 		// Get Data from Salary and EHR
 		let salary_datas: EmployeeDataDecType[] = [];
 
@@ -582,12 +588,12 @@ export class SyncService {
 	): Promise<EmployeeDataDecType[]> {
 		if (func == FunctionsEnum.Enum.month_salary) {
 			// 定義需支付的員工狀態列表
-      // TODO
+			// TODO
 			const paid_status: WorkStatusEnumType[] = [
 				WorkStatusEnum.Values.RegularEmployee,
 				WorkStatusEnum.Values.ForeignWorker,
 				WorkStatusEnum.Values.ResignedEmployeePartialMonth,
-				WorkStatusEnum.Values.ResignedEmployeeFullMonth, 
+				WorkStatusEnum.Values.ResignedEmployeeFullMonth,
 				WorkStatusEnum.Values.NewEmployeePartialMonth,
 				WorkStatusEnum.Values.NewEmployeeFullMonth,
 			];
