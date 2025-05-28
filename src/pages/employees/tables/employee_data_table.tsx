@@ -9,6 +9,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 import { type MonthSalaryStatusEnumType } from "~/server/api/types/month_salary_status_enum";
 import { useEmployeeTableContext } from "../components/context/data_table_context_provider";
+import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
 
 // TODO: move to schema
 type RowItem = {
@@ -71,6 +72,10 @@ const columns = (t: I18nType) => {
 			cell: ({ row }) => {
 				let content = row.original[key]?.toString() ?? "";
 				switch (key) {
+          case "work_status":
+            const work_status = row.original.work_status as WorkStatusEnumType;
+            content = t(`work_status.${convertToKey(work_status)}`); 
+            break;
 					case "registration_date":
 						content =
 							formatDate("day", row.original.registration_date) ??

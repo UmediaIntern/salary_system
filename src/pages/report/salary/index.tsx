@@ -25,12 +25,13 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "~/components/ui/sheet";
-import { ExcelViewer } from "./ExcelViewer";
+import { ExcelViewer } from "./excel_viewer";
 
 // Functions
 import { api } from "~/utils/api";
 import { getExcelData, getDefaults } from "./utils";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
@@ -41,32 +42,37 @@ const Salary: NextPageWithLayout = () => {
 				showOptions
 				className="mb-4"
 			/>
-			<div className="w-full min-h-0 grow p-4">
+			<div className="min-h-0 w-full grow p-4">
 				<ExportPage />
 			</div>
 		</>
 	);
 };
 
-Salary.getLayout = function getLayout(page: React.ReactElement) {
-	return (
-		<RootLayout>
-			<PerpageLayoutNav pageTitle="month_salary_report">
-				{page}
-			</PerpageLayoutNav>
-		</RootLayout>
-	);
-};
+type KeyValuePair = Record<string, any>;
 
-export default Salary;
+function excludeDataColumn(dataList: any[], excludedColumns: Array<string>) {
+	return dataList.map((data: any) => {
+		const sheetName = data.name;
+		const sheetData = data.data.map((row: KeyValuePair) => {
+			const newRow: KeyValuePair = {};
+			Object.keys(row).forEach((key) => {
+				if (!excludedColumns.includes(key)) {
+					newRow[key] = row[key];
+				}
+			});
+			return newRow;
+		});
+		return {
+			name: sheetName,
+			data: sheetData,
+		};
+	});
+}
 
 function ExportPage() {
 	const { selectedPeriod } = usePeriodContext();
-	const getExcelA = api.transaction.getAllTransaction.useQuery({
-		period_id: selectedPeriod?.period_id ?? 0,
-	});
 	const [selectedSheetIndex, setSelectedSheetIndex] = useState(0);
-
 	const [toExcludedColumns, setToExcludedColumns] = useState([
 		"id",
 		"create_by",
@@ -75,30 +81,13 @@ function ExportPage() {
 		"update_date",
 		"disable",
 	]);
-
 	const [toDisplayData, setToDisplayData] = useState<any>(null);
 
-	function excludeDataColumn(dataList: any, excludedColumns: Array<string>) {
-		interface keyValuePair {
-			[key: string]: any;
-		}
-		return dataList.map((data: any) => {
-			const sheetName = data.name;
-			const sheetData = data.data.map((row: keyValuePair) => {
-				const newRow: keyValuePair = {};
-				Object.keys(row).forEach((key) => {
-					if (!excludedColumns.includes(key)) {
-						newRow[key] = row[key];
-					}
-				});
-				return newRow;
-			});
-			return {
-				name: sheetName,
-				data: sheetData,
-			};
-		});
-	}
+	const getExcelA = api.transaction.getAllTransaction.useQuery({
+		period_id: selectedPeriod?.period_id ?? 0,
+	});
+
+	const { isPending, content, data } = useQueryHandle(getExcelA);
 
 	function createSchema() {
 		const keys = getExcelA.isFetched
@@ -166,22 +155,22 @@ function ExportPage() {
 		);
 	}
 
-	return getExcelA.isFetched ? (
+	if (isPending) {
+		return content;
+	}
+
+	return (
 		<ExcelViewer
 			original_sheets={
 				toDisplayData ??
 				getExcelData(
-					excludeDataColumn(getExcelA.data!, toExcludedColumns)
+					excludeDataColumn(data, toExcludedColumns)
 				)
 			}
 			filter_component={<FilterComponent />}
 			selectedSheetIndex={selectedSheetIndex}
 			setSelectedSheetIndex={setSelectedSheetIndex}
 		/>
-	) : (
-		<div className="flex grow items-center justify-center">
-			<LoadingSpinner />
-		</div>
 	);
 }
 
@@ -197,3 +186,15 @@ export const getStaticProps = async ({ locale }: { locale: string }) => {
 		},
 	};
 };
+
+Salary.getLayout = function getLayout(page: React.ReactElement) {
+	return (
+		<RootLayout>
+			<PerpageLayoutNav pageTitle="month_salary_report">
+				{page}
+			</PerpageLayoutNav>
+		</RootLayout>
+	);
+};
+
+export default Salary;

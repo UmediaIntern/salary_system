@@ -426,5 +426,22 @@
       "title": "Confirm auto calculate",
       "description": "Please select a date for the LI, HI, LR, and Occupational Injury to be updated.",
     }
+  },
+  "work_status": {
+    "regular_employee": "Regular Employee",
+    "resigned_employee": "Resigned Employee",
+    "foreign_worker": "Foreign Worker",
+    "resigned_employee_partial_month": "Resigned Employee Partial Month",
+    "resigned_employee_full_month": "Resigned Employee Full Month",
+    "new_employee_partial_month": "New Employee Partial Month",
+    "new_employee_full_month": "New Employee Full Month",
+    "general_manager": "General Manager",
+    "consultant": "Consultant",
+    "new_employee": "New Employee",
+    "part_time_worker": "Part Time Worker",
+    "intern": "Intern",
+    "contract_employee": "Contract Employee",
+    "daily_wage": "Daily Wage",
+    "boss": "Boss"
   }
 }
