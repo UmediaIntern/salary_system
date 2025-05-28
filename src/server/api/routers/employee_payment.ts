@@ -32,7 +32,7 @@ export const employeePaymentRouter = createTRPCRouter({
 					input.period_id
 				);
 
-      // Filter by access
+			// Filter by access
 			const role = getRoleFromCtx(ctx);
 			const accessService = container.resolve(AccessService);
 			const access = await accessService.getAccessByRole(role);
@@ -114,7 +114,7 @@ export const employeePaymentRouter = createTRPCRouter({
 			);
 			const validateService = container.resolve(ValidateService);
 
-			const newDatas = input.map(async (i) => {
+			const Promises = input.map(async (i) => {
 				const previousEmployeePaymentFE =
 					await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
 						i.emp_no,
@@ -137,12 +137,14 @@ export const employeePaymentRouter = createTRPCRouter({
 						end_date: null,
 					});
 
-				await employeePaymentService.rescheduleEmployeePayment();
-
+				// await employeePaymentService.rescheduleEmployeePayment();
+				console.log(await employeePaymentMapper.decode(newData));
 				return await employeePaymentMapper.decode(newData);
 			});
-
-			return newDatas;
+			const newDatas_before_schedule = await Promise.all(Promises);
+			await employeePaymentService.rescheduleEmployeePayment();
+			// const newDatas = await employeePaymentService.getAllEmployeePayment();
+			return newDatas_before_schedule;
 		}),
 
 	updateEmployeePayment: publicProcedure
