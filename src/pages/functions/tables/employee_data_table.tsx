@@ -7,6 +7,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
 
 type RowItem = {
 	department: string;
@@ -66,14 +67,18 @@ const columns = (t: I18nType) => {
 			cell: ({ row }) => {
 				let content = row.original[key]?.toString() ?? "";
 				switch (key) {
+					case "work_status":
+						const work_status = row.original.work_status as WorkStatusEnumType;
+						content = t(`work_status.${convertToKey(work_status)}`);
+						break;
 					case "registration_date":
-						content =
-							formatDate("day", row.original.registration_date) ??
-							"";
+						content = formatDate("day", row.original.registration_date) ?? "";
 						break;
 					case "quit_date":
-						content =
-							formatDate("day", row.original.quit_date) ?? "";
+						content = formatDate("day", row.original.quit_date) ?? "";
+						break;
+					case "received_elderly_benefits":
+						content = t(`others.${row.original.received_elderly_benefits}`)
 						break;
 				}
 				return <ColumnCellComponent>{content}</ColumnCellComponent>;

@@ -40,7 +40,7 @@ export class SyncService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeDataMapper: EmployeeDataMapper
-	) {}
+	) { }
 	// TODO: move this
 	parsedPeriod(
 		period: Period
@@ -566,14 +566,8 @@ export class SyncService {
 			updatedDatas.push(updatedData);
 
 			if (updatedData.quit_date) {
-				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(
-					updatedData.emp_no,
-					period_id
-				);
-				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(
-					updatedData.emp_no,
-					period_id
-				);
+				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(updatedData.emp_no);
+				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(updatedData.emp_no);
 			}
 		}
 
@@ -601,6 +595,7 @@ export class SyncService {
 				where: {
 					period_id: period_id,
 				},
+				order: [["emp_no", "ASC"]],
 			});
 			const paid_emps = await this.employeeDataMapper.decodeList(
 				db_paid_emps
