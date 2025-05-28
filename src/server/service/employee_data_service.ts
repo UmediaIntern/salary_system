@@ -15,6 +15,7 @@ import { Op } from "sequelize";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 import { InternalServerError } from "../errors/internal_server_error";
 import { convertToDBWorkStatusEnum } from "../api/types/work_status_enum";
+import { ParserError } from "../errors/parser_error";
 
 @injectable()
 export class EmployeeDataService {
@@ -23,7 +24,13 @@ export class EmployeeDataService {
 	async createEmployeeData(
 		data: z.infer<typeof createEmployeeDataService>
 	): Promise<EmployeeDataDecType> {
-		const d = createEmployeeDataService.parse(data);
+		const result = createEmployeeDataService.safeParse(data);
+
+    if (!result.success) {
+			throw new ParserError(result.error.message);
+		}
+		const d = result.data;
+
 		const employeeBonus = await this.employeeDataMapper.encode({
 			...d,
 			create_by: "system",

@@ -5,7 +5,7 @@ import { WorkStatusEnum } from "./work_status_enum";
 
 export const importFields = z.object({
 /** 薪資期間 ID */
-period_id: z.number(),
+period_id: z.coerce.number(),
 /** 發薪日期 */
 issue_date: z.string(),
 /** 發薪別 */
@@ -51,21 +51,21 @@ bank_account_taiwan: z.string(),
 /** 外幣帳號 */
 bank_account_foreign: z.string(),
 /** 已領老年給付 */
-received_elderly_benefits: z.boolean(),
+received_elderly_benefits: z.coerce.boolean(),
 /** 年資 */
 seniority: z.number(),
 /** 年度在職天數 */
 annual_days_in_service: z.number(),
 /** 試用期滿 */
-probation_period_over: z.boolean(),
+probation_period_over: z.coerce.boolean(),
 /** 勞保 */
-l_i: z.number(),
+l_i: z.coerce.number(),
 /** 健保 */
-h_i: z.number(),
+h_i: z.coerce.number(),
 /** 勞退 */
-l_r: z.number(),
+l_r: z.coerce.number(),
 /** 職災 */
-occupational_injury: z.number(),
+occupational_injury: z.coerce.number(),
 
 // 加項
 /** 底薪 */
@@ -207,7 +207,7 @@ group_insurance_pay: z.number(),
 l_r_contribution: z.number(),
 /** 勞退金提撥_舊制 */
 old_l_r_contribution: z.number(),
-/** 公司獎勵金 */
+/** 信託提存金 */
 org_trust_reserve: z.number(),
 /** 特別信託獎勵金_公司 */
 org_special_trust_incent: z.number(),
@@ -235,8 +235,12 @@ currency_amount_foreign: z.number(),
 /** 台幣金額 */
 currency_amount_taiwan: z.number(),
 /** 持股信託_YN */
-has_trust: z.boolean()
+has_trust: z.coerce.boolean()
 });
 
 export type ImportFieldsType = z.infer<typeof importFields>;
+
+export const importFieldsKeys = importFields.keyof();
+export type ImportFieldsKeyType = z.infer<typeof importFieldsKeys>; 
+
 

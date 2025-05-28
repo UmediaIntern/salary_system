@@ -15,11 +15,12 @@ import { usePeriodContext } from "~/components/context/period_context_provider";
 interface ExcelDownloadProps {
 	data: any[][];
 	fileName: string;
-	withHeader?: boolean
+	setOpenDialog: (open: boolean) => void;
+	withHeader?: boolean;
 	transpose?: boolean;
 }
 
-export function ExcelDownload({ data, fileName, withHeader = true, transpose = false }: ExcelDownloadProps) {
+export function ExcelDownload({ data, fileName, setOpenDialog, withHeader = true, transpose = false }: ExcelDownloadProps) {
 	const { t } = useTranslation();
 
 	const [filename, setFilename] = useState("excel");
@@ -65,6 +66,7 @@ export function ExcelDownload({ data, fileName, withHeader = true, transpose = f
 								},
 							})
 							.download()
+							.then(() => setOpenDialog(false))
 							.catch((e) => console.error(e));
 					}}
 				>

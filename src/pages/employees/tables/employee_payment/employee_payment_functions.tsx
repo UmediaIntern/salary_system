@@ -184,12 +184,13 @@ export function EmployeePaymentFunctions() {
 							autoCalculateEmployeePayment.mutate({
 								start_date: date,
 							});
+							setOpenDialog(false);
 						}}
 					/>
 				)}
 
 				{/* Adjust base salary */}
-				{mode === "adjust_base_salary" && <AdjustBaseSalaryDialog />}
+				{mode === "adjust_base_salary" && <AdjustBaseSalaryDialog setOpenDialog={setOpenDialog}/>}
 				{/* Download excel */}
 				{mode === "excel_download" && (
 					<ExcelDownload
@@ -202,6 +203,7 @@ export function EmployeePaymentFunctions() {
 							["id", "functions", "disabled"]
 						)}
 						fileName="employee_payment"
+						setOpenDialog={setOpenDialog}
 					/>
 				)}
 				{mode === "excel_upload" && (
