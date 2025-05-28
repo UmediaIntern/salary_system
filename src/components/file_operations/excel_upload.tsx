@@ -7,6 +7,10 @@ import { UploadPreview } from "./upload_preview";
 import { extractData, recoverMultiSheetData } from "./excel_upload_utils";
 
 interface ExcelUploadProps {
+  // Single sheet 
+  // Obj[]
+  // Multiple sheet
+  // sheet_name -> Obj[]
 	onClick?: (data: any) => void;
 }
 

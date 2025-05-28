@@ -82,8 +82,8 @@ export function recoverMultiSheetData(
 	table_name?: string
 ): Record<string, Record<string, unknown>[]> {
 	const datas: Record<string, Record<string, unknown>[]> = {};
-	Object.entries(data).forEach(([key, value]) => {
-		datas[key] = recoverData(value, table_name);
+	Object.entries(data).forEach(([sheet_name, value]) => {
+		datas[sheet_name] = recoverData(value, table_name);
 	});
 	return datas;
 }
