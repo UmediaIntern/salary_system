@@ -20,6 +20,7 @@ import { EmployeeDataService } from "./employee_data_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { WorkTypeEnum } from "../api/types/work_type_enum";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
+import { dateToStringNullable } from "../api/types/z_utils";
 
 @injectable()
 export class EmployeePaymentService {
@@ -30,7 +31,7 @@ export class EmployeePaymentService {
 		private readonly levelService: LevelService,
 		private readonly levelRangeService: LevelRangeService,
 		private readonly employeeDataService: EmployeeDataService
-	) { }
+	) {}
 
 	async createEmployeePayment(
 		data: z.input<typeof employeePaymentCreateService>
@@ -48,8 +49,40 @@ export class EmployeePaymentService {
 		const newData = await EmployeePayment.create(employeePayment, {
 			raw: true,
 		});
-		console.log("Create EmployeePayment")
+		console.log("Create EmployeePayment");
 		return newData;
+	}
+
+	async insertEmployeePayment(
+		data: z.input<typeof employeePaymentCreateService>
+	) {
+		const inputDate = dateToStringNullable.parse(data.start_date);
+		if (!inputDate) {
+			throw new Error("start_date is required");
+		}
+
+		const latestPayment = await EmployeePayment.findOne({
+			where: {
+				start_date: {
+					[Op.lt]: inputDate,
+				},
+			},
+			order: [["start_date", "DESC"]],
+			limit: 1,
+		});
+
+		const closestFuturePayment = await EmployeePayment.findOne({
+			where: {
+				start_date: {
+					[Op.gt]: inputDate, // Change Op.lt to Op.gt
+				},
+			},
+			order: [["start_date", "ASC"]], // Order by ASC to get the next closest date
+			limit: 1,
+		});
+
+    console.log("latestPayment", latestPayment);
+    console.log("closestFuturePayment", closestFuturePayment);
 	}
 
 	async getEmployeePaymentById(
@@ -401,7 +434,7 @@ export class EmployeePaymentService {
 					empPayment.h_i != updatedEmployeePayment.h_i ||
 					empPayment.l_r != updatedEmployeePayment.l_r ||
 					empPayment.occupational_injury !=
-					updatedEmployeePayment.occupational_injury
+						updatedEmployeePayment.occupational_injury
 				) {
 					await this.createEmployeePayment({
 						...updatedEmployeePayment,
@@ -623,7 +656,10 @@ export class EmployeePaymentService {
 				long_service_allowance_type,
 				employeePayment.long_service_allowance_type
 			),
-			l_r_self_ratio: select_value(l_r_self_ratio, employeePayment.l_r_self_ratio),
+			l_r_self_ratio: select_value(
+				l_r_self_ratio,
+				employeePayment.l_r_self_ratio
+			),
 			l_i: select_value(l_i, employeePayment.l_i),
 			h_i: select_value(h_i, employeePayment.h_i),
 			l_r: select_value(l_r, employeePayment.l_r),
@@ -641,7 +677,9 @@ export class EmployeePaymentService {
 		date: Date
 	): Promise<z.infer<typeof employeePaymentCreateService>> {
 		const period_id = await this.ehrService.getPeriodIdByDate(date);
-		const employeeData = (await this.employeeDataService.getCurrentEmployeeData(period_id)).find((e) => e.emp_no == employeePayment.emp_no);
+		const employeeData = (
+			await this.employeeDataService.getCurrentEmployeeData(period_id)
+		).find((e) => e.emp_no == employeePayment.emp_no);
 		if (employeeData == null) {
 			throw new BaseResponseError("Employee Data does not exist");
 		}
@@ -652,10 +690,13 @@ export class EmployeePaymentService {
 			employeePayment.supervisor_allowance +
 			employeePayment.occupational_allowance +
 			employeePayment.subsidy_allowance +
-			(employeePayment.long_service_allowance_type == LongServiceEnum.Enum.month_allowance
+			(employeePayment.long_service_allowance_type ==
+			LongServiceEnum.Enum.month_allowance
 				? employeePayment.long_service_allowance
 				: 0) +
-			(employeeData.position >= 2 && employeeData.position <= 3 && employeeData.work_type == WorkTypeEnum.Enum.直接人員
+			(employeeData.position >= 2 &&
+			employeeData.position <= 3 &&
+			employeeData.work_type == WorkTypeEnum.Enum.直接人員
 				? 2000
 				: 0);
 
@@ -681,7 +722,7 @@ export class EmployeePaymentService {
 			h_i: result.find((r) => r.type === "健保")?.level ?? 0,
 			l_r:
 				employeeData.work_type != "外籍勞工" &&
-					employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
+				employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
 					? result.find((r) => r.type === "勞退")?.level ?? 0
 					: 0,
 			occupational_injury:

@@ -68,43 +68,49 @@ export function CarouselDApiDemo() {
 					console.log(excelFieldName);
 				});
 
-        // Processing rows
+				// Processing rows
 				const transactionRows: ImportFieldsType[] = [];
-        const excelRows = value.slice(1);
-        let i = 0
+				const excelRows = value.slice(1);
+				let i = 0;
 				for (const row of excelRows) {
-          // console.log(row);
+					// console.log(row);
 					const obj: Record<string, unknown> = {};
 					importFieldsKeys.options.forEach((key, idx) => {
 						const dataIdx = indices[idx];
-						if (dataIdx !=  undefined && (dataIdx >= 0) && row[dataIdx] != undefined) {
+						if (
+							dataIdx != undefined &&
+							dataIdx >= 0 &&
+							row[dataIdx] != undefined
+						) {
 							obj[key] = row[dataIdx];
 						} else {
-              console.log(`${key} not found in excel idx=${idx} dataIdx=${dataIdx} data=${row[dataIdx]}`);
-            }
+							console.log(
+								`${key} not found in excel idx=${idx} dataIdx=${dataIdx} data=${row[dataIdx]}`
+							);
+						}
 					});
 
 					const result = importFields.safeParse(obj);
 					if (!result.success) {
 						console.log(result.error.message);
-            console.log(row, i, obj)
-            i += 1;
-            return ;
+						console.log(row, i, obj);
+						i += 1;
+						return;
 					}
 					if (!result.data) {
 						console.log("No data");
-            i += 1;
-            return ;
+						i += 1;
+						return;
 					}
 					transactionRows.push(result.data);
-          setData(transactionRows);
+					setData(transactionRows);
 				}
 			}
 		}
 	}
 
 	function handleUpload() {
-    console.log(data);
+		console.log(data);
 		// importTransaction.mutate(data);
 	}
 
