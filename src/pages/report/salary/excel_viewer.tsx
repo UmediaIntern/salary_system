@@ -27,7 +27,7 @@ import {
 } from "~/components/ui/popover";
 import { Button } from "~/components/ui/button";
 import { Baseline, PaintBucket } from "lucide-react";
-import { ColorPickerWrapper } from "./ColorPickerWrapper";
+import { ColorPickerWrapper } from "./color_picker_wrapper";
 
 import { useTranslation } from "react-i18next";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";

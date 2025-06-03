@@ -39,7 +39,7 @@ import { EmployeeTrustDecType } from "~/server/database/entity/SALARY/employee_t
 import { Overtime } from "~/server/database/entity/UMEDIA/overtime";
 import { Holiday } from "~/server/database/entity/UMEDIA/holiday";
 import { Expense } from "~/server/database/entity/UMEDIA/expense";
-import ExcelViewer from "../report/salary/ExcelViewer";
+import ExcelViewer from "../report/salary/excel_viewer";
 import { getExcelData } from "../report/salary/utils";
 import { t } from "i18next";
 import { Header } from "~/components/header";

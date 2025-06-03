@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { displayData, displayDataNoTranslate } from "~/components/synchronize/utils/display";
+
 export interface keyDict {
 	[key: string]: string[];
 }
@@ -15,7 +16,7 @@ export function getExcelData(Alldatas: any[]) {
                     // Translate(key)
                     key
             );
-            const rows = datas.map((data: any, index: number) => {
+            const rows = datas.map((data: any) => {
                 return Object.keys(data).map((key: string) => {
                     return displayDataNoTranslate(data[key]);
                 });

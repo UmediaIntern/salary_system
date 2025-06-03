@@ -16,6 +16,7 @@ import { Op } from "sequelize";
 import { EHRService } from "./ehr_service";
 import { BaseMapper } from "../database/mapper/base_mapper";
 import { LevelRangeService } from "./level_range_service";
+import { dateToString, stringToDate, stringToDateNullable } from "../api/types/z_utils";
 
 @injectable()
 export class LevelService {
@@ -261,6 +262,66 @@ export class LevelService {
 		const result = targetLevel ?? levelList[levelList.length - 1]!;
 
 		return this.levelMapper.decode(result);
+	}
+	async rescheduleLevel(): Promise<void> {
+		const levels = await Level.findAll({
+			where: {
+				disabled: false,
+			},
+			order: [
+				["start_date", "ASC"],
+				["level", "ASC"],
+			],
+		});
+
+		const groupedLevels = levels.reduce(
+			(acc: { [startDate: string]: Level[] }, level) => {
+				const startDate = level.start_date;
+				if (!acc[startDate]) {
+					acc[startDate] = [];
+				}
+				acc[startDate]!.push(level);
+				return acc;
+			},
+			{}
+		);
+
+		const startDates = Object.keys(groupedLevels).sort(
+			(a, b) =>
+				stringToDate.parse(a).getTime() -
+				stringToDate.parse(b).getTime()
+		);
+
+		startDates.forEach((startDate, index) => {
+			const levels = groupedLevels[startDate];
+			levels!.forEach((level) => {
+				if (index < startDates.length - 1) {
+					const nextStartDate = stringToDate.parse(
+						startDates[index + 1]
+					);
+					level.end_date = dateToString.parse(
+						new Date(nextStartDate.getDate() - 1)
+					);
+				} else {
+					level.end_date = null; // or some other default value
+				}
+			});
+		});
+
+		await Promise.all(
+			Object.keys(groupedLevels).map((startDate) => {
+				return Promise.all(
+					groupedLevels[startDate]!.map((level) =>
+						this.updateLevel({
+							id: level.id,
+							start_date: stringToDate.parse(startDate),
+							end_date: stringToDateNullable.parse(level.end_date),
+							level: level.level,
+						})
+					)
+				);
+			})
+		);
 	}
 
 	private async getLevelAfterSelectValue({
