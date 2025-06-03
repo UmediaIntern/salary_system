@@ -36,9 +36,11 @@ const adjustBaseSalarySchema = z.object({
 
 type BaseSalaryOption = { value: number; label: number };
 
-interface AdjustBaseSalaryDialogPorps {}
+interface AdjustBaseSalaryDialogPorps {
+	setOpenDialog: (open: boolean) => void;
+}
 
-export function AdjustBaseSalaryDialog({}: AdjustBaseSalaryDialogPorps) {
+export function AdjustBaseSalaryDialog({ setOpenDialog }: AdjustBaseSalaryDialogPorps) {
 	const q = api.parameters.getAllInsuranceRateSetting.useQuery();
 	const { data, isPending, content } = useQueryHandle(q);
 
@@ -67,6 +69,7 @@ export function AdjustBaseSalaryDialog({}: AdjustBaseSalaryDialogPorps) {
 			base_salary: selectedSetting.min_wage,
 			start_date: selectedSetting.start_date,
 		});
+		setOpenDialog(false);
 	};
 
 	const options: BaseSalaryOption[] = [];
@@ -105,11 +108,11 @@ export function AdjustBaseSalaryDialog({}: AdjustBaseSalaryDialogPorps) {
 							/>
 						)}
 					/>
+					<DialogFooter>
+						<Button type="submit">{t("button.confirm")}</Button>
+					</DialogFooter>
 				</form>
 			</Form>
-			<DialogFooter>
-				<Button type="submit">{t("button.confirm")}</Button>
-			</DialogFooter>
 		</DialogContent>
 	);
 }

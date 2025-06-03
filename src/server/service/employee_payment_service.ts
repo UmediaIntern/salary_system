@@ -20,6 +20,7 @@ import { EmployeeDataService } from "./employee_data_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { WorkTypeEnum } from "../api/types/work_type_enum";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
+import { subDays } from "date-fns";
 
 @injectable()
 export class EmployeePaymentService {
@@ -48,7 +49,6 @@ export class EmployeePaymentService {
 		const newData = await EmployeePayment.create(employeePayment, {
 			raw: true,
 		});
-		console.log("Create EmployeePayment")
 		return newData;
 	}
 
@@ -395,7 +395,6 @@ export class EmployeePaymentService {
 						empPayment,
 						start_date
 					);
-
 				if (
 					empPayment.l_i != updatedEmployeePayment.l_i ||
 					empPayment.h_i != updatedEmployeePayment.h_i ||
@@ -522,22 +521,21 @@ export class EmployeePaymentService {
 				start_date
 			);
 
-			if (!before) {
-				throw new BaseResponseError(
-					"Employee payment format error: Expect at least one entry in the employee payment list"
-				);
+			if (!before || before.base_salary + before.food_allowance > base_salary) {
+				continue;
 			}
 
 			tasks.push(async () => {
+
 				await this.updateEmployeePayment({
 					id: before?.id,
-					end_date: start_date,
+					end_date: subDays(start_date, 1),
 				});
 				await this.createEmployeePayment({
 					...before,
 					start_date: start_date,
-					base_salary: base_salary,
-					end_date: after?.start_date ?? null,
+					base_salary: base_salary - before.food_allowance,
+					end_date: after?.start_date ? subDays(after.start_date, 1) : null,
 				});
 			});
 		}
@@ -641,9 +639,12 @@ export class EmployeePaymentService {
 		date: Date
 	): Promise<z.infer<typeof employeePaymentCreateService>> {
 		const period_id = await this.ehrService.getPeriodIdByDate(date);
-		const employeeData = (await this.employeeDataService.getCurrentEmployeeData(period_id)).find((e) => e.emp_no == employeePayment.emp_no);
+		let employeeData = (await this.employeeDataService.getCurrentEmployeeData(period_id)).find((e) => e.emp_no == employeePayment.emp_no);
 		if (employeeData == null) {
-			throw new BaseResponseError("Employee Data does not exist");
+			employeeData = await this.employeeDataService.getLatestEmployeeDataByEmpNo(employeePayment.emp_no);
+			if (employeeData == null) {
+				throw new BaseResponseError("Employee Data does not exist for this employee");
+			}
 		}
 
 		const salary =
