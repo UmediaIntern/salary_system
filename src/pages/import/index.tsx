@@ -20,11 +20,25 @@ import {
 	type CarouselApi,
 } from "~/components/ui/carousel";
 import { ExcelUpload } from "~/components/file_operations/excel_upload";
+import { ValidateExcel } from "./validate_excel";
+import { FileUploader } from "~/components/file_operations/file_uploader";
 
 export function CarouselDApiDemo() {
 	const [api, setApi] = useState<CarouselApi>();
 	const [current, setCurrent] = useState(0);
 	const [count, setCount] = useState(0);
+
+	async function handleFileUpload(files: File[]) {
+		if (files.length !== 1 || !files[0]) {
+      // toast
+			throw new Error("Only one file can be uploaded at a time");
+		}
+    const file: File = files[0];
+
+    // const data = await extractData(file);
+    // console.log("extracted data", data);
+    // if (data) setData(data);
+	}
 
 	useEffect(() => {
 		if (!api) {
@@ -46,22 +60,29 @@ export function CarouselDApiDemo() {
 					<Card className="h-full">
 						<CardContent className="flex h-full grow items-center justify-center p-6">
 							<span className="text-4xl font-semibold">
-								<ExcelUpload />
+                <FileUploader onUpload={handleFileUpload} />
 							</span>
 						</CardContent>
 					</Card>
 				</CarouselItem>
-				{Array.from({ length: 4 }).map((_, index) => (
-					<CarouselItem key={index + 1}>
-						<Card className="h-full">
-							<CardContent className="flex h-full grow items-center justify-center p-6">
-								<span className="text-4xl font-semibold">
-									{index + 2}
-								</span>
-							</CardContent>
-						</Card>
-					</CarouselItem>
-				))}
+				<CarouselItem key={1}>
+					<Card className="h-full">
+						<CardContent className="flex h-full grow items-center justify-center p-0">
+							<ValidateExcel />
+						</CardContent>
+					</Card>
+				</CarouselItem>
+				{/* {Array.from({ length: 4 }).map((_, index) => ( */}
+				{/* 	<CarouselItem key={index + 1}> */}
+				{/* 		<Card className="h-full"> */}
+				{/* 			<CardContent className="flex h-full grow items-center justify-center p-6"> */}
+				{/* 				<span className="text-4xl font-semibold"> */}
+				{/* 					{index + 2} */}
+				{/* 				</span> */}
+				{/* 			</CardContent> */}
+				{/* 		</Card> */}
+				{/* 	</CarouselItem> */}
+				{/* ))} */}
 			</CarouselContent>
 
 			<div className="flex h-16 w-full flex-row justify-between py-4">
