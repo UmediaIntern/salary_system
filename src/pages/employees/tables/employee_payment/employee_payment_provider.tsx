@@ -22,7 +22,7 @@ export type PaymentFunctionModes =
 	| "delete"
 	| "excel_download"
 	| "excel_upload"
-	| "initialize"
+	// | "initialize"
 	| "auto_calculate"
 	| "adjust_base_salary"
 	| "none";
@@ -36,27 +36,27 @@ export function EmployeePaymentFunctionContextProvider({
 	children,
 }: PropsWithChildren) {
 	const {
-		open,
-		setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		mode,
 		setMode,
 		data,
 		setData,
-		openDialog,
-		setOpenDialog,
 	} = useTableFunctionState<PaymentFunctionModes, PaymentRowItem>("none");
 
 	return (
 		<employeePaymentFunctionContext.Provider
 			value={{
-				open,
-				setOpen,
+				openSheet,
+				setOpenSheet,
+				openDialog,
+				setOpenDialog,
 				mode,
 				setMode,
 				data,
 				setData,
-				openDialog,
-				setOpenDialog,
 			}}
 		>
 			{children}

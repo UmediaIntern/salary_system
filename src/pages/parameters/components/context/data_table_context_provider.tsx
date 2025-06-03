@@ -8,7 +8,7 @@ import { TabsEnum, type TabsEnumType } from "./tabs_enum";
 import { type Table } from "@tanstack/react-table";
 import { useAccessContext } from "~/components/context/access_context_provider";
 
-interface DataTableContextProviderProps {}
+interface DataTableContextProviderProps { }
 
 export type TableObject = {
 	table: Table<any>;
@@ -25,8 +25,10 @@ const dataTableContext = React.createContext<{
 	setEnableFunctions: (enableFunctions: boolean) => void;
 	mode: FunctionMode;
 	setMode: (mode: FunctionMode) => void;
-	open: boolean;
-	setOpen: (open: boolean) => void;
+	openSheet: boolean;
+	setOpenSheet: (open: boolean) => void;
+	openDialog: boolean;
+	setOpenDialog: (open: boolean) => void;
 	data: any;
 	setData: (data: any) => void;
 } | null>(null);
@@ -46,7 +48,8 @@ export function DataTableContextProvider({
 	);
 	const [enableFunctions, setEnableFunctions] = useState<boolean>(access.parameters_write);
 
-	const [open, setOpen] = useState<boolean>(false);
+	const [openSheet, setOpenSheet] = useState<boolean>(false);
+	const [openDialog, setOpenDialog] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
 	const [data, setData] = useState<any>(null);
 
@@ -59,12 +62,14 @@ export function DataTableContextProvider({
 				setSelectedTab,
 				selectedTable,
 				setSelectedTable,
-        enableFunctions,
-        setEnableFunctions,
+				enableFunctions,
+				setEnableFunctions,
 				mode,
 				setMode,
-				open,
-				setOpen,
+				openSheet,
+				setOpenSheet,
+				openDialog,
+				setOpenDialog,
 				data,
 				setData,
 			}}

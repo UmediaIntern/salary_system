@@ -16,7 +16,7 @@ interface DataTableProps<TData extends DataRow> {
 }
 
 export function DataTableUpdate<TData extends DataRow>({
-  children,
+	children,
 	filterColumnKey,
 }: PropsWithChildren<DataTableProps<TData>>) {
 	const { selectedTab, setSelectedTab } = useEmployeeTableContext();
@@ -34,12 +34,12 @@ export function DataTableUpdate<TData extends DataRow>({
 				<Separator />
 				<TabsContent value={EmpTabsEnum.Enum.current} asChild>
 					<div className="flex h-0 w-full flex-grow flex-col">
-            <CurrentViewSelector />
+						<CurrentViewSelector />
 					</div>
 				</TabsContent>
 				<TabsContent value={EmpTabsEnum.Enum.history} asChild>
 					<div className="flex h-0 w-full flex-grow flex-col">
-            <HistoryViewSelector />
+						<HistoryViewSelector />
 					</div>
 				</TabsContent>
 			</div>

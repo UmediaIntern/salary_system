@@ -18,7 +18,7 @@ import { convertToDBWorkStatusEnum } from "../api/types/work_status_enum";
 
 @injectable()
 export class EmployeeDataService {
-	constructor(private readonly employeeDataMapper: EmployeeDataMapper) {}
+	constructor(private readonly employeeDataMapper: EmployeeDataMapper) { }
 
 	async createEmployeeData(
 		data: z.infer<typeof createEmployeeDataService>
@@ -130,6 +130,7 @@ export class EmployeeDataService {
 			where: {
 				period_id: period_id,
 			},
+			order: [["emp_no", "ASC"]],
 		});
 		return await this.employeeDataMapper.decodeList(employeeDataList);
 	}

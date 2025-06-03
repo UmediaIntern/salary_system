@@ -116,8 +116,10 @@ export function BonusDepartmentTable({
 	const { t } = useTranslation(["common"]);
 	const {
 		data: selectedData,
-		open,
-		setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		mode,
 	} = useBonusFunctionContext();
 
@@ -149,8 +151,8 @@ export function BonusDepartmentTable({
 					bonus_type={bonus_type}
 				>
 					<Sheet
-						open={open && mode !== "delete"}
-						onOpenChange={setOpen}
+						open={openSheet && mode !== "delete"}
+						onOpenChange={setOpenSheet}
 					>
 						{bonusDepartmentMapper(data!) && (
 							<DataTableWithFunctions
@@ -169,7 +171,7 @@ export function BonusDepartmentTable({
 									formConfig={undefined}
 									mode={mode}
 									defaultValue={{ ...selectedData }}
-									closeSheet={() => setOpen(false)}
+									closeSheet={() => setOpenSheet(false)}
 								/>
 							)}
 							{mode === "update" && (
@@ -180,14 +182,14 @@ export function BonusDepartmentTable({
 									]}
 									mode={mode}
 									defaultValue={{ ...selectedData }}
-									closeSheet={() => setOpen(false)}
+									closeSheet={() => setOpenSheet(false)}
 								/>
 							)}
 						</FunctionsSheetContent>
 					</Sheet>
 					<Dialog
-						open={open && mode === "delete"}
-						onOpenChange={setOpen}
+						open={openDialog && mode === "delete"}
+						onOpenChange={setOpenDialog}
 						aria-hidden={false}
 					>
 						<ConfirmDialog

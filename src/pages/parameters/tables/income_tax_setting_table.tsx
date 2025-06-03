@@ -129,7 +129,7 @@ export function IncomeTaxSettingTable({
 
 
 	const { t } = useTranslation(["common"]);
-	const { selectedTab, open, setOpen, mode, setData } =
+	const { selectedTab, openSheet, setOpenSheet, openDialog, setOpenDialog, mode, setData } =
 		useDataTableContext();
 
 	const getIncomeTaxSetting =
@@ -154,7 +154,7 @@ export function IncomeTaxSettingTable({
 					selectedTableType={"TableIncomeTaxSetting"}
 					period_id={period_id}
 				>
-					<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+					<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 						<DataTableWithFunctions
 							columns={income_tax_setting_columns({ t })}
 							data={data ? incomeTaxSettingMapper([data]) : []}
@@ -166,12 +166,12 @@ export function IncomeTaxSettingTable({
 								formConfig={[{ key: "id", config: { hidden: true } }]}
 								mode={mode}
 								closeSheet={() => {
-									setOpen(false);
+									setOpenSheet(false);
 								}}
 							/>
 						</FunctionsSheetContent>
 					</Sheet>
-					<ConfirmDialog open={open && mode === "delete"} onOpenChange={setOpen} schema={incomeTaxSchema} />
+					<ConfirmDialog open={openDialog && mode === "delete"} onOpenChange={setOpenDialog} schema={incomeTaxSchema} />
 				</ParameterToolbarFunctionsProvider>
 			) : (
 				<DataTableWithoutFunctions

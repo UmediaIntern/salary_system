@@ -109,12 +109,13 @@ export const trust_money_columns = ({
 ];
 
 function TrustMoneyFunctionComponent({ data }: { data: RowItem }) {
-	const { setOpen, setMode, setData, enableFunctions } =
+	const { setOpenSheet, setOpenDialog, setMode, setData, enableFunctions } =
 		useDataTableContext();
 
 	return (
 		<FunctionsComponent
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			data={data}
 			setData={setData}
@@ -150,7 +151,7 @@ interface TrustMoneyTableProps extends TableComponentProps {
 
 export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, open, setOpen } = useDataTableContext();
+	const { mode, openSheet, setOpenSheet, openDialog, setOpenDialog } = useDataTableContext();
 
 	const getTrustMoney = api.parameters.getCurrentTrustMoney.useQuery({
 		period_id,
@@ -167,7 +168,7 @@ export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 			selectedTableType={"TableTrustMoney"}
 			period_id={period_id}
 		>
-			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 				<DataTableWithFunctions
 					columns={trust_money_columns({
 						t,
@@ -181,14 +182,14 @@ export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 						formConfig={[{ key: "id", config: { hidden: true } }]}
 						mode={mode}
 						closeSheet={() => {
-							setOpen(false);
+							setOpenSheet(false);
 						}}
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
+				open={openDialog && mode === "delete"}
+				onOpenChange={setOpenDialog}
 				schema={trustMoneySchema}
 			/>
 		</ParameterToolbarFunctionsProvider>

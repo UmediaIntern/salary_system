@@ -113,8 +113,10 @@ export function BonusSeniorityTable({
 	const { t } = useTranslation(["common"]);
 	const {
 		data: selectedData,
-		open,
-		setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		mode,
 	} = useBonusFunctionContext();
 
@@ -146,10 +148,10 @@ export function BonusSeniorityTable({
 					bonus_type={bonus_type}
 				>
 					<Sheet
-						open={open && mode !== "delete"}
-						onOpenChange={setOpen}
+						open={openSheet && mode !== "delete"}
+						onOpenChange={setOpenSheet}
 					>
-						{bonusSeniorityMapper(data) && (
+						{data && bonusSeniorityMapper(data) && (
 							<DataTableWithFunctions
 								columns={bonus_seniority_columns({ t })}
 								data={data ? bonusSeniorityMapper(data) : []}
@@ -166,7 +168,7 @@ export function BonusSeniorityTable({
 									formConfig={undefined}
 									mode={mode}
 									defaultValue={{ ...selectedData }}
-									closeSheet={() => setOpen(false)}
+									closeSheet={() => setOpenSheet(false)}
 								/>
 							)}
 							{mode === "update" && (
@@ -177,14 +179,14 @@ export function BonusSeniorityTable({
 									]}
 									mode={mode}
 									defaultValue={{ ...selectedData }}
-									closeSheet={() => setOpen(false)}
+									closeSheet={() => setOpenSheet(false)}
 								/>
 							)}
 						</FunctionsSheetContent>
 					</Sheet>
 					<Dialog
-						open={open && mode === "delete"}
-						onOpenChange={setOpen}
+						open={openDialog && mode === "delete"}
+						onOpenChange={setOpenDialog}
 						aria-hidden={false}
 					>
 						<ConfirmDialog

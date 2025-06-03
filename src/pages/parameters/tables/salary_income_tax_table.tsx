@@ -46,74 +46,73 @@ export const salary_income_tax_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-	...f.map((key: RowItemKey) =>
-		columnHelper.accessor(key, {
-			header: ({ column }) => {
+		...f.map((key: RowItemKey) =>
+			columnHelper.accessor(key, {
+				header: ({ column }) => {
+					return (
+						<div className="flex justify-center">
+							<div className="text-center font-medium">
+								<Button
+									variant="ghost"
+									onClick={() =>
+										column.toggleSorting(
+											column.getIsSorted() === "asc"
+										)
+									}
+								>
+									{t(`table.${key}`)}
+									<ArrowUpDown className="ml-2 h-4 w-4" />
+								</Button>
+							</div>
+						</div>
+					);
+				},
+				cell: ({ row }) => {
+					switch (key) {
+						case "start_date":
+							return (
+								<div className="text-center font-medium">{`${formatDate("day", row.original.start_date) ?? ""
+									}`}</div>
+							);
+						case "end_date":
+							return (
+								<div className="text-center font-medium">{`${formatDate("day", row.original.end_date) ?? ""
+									}`}</div>
+							);
+						default:
+							return (
+								<div className="text-center font-medium">{`${row.original[
+									key as RowItemKey
+								]?.toString()}`}</div>
+							);
+					}
+				},
+			})
+		),
+		columnHelper.accessor("functions", {
+			header: () => {
 				return (
 					<div className="flex justify-center">
 						<div className="text-center font-medium">
-							<Button
-								variant="ghost"
-								onClick={() =>
-									column.toggleSorting(
-										column.getIsSorted() === "asc"
-									)
-								}
-							>
-								{t(`table.${key}`)}
-								<ArrowUpDown className="ml-2 h-4 w-4" />
-							</Button>
+							{t(`others.functions`)}
 						</div>
 					</div>
 				);
 			},
 			cell: ({ row }) => {
-				switch (key) {
-					case "start_date":
-						return (
-							<div className="text-center font-medium">{`${
-								formatDate("day", row.original.start_date) ?? ""
-							}`}</div>
-						);
-					case "end_date":
-						return (
-							<div className="text-center font-medium">{`${
-								formatDate("day", row.original.end_date) ?? ""
-							}`}</div>
-						);
-					default:
-						return (
-							<div className="text-center font-medium">{`${row.original[
-								key as RowItemKey
-							]?.toString()}`}</div>
-						);
-				}
+				return <SalaryIncomeTaxFunctionComponent data={row.original} />;
 			},
-		})
-	),
-	columnHelper.accessor("functions", {
-		header: () => {
-			return (
-				<div className="flex justify-center">
-					<div className="text-center font-medium">
-						{t(`others.functions`)}
-					</div>
-				</div>
-			);
-		},
-		cell: ({ row }) => {
-			return <SalaryIncomeTaxFunctionComponent data={row.original} />;
-		},
-	}),
-];
+		}),
+	];
 
 function SalaryIncomeTaxFunctionComponent({ data }: { data: RowItem }) {
-	const { setOpen, setMode, setData, enableFunctions } =
+	const { setOpenSheet, setOpenDialog, setMode, setData, enableFunctions } =
 		useDataTableContext();
 
 	return (
 		<FunctionsComponent
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			data={data}
 			setData={setData}
@@ -150,7 +149,7 @@ export function SalaryIncomeTaxTable({
 	period_id,
 }: SalaryIncomeTaxTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, open, setOpen } = useDataTableContext();
+	const { mode, openSheet, setOpenSheet, openDialog, setOpenDialog } = useDataTableContext();
 
 	const getSalaryIncomeTax =
 		api.parameters.getCurrentSalaryIncomeTax.useQuery({ period_id });
@@ -165,7 +164,7 @@ export function SalaryIncomeTaxTable({
 			selectedTableType={"TableSalaryIncomeTax"}
 			period_id={period_id}
 		>
-			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 				<DataTableWithFunctions
 					columns={salary_income_tax_columns({
 						t,
@@ -179,14 +178,14 @@ export function SalaryIncomeTaxTable({
 						formConfig={[{ key: "id", config: { hidden: true } }]}
 						mode={mode}
 						closeSheet={() => {
-							setOpen(false);
+							setOpenSheet(false);
 						}}
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
+				open={openDialog && mode === "delete"}
+				onOpenChange={setOpenDialog}
 				schema={salaryIncomeTaxSchema}
 			/>
 		</ParameterToolbarFunctionsProvider>

@@ -14,28 +14,21 @@ export function formatDate(
 	}
 }
 
-function formatDateString(type: string, isoString: string):string {
+function formatDateString(type: string, isoString: string): string {
 	const date = new Date(isoString);
 
-  let formattedDate: string;
+	let formattedDate: string;
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
 
 	if (type === "hour") {
-		formattedDate = date.toLocaleString("zh-Hans-TW", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "numeric",
-			minute: "numeric",
-			second: "numeric",
-			// timeZoneName: "short",
-			timeZone: "UTC",
-		});
+		const hour = String(date.getHours()).padStart(2, '0');
+		const minute = String(date.getMinutes()).padStart(2, '0');
+		const second = String(date.getSeconds()).padStart(2, '0');
+		formattedDate = `${year}年${month}月${day}日 ${hour}點${minute}分${second}秒`;
 	} else if (type === "day") {
-		formattedDate = date.toLocaleString("zh-Hans-TW", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		});
+		formattedDate = `${year}年${month}月${day}日`;
 	} else {
 		formattedDate = date.toLocaleString("zh-Hans-TW");
 	}

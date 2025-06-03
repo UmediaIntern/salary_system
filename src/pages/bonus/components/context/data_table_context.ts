@@ -18,7 +18,7 @@ export type FunctionMode =
 	| "auto_calculate"
 	| "excel_download"
 	| "excel_upload"
-	| "initialize"
+	// | "initialize"
 	| "none";
 
 export type FunctionsItem = {
@@ -40,8 +40,10 @@ const dataTableContext = React.createContext<{
 	setSelectedTable: (table: TableObject | null) => void;
 	mode: FunctionMode;
 	setMode: (mode: FunctionMode) => void;
-	open: boolean;
-	setOpen: (open: boolean) => void;
+	openSheet: boolean;
+	setOpenSheet: (open: boolean) => void;
+	openDialog: boolean;
+	setOpenDialog: (open: boolean) => void;
 	data: any;
 	setData: (data: any) => void;
 }>({
@@ -53,8 +55,10 @@ const dataTableContext = React.createContext<{
 	setSelectedTable: (_: TableObject | null) => undefined,
 	mode: "none",
 	setMode: (_: FunctionMode) => undefined,
-	open: false,
-	setOpen: (_: boolean) => undefined,
+	openSheet: false,
+	setOpenSheet: (_: boolean) => undefined,
+	openDialog: false,
+	setOpenDialog: (_: boolean) => undefined,
 	data: null,
 	setData: (_: any) => undefined,
 });
