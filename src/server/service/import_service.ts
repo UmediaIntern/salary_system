@@ -17,12 +17,12 @@ export class ImportService {
 		private readonly employeeBonusService: EmployeeBonusService
 	) {}
 
-	async importTransactions(data: ImportFieldsType[]): Promise<void> {
-    const importTransactionTasks = data.map(d => this.importTransaction(d));
+	async importTransaction(data: ImportFieldsType[]): Promise<void> {
+    const importTransactionTasks = data.map(d => this.importTransactionRow(d));
     await Promise.all(importTransactionTasks);
   }
 
-	async importTransaction(data: ImportFieldsType): Promise<void> {
+	async importTransactionRow(data: ImportFieldsType): Promise<void> {
 
 		await this.employeeDataService.createEmployeeData({
 			period_id: data.period_id,
