@@ -243,13 +243,9 @@ export class SyncService {
 		if (func == FunctionsEnum.Enum.month_salary) {
 			// 如果功能是月薪計算
 			const db_salary_emps_data = await EmployeeData.findAll({
-				// attributes: [
-				// 	"emp_name",
-				// 	"department",
-				// 	"emp_no",
-				// 	"work_status",
-				// 	"quit_date",
-				// ],
+				where: {
+					period_id: period_id,
+				},
 				raw: true,
 			});
 			const salary_emps_data = await this.employeeDataMapper.decodeList(
