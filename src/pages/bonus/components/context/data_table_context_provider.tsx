@@ -24,7 +24,8 @@ export default function DataTableContextProvider({
 	const [selectedTable, setSelectedTable] = useState<TableObject | null>(
 		null
 	);
-	const [open, setOpen] = useState<boolean>(false);
+	const [openSheet, setOpenSheet] = useState<boolean>(false);
+	const [openDialog, setOpenDialog] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
 	const [data, setData] = useState<any>(null);
 
@@ -39,8 +40,10 @@ export default function DataTableContextProvider({
 				setSelectedTable,
 				mode,
 				setMode,
-				open,
-				setOpen,
+				openSheet,
+				setOpenSheet,
+				openDialog,
+				setOpenDialog,
 				data,
 				setData,
 			}}

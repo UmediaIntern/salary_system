@@ -117,8 +117,10 @@ export function EmployeeBonusTable({
 	const { t } = useTranslation(["common"]);
 	const {
 		data: selectedData,
-		open,
-		setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		mode,
 	} = useBonusFunctionContext();
 
@@ -174,7 +176,7 @@ export function EmployeeBonusTable({
 			period_id={period_id}
 			bonus_type={bonus_type}
 		>
-			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 				{/* <Button onClick={() => console.log(selectedBonusType)}>TEST</Button> */}
 				<DataTableWithFunctions
 					columns={employee_bonus_budget_columns({
@@ -190,14 +192,14 @@ export function EmployeeBonusTable({
 						formConfig={[{ key: "id", config: { hidden: true } }]}
 						mode={mode}
 						closeSheet={() => {
-							setOpen(false);
+							setOpenSheet(false);
 						}}
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
 			<Dialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
+				open={openDialog && mode === "delete"}
+				onOpenChange={setOpenDialog}
 				aria-hidden={false}
 			>
 				<ConfirmDialog

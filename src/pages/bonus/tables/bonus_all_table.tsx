@@ -92,11 +92,12 @@ export const bonus_all_columns = ({
 ];
 
 function BonusAllFunctionComponent({ data }: { data: RowItem }) {
-	const { setOpen, setMode, setData } = useBonusFunctionContext();
+	const { setOpenSheet, setOpenDialog, setMode, setData } = useBonusFunctionContext();
 	return (
 		<FunctionsComponent
 			data={data}
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			setData={setData}
 		/>
@@ -127,8 +128,10 @@ export function BonusAllTable({
 	const { t } = useTranslation(["common"]);
 	const {
 		data: selectedData,
-		open,
-		setOpen,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
 		mode,
 		setData,
 	} = useContext(dataTableContext);
@@ -167,10 +170,10 @@ export function BonusAllTable({
 					bonus_type={bonus_type}
 				>
 					<Sheet
-						open={open && mode !== "delete"}
-						onOpenChange={setOpen}
+						open={openSheet && mode !== "delete"}
+						onOpenChange={setOpenSheet}
 					>
-						{bonusAllMapper(data) && (
+						{data && bonusAllMapper(data) && (
 							<DataTableWithFunctions
 								columns={bonus_all_columns({ t })}
 								data={data ? [bonusAllMapper(data)] : []}
@@ -191,7 +194,7 @@ export function BonusAllTable({
 											multiplier: selectedData.value,
 										}
 									}
-									closeSheet={() => setOpen(false)}
+									closeSheet={() => setOpenSheet(false)}
 								/>
 							)}
 							{mode === "update" && (
@@ -207,14 +210,14 @@ export function BonusAllTable({
 											multiplier: selectedData.value,
 										}
 									}
-									closeSheet={() => setOpen(false)}
+									closeSheet={() => setOpenSheet(false)}
 								/>
 							)}
 						</FunctionsSheetContent>
 					</Sheet>
 					<Dialog
-						open={open && mode === "delete"}
-						onOpenChange={setOpen}
+						open={openDialog && mode === "delete"}
+						onOpenChange={setOpenDialog}
 						aria-hidden={false}
 					>
 						<ConfirmDialog

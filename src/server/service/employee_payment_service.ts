@@ -21,6 +21,8 @@ import { LongServiceEnum } from "../api/types/long_service_enum";
 import { WorkTypeEnum } from "../api/types/work_type_enum";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
 import { dateToStringNullable } from "../api/types/z_utils";
+import { subDays } from "date-fns";
+import { dateToString } from "../api/types/z_utils";
 
 @injectable()
 export class EmployeePaymentService {
@@ -428,7 +430,6 @@ export class EmployeePaymentService {
 						empPayment,
 						start_date
 					);
-
 				if (
 					empPayment.l_i != updatedEmployeePayment.l_i ||
 					empPayment.h_i != updatedEmployeePayment.h_i ||
@@ -460,10 +461,10 @@ export class EmployeePaymentService {
 
 		for (let i = 0; i < employeePaymentList.length - 1; i += 1) {
 			const end_date_string = employeePaymentList[i]!.end_date
-				? get_date_string(new Date(employeePaymentList[i]!.end_date!))
+				? dateToString.parse(new Date(employeePaymentList[i]!.end_date!))
 				: null;
 			const start_date = new Date(employeePaymentList[i + 1]!.start_date);
-			const new_end_date_string = get_date_string(
+			const new_end_date_string = dateToString.parse(
 				new Date(start_date.setDate(start_date.getDate() - 1))
 			);
 			const quit_date = (
@@ -555,22 +556,21 @@ export class EmployeePaymentService {
 				start_date
 			);
 
-			if (!before) {
-				throw new BaseResponseError(
-					"Employee payment format error: Expect at least one entry in the employee payment list"
-				);
+			if (!before || before.base_salary + before.food_allowance > base_salary) {
+				continue;
 			}
 
 			tasks.push(async () => {
+
 				await this.updateEmployeePayment({
 					id: before?.id,
-					end_date: start_date,
+					end_date: subDays(start_date, 1),
 				});
 				await this.createEmployeePayment({
 					...before,
 					start_date: start_date,
-					base_salary: base_salary,
-					end_date: after?.start_date ?? null,
+					base_salary: base_salary - before.food_allowance,
+					end_date: after?.start_date ? subDays(after.start_date, 1) : null,
 				});
 			});
 		}
@@ -681,7 +681,10 @@ export class EmployeePaymentService {
 			await this.employeeDataService.getCurrentEmployeeData(period_id)
 		).find((e) => e.emp_no == employeePayment.emp_no);
 		if (employeeData == null) {
-			throw new BaseResponseError("Employee Data does not exist");
+			employeeData = await this.employeeDataService.getLatestEmployeeDataByEmpNo(employeePayment.emp_no);
+			if (employeeData == null) {
+				throw new BaseResponseError("Employee Data does not exist for this employee");
+			}
 		}
 
 		const salary =

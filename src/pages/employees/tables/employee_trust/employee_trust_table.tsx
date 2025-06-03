@@ -85,12 +85,13 @@ function TrustFunctionComponent({
 }: {
 	data: TrustRowItem;
 }) {
-	const { setOpen, setMode, setData } = useTrustFunctionContext();
+	const { setOpenSheet, setOpenDialog, setMode, setData } = useTrustFunctionContext();
 	const { access } = useAccessContext();
 
 	return (
 		<FunctionsComponent
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			data={data}
 			setData={setData}

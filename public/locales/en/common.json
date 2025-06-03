@@ -403,7 +403,9 @@
     "start_calculate_month_salary": "Month Salary Calculation",
     "start_calculate_month_salary_button": "Start",
     "transaction": "Transaction",
-    "new_data_start_date": "New Data Start Date"
+    "new_data_start_date": "New Data Start Date",
+    "true": "True",
+    "false": "False"
   },
   "sync_page": {
     "show_all": "All Employees",
@@ -424,7 +426,7 @@
     },
     "auto_calculate": {
       "title": "Confirm auto calculate",
-      "description": "Please select a date for the LI, HI, LR, and Occupational Injury to be updated.",
+      "description": "Please select a date for the LI, HI, LR, and Occupational Injury to be updated."
     }
   },
   "work_status": {

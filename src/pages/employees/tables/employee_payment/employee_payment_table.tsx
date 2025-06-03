@@ -47,64 +47,63 @@ export const employee_payment_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-	...columnNames.map((key) =>
-		columnHelper.accessor(key, {
-			header: ({ column }) => {
+		...columnNames.map((key) =>
+			columnHelper.accessor(key, {
+				header: ({ column }) => {
+					return (
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
+					);
+				},
+				cell: ({ row }) => {
+					let content = row.original[key]?.toString() ?? "";
+					switch (key) {
+						case "long_service_allowance_type":
+							content = t(
+								`long_service_allowance_type.${row.original.long_service_allowance_type}`
+							);
+							break;
+						case "start_date":
+							content = `${formatDate("day", row.original.start_date) ?? ""
+								}`;
+							break;
+						case "end_date":
+							content = `${formatDate("day", row.original.end_date) ?? ""
+								}`;
+							break;
+					}
+					return <ColumnCellComponent>{content}</ColumnCellComponent>;
+				},
+			})
+		),
+		columnHelper.accessor("functions", {
+			header: () => {
 				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
+					<ColumnHeaderBaseComponent>
+						{t(`others.functions`)}
+					</ColumnHeaderBaseComponent>
 				);
 			},
 			cell: ({ row }) => {
-				let content = row.original[key]?.toString() ?? "";
-				switch (key) {
-					case "long_service_allowance_type":
-						content = t(
-							`long_service_allowance_type.${row.original.long_service_allowance_type}`
-						);
-						break;
-					case "start_date":
-						content = `${
-							formatDate("day", row.original.start_date) ?? ""
-						}`;
-						break;
-					case "end_date":
-						content = `${
-							formatDate("day", row.original.end_date) ?? ""
-						}`;
-						break;
-				}
-				return <ColumnCellComponent>{content}</ColumnCellComponent>;
+				// TODO: Should use data with Frontend Type instead of data in table?
+				return <PaymentFunctionComponent data={row.original} />;
 			},
-		})
-	),
-	columnHelper.accessor("functions", {
-		header: () => {
-			return (
-				<ColumnHeaderBaseComponent>
-					{t(`others.functions`)}
-				</ColumnHeaderBaseComponent>
-			);
-		},
-		cell: ({ row }) => {
-			// TODO: Should use data with Frontend Type instead of data in table?
-			return <PaymentFunctionComponent data={row.original} />;
-		},
-	}),
-];
+		}),
+	];
 
 function PaymentFunctionComponent({ data }: { data: PaymentRowItem }) {
-	const { setOpen, setMode, setData } = usePaymentFunctionContext();
+	const { setOpenSheet, setOpenDialog, setMode, setData } = usePaymentFunctionContext();
 	const { access } = useAccessContext();
 
 	return (
 		<FunctionsComponent
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			data={data}
 			setData={setData}
-      disabled={!access.employees_write}
+			disabled={!access.employees_write}
 		/>
 	);
 }

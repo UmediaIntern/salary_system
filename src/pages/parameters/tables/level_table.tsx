@@ -59,15 +59,13 @@ export const level_columns = ({ t }: { t: TFunction<[string], undefined> }) => [
 				switch (key) {
 					case "start_date":
 						return (
-							<div className="text-center font-medium">{`${
-								formatDate("day", row.original.start_date) ?? ""
-							}`}</div>
+							<div className="text-center font-medium">{`${formatDate("day", row.original.start_date) ?? ""
+								}`}</div>
 						);
 					case "end_date":
 						return (
-							<div className="text-center font-medium">{`${
-								formatDate("day", row.original.end_date) ?? ""
-							}`}</div>
+							<div className="text-center font-medium">{`${formatDate("day", row.original.end_date) ?? ""
+								}`}</div>
 						);
 					default:
 						return (
@@ -96,12 +94,13 @@ export const level_columns = ({ t }: { t: TFunction<[string], undefined> }) => [
 ];
 
 function LevelFunctionComponent({ data }: { data: RowItem }) {
-	const { setOpen, setMode, setData, enableFunctions } =
+	const { setOpenSheet, setOpenDialog, setMode, setData, enableFunctions } =
 		useDataTableContext();
 
 	return (
 		<FunctionsComponent
-			setOpen={setOpen}
+			setOpenSheet={setOpenSheet}
+			setOpenDialog={setOpenDialog}
 			setMode={setMode}
 			data={data}
 			setData={setData}
@@ -130,7 +129,7 @@ interface LevelTableProps extends TableComponentProps {
 
 export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, open, setOpen } = useDataTableContext();
+	const { mode, openSheet, setOpenSheet, openDialog, setOpenDialog } = useDataTableContext();
 
 	const getLevel = api.parameters.getCurrentLevel.useQuery({ period_id });
 	const { isPending, content, data } = useQueryHandle(getLevel);
@@ -145,7 +144,7 @@ export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 			selectedTableType={"TableLevel"}
 			period_id={period_id}
 		>
-			<Sheet open={open && mode !== "delete"} onOpenChange={setOpen}>
+			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
 				<DataTableWithFunctions
 					columns={level_columns({
 						t,
@@ -158,13 +157,13 @@ export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 						formSchema={levelSchema}
 						formConfig={[{ key: "id", config: { hidden: true } }]}
 						mode={mode}
-						closeSheet={() => setOpen(false)}
+						closeSheet={() => setOpenSheet(false)}
 					/>
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog
-				open={open && mode === "delete"}
-				onOpenChange={setOpen}
+				open={openDialog && mode === "delete"}
+				onOpenChange={setOpenDialog}
 				schema={levelSchema}
 			/>
 		</ParameterToolbarFunctionsProvider>

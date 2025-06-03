@@ -138,7 +138,7 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
   const { isPending, content, data } = useQueryHandle(getAttendance);
 	const filterKey: RowItemKey = "parameters";
 
-	const { selectedTab, open, setOpen, mode, setData } =
+	const { selectedTab, openSheet, setOpenSheet, openDialog, setOpenDialog, mode, setData } =
 		useDataTableContext();
 
 	useEffect(() => {
@@ -159,8 +159,8 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 					period_id={period_id}
 				>
 					<Sheet
-						open={open && mode !== "delete"}
-						onOpenChange={setOpen}
+						open={openSheet && mode !== "delete"}
+						onOpenChange={setOpenSheet}
 					>
 						<DataTableWithFunctions
 							columns={attendance_columns({ t })}
@@ -175,14 +175,14 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 								]}
 								mode={mode}
 								closeSheet={() => {
-									setOpen(false);
+									setOpenSheet(false);
 								}}
 							/>
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog
-						open={open && mode === "delete"}
-						onOpenChange={setOpen}
+						open={openDialog && mode === "delete"}
+						onOpenChange={setOpenDialog}
 						schema={attendanceSchema}
 					/>
 				</ParameterToolbarFunctionsProvider>

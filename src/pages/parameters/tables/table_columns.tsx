@@ -11,31 +11,28 @@ import { levelMapper, level_columns } from "./level_table";
 import { levelRangeMapper, level_range_columns } from "./level_range_table";
 import { salary_income_tax_columns, salaryIncomeTaxMapper } from "./salary_income_tax_table";
 import { type TFunction } from "i18next";
-import { FunctionMode } from "../components/context/data_table_context";
 
 export function getTableColumn(
 	selectedTableType: ParameterTableEnum,
 	t: TFunction<[string], undefined>,
-	period_id: number,
-	setOpen: (open: boolean) => void,
-	setMode: (mode: FunctionMode) => void,
-	setData: (data: any) => void
 ): ColumnDef<any, any>[] {
 	switch (selectedTableType) {
 		case "TableAttendance":
 			return attendance_columns({ t });
 		case "TableBankSetting":
-			return bank_columns({ t, setOpen, setMode, setData });
+			return bank_columns({ t });
 		case "TableInsurance":
 			return insurance_rate_columns({ t });
 		case "TableTrustMoney":
-			return trust_money_columns({ t, setOpen, setMode, setData });
+			return trust_money_columns({ t });
 		case "TableLevelRange":
-			return level_range_columns({ t, period_id, setOpen, setMode, setData });
+			return level_range_columns({ t });
 		case "TableLevel":
-			return level_columns({ t, setOpen, setMode, setData });
+			return level_columns({ t });
 		case "TableSalaryIncomeTax":
-			return salary_income_tax_columns({ t, setOpen, setMode, setData });
+			return salary_income_tax_columns({ t });
+		default:
+			return [];
 	}
 }
 
