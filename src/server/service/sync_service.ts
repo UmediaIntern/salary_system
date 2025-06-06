@@ -37,7 +37,7 @@ export class SyncService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeDataMapper: EmployeeDataMapper
-	) {}
+	) { }
 	// TODO: move this
 	parsedPeriod(
 		period: Period
@@ -235,7 +235,7 @@ export class SyncService {
 			WorkStatusEnum.Values.RegularEmployee,
 			WorkStatusEnum.Values.ForeignWorker,
 			WorkStatusEnum.Values.ResignedEmployeePartialMonth,
-			WorkStatusEnum.Values.ResignedEmployeeFullMonth, 
+			WorkStatusEnum.Values.ResignedEmployeeFullMonth,
 			WorkStatusEnum.Values.NewEmployeePartialMonth,
 			WorkStatusEnum.Values.NewEmployeeFullMonth,
 		];
@@ -560,14 +560,8 @@ export class SyncService {
 			updatedDatas.push(updatedData);
 
 			if (updatedData.quit_date) {
-				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(
-					updatedData.emp_no,
-					period_id
-				);
-				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(
-					updatedData.emp_no,
-					period_id
-				);
+				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(updatedData.emp_no);
+				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(updatedData.emp_no);
 			}
 		}
 
@@ -582,12 +576,12 @@ export class SyncService {
 	): Promise<EmployeeDataDecType[]> {
 		if (func == FunctionsEnum.Enum.month_salary) {
 			// 定義需支付的員工狀態列表
-      // TODO
+			// TODO
 			const paid_status: WorkStatusEnumType[] = [
 				WorkStatusEnum.Values.RegularEmployee,
 				WorkStatusEnum.Values.ForeignWorker,
 				WorkStatusEnum.Values.ResignedEmployeePartialMonth,
-				WorkStatusEnum.Values.ResignedEmployeeFullMonth, 
+				WorkStatusEnum.Values.ResignedEmployeeFullMonth,
 				WorkStatusEnum.Values.NewEmployeePartialMonth,
 				WorkStatusEnum.Values.NewEmployeeFullMonth,
 			];
@@ -595,6 +589,7 @@ export class SyncService {
 				where: {
 					period_id: period_id,
 				},
+				order: [["emp_no", "ASC"]],
 			});
 			const paid_emps = await this.employeeDataMapper.decodeList(
 				db_paid_emps

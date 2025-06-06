@@ -127,14 +127,6 @@ export class EHRService {
 		const holidaysTypeService = container.resolve(HolidaysTypeService);
 		const holidays_type =
 			await holidaysTypeService.getCurrentHolidaysType();
-		console.log(holidays_type.map(h => {
-			return {
-				"pay_id": h.pay_id,
-				"holidays_name": h.holidays_name,
-				"multiplier": h.multiplier,
-				"pay_type": h.pay_type,
-			}
-		}));
 		const filtered_holiday = all_holiday.filter((holiday) =>
 			emp_no_list.includes(holiday.emp_no)
 		);

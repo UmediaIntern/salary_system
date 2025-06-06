@@ -12,6 +12,7 @@ import {
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { Input } from "../ui/input";
+import { ChevronFirstIcon, ChevronLastIcon } from "lucide-react";
 
 interface DataTablePaginationProps<TData>
 	extends React.HTMLAttributes<HTMLDivElement> {
@@ -149,12 +150,21 @@ export function DataTablePagination<TData>({
 						<Button
 							variant="outline"
 							size="sm"
+							onClick={() => table.firstPage()}
+							disabled={!table.getCanPreviousPage()}
+						>
+							<span className="sr-only">Go to first page</span>
+							<ChevronFirstIcon className="h-4 w-4" />
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
 							onClick={() => table.previousPage()}
 							disabled={!table.getCanPreviousPage()}
 						>
 							<span className="sr-only">Go to previous page</span>
 							<ChevronLeftIcon className="h-4 w-4" />
-							{t("button.previous_page")}
+							{/* {t("button.previous_page")} */}
 						</Button>
 						<Button
 							variant="outline"
@@ -163,8 +173,17 @@ export function DataTablePagination<TData>({
 							disabled={!table.getCanNextPage()}
 						>
 							<span className="sr-only">Go to next page</span>
-							{t("button.next_page")}
+							{/* {t("button.next_page")} */}
 							<ChevronRightIcon className="h-4 w-4" />
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => table.lastPage()}
+							disabled={!table.getCanNextPage()}
+						>
+							<span className="sr-only">Go to last page</span>
+							<ChevronLastIcon className="h-4 w-4" />
 						</Button>
 					</div>
 				</div>
