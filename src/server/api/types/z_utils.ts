@@ -19,6 +19,7 @@ function get_date_string(date: Date): string {
 	return localISOTime.split("T")[0]!;
 }
 
+// Date and String conversion
 // TODO: change to objects?
 export const dateToString = z
 	.date()
@@ -36,6 +37,10 @@ export const stringToDateNullable = z
 	.nullable()
 	.transform((value) => (value === null ? null : new Date(value)))
 	.pipe(z.date().nullable());
+
+// export function d2s(date: Date) {
+//   return dateToString.parse(date);
+// }
 
 export const encodeString = z.coerce
 	.string()

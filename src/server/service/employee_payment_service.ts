@@ -1,4 +1,4 @@
-import { container, delay, inject, injectable } from "tsyringe";
+import { delay, inject, injectable } from "tsyringe";
 import { BaseResponseError } from "../errors/base_response_error";
 import { get_date_string, select_value } from "./helper_function";
 import { type z } from "zod";
@@ -13,6 +13,7 @@ import { LevelService } from "./level_service";
 import {
 	type EmployeePaymentFEType,
 	employeePaymentCreateService,
+	isEqualEmployeePayment,
 	type updateEmployeePaymentService,
 } from "../api/types/employee_payment_type";
 import { EmployeePaymentMapper } from "../database/mapper/employee_payment_mapper";
@@ -20,9 +21,11 @@ import { EmployeeDataService } from "./employee_data_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { WorkTypeEnum } from "../api/types/work_type_enum";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
-import { dateToStringNullable } from "../api/types/z_utils";
-import { subDays } from "date-fns";
-import { dateToString } from "../api/types/z_utils";
+import {
+	dateToStringNullable,
+	dateToString,
+} from "../api/types/z_utils";
+import { isSameDay, subDays } from "date-fns";
 
 @injectable()
 export class EmployeePaymentService {
@@ -59,32 +62,113 @@ export class EmployeePaymentService {
 		data: z.input<typeof employeePaymentCreateService>
 	) {
 		const inputDate = dateToStringNullable.parse(data.start_date);
-		if (!inputDate) {
+		if (!data.start_date || !inputDate) {
 			throw new Error("start_date is required");
+		}
+
+		if (data.end_date) {
+			throw new Error("Currently, end_date is not allowed");
 		}
 
 		const latestPayment = await EmployeePayment.findOne({
 			where: {
+				emp_no: data.emp_no,
 				start_date: {
 					[Op.lt]: inputDate,
 				},
+				disabled: false,
 			},
 			order: [["start_date", "DESC"]],
 			limit: 1,
 		});
+		let dLatestPayment = null;
+		let isSameBefore = false;
+		if (latestPayment != null) {
+			dLatestPayment = await this.employeePaymentMapper.decode(
+				latestPayment
+			);
+			isSameBefore = isEqualEmployeePayment(dLatestPayment, data);
+		}
 
 		const closestFuturePayment = await EmployeePayment.findOne({
 			where: {
+				emp_no: data.emp_no,
 				start_date: {
-					[Op.gt]: inputDate, // Change Op.lt to Op.gt
+					[Op.gt]: inputDate,
 				},
+				disabled: false,
 			},
 			order: [["start_date", "ASC"]], // Order by ASC to get the next closest date
 			limit: 1,
 		});
+		let dClosestFuturePayment = null;
+		let isSameAfter = false;
+		if (closestFuturePayment != null) {
+			dClosestFuturePayment = await this.employeePaymentMapper.decode(
+				closestFuturePayment
+			);
+			isSameAfter = isEqualEmployeePayment(dClosestFuturePayment, data);
+		}
 
-    console.log("latestPayment", latestPayment);
-    console.log("closestFuturePayment", closestFuturePayment);
+		// console.log("input date", inputDate);
+		// console.log("latestPayment", latestPayment?.dataValues);
+		// console.log("closestFuturePayment", closestFuturePayment?.dataValues);
+
+		if (isSameBefore) {
+			console.log("Same as latest payment");
+			return;
+		}
+
+		if (isSameAfter) {
+			console.log("Same as payment after, update start date");
+			await closestFuturePayment?.update("start_date", inputDate);
+			return;
+		}
+
+		if (dLatestPayment === null) {
+			// Currently no data -> create
+			if (dClosestFuturePayment === null) {
+				console.log("creating new employee payment");
+				await this.createEmployeePayment(data);
+				return;
+			}
+			else { // Inserting an earlier payment
+				console.log("Different from payment after, create new payment");
+				await this.createEmployeePayment({
+					...data,
+					end_date: subDays(dClosestFuturePayment.start_date, 1),
+				});
+				return;
+			}
+		}
+		else { // latestPayment != null
+			if (dClosestFuturePayment != null) {
+				// Just to check
+				if (
+					!dLatestPayment.end_date ||
+					!isSameDay(
+						dLatestPayment.end_date,
+						subDays(dClosestFuturePayment.start_date, 1)
+					)
+				) {
+					throw new Error(
+						"Bad existing employee payment, latest payment end date is less than future payment start date"
+					);
+				}
+				console.log("creating new employee payment. end date set");
+        await latestPayment?.update("end_date", inputDate);
+				await this.createEmployeePayment({
+					...data,
+					end_date: dLatestPayment.end_date,
+				});
+				return;
+			} else {
+				console.log("creating new employee payment. (no end date)");
+        await latestPayment?.update("end_date", inputDate);
+				await this.createEmployeePayment(data);
+				return;
+			}
+		}
 	}
 
 	async getEmployeePaymentById(
@@ -461,7 +545,9 @@ export class EmployeePaymentService {
 
 		for (let i = 0; i < employeePaymentList.length - 1; i += 1) {
 			const end_date_string = employeePaymentList[i]!.end_date
-				? dateToString.parse(new Date(employeePaymentList[i]!.end_date!))
+				? dateToString.parse(
+						new Date(employeePaymentList[i]!.end_date!)
+				  )
 				: null;
 			const start_date = new Date(employeePaymentList[i + 1]!.start_date);
 			const new_end_date_string = dateToString.parse(
@@ -556,12 +642,14 @@ export class EmployeePaymentService {
 				start_date
 			);
 
-			if (!before || before.base_salary + before.food_allowance > base_salary) {
+			if (
+				!before ||
+				before.base_salary + before.food_allowance > base_salary
+			) {
 				continue;
 			}
 
 			tasks.push(async () => {
-
 				await this.updateEmployeePayment({
 					id: before?.id,
 					end_date: subDays(start_date, 1),
@@ -570,7 +658,9 @@ export class EmployeePaymentService {
 					...before,
 					start_date: start_date,
 					base_salary: base_salary - before.food_allowance,
-					end_date: after?.start_date ? subDays(after.start_date, 1) : null,
+					end_date: after?.start_date
+						? subDays(after.start_date, 1)
+						: null,
 				});
 			});
 		}
@@ -677,13 +767,18 @@ export class EmployeePaymentService {
 		date: Date
 	): Promise<z.infer<typeof employeePaymentCreateService>> {
 		const period_id = await this.ehrService.getPeriodIdByDate(date);
-		const employeeData = (
+		let employeeData = (
 			await this.employeeDataService.getCurrentEmployeeData(period_id)
 		).find((e) => e.emp_no == employeePayment.emp_no);
 		if (employeeData == null) {
-			employeeData = await this.employeeDataService.getLatestEmployeeDataByEmpNo(employeePayment.emp_no);
+			employeeData =
+				await this.employeeDataService.getLatestEmployeeDataByEmpNo(
+					employeePayment.emp_no
+				);
 			if (employeeData == null) {
-				throw new BaseResponseError("Employee Data does not exist for this employee");
+				throw new BaseResponseError(
+					"Employee Data does not exist for this employee"
+				);
 			}
 		}
 
