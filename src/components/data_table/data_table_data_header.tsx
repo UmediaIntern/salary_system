@@ -27,9 +27,9 @@ export function DataTableDataHeader<TData>({
 									key={header.id}
 									className={cn(
 										"text-center z-10",
-										header.id == "department" ? "sticky left-[0px] bg-gray-100" :
-											header.id == "emp_no" ? "sticky left-[116px] bg-gray-100" :
-												header.id == "emp_name" ? "sticky left-[260px] bg-gray-100" :
+										header.id == "department" ? "sticky left-[0px] bg-secondary" :
+											header.id == "emp_no" ? "sticky left-[116px] bg-secondary" :
+												header.id == "emp_name" ? "sticky left-[260px] bg-secondary" :
 													""
 									)}
 									colSpan={header.colSpan}

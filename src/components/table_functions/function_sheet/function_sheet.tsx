@@ -35,7 +35,7 @@ export function TableFunctionSheet({
 
 	return (
 		<Sheet open={openSheet} onOpenChange={setOpenSheet}>
-			<SheetContent className={cn("sm:max-w-[33vw] px-10 py-6", className)}>
+			<SheetContent className={cn("min-w-[33vw] sm:min-w-[500px] px-10 py-6", className)}>
 				<ScrollArea className="h-full w-full px-2">
 					<SheetHeader>
 						<SheetTitle>
