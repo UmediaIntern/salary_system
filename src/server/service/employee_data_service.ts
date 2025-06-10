@@ -191,7 +191,7 @@ export class EmployeeDataService {
 	}
 
 	async updateEmployeeDataByEmpNoByPeriod(
-		data: z.infer<typeof updateEmployeeDataByEmpNoService>
+		data: z.infer<typeof updateEmployeeDataService>
 	): Promise<void> {
 		if (!data.period_id || !data.emp_no) {
 			throw new InternalServerError(
@@ -220,7 +220,7 @@ export class EmployeeDataService {
 					: undefined,
 				update_by: "system",
 			},
-			{ where: { emp_no: data.emp_no } }
+			{ where: { id: employeeData.id } },
 		);
 		if (affectedCount[0] == 0) {
 			throw new BaseResponseError("Update error");
