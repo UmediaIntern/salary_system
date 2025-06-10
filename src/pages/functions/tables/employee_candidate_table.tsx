@@ -13,6 +13,11 @@ type RowItem = {
 	department: string;
 	emp_no: string;
 	emp_name: string;
+	base_salary: number;
+	l_i: number;
+	h_i: number;
+	l_r: number;
+	occupational_injury: number;
 	position: number;
 	position_type: string;
 	group_insurance_type: string;
@@ -38,6 +43,11 @@ const columns = (t: I18nType) => {
 		"department",
 		"emp_no",
 		"emp_name",
+		"base_salary",
+		"l_i",
+		"h_i",
+		"l_r",
+		"occupational_injury",
 		"position",
 		"position_type",
 		"group_insurance_type",
@@ -88,19 +98,33 @@ const columns = (t: I18nType) => {
 	});
 };
 
-interface EmployeeDataTableProps {
+interface EmployeeCandidateTableProps {
 	period_id: number;
 	func: any;
 }
 
-export function EmployeeDataTable({ period_id, func }: EmployeeDataTableProps) {
+export function EmployeeCandidateTable({ period_id, func }: EmployeeCandidateTableProps) {
 	const q = api.sync.getPaidEmployees.useQuery({ period_id, func });
-	const { data, isPending, content } = useQueryHandle(q);
+	const q2 = api.employeePayment.getCurrentEmployeePayment.useQuery({ period_id });
+	const { data: employeeData, isPending: isEmployeeDataPending, content: employeeDataContent } = useQueryHandle(q);
+	const { data: employeePayment, isPending: isEmployeePaymentPending, content: employeePaymentContent } = useQueryHandle(q2);
 	const { t } = useTranslation(["common"]);
 
-	if (isPending) {
-		return content;
+	if (isEmployeeDataPending || isEmployeePaymentPending) {
+		return <>{employeeDataContent}{employeePaymentContent}</>;
 	}
 
-	return <DataTable columns={columns(t)} data={data} />;
+	const tableData = employeeData.map((employee) => {
+		const payment = employeePayment.find((p) => p.emp_no === employee.emp_no);
+		return {
+			...employee,
+			base_salary: payment?.base_salary ?? 0,
+			l_i: payment?.l_i ?? 0,
+			h_i: payment?.h_i ?? 0,
+			l_r: payment?.l_r ?? 0,
+			occupational_injury: payment?.occupational_injury ?? 0,
+		}
+	})
+
+	return <DataTable columns={columns(t)} data={tableData} />;
 }

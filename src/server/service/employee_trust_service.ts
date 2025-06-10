@@ -173,9 +173,10 @@ export class EmployeeTrustService {
 				return null;
 			})
 		);
-		return current_employee_trustFE.filter(
-			(emp_trust) => emp_trust != null
-		);
+
+		return current_employee_trustFE
+			.filter((emp_trust) => emp_trust != null)
+			.sort((a, b) => b.emp_trust_reserve - a.emp_trust_reserve);
 	}
 
 	async getCurrentEmployeeTrustFEByEmpNo(

@@ -124,6 +124,10 @@ export class TrustMoneyService {
 				},
 				disabled: false,
 			},
+			order: [
+				["position", "ASC"],
+				["position_type", "ASC"],
+			],
 		});
 
 		return await this.trustMoneyMapper.decodeList(trustMoney);

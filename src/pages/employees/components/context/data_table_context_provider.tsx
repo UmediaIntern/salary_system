@@ -12,7 +12,7 @@ type EmpTableObject = {
 };
 
 interface EmployeeTableContextType {
-  period_id: number
+	period_id: number
 	selectedTableType: EmployeeTableEnum;
 	setSelectedTableType: (table: EmployeeTableEnum) => void;
 	selectedTab: EmpTabsEnumType;
@@ -20,14 +20,14 @@ interface EmployeeTableContextType {
 	selectedTable: EmpTableObject | null;
 	setSelectedTable: (table: EmpTableObject | null) => void;
 }
-const dataTableContext = createContext<EmployeeTableContextType | null >(null);
+const dataTableContext = createContext<EmployeeTableContextType | null>(null);
 
 interface DataTableContextProviderProps {
 	period_id: number;
 }
 
 export function EmployeeTableContextProvider({
-  period_id,
+	period_id,
 	children,
 }: PropsWithChildren<DataTableContextProviderProps>) {
 	const [selectedTableType, setSelectedTableType] =
@@ -59,11 +59,11 @@ export function EmployeeTableContextProvider({
 }
 
 export function useEmployeeTableContext() {
-  const context = useContext(dataTableContext);
-  if (context === null) {
-    throw new Error(
-      "useEmployeeTableContext must be used within a EmployeeTableContextProvider"
-    );
-  }
-  return context;
+	const context = useContext(dataTableContext);
+	if (context === null) {
+		throw new Error(
+			"useEmployeeTableContext must be used within a EmployeeTableContextProvider"
+		);
+	}
+	return context;
 }
