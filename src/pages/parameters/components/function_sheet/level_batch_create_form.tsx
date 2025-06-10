@@ -34,13 +34,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
-import { FunctionMode } from "../context/data_table_context";
+import { FunctionModeEnumType } from "../context/data_table_context";
 
 interface ParameterFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
 	fieldConfig?: FieldConfig<z.infer<SchemaType>>;
 	defaultValue?: any;
-	mode: FunctionMode;
+	mode: FunctionModeEnumType;
 	closeSheet: () => void;
 }
 

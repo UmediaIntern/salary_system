@@ -1,4 +1,7 @@
-export type FunctionMode = "create" | "update" | "delete" | "none";
+import { z } from "zod";
+
+export const functionModeEnum = z.enum(["create", "update", "delete", "none"]);
+export type FunctionModeEnumType = z.infer<typeof functionModeEnum>;
 
 export type FunctionsItem = {
 	creatable: boolean;

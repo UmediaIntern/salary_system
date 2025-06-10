@@ -30,7 +30,7 @@ export function FunctionsSheetContent({
 }: FunctionsSheetProps) {
 	const { mode, selectedTableType } = useDataTableContext();
 	return (
-		<SheetContent className="w-[50%] px-10 py-6">
+		<SheetContent className="max-w-[33vw] sm:min-w-[500px] px-10 py-6">
 			<ScrollArea className="h-full w-full px-2">
 				<SheetHeader>
 					<SheetTitle>

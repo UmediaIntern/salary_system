@@ -3,16 +3,17 @@ import { useContext } from "react";
 import { parameterToolbarFunctionsContext } from "./parameter_functions_context";
 import { type FormConfig } from "~/components/ui/custom-form/types";
 import {
-	type FunctionMode,
+	type FunctionModeEnumType,
 } from "../context/data_table_context";
 import { StandardForm } from "~/components/form/default/form_standard";
 import { useDataTableContext } from "../context/data_table_context_provider";
+import { useTranslation } from "react-i18next";
 
 interface ParameterFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
 	formConfig?: FormConfig<SchemaType>;
 	formSubmit?: (data: z.infer<SchemaType>) => void;
-	mode: FunctionMode;
+	mode: FunctionModeEnumType;
 	closeSheet: () => void;
 }
 
@@ -24,6 +25,7 @@ export function ParameterForm<SchemaType extends z.AnyZodObject>({
 	closeSheet,
 }: ParameterFormProps<SchemaType>) {
 	const { data } = useDataTableContext();
+	const { t } = useTranslation(["common"]);
 	const functions = useContext(parameterToolbarFunctionsContext);
 	const createFunction = functions.createFunction!;
 	const updateFunction = functions.updateFunction!;
@@ -47,7 +49,7 @@ export function ParameterForm<SchemaType extends z.AnyZodObject>({
 			formConfig={formConfig}
 			formSubmit={onSubmit}
 			defaultValue={data}
-			button_text={mode}
+			buttonText={mode}
 			closeSheet={closeSheet}
 		/>
 	);
