@@ -127,14 +127,6 @@ export class EHRService {
 		const holidaysTypeService = container.resolve(HolidaysTypeService);
 		const holidays_type =
 			await holidaysTypeService.getCurrentHolidaysType();
-		console.log(holidays_type.map(h => {
-			return {
-				"pay_id": h.pay_id,
-				"holidays_name": h.holidays_name,
-				"multiplier": h.multiplier,
-				"pay_type": h.pay_type,
-			}
-		}));
 		const filtered_holiday = all_holiday.filter((holiday) =>
 			emp_no_list.includes(holiday.emp_no)
 		);
@@ -472,18 +464,18 @@ export class EHRService {
 		return amount;
 	}
 
-	async initEmployeeData(period_id: number) {
+	// async initEmployeeData(period_id: number) {
 
-		const dbConnection = container.resolve(Database).ehr_connection;
-		const dataList = await dbConnection.query(
-			this.GET_INIT_EMP_QUERY(),
-			{
-				type: QueryTypes.SELECT,
-			}
-		);
-		const empAllList: EmpAll[] = dataList.map((o) => EmpAll.fromDB(o))
-		return empAllList
-	}
+	// 	const dbConnection = container.resolve(Database).ehr_connection;
+	// 	const dataList = await dbConnection.query(
+	// 		this.GET_INIT_EMP_QUERY(),
+	// 		{
+	// 			type: QueryTypes.SELECT,
+	// 		}
+	// 	);
+	// 	const empAllList: EmpAll[] = dataList.map((o) => EmpAll.fromDB(o))
+	// 	return empAllList
+	// }
 
 	private GET_PERIOD_QUERY(): string {
 		return `SELECT "PERIOD_ID", "PERIOD_NAME", "START_DATE", "END_DATE", "STATUS", "ISSUE_DATE" FROM SYSTEM."U_HR_PERIOD_V" `;

@@ -7,7 +7,7 @@ import { type ReactElement, useState } from "react";
 import { ProgressBar } from "~/components/functions/progress_bar";
 import { LoadingSpinner } from "~/components/loading";
 import { DataPage } from "./data_page";
-import { EmployeePage } from "./employee_page";
+import { EmployeeCandidatePage } from "./employee_candidate_page";
 import { SyncPage } from "./sync_page";
 import Link from "next/link";
 import { buttonVariants } from "~/components/ui/button";
@@ -22,16 +22,16 @@ import {
 	AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { useRouter } from "next/router";
-import { type PaidEmployee } from "~/server/service/sync_service";
 import { SalaryCalculatePage } from "./salary_calculate_page";
 import { FunctionsEnum } from "~/server/api/types/functions_enum";
-
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { i18n, locales } from '~/components/lang_config'
 import { ParameterPage } from "./parameters_page";
 import { Period } from "~/server/database/entity/UMEDIA/period";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { PaidEmployee } from "~/server/api/types/sync_type";
+import { EmployeePage } from "./employee_page";
 
 type FunctionStepPage = {
 	title: string;
@@ -100,9 +100,29 @@ function MonthSalaryContent({ period }: { period: Period }) {
 			),
 		},
 		{
-			title: t("others.comfirm_employee_list"),
+			title: t("others.confirm_employee"),
 			page: (
 				<EmployeePage
+					key="employee"
+					selectedIndex={selectedIndex}
+					setSelectedIndex={setSelectedIndex}
+				/>
+			),
+		},
+		{
+			title: t("others.confirm_parameter"),
+			page: (
+				<ParameterPage
+					key="parameter"
+					selectedIndex={selectedIndex}
+					setSelectedIndex={setSelectedIndex}
+				/>
+			),
+		},
+		{
+			title: t("others.comfirm_employee_list"),
+			page: (
+				<EmployeeCandidatePage
 					key="employee"
 					period_id={periodId}
 					func={FunctionsEnum.enum.month_salary}
@@ -118,17 +138,6 @@ function MonthSalaryContent({ period }: { period: Period }) {
 					key="data"
 					period_id={periodId}
 					func={FunctionsEnum.enum.month_salary}
-					selectedIndex={selectedIndex}
-					setSelectedIndex={setSelectedIndex}
-				/>
-			),
-		},
-		{
-			title: t("others.confirm_parameter"),
-			page: (
-				<ParameterPage
-					key="parameter"
-					period_id={periodId}
 					selectedIndex={selectedIndex}
 					setSelectedIndex={setSelectedIndex}
 				/>

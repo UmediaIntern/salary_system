@@ -36,7 +36,7 @@ export class EmployeePaymentService {
 		private readonly levelService: LevelService,
 		private readonly levelRangeService: LevelRangeService,
 		private readonly employeeDataService: EmployeeDataService
-	) {}
+	) { }
 
 	async createEmployeePayment(
 		data: z.input<typeof employeePaymentCreateService>
@@ -54,7 +54,6 @@ export class EmployeePaymentService {
 		const newData = await EmployeePayment.create(employeePayment, {
 			raw: true,
 		});
-		console.log("Create EmployeePayment");
 		return newData;
 	}
 
@@ -519,7 +518,7 @@ export class EmployeePaymentService {
 					empPayment.h_i != updatedEmployeePayment.h_i ||
 					empPayment.l_r != updatedEmployeePayment.l_r ||
 					empPayment.occupational_injury !=
-						updatedEmployeePayment.occupational_injury
+					updatedEmployeePayment.occupational_injury
 				) {
 					await this.createEmployeePayment({
 						...updatedEmployeePayment,
@@ -601,8 +600,9 @@ export class EmployeePaymentService {
 
 	async rescheduleEmployeePaymentByQuitDate(
 		emp_no: string,
-		period_id: number
 	): Promise<void> {
+		const employee_data = await this.employeeDataService.getLatestEmployeeDataByEmpNo(emp_no);
+		const period_id = await this.ehrService.getPeriodIdByDate(new Date(employee_data.quit_date!));
 		const period = await this.ehrService.getPeriodById(period_id);
 		const quit_date = period.end_date;
 		// TODO: why not use the getAll function
@@ -654,14 +654,16 @@ export class EmployeePaymentService {
 					id: before?.id,
 					end_date: subDays(start_date, 1),
 				});
-				await this.createEmployeePayment({
-					...before,
-					start_date: start_date,
-					base_salary: base_salary - before.food_allowance,
-					end_date: after?.start_date
-						? subDays(after.start_date, 1)
-						: null,
-				});
+				const matchedLevelEmployeePayment = await this.getMatchedLevelEmployeePayment(
+					{
+						...before,
+						base_salary: base_salary - before.food_allowance,
+						start_date: start_date,
+						end_date: after?.start_date ? subDays(after.start_date, 1) : null,
+					},
+					start_date
+				);
+				await this.createEmployeePayment(matchedLevelEmployeePayment);
 			});
 		}
 
@@ -789,12 +791,12 @@ export class EmployeePaymentService {
 			employeePayment.occupational_allowance +
 			employeePayment.subsidy_allowance +
 			(employeePayment.long_service_allowance_type ==
-			LongServiceEnum.Enum.month_allowance
+				LongServiceEnum.Enum.month_allowance
 				? employeePayment.long_service_allowance
 				: 0) +
 			(employeeData.position >= 2 &&
-			employeeData.position <= 3 &&
-			employeeData.work_type == WorkTypeEnum.Enum.直接人員
+				employeeData.position <= 3 &&
+				employeeData.work_type == WorkTypeEnum.Enum.直接人員
 				? 2000
 				: 0);
 
@@ -820,7 +822,7 @@ export class EmployeePaymentService {
 			h_i: result.find((r) => r.type === "健保")?.level ?? 0,
 			l_r:
 				employeeData.work_type != "外籍勞工" &&
-				employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
+					employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
 					? result.find((r) => r.type === "勞退")?.level ?? 0
 					: 0,
 			occupational_injury:

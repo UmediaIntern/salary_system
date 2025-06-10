@@ -1,32 +1,31 @@
+import React from "react";
 import { Button } from "~/components/ui/button";
-import { EmployeeDataTable } from "../tables/employee_data_table";
-
-import { useTranslation } from 'next-i18next'
+import { useTranslation } from "react-i18next";
+import TablesView from "~/pages/employees/tables_view";
 
 interface EmployeePageProps {
-	period_id: number;
-	func: string;
 	selectedIndex: number;
 	setSelectedIndex: (index: number) => void;
 }
 
 export function EmployeePage({
-	period_id,
-	func,
 	selectedIndex,
 	setSelectedIndex,
 }: EmployeePageProps) {
-	const { t } = useTranslation(['common'], { keyPrefix: "button" })
+
+	const { t } = useTranslation(['common'])
 
 	return (
 		<>
-			<EmployeeDataTable period_id={period_id} func={func} />
+			<div className="flex h-0 grow flex-col rounded-md border-2">
+				<TablesView />
+			</div>
 			<div className="mt-4 flex justify-between">
 				<Button onClick={() => setSelectedIndex(selectedIndex - 1)}>
-					{t("previous_step")}
+					{t("button.previous_step")}
 				</Button>
 				<Button onClick={() => setSelectedIndex(selectedIndex + 1)}>
-					{t("next_step")}
+					{t("button.next_step")}
 				</Button>
 			</div>
 		</>

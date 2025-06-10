@@ -21,8 +21,7 @@ import {
 	stringToDate,
 	stringToDateNullable,
 } from "../api/types/z_utils";
-import { subDays } from "date-fns";
-
+import { addDays, subDays } from "date-fns";
 @injectable()
 export class LevelService {
 	private readonly levelMapper: BaseMapper<
@@ -69,7 +68,9 @@ export class LevelService {
 				`Data already exist type:${
 					existed_data.level
 				}, start_date: ${start_date.toDateString()}, end_date: ${
-					existed_data.end_date == null ? "null" : existed_data.end_date
+					existed_data.end_date == null
+						? "null"
+						: existed_data.end_date
 				}`
 			);
 		}
@@ -299,10 +300,10 @@ export class LevelService {
 				stringToDate.parse(a).getTime() -
 				stringToDate.parse(b).getTime()
 		);
-		console.log(startDates);
-
+		const level_range_service = container.resolve(LevelRangeService);
 		const promises = startDates.map(async (startDate, index) => {
 			const levels = groupedLevels[startDate];
+			let changed_level_range = false;
 			const tasks = levels!.map(async (level) => {
 				if (index < startDates.length - 1) {
 					const nextStartDate = stringToDate.parse(
@@ -310,6 +311,24 @@ export class LevelService {
 					);
 					const new_end_date = subDays(new Date(nextStartDate), 1);
 					if (level.end_date != dateToString.parse(new_end_date)) {
+						if (!changed_level_range) {
+							if (
+								level.end_date == null ||
+								stringToDate.parse(level.end_date).getTime() >
+									new_end_date.getTime()
+							) {
+								level_range_service.emptyInfluencedLevelRange(
+									dateToString.parse(nextStartDate),
+									level.end_date
+								);
+							} else {
+								level_range_service.emptyInfluencedLevelRange(
+									dateToString.parse(addDays(stringToDate.parse(level.end_date),1)),
+									dateToString.parse(new_end_date)
+								);
+							}
+							changed_level_range = true;
+						}
 						await this.deleteLevel(level.id);
 						await this.createLevel({
 							start_date: stringToDate.parse(startDate),
@@ -319,6 +338,13 @@ export class LevelService {
 					}
 				} else {
 					if (level.end_date != null) {
+						if (!changed_level_range) {
+							level_range_service.emptyInfluencedLevelRange(
+								dateToString.parse(subDays(stringToDate.parse(level.end_date),1)),
+								null
+							);
+							changed_level_range = true;
+						}
 						await this.deleteLevel(level.id);
 						await this.createLevel({
 							start_date: stringToDate.parse(startDate),

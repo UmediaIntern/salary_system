@@ -39,46 +39,44 @@ export const employee_trust_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-	...columnNames.map((key) =>
-		columnHelper.accessor(key, {
-			header: ({ column }) => {
+		...columnNames.map((key) =>
+			columnHelper.accessor(key, {
+				header: ({ column }) => {
+					return (
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
+					);
+				},
+				cell: ({ row }) => {
+					let content = row.original[key]?.toString() ?? "";
+					switch (key) {
+						case "start_date":
+							content = `${formatDate("day", row.original.start_date) ?? ""
+								}`;
+							break;
+						case "end_date":
+							content = `${formatDate("day", row.original.end_date) ?? ""
+								}`;
+							break;
+					}
+					return <ColumnCellComponent>{content}</ColumnCellComponent>;
+				},
+			})
+		),
+		columnHelper.accessor("functions", {
+			header: () => {
 				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
+					<ColumnHeaderBaseComponent>
+						{t(`others.functions`)}
+					</ColumnHeaderBaseComponent>
 				);
 			},
 			cell: ({ row }) => {
-				let content = row.original[key]?.toString() ?? "";
-				switch (key) {
-					case "start_date":
-						content = `${
-							formatDate("day", row.original.start_date) ?? ""
-						}`;
-						break;
-					case "end_date":
-						content = `${
-							formatDate("day", row.original.end_date) ?? ""
-						}`;
-						break;
-				}
-				return <ColumnCellComponent>{content}</ColumnCellComponent>;
+				return <TrustFunctionComponent data={row.original} />;
 			},
-		})
-	),
-	columnHelper.accessor("functions", {
-		header: () => {
-			return (
-				<ColumnHeaderBaseComponent>
-					{t(`others.functions`)}
-				</ColumnHeaderBaseComponent>
-			);
-		},
-		cell: ({ row }) => {
-			return <TrustFunctionComponent data={row.original} />;
-		},
-	}),
-];
+		}),
+	];
 
 function TrustFunctionComponent({
 	data,
@@ -95,7 +93,7 @@ function TrustFunctionComponent({
 			setMode={setMode}
 			data={data}
 			setData={setData}
-      disabled={!access.employees_write}
+			disabled={!access.employees_write}
 		/>
 	);
 }
@@ -114,10 +112,10 @@ export function employeeTrustMapper(
 }
 
 export function EmployeeTrustTable() {
-  return (
-    <EmployeeTrustFunctionContextProvider>
-      <DataTableUpdate/>
-      <EmployeeTrustFunctions />
-    </EmployeeTrustFunctionContextProvider>
-  );
+	return (
+		<EmployeeTrustFunctionContextProvider>
+			<DataTableUpdate />
+			<EmployeeTrustFunctions />
+		</EmployeeTrustFunctionContextProvider>
+	);
 }

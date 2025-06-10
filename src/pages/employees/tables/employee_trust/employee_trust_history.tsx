@@ -17,7 +17,7 @@ export function EmployeeTrustHistory() {
 		return content;
 	}
 
-	const tableData = data.map((d) => employeeTrustMapper(d));
+	const tableData = data.map((d) => employeeTrustMapper(d)).filter((item) => !item[0]!.emp_no.startsWith("F"));
 	return (
 		<HistoryView columns={employee_trust_columns({ t })} data={tableData} />
 	);

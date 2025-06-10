@@ -17,6 +17,7 @@ import {
 import { EmployeeTrustMapper } from "../database/mapper/employee_trust_mapper";
 import { dateToString, stringToDate } from "../api/types/z_utils";
 import { EmployeeDataService } from "./employee_data_service";
+import { subDays } from "date-fns";
 
 type EmployeeTrustMapperType = EmployeeTrustMapper;
 
@@ -27,7 +28,7 @@ export class EmployeeTrustService {
 		private readonly employeeTrustMapper: EmployeeTrustMapperType,
 		private readonly ehrService: EHRService,
 		private readonly employeeDataService: EmployeeDataService
-	) {}
+	) { }
 
 	async createEmployeeTrust(
 		data: z.input<typeof employeeTrustCreateService>
@@ -120,7 +121,7 @@ export class EmployeeTrustService {
 		return await this.employeeTrustMapper.decode(employeeTrust);
 	}
 
-  // TODO: why are these FE shit here?
+	// TODO: why are these FE shit here?
 	async getCurrentEmployeeTrustFE(
 		period_id: number
 	): Promise<z.infer<typeof employeeTrustFE>[]> {
@@ -172,9 +173,10 @@ export class EmployeeTrustService {
 				return null;
 			})
 		);
-		return current_employee_trustFE.filter(
-			(emp_trust) => emp_trust != null
-		);
+
+		return current_employee_trustFE
+			.filter((emp_trust) => emp_trust != null)
+			.sort((a, b) => b.emp_trust_reserve - a.emp_trust_reserve);
 	}
 
 	async getCurrentEmployeeTrustFEByEmpNo(
@@ -211,7 +213,7 @@ export class EmployeeTrustService {
 		});
 
 		const groupedRecordsArray = Object.values(groupedEmployeeTrustRecords);
-		const allEmployeeTrustFE = await Promise.all(
+		let allEmployeeTrustFE = await Promise.all(
 			groupedRecordsArray.map(
 				async (employeeTrustList) =>
 					await this.employeeTrustMapper.getEmployeeTrustFE(
@@ -219,6 +221,9 @@ export class EmployeeTrustService {
 					)
 			)
 		);
+
+		allEmployeeTrustFE = allEmployeeTrustFE.map(list => list.reverse());
+
 		return allEmployeeTrustFE;
 	}
 
@@ -323,10 +328,11 @@ export class EmployeeTrustService {
 
 	async rescheduleEmployeeTrustByQuitDate(
 		emp_no: string,
-		period_id: number
 	): Promise<void> {
+		const employee_data = await this.employeeDataService.getLatestEmployeeDataByEmpNo(emp_no);
+		const period_id = await this.ehrService.getPeriodIdByDate(new Date(employee_data.quit_date!));
 		const period = await this.ehrService.getPeriodById(period_id);
-		const quit_date = period.end_date;
+		const quit_date = get_date_string(subDays(new Date(period.start_date), 1));
 		const encList = await EmployeeTrust.findAll({
 			where: { emp_no: emp_no, disabled: false },
 			order: [

@@ -32,16 +32,16 @@ export const employeeDataRouter = createTRPCRouter({
 					input.period_id
 				);
 
-      // Filter by access
-      const role = getRoleFromCtx(ctx);
+			// Filter by access
+			const role = getRoleFromCtx(ctx);
 			const accessService = container.resolve(AccessService);
 			const access = await accessService.getAccessByRole(role);
 			if (!access.employees) {
 				throw new BaseResponseError("Access denied", 403);
 			}
-      const accessibleEmpData = employeeData.filter((emp) => {
-        return emp.position <= access.employees_r_lv;
-      });
+			const accessibleEmpData = employeeData.filter((emp) => {
+				return emp.position <= access.employees_r_lv;
+			});
 
 			const employee_data_mapper = container.resolve(EmployeeDataMapper);
 			const empDataWithInfo =
@@ -185,14 +185,8 @@ export const employeeDataRouter = createTRPCRouter({
 				});
 
 				if (data.quit_date) {
-					await employeePaymentService.rescheduleEmployeePaymentByQuitDate(
-						data.emp_no,
-						input.period_id
-					);
-					await employeeTrustService.rescheduleEmployeeTrustByQuitDate(
-						data.emp_no,
-						input.period_id
-					);
+					await employeePaymentService.rescheduleEmployeePaymentByQuitDate(data.emp_no);
+					await employeeTrustService.rescheduleEmployeeTrustByQuitDate(data.emp_no);
 				}
 			});
 

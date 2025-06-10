@@ -15,9 +15,9 @@ import { getRoleFromCtx } from "../helper";
 import { AccessService } from "~/server/service/access_service";
 
 export const employeeTrustRouter = createTRPCRouter({
-	getCurrentEmployeeTrust: userProcedure 
+	getCurrentEmployeeTrust: userProcedure
 		.input(z.object({ period_id: z.number() }))
-    .output(z.array(employeeTrustFE))
+		.output(z.array(employeeTrustFE))
 		.query(async ({ ctx, input }) => {
 			const employeeTrustService =
 				container.resolve(EmployeeTrustService);
@@ -26,8 +26,8 @@ export const employeeTrustRouter = createTRPCRouter({
 					input.period_id
 				);
 
-      // Filter by access
-      const role = getRoleFromCtx(ctx);
+			// Filter by access
+			const role = getRoleFromCtx(ctx);
 			const accessService = container.resolve(AccessService);
 			const access = await accessService.getAccessByRole(role);
 			if (!access.employees) {
@@ -39,7 +39,7 @@ export const employeeTrustRouter = createTRPCRouter({
 
 			return accessibleEmpData;
 		}),
-	
+
 	getCurrentEmployeeTrustByEmpNo: publicProcedure
 		.input(z.object({ period_id: z.number(), emp_no: z.string() }))
 		.output(z.array(employeeTrustFE))
