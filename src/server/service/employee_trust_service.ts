@@ -11,13 +11,14 @@ import {
 import { EHRService } from "./ehr_service";
 import {
 	employeeTrustCreateService,
+	isEqualEmployeeTrust,
 	type employeeTrustFE,
 	type updateEmployeeTrustService,
 } from "../api/types/employee_trust_type";
 import { EmployeeTrustMapper } from "../database/mapper/employee_trust_mapper";
-import { dateToString, stringToDate } from "../api/types/z_utils";
+import { dateToString, dateToStringNullable, stringToDate } from "../api/types/z_utils";
 import { EmployeeDataService } from "./employee_data_service";
-import { subDays } from "date-fns";
+import { isSameDay, subDays } from "date-fns";
 
 type EmployeeTrustMapperType = EmployeeTrustMapper;
 
@@ -54,6 +55,120 @@ export class EmployeeTrustService {
 		await this.createAndScheduleEmployeeTrust(newData.id, create_input);
 
 		return newData;
+	}
+
+  async insertEmployeeTrust(
+		d: z.input<typeof employeeTrustCreateService>
+	) {
+    const data = employeeTrustCreateService.parse(d)
+		const inputDate = dateToStringNullable.parse(data.start_date);
+		if (!data.start_date || !inputDate) {
+			throw new Error("start_date is required");
+		}
+
+		if (data.end_date) {
+			throw new Error("Currently, end_date is not allowed");
+		}
+
+		const latestTrust = await EmployeeTrust.findOne({
+			where: {
+				emp_no: data.emp_no,
+				start_date: {
+					[Op.lt]: inputDate,
+				},
+				disabled: false,
+			},
+			order: [["start_date", "DESC"]],
+			limit: 1,
+		});
+		let dLatestTrust = null;
+		let isSameBefore = false;
+		if (latestTrust != null) {
+			dLatestTrust = await this.employeeTrustMapper.decode(
+				latestTrust
+			);
+			isSameBefore = isEqualEmployeeTrust(dLatestTrust, data);
+		}
+
+		const closestFutureTrust = await EmployeeTrust.findOne({
+			where: {
+				emp_no: data.emp_no,
+				start_date: {
+					[Op.gt]: inputDate,
+				},
+				disabled: false,
+			},
+			order: [["start_date", "ASC"]], // Order by ASC to get the next closest date
+			limit: 1,
+		});
+		let dClosestFutureTrust = null;
+		let isSameAfter = false;
+		if (closestFutureTrust != null) {
+			dClosestFutureTrust = await this.employeeTrustMapper.decode(
+				closestFutureTrust
+			);
+			isSameAfter = isEqualEmployeeTrust(dClosestFutureTrust, data);
+		}
+
+		// console.log("input date", inputDate);
+		// console.log("latestPayment", latestPayment?.dataValues);
+		// console.log("closestFuturePayment", closestFuturePayment?.dataValues);
+
+		if (isSameBefore) {
+			console.log("Same as latest trust");
+			return;
+		}
+
+		if (isSameAfter) {
+			console.log("Same as trust after, update start date");
+			await closestFutureTrust?.update("start_date", inputDate);
+			return;
+		}
+
+		if (dLatestTrust === null) {
+			// Currently no data -> create
+			if (dClosestFutureTrust === null) {
+				console.log("creating new employee trust");
+				await this.createEmployeeTrust(data);
+				return;
+			}
+			else { // Inserting an earlier payment
+				console.log("Different from trust after, create new trust");
+				await this.createEmployeeTrust({
+					...data,
+					end_date: subDays(dClosestFutureTrust.start_date, 1),
+				});
+				return;
+			}
+		}
+		else { // latestPayment != null
+			if (dClosestFutureTrust != null) {
+				// Just to check
+				if (
+					!dLatestTrust.end_date ||
+					!isSameDay(
+						dLatestTrust.end_date,
+						subDays(dClosestFutureTrust.start_date, 1)
+					)
+				) {
+					throw new Error(
+						"Bad existing employee trust, latest trust end date is less than future payment start date"
+					);
+				}
+				console.log("creating new employee trust. end date set");
+        await latestTrust?.update("end_date", inputDate);
+				await this.createEmployeeTrust({
+					...data,
+					end_date: dLatestTrust.end_date,
+				});
+				return;
+			} else {
+				console.log("creating new employee trust. (no end date)");
+        await latestTrust?.update("end_date", inputDate);
+				await this.createEmployeeTrust(data);
+				return;
+			}
+		}
 	}
 
 	async getEmployeeTrustById(
