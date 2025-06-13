@@ -173,7 +173,7 @@ export function BonusAllTable({
 						open={openSheet && mode !== "delete"}
 						onOpenChange={setOpenSheet}
 					>
-						{data && bonusAllMapper(data) && (
+						{bonusAllMapper(data) && (
 							<DataTableWithFunctions
 								columns={bonus_all_columns({ t })}
 								data={data ? [bonusAllMapper(data)] : []}
@@ -234,7 +234,11 @@ export function BonusAllTable({
 					</Dialog>
 				</BonusToolbarFunctionsProvider>
 			) : (
-				<></>
+				<>
+					<p>
+						Something Bad Happened
+					</p>
+				</>
 			)}
 		</>
 	);
