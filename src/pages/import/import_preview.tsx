@@ -75,15 +75,21 @@ import {
 } from "~/components/ui/table";
 import { useImportContext } from "./import_context_provider";
 import { useEffect, useId, useMemo, useState } from "react";
-import { importFields } from "~/server/api/types/import_type";
+import {
+	importFields,
+	ImportFieldsKeyType,
+} from "~/server/api/types/import_type";
 import { DataTableViewOptions } from "~/components/data_table/toolbar/data_table_view_options";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { DataTablePagination } from "~/components/data_table/data_table_pagination";
+import { createColumnHelper } from "@tanstack/react-table";
+import { I18nType } from "~/lib/utils/i18n_type";
+import { useTranslation } from "react-i18next";
 
 const schema = importFields;
 
 // Create a separate component for the drag handle
-function DragHandle({ id }: { id: string}) {
+function DragHandle({ id }: { id: string }) {
 	const { attributes, listeners } = useSortable({
 		id,
 	});
@@ -102,7 +108,60 @@ function DragHandle({ id }: { id: string}) {
 	);
 }
 
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
+const numberColumns: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (
+	t: I18nType
+) => {
+	const f: ImportFieldsKeyType[] = [
+		"position",
+		"dependents",
+		"healthcare_dependents",
+		"seniority",
+		"annual_days_in_service",
+		"l_i",
+		"h_i",
+		"l_r",
+	];
+
+	return f.map((key: ImportFieldsKeyType) => {
+		return {
+			id: key,
+			header: () => <div className="w-full text-right">{key}</div>,
+			cell: ({ row }) => (
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						toast.promise(
+							new Promise((resolve) => setTimeout(resolve, 1000)),
+							{
+								loading: `Saving ${row.original.emp_no}`,
+								success: "Done",
+								error: "Error",
+							}
+						);
+					}}
+				>
+					<Label
+						htmlFor={`${row.original.emp_no}-target`}
+						className="sr-only"
+					>
+						{key}
+					</Label>
+					<Input
+						className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
+						defaultValue={row.original[key]?.toString()}
+						id={`${row.original.emp_no}-target`}
+					/>
+				</form>
+			),
+		};
+	});
+};
+
+// const columnHelper = createColumnHelper<z.infer<typeof schema>>();
+
+const columnsCreater: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (
+	t: I18nType
+) => [
 	{
 		id: "drag",
 		header: () => null,
@@ -164,65 +223,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 			</Badge>
 		),
 	},
-	// {
-	// 	accessorKey: "target",
-	// 	header: () => <div className="w-full text-right">Target</div>,
-	// 	cell: ({ row }) => (
-	// 		<form
-	// 			onSubmit={(e) => {
-	// 				e.preventDefault();
-	// 				toast.promise(
-	// 					new Promise((resolve) => setTimeout(resolve, 1000)),
-	// 					{
-	// 						loading: `Saving ${row.original.header}`,
-	// 						success: "Done",
-	// 						error: "Error",
-	// 					}
-	// 				);
-	// 			}}
-	// 		>
-	// 			<Label
-	// 				htmlFor={`${row.original.id}-target`}
-	// 				className="sr-only"
-	// 			>
-	// 				Target
-	// 			</Label>
-	// 			<Input
-	// 				className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
-	// 				defaultValue={row.original.target}
-	// 				id={`${row.original.emp_no}-target`}
-	// 			/>
-	// 		</form>
-	// 	),
-	// },
-	// {
-	// 	accessorKey: "limit",
-	// 	header: () => <div className="w-full text-right">Limit</div>,
-	// 	cell: ({ row }) => (
-	// 		<form
-	// 			onSubmit={(e) => {
-	// 				e.preventDefault();
-	// 				toast.promise(
-	// 					new Promise((resolve) => setTimeout(resolve, 1000)),
-	// 					{
-	// 						loading: `Saving ${row.original.header}`,
-	// 						success: "Done",
-	// 						error: "Error",
-	// 					}
-	// 				);
-	// 			}}
-	// 		>
-	// 			<Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-	// 				Limit
-	// 			</Label>
-	// 			<Input
-	// 				className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background dark:bg-transparent dark:hover:bg-input/30 dark:focus-visible:bg-input/30"
-	// 				defaultValue={row.original.limit}
-	// 				id={`${row.original.id}-limit`}
-	// 			/>
-	// 		</form>
-	// 	),
-	// },
+	...numberColumns(t),
 	// {
 	// 	accessorKey: "reviewer",
 	// 	header: "Reviewer",
@@ -313,6 +314,7 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 
 export function ImportPreview() {
 	const { excelData, setExcelData } = useImportContext();
+	const { t } = useTranslation(["common"]);
 
 	const [data, setData] = useState(excelData);
 	const [rowSelection, setRowSelection] = useState({});
@@ -332,15 +334,16 @@ export function ImportPreview() {
 		useSensor(KeyboardSensor, {})
 	);
 
-  useEffect(() => {
-    setData(excelData);
-  }, [excelData]);
+	useEffect(() => {
+		setData(excelData);
+	}, [excelData]);
 
 	const dataIds = useMemo<UniqueIdentifier[]>(
 		() => data?.map(({ emp_no }) => emp_no) || [],
 		[data]
 	);
 
+	const columns = columnsCreater(t);
 	const table = useReactTable({
 		data,
 		columns,
@@ -378,11 +381,11 @@ export function ImportPreview() {
 	}
 
 	return (
-		<div className="bg-blue-100 w-full h-full flex flex-col px-1">
+		<div className="flex h-full w-full flex-col bg-blue-100 px-1">
 			<div className="flex items-center justify-end px-4 py-1 lg:px-6">
-          <DataTableViewOptions table={table} />
+				<DataTableViewOptions table={table} />
 			</div>
-			<div className="rounded-lg border flex-grow bg-red-50 h-0 w-full overflow-y-scroll">
+			<div className="h-0 w-full flex-grow overflow-y-scroll rounded-lg border bg-red-50">
 				<DndContext
 					collisionDetection={closestCenter}
 					modifiers={[restrictToVerticalAxis]}
@@ -391,15 +394,18 @@ export function ImportPreview() {
 					id={sortableId}
 				>
 					<Table>
-						<TableHeader className="sticky w-full p-1 top-0 z-10 bg-muted">
+						<TableHeader className="sticky top-0 z-10 w-full bg-muted p-1">
 							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id} className="w-full">
+								<TableRow
+									key={headerGroup.id}
+									className="w-full"
+								>
 									{headerGroup.headers.map((header) => {
 										return (
 											<TableHead
 												key={header.id}
 												colSpan={header.colSpan}
-                        className="h-10"
+												className="h-10"
 											>
 												{header.isPlaceholder
 													? null
@@ -439,9 +445,7 @@ export function ImportPreview() {
 					</Table>
 				</DndContext>
 			</div>
-			<div className="w-full">
-        <DataTablePagination table={table} className="py-1" />
-			</div>
+			<DataTablePagination table={table} className="py-1" />
 		</div>
 	);
 }
