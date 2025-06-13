@@ -33,6 +33,8 @@ import {
 } from "./utils/select_mode";
 import { SelectDepartment } from "./select_department";
 import { type SyncData } from "~/server/api/types/sync_type";
+import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { formatDate } from "~/lib/utils/format_date";
 
 export function SyncPageContent({ data }: { data: SyncData[] }) {
 	const [mode, setMode] = useState<SyncDataDisplayModeEnumType>(
@@ -66,6 +68,22 @@ export function SyncPageContent({ data }: { data: SyncData[] }) {
 					english_name: d.english_name,
 					department: d.department,
 					comparisons: d.comparisons.map((c) => {
+						switch (c.key) {
+							case "work_status":
+								c.salary_value = t(`work_status.${convertToKey(c.salary_value as WorkStatusEnumType)}`);
+								c.ehr_value = t(`work_status.${convertToKey(c.ehr_value as WorkStatusEnumType)}`);
+								break;
+							case "registration_date":
+							case "quit_date":
+								c.salary_value = formatDate("day", c.salary_value) ?? "";
+								c.ehr_value = formatDate("day", c.ehr_value) ?? "";
+								break;
+							case "received_elderly_benefits":
+								c.salary_value = t(`others.${c.salary_value}`);
+								c.ehr_value = t(`others.${c.ehr_value}`);
+								break;
+						}
+
 						return {
 							key: c.key,
 							salary_value: c.salary_value,
