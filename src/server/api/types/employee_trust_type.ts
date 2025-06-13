@@ -24,3 +24,14 @@ export const updateEmployeeTrustAPI = employeeTrustFE.partial().merge(Id);
 export const updateEmployeeTrustService = employeeTrust.partial().merge(Id);
 
 export type EmployeeTrustFEType = z.infer<typeof employeeTrustFE>;
+
+export function isEqualEmployeeTrust(
+	a: z.infer<typeof employeeTrustCreateService>,
+	b: z.infer<typeof employeeTrustCreateService>
+): boolean {
+	return (
+		a.emp_no === b.emp_no &&
+		a.emp_trust_reserve === b.emp_trust_reserve&&
+		a.emp_special_trust_incent === b.emp_special_trust_incent
+	);
+}

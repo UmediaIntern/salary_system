@@ -22,23 +22,22 @@ import {
 import { ValidateExcel } from "./validate_excel";
 import { FileUploader } from "~/components/file_operations/file_uploader";
 import { extractData } from "~/components/file_operations/excel_upload_utils";
-import { Button } from "~/components/ui/button";
-import { api } from "~/utils/api";
 import {
 	importFields,
 	importFieldsKeys,
 	type ImportFieldsType,
 } from "~/server/api/types/import_type";
 import { excelFieldMapping } from "./excel_mapping";
+import {
+	ImportContextProvider,
+	useImportContext,
+} from "./import_context_provider";
 
-export function CarouselDApiDemo() {
+export function ImportCarousel() {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 	const [current, setCurrent] = useState(0);
 	const [count, setCount] = useState(0);
-	const [data, setData] = useState<ImportFieldsType[]>([]);
-
-	const importTransaction =
-		api.importTransaction.importTransaction.useMutation();
+	const { setExcelData } = useImportContext();
 
 	async function handleFileUpload(files: File[]) {
 		if (files.length !== 1 || !files[0]) {
@@ -103,15 +102,11 @@ export function CarouselDApiDemo() {
 						return;
 					}
 					transactionRows.push(result.data);
-					setData(transactionRows);
+					setExcelData(transactionRows);
 				}
 			}
 		}
-	}
-
-	function handleUpload() {
-		console.log(data);
-		importTransaction.mutate(data);
+		carouselApi?.scrollNext();
 	}
 
 	useEffect(() => {
@@ -139,13 +134,6 @@ export function CarouselDApiDemo() {
 							<span className="text-4xl font-semibold">
 								<FileUploader onUpload={handleFileUpload} />
 							</span>
-							<Button
-								onClick={() => {
-									handleUpload();
-								}}
-							>
-								upload
-							</Button>
 						</CardContent>
 					</Card>
 				</CarouselItem>
@@ -190,7 +178,9 @@ const PageImport: NextPageWithLayout = () => {
 			{/* header */}
 			<Header title={t("import")} showOptions />
 			<div className="flex h-0 grow flex-col p-4">
-				<CarouselDApiDemo />
+				<ImportContextProvider>
+					<ImportCarousel />
+				</ImportContextProvider>
 			</div>
 		</div>
 	);
