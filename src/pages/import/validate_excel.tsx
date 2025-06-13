@@ -6,6 +6,7 @@ import {
 } from "~/components/ui/resizable";
 import { api } from "~/utils/api";
 import { useImportContext } from "./import_context_provider";
+import { ImportPreview } from "./import_preview";
 
 const fields = ["a", "b", "c"];
 
@@ -27,7 +28,9 @@ export function ValidateExcel() {
 				className="flex h-full w-full flex-col"
 			>
 				<ResizablePanel defaultSize={50}>
-					<div className="h-full w-full bg-green-200"></div>
+					<div className="h-full w-full bg-green-200">
+            <ImportPreview />
+          </div>
 				</ResizablePanel>
 				<ResizableHandle />
 

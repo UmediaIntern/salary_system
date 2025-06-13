@@ -102,8 +102,9 @@ export function ImportCarousel() {
 						return;
 					}
 					transactionRows.push(result.data);
-					setExcelData(transactionRows);
 				}
+				setExcelData(transactionRows);
+				console.log("trans", transactionRows);
 			}
 		}
 		carouselApi?.scrollNext();
@@ -125,6 +126,11 @@ export function ImportCarousel() {
 	return (
 		<Carousel
 			setApi={setCarouselApi}
+			opts={{
+				align: "start",
+				dragFree: true,
+				watchDrag: false,
+			}}
 			className="flex h-full w-full flex-col"
 		>
 			<CarouselContent className="h-full">
@@ -157,7 +163,7 @@ export function ImportCarousel() {
 				{/* ))} */}
 			</CarouselContent>
 
-			<div className="flex h-16 w-full flex-row justify-between py-4">
+			<div className="flex h-12 w-full flex-row justify-between py-2">
 				<CarouselDots />
 				<div className="flex flex-row gap-2">
 					<CarouselPrevious className="relative left-0 right-0 top-0 translate-x-0 translate-y-0" />
@@ -177,7 +183,7 @@ const PageImport: NextPageWithLayout = () => {
 		<div className="flex h-full w-full flex-col">
 			{/* header */}
 			<Header title={t("import")} showOptions />
-			<div className="flex h-0 grow flex-col p-4">
+			<div className="flex h-0 grow flex-col pt-4 pb-2 px-4">
 				<ImportContextProvider>
 					<ImportCarousel />
 				</ImportContextProvider>
