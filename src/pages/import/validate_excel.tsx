@@ -37,7 +37,7 @@ export function ValidateExcel() {
 				<ResizablePanel defaultSize={50}>
 					{/* Missing fields */}
 					{/* Invalid values */}
-					<div className="flex w-full grow flex-col p-4">
+					<div className="h-full flex w-full flex-col p-4 bg-muted">
 						{fields.map((field) => (
 							<div key={field}>
 								<Button

@@ -108,9 +108,7 @@ function DragHandle({ id }: { id: string }) {
 	);
 }
 
-const numberColumns: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (
-	t: I18nType
-) => {
+const numberColumns: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (t) => {
 	const f: ImportFieldsKeyType[] = [
 		"position",
 		"dependents",
@@ -159,9 +157,7 @@ const numberColumns: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (
 
 // const columnHelper = createColumnHelper<z.infer<typeof schema>>();
 
-const columnsCreater: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (
-	t: I18nType
-) => [
+const columnsCreater: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (t) => [
 	{
 		id: "drag",
 		header: () => null,
@@ -304,7 +300,8 @@ export function ImportPreview() {
 		[data]
 	);
 
-	const columns = columnsCreater(t);
+  const columns = useMemo(() => columnsCreater(t), [t]);
+
 	const table = useReactTable({
 		data,
 		columns,
@@ -342,11 +339,11 @@ export function ImportPreview() {
 	}
 
 	return (
-		<div className="flex h-full w-full flex-col bg-blue-100 px-1">
+		<div className="flex h-full w-full flex-col px-1">
 			<div className="flex items-center justify-end px-4 py-1 lg:px-6">
 				<DataTableViewOptions table={table} />
 			</div>
-			<div className="h-0 w-full flex-grow overflow-y-scroll rounded-lg border bg-red-50">
+			<div className="h-0 w-full flex-grow overflow-y-scroll rounded-lg border">
 				<DndContext
 					collisionDetection={closestCenter}
 					modifiers={[restrictToVerticalAxis]}
@@ -395,7 +392,7 @@ export function ImportPreview() {
 							) : (
 								<TableRow>
 									<TableCell
-										colSpan={columns.length}
+										colSpan={columnsCreater.length}
 										className="h-24 text-center"
 									>
 										No results.
