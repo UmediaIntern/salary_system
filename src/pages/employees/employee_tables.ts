@@ -1,6 +1,6 @@
 
 export const EmployeeTableEnumValues = [
-  "TableEmployee",
+	"TableEmployee",
 	"TableEmployeePayment",
 	"TableEmployeeTrust",
 ] as const;
@@ -19,6 +19,6 @@ function getTableName(table: EmployeeTableEnum) {
 }
 
 export function getTableNameKey(table: EmployeeTableEnum) {
-  return `table_name.${getTableName(table)}`
+	return `table_name.${getTableName(table)}`
 }
 

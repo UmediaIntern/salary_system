@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { dateAll, dateCreate, dateMetaFE, empData, func, Id } from "./common_type";
+import {
+	dateAll,
+	dateCreate,
+	dateMetaFE,
+	empData,
+	func,
+	Id,
+} from "./common_type";
 import { LongServiceEnum } from "./long_service_enum";
 import { optionalNumDefaultZero } from "./z_utils";
 
@@ -49,7 +56,9 @@ export const employeePaymentCreateAPI = employeePaymentCreate.omit({
 	end_date: true,
 });
 
-export const  employeePaymentBatchCreateAPI = z.array(employeePaymentCreate.omit({end_date: true}))
+export const employeePaymentBatchCreateAPI = z.array(
+	employeePaymentCreate.omit({ end_date: true })
+);
 
 export const employeePaymentCreateService = employeePaymentCreate;
 
@@ -69,3 +78,25 @@ export const employeePaymentFE = employeePaymentBase
 	.merge(func);
 
 export type EmployeePaymentFEType = z.infer<typeof employeePaymentFE>;
+
+// Types functions
+export function isEqualEmployeePayment(
+	a: z.infer<typeof employeePaymentCreateService>,
+	b: z.infer<typeof employeePaymentCreateService>
+): boolean {
+	return (
+		a.emp_no === b.emp_no &&
+		a.base_salary === b.base_salary &&
+		a.food_allowance === b.food_allowance &&
+		a.supervisor_allowance === b.supervisor_allowance &&
+		a.occupational_allowance === b.occupational_allowance &&
+		a.subsidy_allowance === b.subsidy_allowance &&
+		a.long_service_allowance === b.long_service_allowance &&
+		a.long_service_allowance_type === b.long_service_allowance_type &&
+		a.l_r_self_ratio === b.l_r_self_ratio &&
+		a.l_i === b.l_i &&
+		a.h_i === b.h_i &&
+		a.l_r === b.l_r &&
+		a.occupational_injury === b.occupational_injury
+	);
+}

@@ -48,6 +48,9 @@ export class OtherMapper {
 					return null;
 				}
 				const employee_payment = employee_payment_list.find((e) => e.emp_no === emp_no);
+				if (!employee_payment) {
+					console.log(emp_no, ": ", "employee_payment", employee_payment);	
+				}
 				const expense_list_by_emp_no = expense_list.filter((e) => e.emp_no === emp_no);
 				const work_day =
 					payset_list?.find((p) => p.emp_no === emp_no)?.work_day ??

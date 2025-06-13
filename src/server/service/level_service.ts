@@ -65,12 +65,10 @@ export class LevelService {
 		});
 		if (existed_data != null) {
 			throw new Error(
-				`Data already exist type:${
-					existed_data.level
-				}, start_date: ${start_date.toDateString()}, end_date: ${
-					existed_data.end_date == null
-						? "null"
-						: existed_data.end_date
+				`Data already exist type:${existed_data.level
+				}, start_date: ${start_date.toDateString()}, end_date: ${existed_data.end_date == null
+					? "null"
+					: existed_data.end_date
 				}`
 			);
 		}
@@ -179,12 +177,18 @@ export class LevelService {
 		return grouped_array;
 	}
 	async getAllLevelByStartDate(start_date: Date): Promise<LevelDecType[]> {
-		const start_date_string = get_date_string(
-			new Date(start_date.setFullYear(start_date.getFullYear(), 0, 1))
-		);
+		const start_date_string = get_date_string(start_date);
 		const level = await Level.findAll({
 			where: {
-				start_date: start_date_string,
+				start_date: {
+					[Op.lte]: start_date_string,
+				},
+				end_date: {
+					[Op.or]: [
+						{ [Op.gte]: start_date_string },
+						{ [Op.eq]: null },
+					],
+				},
 				disabled: false,
 			},
 			order: [
@@ -315,7 +319,7 @@ export class LevelService {
 							if (
 								level.end_date == null ||
 								stringToDate.parse(level.end_date).getTime() >
-									new_end_date.getTime()
+								new_end_date.getTime()
 							) {
 								level_range_service.emptyInfluencedLevelRange(
 									dateToString.parse(nextStartDate),
@@ -323,7 +327,7 @@ export class LevelService {
 								);
 							} else {
 								level_range_service.emptyInfluencedLevelRange(
-									dateToString.parse(addDays(stringToDate.parse(level.end_date),1)),
+									dateToString.parse(addDays(stringToDate.parse(level.end_date), 1)),
 									dateToString.parse(new_end_date)
 								);
 							}
@@ -340,7 +344,7 @@ export class LevelService {
 					if (level.end_date != null) {
 						if (!changed_level_range) {
 							level_range_service.emptyInfluencedLevelRange(
-								dateToString.parse(subDays(stringToDate.parse(level.end_date),1)),
+								dateToString.parse(subDays(stringToDate.parse(level.end_date), 1)),
 								null
 							);
 							changed_level_range = true;

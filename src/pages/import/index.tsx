@@ -27,7 +27,7 @@ import { api } from "~/utils/api";
 import {
 	importFields,
 	importFieldsKeys,
-	ImportFieldsType,
+	type ImportFieldsType,
 } from "~/server/api/types/import_type";
 import { excelFieldMapping } from "./excel_mapping";
 
@@ -85,7 +85,7 @@ export function CarouselDApiDemo() {
 							obj[key] = row[dataIdx];
 						} else {
 							console.log(
-								`${key} not found in excel idx=${idx} dataIdx=${dataIdx} data=${row[dataIdx]}`
+								`${key} not found in excel idx=${idx} dataIdx=${dataIdx}`
 							);
 						}
 					});
@@ -111,7 +111,7 @@ export function CarouselDApiDemo() {
 
 	function handleUpload() {
 		console.log(data);
-		// importTransaction.mutate(data);
+		importTransaction.mutate(data);
 	}
 
 	useEffect(() => {

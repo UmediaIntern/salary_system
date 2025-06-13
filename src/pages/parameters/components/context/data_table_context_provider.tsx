@@ -1,5 +1,5 @@
 import React, { useContext, useState, type PropsWithChildren } from "react";
-import { type FunctionMode } from "./data_table_context";
+import { type FunctionModeEnumType } from "./data_table_context";
 import {
 	type ParameterTableEnum,
 	ParameterTableEnumValues,
@@ -23,8 +23,8 @@ const dataTableContext = React.createContext<{
 	setSelectedTable: (table: TableObject | null) => void;
 	enableFunctions: boolean;
 	setEnableFunctions: (enableFunctions: boolean) => void;
-	mode: FunctionMode;
-	setMode: (mode: FunctionMode) => void;
+	mode: FunctionModeEnumType;
+	setMode: (mode: FunctionModeEnumType) => void;
 	openSheet: boolean;
 	setOpenSheet: (open: boolean) => void;
 	openDialog: boolean;
@@ -50,7 +50,7 @@ export function DataTableContextProvider({
 
 	const [openSheet, setOpenSheet] = useState<boolean>(false);
 	const [openDialog, setOpenDialog] = useState<boolean>(false);
-	const [mode, setMode] = useState<FunctionMode>("none");
+	const [mode, setMode] = useState<FunctionModeEnumType>("none");
 	const [data, setData] = useState<any>(null);
 
 	return (
