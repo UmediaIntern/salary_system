@@ -28,7 +28,7 @@ export function ValidateExcel() {
 				className="flex h-full w-full flex-col"
 			>
 				<ResizablePanel defaultSize={50}>
-					<div className="h-full w-full bg-green-200">
+					<div className="h-full w-full">
             <ImportPreview />
           </div>
 				</ResizablePanel>
