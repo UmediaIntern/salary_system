@@ -460,11 +460,11 @@ export class EmployeePaymentService {
 
 		for (let i = 0; i < employeePaymentList.length - 1; i += 1) {
 			const end_date_string = employeePaymentList[i]!.end_date
-				? dateToString.parse(new Date(employeePaymentList[i]!.end_date!))
+				? employeePaymentList[i]!.end_date!
 				: null;
-			const start_date = new Date(employeePaymentList[i + 1]!.start_date);
+			const next_start_date = new Date(employeePaymentList[i + 1]!.start_date);
 			const new_end_date_string = dateToString.parse(
-				new Date(start_date.setDate(start_date.getDate() - 1))
+				new Date(next_start_date.setDate(next_start_date.getDate() - 1))
 			);
 			const quit_date = (
 				await this.employeeDataService.getLatestEmployeeDataByEmpNo(
