@@ -224,44 +224,6 @@ const columnsCreater: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (
 		),
 	},
 	...numberColumns(t),
-	// {
-	// 	accessorKey: "reviewer",
-	// 	header: "Reviewer",
-	// 	cell: ({ row }) => {
-	// 		const isAssigned = row.original.reviewer !== "Assign reviewer";
-	//
-	// 		if (isAssigned) {
-	// 			return row.original.reviewer;
-	// 		}
-	//
-	// 		return (
-	// 			<>
-	// 				<Label
-	// 					htmlFor={`${row.original.id}-reviewer`}
-	// 					className="sr-only"
-	// 				>
-	// 					Reviewer
-	// 				</Label>
-	// 				<Select>
-	// 					<SelectTrigger
-	// 						className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-	// 						id={`${row.original.id}-reviewer`}
-	// 					>
-	// 						<SelectValue placeholder="Assign reviewer" />
-	// 					</SelectTrigger>
-	// 					<SelectContent align="end">
-	// 						<SelectItem value="Eddie Lake">
-	// 							Eddie Lake
-	// 						</SelectItem>
-	// 						<SelectItem value="Jamik Tashpulatov">
-	// 							Jamik Tashpulatov
-	// 						</SelectItem>
-	// 					</SelectContent>
-	// 				</Select>
-	// 			</>
-	// 		);
-	// 	},
-	// },
 	{
 		id: "actions",
 		cell: () => (
@@ -280,7 +242,6 @@ const columnsCreater: (t: I18nType) => ColumnDef<z.infer<typeof schema>>[] = (
 					<DropdownMenuItem>Edit</DropdownMenuItem>
 					<DropdownMenuItem>Make a copy</DropdownMenuItem>
 					<DropdownMenuItem>Favorite</DropdownMenuItem>
-					<DropdownMenuSeparator />
 				</DropdownMenuContent>
 			</DropdownMenu>
 		),
