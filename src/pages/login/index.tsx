@@ -29,6 +29,7 @@ import { signIn } from "next-auth/react";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { i18n, locales } from '~/components/lang_config'
 import { useTranslation } from "next-i18next";
+import { Eye, EyeOff } from "lucide-react";
 
 
 const LoginFormSchema = z.object({
@@ -38,6 +39,8 @@ const LoginFormSchema = z.object({
 
 export default function Login() {
 	const [forgetPwd, setForgetPwd] = useState(false);
+
+	const [isView, setIsView] = useState(false);
 
 	const router = useRouter();
 
@@ -122,10 +125,29 @@ export default function Login() {
 											<FormItem>
 												<FormLabel>{t("others.password")}</FormLabel>
 												<FormControl>
-													<Input
-														placeholder={t("others.password")}
-														{...field}
-													/>
+													<div className="relative">
+														<Input
+															type={isView ? "text" : "password"}
+															className=""
+															placeholder={t("others.password")}
+															style={{}}
+															{...field}
+														/>
+														{isView ? (
+															<Eye
+															className="absolute right-4 top-3 z-10 cursor-pointer text-gray-500 w-4 h-4"
+															onClick={() => {
+																setIsView(!isView)
+																console.log(isView)
+															}}
+															/>
+														) : (
+															<EyeOff
+															className="absolute right-4 top-3 z-10 cursor-pointer text-gray-500 w-4 h-4"
+															onClick={() => setIsView(!isView)}
+															/>
+														)}
+													</div>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
