@@ -1,5 +1,3 @@
-import { type Period } from "../database/entity/UMEDIA/period";
-
 export function check_date(
 	start_date: string | null,
 	end_date: string | null,
@@ -21,25 +19,6 @@ export function get_date_string(date: Date): string {
 	return localISOTime.split("T")[0]!;
 }
 
-// TODO: fix this function, don't take in string
-export function is_date_available(
-	period: Period | null,
-	start_date: Date,
-	end_date: Date 
-): boolean {
-	if (!period) {
-		return false;
-	}
-	const targetDate = period.end_date;
-
-	if (end_date && end_date < targetDate) {
-		return false;
-	}
-	if (start_date && start_date > targetDate) {
-		return false;
-	}
-	return true;
-}
 
 export function select_value<T>(newData: T | undefined, oldData: T): T {
 	return newData !== undefined ? newData : oldData;
