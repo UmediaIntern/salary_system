@@ -167,7 +167,7 @@ export function BonusAllTable({
 						open={openSheet && mode !== "delete"}
 						onOpenChange={setOpenSheet}
 					>
-						{bonusAllMapper(data) && (
+						{(
 							// <button onClick={() => console.log(data, bonusAllMapper(data))}>	
 							// 	TEST
 							// </button>
