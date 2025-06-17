@@ -584,7 +584,7 @@ export class EmployeeTrustService {
 				// special_multiplier: {
 				// 	[Op.gt]: 0,
 				// },
-				disable: false,
+				disabled: false,
 			},
 			order: [["emp_no", "ASC"]],
 			group: ["emp_no"],
