@@ -96,7 +96,7 @@ export class TransactionService {
 		const holidays_type_list = await this.holidaysTypeService.getCurrentHolidaysType();
 		const bonus_list = await this.ehrService.getBonus(period_id, pay_type);
 		const bonus_type_list = await this.ehrService.getBonusType();
-		const expense_list = await this.ehrService.getExpense(period_id);		
+		const expense_list = await this.ehrService.getExpense(period_id);
 		const expense_class_list = await this.ehrService.getExpenseClass();
 		const salary_income_tax_list = await this.salaryIncomeTaxService.getCurrentSalaryIncomeTax(period_id);
 
@@ -178,17 +178,17 @@ export class TransactionService {
 		const quit_date = employee_data!.quit_date;
 		const registration_date = employee_data!.registration_date;
 
-		const quarterly_performance_bonus    = 0;			// ! TODO: no data yet
-		const weekday_134_overtime_hours     = 0;			// ! TODO: no data yet
-		const weekday_167_overtime_hours     = 0;			// ! TODO: no data yet
-		const rest_134_overtime_hours 		 = 0;			// ! TODO: no data yet
-		const rest_167_overtime_hours 		 = 0;			// ! TODO: no data yet
-		const rest_267_overtime_hours 		 = 0;			// ! TODO: no data yet
+		const quarterly_performance_bonus = 0;			// ! TODO: no data yet
+		const weekday_134_overtime_hours = 0;			// ! TODO: no data yet
+		const weekday_167_overtime_hours = 0;			// ! TODO: no data yet
+		const rest_134_overtime_hours = 0;			// ! TODO: no data yet
+		const rest_167_overtime_hours = 0;			// ! TODO: no data yet
+		const rest_267_overtime_hours = 0;			// ! TODO: no data yet
 		const weekday_134_tax_overtime_hours = 0;			// ! TODO: no data yet
 		const weekday_167_tax_overtime_hours = 0;			// ! TODO: no data yet
-		const rest_134_tax_overtime_hours 	 = 0;			// ! TODO: no data yet
-		const rest_167_tax_overtime_hours 	 = 0;			// ! TODO: no data yet
-		const rest_267_tax_overtime_hours 	 = 0;			// ! TODO: no data yet
+		const rest_134_tax_overtime_hours = 0;			// ! TODO: no data yet
+		const rest_167_tax_overtime_hours = 0;			// ! TODO: no data yet
+		const rest_267_tax_overtime_hours = 0;			// ! TODO: no data yet
 
 		const l_i_addition_previous = 0;					// ! TODO: no data yet
 		const h_i_addition_previous = 0;					// ! TODO: no data yet
@@ -196,7 +196,7 @@ export class TransactionService {
 
 		// ~ TODO
 		const project_bonus = 0;								// TODO
-		
+
 		const fixed_deposit_deduction = 0;						// ! TODO: no data yet
 		const court_salary_garnishment = 0;						// ! TODO: no data yet
 
@@ -211,7 +211,7 @@ export class TransactionService {
 		// const bank_account_2 = employee_acount![1]?.bank_account!;
 		const bank_account_taiwan = employee_data!.bank_account_taiwan;
 		const bank_account_foreign = employee_data!.bank_account_foreign;
-		const currency_foreign = "";	
+		const currency_foreign = "";
 		const exchange_rate = 0;								// ! TODO: no data yet
 		const currency_amount_foreign = 0;						// ! TODO: no data yet
 		const currency_amount_taiwan = 0;						// ! TODO: no data yet
@@ -272,10 +272,10 @@ export class TransactionService {
 		const total_salary = await this.calculateService.getTotalSalary(discounted_employee_payment!, full_attendance_bonus, professional_cert_allowance, shift_allowance);
 		const salary_range = await this.calculateService.getSalaryRange(total_salary);
 		const dorm_deduction = await this.calculateService.getMealDeduction(expense_list, expense_class_list);	// ~ Need Check
-		
 
 
-		
+
+
 		const bonus_ratio = -1; //bonus_setting!.fixed_multiplier;
 		const annual_days_in_service = 365; // MARK: 年度在職天數不知道在哪
 		const l_r_contribution = await this.calculateService.getLaborRetirementContribution(employee_data!, discounted_employee_payment!, payset);
@@ -311,7 +311,7 @@ export class TransactionService {
 			position: position, 											// 職等
 			position_type: position_type, 									// 職等類別
 			group_insurance_type: group_insurance_type, 					// 團保類別
-			disabilty_level: disabilty_level ?? "正常", 					// 殘障等級
+			disabilty_level: disabilty_level ?? "正常",						// 殘障等級
 			sex_type: sex_type,												// 性別
 			license_id: license_id ?? "",									// 身份(居留)證字號
 			dependents: dependents ?? 0, 									// 扶養人數
@@ -319,7 +319,7 @@ export class TransactionService {
 			entry_date: entry_date,											// 入境日期
 			registration_date: registration_date,							// 到職日期
 			quit_date: quit_date,											// 離職日期
-			bank_account_taiwan:  bank_account_taiwan,						// 台幣帳號
+			bank_account_taiwan: bank_account_taiwan,						// 台幣帳號
 			bank_account_foreign: bank_account_foreign ?? "",				// 外幣帳號
 			received_elderly_benefits: received_elderly_benefits, 			// 已領老年給付
 			seniority: seniority, 											// 在職年數
@@ -350,15 +350,15 @@ export class TransactionService {
 			project_bonus: project_bonus,									// 專案獎金
 			quarterly_performance_bonus: quarterly_performance_bonus,		// 季度績效獎金
 			weekday_134_overtime_hours: weekday_134_overtime_hours,			// 平日  1.34加班時數
-			weekday_167_overtime_hours: 	weekday_167_overtime_hours, 	// 平日  1.67加班時數
-			rest_134_overtime_hours: 		rest_134_overtime_hours,		// 休息日1.34加班時數
-			rest_167_overtime_hours: 		rest_167_overtime_hours,		// 休息日1.67加班時數
-			rest_267_overtime_hours: 		rest_267_overtime_hours,		// 休息日2.67加班時數
+			weekday_167_overtime_hours: weekday_167_overtime_hours, 	// 平日  1.67加班時數
+			rest_134_overtime_hours: rest_134_overtime_hours,		// 休息日1.34加班時數
+			rest_167_overtime_hours: rest_167_overtime_hours,		// 休息日1.67加班時數
+			rest_267_overtime_hours: rest_267_overtime_hours,		// 休息日2.67加班時數
 			weekday_134_tax_overtime_hours: weekday_134_tax_overtime_hours, // 平日  1.34加班時數(稅)
 			weekday_167_tax_overtime_hours: weekday_167_tax_overtime_hours, // 平日  1.67加班時數(稅)
-			rest_134_tax_overtime_hours: 	rest_134_tax_overtime_hours,	// 休息日1.34加班時數(稅)
-			rest_167_tax_overtime_hours: 	rest_167_tax_overtime_hours,	// 休息日1.67加班時數(稅)
-			rest_267_tax_overtime_hours: 	rest_267_tax_overtime_hours,	// 休息日2.67加班時數(稅)
+			rest_134_tax_overtime_hours: rest_134_tax_overtime_hours,	// 休息日1.34加班時數(稅)
+			rest_167_tax_overtime_hours: rest_167_tax_overtime_hours,	// 休息日1.67加班時數(稅)
+			rest_267_tax_overtime_hours: rest_267_tax_overtime_hours,	// 休息日2.67加班時數(稅)
 			weekday_overtime_pay: weekday_overtime_pay,						//   平日加班費
 			rest_overtime_pay: rest_overtime_pay,							// 休息日加班費
 			exceed_overtime_pay: exceed_overtime_pay,						//   超時加班費
@@ -418,7 +418,7 @@ export class TransactionService {
 			currency_amount_foreign: currency_amount_foreign,				// 外幣金額
 			currency_amount_taiwan: currency_amount_taiwan,					// 台幣金額
 			has_trust: has_trust,											// 持股信託_YN
-			disable: false,
+			disabled: false,
 			create_by: "system",
 			update_by: "system",
 		});
@@ -442,6 +442,20 @@ export class TransactionService {
 		const transactions = await Transaction.findAll({
 			where: {
 				period_id: period_id,
+			},
+			order: [["emp_no", "ASC"]],
+		});
+		return transactions;
+	}
+
+	async getTransaction(
+		period_id: number,
+		pay_type: PayTypeEnumType
+	): Promise<Transaction[]> {
+		const transactions = await Transaction.findAll({
+			where: {
+				period_id: period_id,
+				pay_type: pay_type,
 			},
 			order: [["emp_no", "ASC"]],
 		});
