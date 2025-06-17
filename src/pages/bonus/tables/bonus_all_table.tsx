@@ -104,17 +104,13 @@ function BonusAllFunctionComponent({ data }: { data: RowItem }) {
 	);
 }
 
-export function bonusAllMapper(bonusAllData: BonusAllFEType): RowItem {
-	return {
-		id: bonusAllData ? bonusAllData?.id : 0,
+export function bonusAllMapper(bonusAllData: BonusAllFEType): RowItem | undefined {
+	return bonusAllData ? {
+		id: bonusAllData?.id,
 		parameters: "倍率",
-		value: bonusAllData ? bonusAllData?.multiplier : 0,
-		functions: bonusAllData ? bonusAllData?.functions : {
-			creatable: false,
-			updatable: false,
-			deletable: false
-		},
-	};
+		value: bonusAllData?.multiplier,
+		functions:bonusAllData?.functions,
+	} : undefined;
 }
 
 interface BonusAllTableProps extends TableComponentProps {
@@ -177,7 +173,7 @@ export function BonusAllTable({
 							// </button>
 							<DataTableWithFunctions
 								columns={bonus_all_columns({ t })}
-								data={[bonusAllMapper(data)]}
+								data={bonusAllMapper(data) ? [bonusAllMapper(data) as RowItem] : []}
 								bonusType={bonus_type}
 								filterColumnKey={filterKey}
 							/>
