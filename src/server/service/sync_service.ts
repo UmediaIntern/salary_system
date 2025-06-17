@@ -40,7 +40,7 @@ export class SyncService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeDataMapper: EmployeeDataMapper
-	) { }
+	) {}
 	// TODO: move this
 	parsedPeriod(
 		period: Period
@@ -212,17 +212,41 @@ export class SyncService {
 		});
 
 		syncData.comparisons = [];
-		for (const key in ehrEmp) {
-			if (key == "emp_no" || key == "id") continue;
-			syncData.comparisons.push(
-				this.dataComparison(
-					key as keyof EmployeeData,
-					ehrEmp[key],
-					salaryEmp?.[key]
+		if (
+			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
+			ehrEmp.work_status ==
+				WorkStatusEnum.Values.NewEmployeePartialMonth ||
+			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployee
+		) {
+			for (const key in ehrEmp) {
+				if (
+					key == "emp_no" ||
+					key == "id" ||
+					key == "work_status" ||
+					key == "department" ||
+					key == "emp_name"
 				)
-			);
+					continue;
+				syncData.comparisons.push(
+					this.dataComparison(
+						key as keyof EmployeeData,
+						ehrEmp[key],
+						salaryEmp?.[key]
+					)
+				);
+			}
+		} else {
+			for (const key in ehrEmp) {
+				if (key == "emp_no" || key == "id") continue;
+				syncData.comparisons.push(
+					this.dataComparison(
+						key as keyof EmployeeData,
+						ehrEmp[key],
+						salaryEmp?.[key]
+					)
+				);
+			}
 		}
-
 		return syncData;
 	}
 
@@ -413,9 +437,14 @@ export class SyncService {
 		period_id: number
 	): Promise<SyncData[] | null> {
 		const previous_period_id = await this.getPreviousPeriodId(period_id);
-		const previous_cand_paid_emps = await this.getCandPaidEmployees(func, previous_period_id);
-		const previous_cand_emp_no_list = previous_cand_paid_emps.map((emp) => emp.emp_no);
-		await this.createNewMonthData(period_id,previous_cand_emp_no_list);
+		const previous_cand_paid_emps = await this.getCandPaidEmployees(
+			func,
+			previous_period_id
+		);
+		const previous_cand_emp_no_list = previous_cand_paid_emps.map(
+			(emp) => emp.emp_no
+		);
+		await this.createNewMonthData(period_id, previous_cand_emp_no_list);
 		const cand_paid_emps = await this.getCandPaidEmployees(func, period_id); // 獲取候選需支付員工數據
 		const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
 
@@ -566,8 +595,12 @@ export class SyncService {
 			updatedDatas.push(updatedData);
 
 			if (updatedData.quit_date) {
-				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(updatedData.emp_no);
-				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(updatedData.emp_no);
+				await this.employeePaymentService.rescheduleEmployeePaymentByQuitDate(
+					updatedData.emp_no
+				);
+				await this.employeeTrustService.rescheduleEmployeeTrustByQuitDate(
+					updatedData.emp_no
+				);
 			}
 		}
 

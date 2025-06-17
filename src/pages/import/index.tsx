@@ -32,10 +32,13 @@ import {
 	ImportContextProvider,
 	useImportContext,
 } from "./import_context_provider";
-import { type ExcelSheetType } from "~/components/file_operations/excel_type";
+import { type ExcelSheetData } from "~/components/file_operations/excel_type";
 import { ExcelParser } from "~/components/file_operations/excel_parser";
+import { ExcelValidator } from "~/components/file_operations/excel_validator";
+import { reqNodeEmpNo } from "./excel_requirement";
 
 const excelParser = new ExcelParser();
+// const excelValidator = new ExcelValidator([]);
 
 export function ImportCarousel() {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -56,7 +59,7 @@ export function ImportCarousel() {
       return
     }
 
-    let excel: ExcelSheetType;
+    let excel: ExcelSheetData;
     try {
       excel = excelParser.parseSingleSheet(data);
     } catch (error) {
@@ -64,10 +67,18 @@ export function ImportCarousel() {
       return
     }
 
+    // const result = excelValidator.validate(excel);
+    // if (!result.success) {
+    //   for (const error of result.errors) {
+    //     console.log(error.toString());
+    //   }
+    //   return
+    // }
+
     const indices: number[] = [];
     importFieldsKeys.options.forEach((key) => {
       const excelFieldName = excelFieldMapping[key];
-      const idx = excel.header.indexOf(excelFieldName);
+      const idx = excel.raw_header.indexOf(excelFieldName);
       if (idx === -1) {
         console.log(`${excelFieldName} not found in excel`);
       }
@@ -77,7 +88,7 @@ export function ImportCarousel() {
 
     // Processing rows
     const transactionRows: ImportFieldsType[] = [];
-    const excelRows = excel.data;
+    const excelRows = excel.raw_data;
     let i = 0;
     for (const row of excelRows) {
       // console.log(row);

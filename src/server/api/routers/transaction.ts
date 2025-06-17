@@ -17,8 +17,13 @@ export const transactionRouter = createTRPCRouter({
 		)
 		.mutation(async ({ input }) => {
 			const transactionService = container.resolve(TransactionService);
-			const commonParameters = await transactionService.getCommonParameters(input.period_id, input.pay_type);
-			
+			const commonParameters =
+				await transactionService.getCommonParameters(
+					input.period_id,
+					input.pay_type,
+					input.emp_no_list
+				);
+
 			const promises = input.emp_no_list.map(async (emp_no) => {
 				// if (emp_no != "U093051") return;		// ~ Pony's Test
 				const exist_transaction =
@@ -28,9 +33,11 @@ export const transactionRouter = createTRPCRouter({
 						input.pay_type
 					);
 				if (exist_transaction != null) {
-					await transactionService.deleteTransaction(exist_transaction.id);
+					await transactionService.deleteTransaction(
+						exist_transaction.id
+					);
 				}
-				
+
 				await transactionService.createTransaction(
 					emp_no,
 					input.period_id,
@@ -39,10 +46,9 @@ export const transactionRouter = createTRPCRouter({
 					input.note,
 					commonParameters
 				);
-			})
+			});
 
 			// console.log(commonParameters.expense_class_list);	// ~ Pony's Test
-
 
 			await Promise.all(promises);
 		}),
