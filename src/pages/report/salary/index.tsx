@@ -83,8 +83,9 @@ function ExportPage() {
 	]);
 	const [toDisplayData, setToDisplayData] = useState<any>(null);
 
-	const getExcelA = api.transaction.getAllTransaction.useQuery({
+	const getExcelA = api.report.getTransactionIndividual.useQuery({
 		period_id: selectedPeriod?.period_id ?? 0,
+		pay_type: "month_salary",
 	});
 
 	const { isPending, content, data } = useQueryHandle(getExcelA);
@@ -92,10 +93,10 @@ function ExportPage() {
 	function createSchema() {
 		const keys = getExcelA.isFetched
 			? Object.keys(
-					getExcelA!.data!.map((sheet: any) =>
-						sheet.data.length > 0 ? sheet.data[0] : []
-					)[selectedSheetIndex]
-			  )
+				getExcelA!.data!.map((sheet: any) =>
+					sheet.data.length > 0 ? sheet.data[0] : []
+				)[selectedSheetIndex]
+			)
 			: [];
 		const schemaShape = keys.reduce((acc: any, key) => {
 			if (toExcludedColumns.includes(key)) {

@@ -19,6 +19,7 @@ import {
 	type WorkTypeEnumType,
 } from "~/server/api/types/work_type_enum";
 import { dateCreateF, systemF, systemKeys } from "../../mapper/mapper_utils";
+import { CostCategoryEnumType } from "~/server/api/types/cost_category_type";
 
 const dbEmployeeData = z.object({
 	period_id: z.number(),
@@ -88,6 +89,7 @@ export class EmployeeData extends Model<
 	declare position_type: string; // 職級
 	declare group_insurance_type: string; // 團保類別
 	declare department: string; // 部門
+	declare cost_category: CostCategoryEnumType; // 成本分類
 	declare work_type: WorkTypeEnumType; // 工作類別
 	declare work_status: DBWorkStatusEnumType; // 工作型態
 	declare disabilty_level: string | null; // 殘障等級
@@ -96,9 +98,12 @@ export class EmployeeData extends Model<
 	declare healthcare_dependents: number | null; // 健保眷口數
 	declare registration_date: string; // 到職日期
 	declare quit_date: string | null; // 離職日期
+	declare entry_date: string | null; // 入境日期
+	declare exit_date: string | null; // 離境日期
 	declare license_id: string | null; // 身分證字號
 	declare bank_account_taiwan: string; // 台幣帳號
 	declare bank_account_foreign: string | null; // 外幣帳號
+	declare probation_period_over: boolean; // 試用期滿
 	declare received_elderly_benefits: boolean; //是否領取老年給付
 	// timestamps!
 	// createdAt can be undefined during creation
@@ -126,6 +131,10 @@ export function initEmployeeData(sequelize: Sequelize) {
 				allowNull: false,
 			},
 			emp_name: {
+				type: DataTypes.STRING(32),
+				allowNull: false,
+			},
+			cost_category: {
 				type: DataTypes.STRING(32),
 				allowNull: false,
 			},
@@ -176,6 +185,14 @@ export function initEmployeeData(sequelize: Sequelize) {
 				type: DataTypes.STRING(32),
 				allowNull: true,
 			},
+			entry_date: {
+				type: DataTypes.STRING(32),
+				allowNull: true,
+			},
+			exit_date: {
+				type: DataTypes.STRING(32),
+				allowNull: true,
+			},
 			license_id: {
 				type: DataTypes.STRING(32),
 			},
@@ -185,6 +202,10 @@ export function initEmployeeData(sequelize: Sequelize) {
 			bank_account_foreign: {
 				type: DataTypes.STRING(32),
 				allowNull: true,
+			},
+			probation_period_over: {
+				type: DataTypes.BOOLEAN,
+				defaultValue: true,
 			},
 			received_elderly_benefits: {
 				type: DataTypes.BOOLEAN,
