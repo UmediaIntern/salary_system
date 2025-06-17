@@ -97,8 +97,8 @@ function ExportPage() {
 
 	// ! Declare All Excel Data
 	const all_data_api: {
-		transaction?: 	ReturnType<typeof api.transaction.getAllTransaction.useQuery>;
-		test?: 			ReturnType<typeof api.transaction.getAllTransaction.useQuery>;
+		transaction?: 	ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+		test?: 			ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
 	} = {};
 
 	type AllDataApiKeys = keyof typeof all_data_api;
@@ -119,18 +119,20 @@ function ExportPage() {
 
 
 	// & Assign Excel Data From API
-	all_data_api['transaction'] = api.transaction.getAllTransaction.useQuery({
+	all_data_api['transaction'] = api.report.getTransactionIndividual.useQuery({
 		period_id: selectedPeriod?.period_id ?? 0,
+		pay_type: "month_salary",
 	});
 	const { isPending: transactionIsPending, content: transactionContent, data: transactionData } = useQueryHandle(all_data_api['transaction']);
 	all_data_isPending['transaction'] = transactionIsPending;
 	all_data_content['transaction'] = transactionContent;
 	all_data['transaction'] = transactionData as (Transaction | null)[];
 
-	all_data_api['test'] = api.transaction.getAllTransaction.useQuery({
-		period_id: selectedPeriod?.period_id ?? 0,
-	});
 	
+	all_data_api['test'] = api.report.getTransactionIndividual.useQuery({
+		period_id: selectedPeriod?.period_id ?? 0,
+		pay_type: "month_salary",
+	});
 	all_data_isPending['test'] = transactionIsPending;
 	all_data_content['test'] = transactionContent;
 	all_data['test'] = [{name: "test", data: [

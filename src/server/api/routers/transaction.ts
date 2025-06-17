@@ -1,24 +1,10 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { container } from "tsyringe";
-import { BaseResponseError } from "../../errors/base_response_error";
 import { z } from "zod";
 import { TransactionService } from "~/server/service/transaction_service";
 import { PayTypeEnum } from "~/server/api/types/pay_type_enum";
 
 export const transactionRouter = createTRPCRouter({
-	getAllTransaction: publicProcedure
-		.input(z.object({ period_id: z.number() }))
-		.query(async ({ input }) => {
-			const transactionService = container.resolve(TransactionService);
-			const transactions = await transactionService.getAllTransaction(
-				input.period_id
-			);
-			if (transactions == null) {
-				throw new BaseResponseError("Transactions does not exist");
-			}
-			return [{ name: "transactions", data: transactions }];
-		}),
-
 	createTransaction: publicProcedure
 		.input(
 			z.object({
@@ -31,8 +17,13 @@ export const transactionRouter = createTRPCRouter({
 		)
 		.mutation(async ({ input }) => {
 			const transactionService = container.resolve(TransactionService);
-			const commonParameters = await transactionService.getCommonParameters(input.period_id, input.pay_type);
-			
+			const commonParameters =
+				await transactionService.getCommonParameters(
+					input.period_id,
+					input.pay_type,
+					input.emp_no_list
+				);
+
 			const promises = input.emp_no_list.map(async (emp_no) => {
 				// if (emp_no != "U093051") return;		// ~ Pony's Test
 				const exist_transaction =
@@ -42,9 +33,11 @@ export const transactionRouter = createTRPCRouter({
 						input.pay_type
 					);
 				if (exist_transaction != null) {
-					await transactionService.deleteTransaction(exist_transaction.id);
+					await transactionService.deleteTransaction(
+						exist_transaction.id
+					);
 				}
-				
+
 				await transactionService.createTransaction(
 					emp_no,
 					input.period_id,
@@ -53,10 +46,9 @@ export const transactionRouter = createTRPCRouter({
 					input.note,
 					commonParameters
 				);
-			})
+			});
 
 			// console.log(commonParameters.expense_class_list);	// ~ Pony's Test
-
 
 			await Promise.all(promises);
 		}),

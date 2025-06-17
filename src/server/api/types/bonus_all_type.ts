@@ -16,4 +16,4 @@ export const bonusAllFE = z
     .merge(metadata)
     .merge(func);
 
-export type BonusAllFEType = z.infer<typeof bonusAllFE>;
+export type BonusAllFEType = z.infer<typeof bonusAllFE> | null;

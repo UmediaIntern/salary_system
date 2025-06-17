@@ -26,6 +26,7 @@ import {
 } from "../types/employee_bonus_type";
 import { BonusAllService } from "~/server/service/bonus_all_service";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
+import { WorkStatusEnum } from "../types/work_status_enum";
 
 // 改Enum
 export const bonusRouter = createTRPCRouter({
@@ -68,8 +69,7 @@ export const bonusRouter = createTRPCRouter({
 
 			const employeeBonusFE = await Promise.all(
 				bonusData.map(
-					async (e) =>
-						await bonusMapper.getEmployeeBonusFE(e)
+					async (e) => await bonusMapper.getEmployeeBonusFE(e)
 				)
 			);
 
@@ -120,8 +120,14 @@ export const bonusRouter = createTRPCRouter({
 			console.log("\\n\n\ncalled initCandidateEmployeeBonus\n\n\n");
 			const empBonusService = container.resolve(EmployeeBonusService);
 			const empDataService = container.resolve(EmployeeDataService);
-			const all_emp_no_list = (await empDataService.getAllEmployeeDataByPeriod(input.period_id))
-				.filter((emp) => emp.work_status != "離職人員")
+			const all_emp_no_list = (
+				await empDataService.getAllEmployeeDataByPeriod(input.period_id)
+			)
+				.filter(
+					(emp) =>
+						emp.work_status !=
+						WorkStatusEnum.Values.ResignedEmployee
+				)
 				.map((emp) => emp.emp_no);
 			await empBonusService.createEmployeeBonusByEmpNoList(
 				input.period_id,
@@ -140,9 +146,10 @@ export const bonusRouter = createTRPCRouter({
 			const empBonusService = container.resolve(EmployeeBonusService);
 			const empBonusMapper = container.resolve(EmployeeBonusMapper);
 			const result = await empBonusService.createEmployeeBonus(input);
-			const employeeBonusFE = await empBonusMapper.getEmployeeBonusFE(
-				{ ...input, ...result },
-			);
+			const employeeBonusFE = await empBonusMapper.getEmployeeBonusFE({
+				...input,
+				...result,
+			});
 			return roundProperties(employeeBonusFE, 2);
 		}),
 	updateEmployeeBonus: publicProcedure
@@ -236,14 +243,19 @@ export const bonusRouter = createTRPCRouter({
 				input.period_id,
 				input.bonus_type
 			);
-			return result ? roundProperties({
-				...result.dataValues,
-				functions: {
-					creatable: false,
-					updatable: true,
-					deletable: true,
-				}
-			}, 2) : null;
+			return result
+				? roundProperties(
+						{
+							...result.dataValues,
+							functions: {
+								creatable: false,
+								updatable: true,
+								deletable: true,
+							},
+						},
+						2
+				  )
+				: null;
 		}),
 	getBonusWorkType: publicProcedure
 		.input(
@@ -260,14 +272,19 @@ export const bonusRouter = createTRPCRouter({
 					input.period_id,
 					input.bonus_type
 				);
-			return result?.map((e) => roundProperties({
-				...e.dataValues,
-				functions: {
-					creatable: true,
-					updatable: true,
-					deletable: true,
-				}
-			}, 2));
+			return result?.map((e) =>
+				roundProperties(
+					{
+						...e.dataValues,
+						functions: {
+							creatable: true,
+							updatable: true,
+							deletable: true,
+						},
+					},
+					2
+				)
+			);
 		}),
 	getBonusSeniority: publicProcedure
 		.input(
@@ -285,14 +302,19 @@ export const bonusRouter = createTRPCRouter({
 					input.period_id,
 					input.bonus_type
 				);
-			return result?.map((e) => roundProperties({
-				...e.dataValues,
-				functions: {
-					creatable: true,
-					updatable: true,
-					deletable: true,
-				}
-			}, 2));
+			return result?.map((e) =>
+				roundProperties(
+					{
+						...e.dataValues,
+						functions: {
+							creatable: true,
+							updatable: true,
+							deletable: true,
+						},
+					},
+					2
+				)
+			);
 		}),
 	getBonusDepartment: publicProcedure
 		.input(
@@ -310,14 +332,19 @@ export const bonusRouter = createTRPCRouter({
 					input.period_id,
 					input.bonus_type
 				);
-			return result?.map((e) => roundProperties({
-				...e.dataValues,
-				functions: {
-					creatable: true,
-					updatable: true,
-					deletable: true,
-				}
-			}, 2));
+			return result?.map((e) =>
+				roundProperties(
+					{
+						...e.dataValues,
+						functions: {
+							creatable: true,
+							updatable: true,
+							deletable: true,
+						},
+					},
+					2
+				)
+			);
 		}),
 	// getBonusPositionType: publicProcedure
 	// 	.input(
@@ -352,14 +379,19 @@ export const bonusRouter = createTRPCRouter({
 					input.period_id,
 					input.bonus_type
 				);
-			return result?.map((e) => roundProperties({
-				...e.dataValues,
-				functions: {
-					creatable: true,
-					updatable: true,
-					deletable: true,
-				}
-			}, 2));
+			return result?.map((e) =>
+				roundProperties(
+					{
+						...e.dataValues,
+						functions: {
+							creatable: true,
+							updatable: true,
+							deletable: true,
+						},
+					},
+					2
+				)
+			);
 		}),
 
 	createBonusAll: publicProcedure

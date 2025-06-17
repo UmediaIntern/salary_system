@@ -36,7 +36,9 @@ export function BonusExcelUpload({
 						} as unknown;
 					});
 					if (singleEntry && input[0]) createFunction.mutate(input[0]);
-					else batchCreateFunction.mutate(data);
+					else {
+						batchCreateFunction.mutate(input);
+					}
 				}
 				closeDialog();
 			}}

@@ -2,7 +2,7 @@ import { delay, inject, injectable } from "tsyringe";
 import { BaseResponseError } from "../errors/base_response_error";
 import { get_date_string, select_value } from "./helper_function";
 import { type z } from "zod";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import {
 	EmployeeTrust,
 	type EmployeeTrustDecType,
@@ -19,6 +19,8 @@ import { EmployeeTrustMapper } from "../database/mapper/employee_trust_mapper";
 import { dateToString, dateToStringNullable, stringToDate } from "../api/types/z_utils";
 import { EmployeeDataService } from "./employee_data_service";
 import { isSameDay, subDays } from "date-fns";
+import { Period } from "../database/entity/UMEDIA/period";
+import { Transaction } from "../database/entity/SALARY/transaction";
 
 type EmployeeTrustMapperType = EmployeeTrustMapper;
 
@@ -29,7 +31,7 @@ export class EmployeeTrustService {
 		private readonly employeeTrustMapper: EmployeeTrustMapperType,
 		private readonly ehrService: EHRService,
 		private readonly employeeDataService: EmployeeDataService
-	) { }
+	) {}
 
 	async createEmployeeTrust(
 		data: z.input<typeof employeeTrustCreateService>
@@ -288,10 +290,13 @@ export class EmployeeTrustService {
 				return null;
 			})
 		);
-
 		return current_employee_trustFE
 			.filter((emp_trust) => emp_trust != null)
-			.sort((a, b) => b.emp_trust_reserve - a.emp_trust_reserve);
+			.sort(
+				(a, b) =>
+					(b as NonNullable<typeof b>).emp_trust_reserve -
+					(a as NonNullable<typeof a>).emp_trust_reserve
+			);
 	}
 
 	async getCurrentEmployeeTrustFEByEmpNo(
@@ -337,7 +342,7 @@ export class EmployeeTrustService {
 			)
 		);
 
-		allEmployeeTrustFE = allEmployeeTrustFE.map(list => list.reverse());
+		allEmployeeTrustFE = allEmployeeTrustFE.map((list) => list.reverse());
 
 		return allEmployeeTrustFE;
 	}
@@ -441,13 +446,16 @@ export class EmployeeTrustService {
 		}
 	}
 
-	async rescheduleEmployeeTrustByQuitDate(
-		emp_no: string,
-	): Promise<void> {
-		const employee_data = await this.employeeDataService.getLatestEmployeeDataByEmpNo(emp_no);
-		const period_id = await this.ehrService.getPeriodIdByDate(new Date(employee_data.quit_date!));
+	async rescheduleEmployeeTrustByQuitDate(emp_no: string): Promise<void> {
+		const employee_data =
+			await this.employeeDataService.getLatestEmployeeDataByEmpNo(emp_no);
+		const period_id = await this.ehrService.getPeriodIdByDate(
+			new Date(employee_data.quit_date!)
+		);
 		const period = await this.ehrService.getPeriodById(period_id);
-		const quit_date = get_date_string(subDays(new Date(period.start_date), 1));
+		const quit_date = get_date_string(
+			subDays(new Date(period.start_date), 1)
+		);
 		const encList = await EmployeeTrust.findAll({
 			where: { emp_no: emp_no, disabled: false },
 			order: [
@@ -552,5 +560,61 @@ export class EmployeeTrustService {
 				});
 			})
 		);
+	}
+	async getAccumulatedTrust(period_id: number, emp_no_list: string[]) {
+		const period_name = await this.ehrService
+			.getPeriodById(period_id)
+			.then((period) => period.period_name);
+		let start_period: Period;
+		if (period_name.split("-")[0] === "DEC") {
+			start_period = await this.ehrService.getPeriodByName(period_name);
+		} else {
+			const year = String(parseInt(period_name.split("-")[1]!) - 1);
+			start_period = await this.ehrService.getPeriodByName("DEC-" + year);
+		}
+		// const end_period = this.ehrService.getPeriodById(period_id-1);
+		const result = await Transaction.findAll({
+			where: {
+				period_id: {
+					[Op.between]: [start_period.period_id, period_id - 1],
+				},
+				emp_no: {
+					[Op.in]: emp_no_list,
+				},
+				// special_multiplier: {
+				// 	[Op.gt]: 0,
+				// },
+				disabled: false,
+			},
+			order: [["emp_no", "ASC"]],
+			group: ["emp_no"],
+			attributes: [
+				"emp_no",
+				[
+					Sequelize.fn("sum", Sequelize.col("org_trust_reserve")),
+					"total_org_trust_reserve",
+				],
+				[
+					Sequelize.fn(
+						"sum",
+						Sequelize.col("org_special_trust_incent")
+					),
+					"total_org_special_trust_incent",
+				],
+			],
+		});
+		const accumulated_trust_list = result.map((e) => {
+			const total_org_trust_reserve = e.get(
+				"total_org_trust_reserve"
+			) as number;
+			const total_org_special_trust_incent = e.get(
+				"total_org_special_trust_incent"
+			) as number;
+			return {
+				emp_no: e.emp_no,
+				sum: total_org_trust_reserve + total_org_special_trust_incent,
+			};
+		});
+		return accumulated_trust_list;
 	}
 }

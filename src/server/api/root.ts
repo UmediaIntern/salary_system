@@ -16,6 +16,7 @@ import { testTransactionRouter } from "./routers/TEST_transaction";
 import { notificationRouter } from "./routers/notification";
 import { userRouter } from "./routers/user";
 import { importTransactionRouter } from "./routers/import_transaction";
+import { reportRouter } from "./routers/report";
 
 /**
  * This is the primary router for your server.
@@ -38,12 +39,12 @@ export const appRouter = createTRPCRouter({
 	notification: notificationRouter,
 	incomeTaxSetting: incomeTaxSettingRouter,
 	user: userRouter,
-  importTransaction: importTransactionRouter,
-
+	importTransaction: importTransactionRouter,
 	testTransaction: testTransactionRouter,
+	report: reportRouter
 });
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
 
-import ('src/server/database/create_table')
+import('src/server/database/create_table')
