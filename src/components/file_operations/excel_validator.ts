@@ -1,34 +1,86 @@
-type ExcelData = any[][];
-type ValidateResult = { success: boolean; missingColumns: string[] };
+import { z } from "zod";
+import { type ExcelSheetType } from "./excel_type";
 
-export class ExcelValidator {
-  private requiredColumns: string[];
+class ExpNodeRequirement {
 
-  constructor(requiredColumns: string[]) {
-    this.requiredColumns = requiredColumns;
+  constructor(description: string, check: (data: unknown) => boolean, isFatal = true) {
+    this.description = description;
+    this.check = check;
+    this.isFatal = isFatal;
   }
 
-  /**
-   * Validates that all required columns exist in the first row of the dataset.
-   * @param data The data to validate, represented as an array of objects.
-   * @returns An object with success flag and missing columns if any.
-   */
-  validate(data: ExcelData): ValidateResult {
-    if (!data || data.length === 0) {
-      return {
-        success: false,
-        missingColumns: this.requiredColumns
-      };
+  description: string;
+  check: (data: unknown) => boolean;
+  isFatal: boolean;
+}
+
+class DestinationExpNode {
+
+  constructor(name: string, requirements: ExpNodeRequirement[]) {
+    this.name = name;
+    this.requirements = requirements;
+  }
+
+  name: string;
+  requirements: ExpNodeRequirement[]; 
+}
+
+
+const ValidateErrorTypeEnum = z.enum(["missingColumn", "missingData"]);
+type ValidateErrorTypeEnumType = z.infer<typeof ValidateErrorTypeEnum>;
+
+
+class ValidateErrorCode {
+  constructor(type: ValidateErrorTypeEnumType, field: DestinationExpNode, row: number) {
+    this.type = type;
+    this.field = field;
+    this.row = row;
+  }
+
+  type: ValidateErrorTypeEnumType;
+  field: DestinationExpNode;
+  row: number;
+}
+
+type ValidateResult = { success: boolean; errors: ValidateErrorCode[] };
+
+export class ExcelValidator {
+  private requiredDest: DestinationExpNode[];
+
+  constructor(requiredColumns: DestinationExpNode[]) {
+    this.requiredDest = requiredColumns;
+  }
+
+  validate(excel: ExcelSheetType): ValidateResult {
+    const errors: ValidateErrorCode[] = [];
+
+    const columnIdxReq: Record<number, DestinationExpNode> = {};
+
+    // Validate header
+    for (const req of this.requiredDest) {
+      const idx = excel.header.indexOf(req.name)
+      if (idx === -1 ) {
+        errors.push(new ValidateErrorCode("missingColumn", req, 0)); 
+      } 
+      columnIdxReq[idx] = req;
     }
 
-    const actualColumns = Object.keys(data[0]);
-    const missingColumns = this.requiredColumns.filter(
-      col => !actualColumns.includes(col)
-    );
+    for (const row of excel.data) {
+      row.forEach((cell, idx) => {
+        const req = columnIdxReq[idx];
+        if (req) {
+          for (const requirement of req.requirements) {
+            if (!requirement.check(cell)) {
+              errors.push(new ValidateErrorCode("missingData", req, row.indexOf(cell) + 1));              
+            }            
+          }          
+        }        
+      }) 
+    }
 
     return {
-      success: missingColumns.length === 0,
-      missingColumns
+      success: errors.length === 0,
+      errors
     };
   }
 }
