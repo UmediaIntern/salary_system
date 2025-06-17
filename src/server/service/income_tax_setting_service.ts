@@ -30,7 +30,7 @@ export class IncomeTaxSettingService {
 		period_id: number
 	): Promise<IncomeTaxSetting | null> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const incomeTaxSettingList = await IncomeTaxSetting.findAll({
 			where: {
 				start_date: {

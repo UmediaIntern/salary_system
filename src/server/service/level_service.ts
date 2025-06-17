@@ -116,7 +116,7 @@ export class LevelService {
 	async getCurrentLevel(period_id: number): Promise<LevelDecType[]> {
 		const ehr_service = container.resolve(EHRService);
 		const period = await ehr_service.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const level = await Level.findAll({
 			where: {
 				start_date: {

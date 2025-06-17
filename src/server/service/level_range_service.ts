@@ -78,7 +78,7 @@ export class LevelRangeService {
 	): Promise<LevelRangeDecType[]> {
 		const ehr_service = container.resolve(EHRService);
 		const period = await ehr_service.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const levelRange = await LevelRange.findAll({
 			where: {
 				start_date: {

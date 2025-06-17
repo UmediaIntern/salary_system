@@ -161,7 +161,7 @@ export const employeeDataRouter = createTRPCRouter({
 					emp_no: data.emp_no,
 					long_service_allowance_type:
 						LongServiceEnum.Enum.month_allowance,
-					start_date: new Date(period.start_date),
+					start_date: period.start_date,
 					end_date: null,
 					base_salary: 0,
 					food_allowance: 0,

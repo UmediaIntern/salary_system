@@ -189,7 +189,7 @@ export class SalaryRaiseService {
 				(await salary_raise_seniority_service.getMultiplier(
 					period_id,
 					Math.floor(
-						(new Date(issue_date).getTime() -
+						(issue_date.getTime() -
 							new Date(
 								employee_data.registration_date
 							).getTime()) /

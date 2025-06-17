@@ -24,8 +24,8 @@ export function get_date_string(date: Date): string {
 // TODO: fix this function, don't take in string
 export function is_date_available(
 	period: Period | null,
-	start_date: string | null,
-	end_date: string | null
+	start_date: Date,
+	end_date: Date 
 ): boolean {
 	if (!period) {
 		return false;

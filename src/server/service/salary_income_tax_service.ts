@@ -1,6 +1,6 @@
 import { container, injectable } from "tsyringe";
 import { BaseResponseError } from "../errors/base_response_error";
-import { number, type z } from "zod";
+import { type z } from "zod";
 import { get_date_string, select_value } from "./helper_function";
 import {
 	SalaryIncomeTax,
@@ -15,6 +15,7 @@ import {
 	createSalaryIncomeTaxService,
 	type updateSalaryIncomeTaxService,
 } from "../api/types/salary_income_tax";
+import { dateToString } from "../api/types/z_utils";
 
 export interface primary_key {
 	salary_start: number;
@@ -155,7 +156,7 @@ export class SalaryIncomeTaxService {
 	): Promise<SalaryIncomeTaxDecType[]> {
 		const ehr_service = container.resolve(EHRService);
 		const period = await ehr_service.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const salaryIncomeTax = await SalaryIncomeTax.findAll({
 			where: {
 				start_date: {

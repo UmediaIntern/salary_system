@@ -82,7 +82,7 @@ export class EHRService {
 			throw new BaseResponseError("Period Not Found");
 		}
 		const period_id = (dataList.find((period) => {
-			return date >= new Date(period.start_date) && date <= new Date(period.end_date);
+			return date >= period.start_date && date <= period.end_date;
 		}))?.period_id;
 		if (!period_id) {
 			throw new BaseResponseError("Period Not Found");

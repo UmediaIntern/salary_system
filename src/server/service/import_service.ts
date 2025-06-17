@@ -9,6 +9,7 @@ import { EmployeeBonusService } from "./employee_bonus_service";
 import { bonusTypeEnum } from "../api/types/bonus_type_enum";
 import { CostCategoryEnum } from "../api/types/cost_category_type";
 import { dateToString, dateToStringNullable } from "../api/types/z_utils";
+import { EHRService } from "./ehr_service";
 
 @injectable()
 export class ImportService {
@@ -16,7 +17,8 @@ export class ImportService {
 		private readonly employeeDataService: EmployeeDataService,
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
-		private readonly employeeBonusService: EmployeeBonusService
+		private readonly employeeBonusService: EmployeeBonusService,
+    private readonly ehrService: EHRService,
 	) {}
 
 	async importTransaction(data: ImportFieldsType[]): Promise<void> {
@@ -26,6 +28,7 @@ export class ImportService {
 	}
 
 	async importTransactionRow(data: ImportFieldsType): Promise<void> {
+
 		console.log("employee data");
 		await this.employeeDataService.createEmployeeData({
 			period_id: data.period_id,
@@ -50,6 +53,8 @@ export class ImportService {
 			received_elderly_benefits: data.received_elderly_benefits,
 		});
 
+    const period = await this.ehrService.getPeriodById(data.period_id);
+    
 		console.log("employee payment");
 		await this.employeePaymentService.insertEmployeePayment({
 			emp_no: data.emp_no,
@@ -65,7 +70,7 @@ export class ImportService {
 			h_i: data.h_i,
 			l_r: data.l_r,
 			occupational_injury: data.occupational_injury,
-			start_date: new Date(),
+			start_date: period.start_date, 
 			end_date: null,
 		});
 
@@ -74,7 +79,7 @@ export class ImportService {
 			emp_no: data.emp_no,
 			emp_trust_reserve: data.emp_trust_reserve,
 			emp_special_trust_incent: data.emp_special_trust_incent,
-			start_date: new Date(),
+			start_date: period.start_date,
 			end_date: null,
 		});
 

@@ -265,7 +265,7 @@ export class EmployeeBonusService {
 					period_id,
 					bonus_type,
 					Math.floor(
-						(new Date(issue_date).getTime() -
+						(issue_date.getTime() -
 							new Date(
 								employee_data.registration_date
 							).getTime()) /

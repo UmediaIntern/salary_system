@@ -243,7 +243,7 @@ export class EmployeeTrustService {
 		period_id: number
 	): Promise<z.infer<typeof employeeTrustFE>[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date = stringToDate.parse(period.end_date);
+		const current_date = period.end_date;
 
 		// 获取所有的员工信任记录
 		const allEmployeeTrustRecords = await this.getAllEmployeeTrust();
@@ -454,7 +454,7 @@ export class EmployeeTrustService {
 		);
 		const period = await this.ehrService.getPeriodById(period_id);
 		const quit_date = get_date_string(
-			subDays(new Date(period.start_date), 1)
+			subDays(period.start_date, 1)
 		);
 		const encList = await EmployeeTrust.findAll({
 			where: { emp_no: emp_no, disabled: false },
