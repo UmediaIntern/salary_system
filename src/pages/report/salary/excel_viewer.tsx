@@ -55,6 +55,8 @@ interface ExcelViewerProps {
 	selectedSheetIndex: number;
 	setSelectedSheetIndex: (index: number) => void;
 	filter_component: JSX.Element;
+	selected_excel_name: string;
+	selectedExcelComponent: JSX.Element;
 }
 
 interface Block {
@@ -163,6 +165,8 @@ export function ExcelViewer({
 	selectedSheetIndex,
 	setSelectedSheetIndex,
 	filter_component,
+	selected_excel_name,
+	selectedExcelComponent,
 }: ExcelViewerProps) {
 	const [mode, setMode] = useState("view");
 	const [selectedCell, setSelectedCell] = useState<{
@@ -214,7 +218,6 @@ export function ExcelViewer({
 	};
 
 	function SelectSheetComponent() {
-		// change selectedSheetIndex to control the shown sheet
 		const selectedSheet = sheets[selectedSheetIndex]!;
 		return (
 			<>
@@ -495,8 +498,8 @@ export function ExcelViewer({
 		);
 	}
 
-	function DownloadButton() {
-		const [filename, setFilename] = useState("transaction");
+	function DownloadButton({ defaultFilename }: { defaultFilename: string }) {
+		const [filename, setFilename] = useState(defaultFilename);
 		return (
 			<div className={mode != "view" ? "cursor-not-allowed" : ""}>
 				<Dialog>
@@ -549,16 +552,17 @@ export function ExcelViewer({
 	}
 
 	return (
-		<div className="flex h-full flex-col">
+		<>
 			<div className="mb-4 flex flex-row justify-between">
 				<div className="flex space-x-4">
+					{selectedExcelComponent}
 					<SelectSheetComponent />
 					{filter_component}
 				</div>
 				<div className="flex">
 					<ColorControlComponent />
 					<EditButton />
-					<DownloadButton />
+					<DownloadButton defaultFilename={selected_excel_name} />
 				</div>
 			</div>
 			<div className="relative min-h-0 w-full grow rounded-md bg-muted">
@@ -567,6 +571,6 @@ export function ExcelViewer({
 					<ScrollBar orientation="horizontal" />
 				</ScrollArea>
 			</div>
-		</div>
+		</>
 	);
 }

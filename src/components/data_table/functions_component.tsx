@@ -54,7 +54,10 @@ export function FunctionsComponent<TMode, TData extends object>({
 			</div>
 			<DropdownMenuContent align="end" className="w-[120px]">
 				{funcKey.map((key) => {
-					const disable_mode = !(data?.functions[key] ?? false);
+					const data_exist = data ? true : false;
+					const data_function_exist = data_exist ? (data?.functions ? true : false) : false;
+					const disable_mode = data_function_exist ? (data?.functions[key] ? false : true) : true;
+					// const disable_mode = !((data?.functions ? false : data?.functions[key]) ?? false);
 					// const disabled = !(data ? (data.functions ? data.functions[key] : false) : false);
 					const mode =
 						key == "creatable"

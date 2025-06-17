@@ -151,18 +151,18 @@ const TEST: NextPageWithLayout = () => {
 
 			</> : 
 			<>
-				{/* <Button onClick={() => console.log(result)}>console.log(result)</Button>
+				<Button onClick={() => console.log(result)}>console.log(result)</Button>
 				<Button onClick={() => console.log(ExcludeDataColumn(result, []))}>console.log(ExcludeDataColumn(result, []))</Button>
-				<Button onClick={() => console.log(getExcelData(ExcludeDataColumn(result, [])))}>console.log(getExcelData(ExcludeDataColumn(result, [])))</Button> */}
+				<Button onClick={() => console.log(getExcelData(ExcludeDataColumn(result, [])))}>console.log(getExcelData(ExcludeDataColumn(result, [])))</Button>
 				<div className="grow m-4">
-					<ExcelViewer 
+					{/* <ExcelViewer 
 						original_sheets={
 							getExcelData(ExcludeDataColumn(result, []))
 						}
 						filter_component={<></>}
 						selectedSheetIndex={0}
-						setSelectedSheetIndex={(index) => {console.log(index)}}
-					/>
+						setSelectedSheetIndex={(index: any) => {console.log(index)}}
+					/> */}
 				</div>
 
 				<Button onClick={() => setResult(undefined)}>

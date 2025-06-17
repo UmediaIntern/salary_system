@@ -106,10 +106,14 @@ function BonusAllFunctionComponent({ data }: { data: RowItem }) {
 
 export function bonusAllMapper(bonusAllData: BonusAllFEType): RowItem {
 	return {
-		id: bonusAllData?.id,
-		parameters: "倍率", // parameters: t(`table.multiplier`),
-		value: bonusAllData?.multiplier,
-		functions: bonusAllData?.functions,
+		id: bonusAllData ? bonusAllData?.id : 0,
+		parameters: "倍率",
+		value: bonusAllData ? bonusAllData?.multiplier : 0,
+		functions: bonusAllData ? bonusAllData?.functions : {
+			creatable: false,
+			updatable: false,
+			deletable: false
+		},
 	};
 }
 
@@ -151,12 +155,6 @@ export function BonusAllTable({
 	const filterKey: RowItemKey = "parameters";
 	const { data, isPending, content } = useQueryHandle(getBonusAll);
 
-	useEffect(() => {
-		if (data) {
-			setData(data);
-		}
-	}, [data, setData, selectedData]);
-
 	if (isPending) {
 		return content;
 	}
@@ -173,10 +171,13 @@ export function BonusAllTable({
 						open={openSheet && mode !== "delete"}
 						onOpenChange={setOpenSheet}
 					>
-						{data && bonusAllMapper(data) && (
+						{bonusAllMapper(data) && (
+							// <button onClick={() => console.log(data, bonusAllMapper(data))}>	
+							// 	TEST
+							// </button>
 							<DataTableWithFunctions
 								columns={bonus_all_columns({ t })}
-								data={data ? [bonusAllMapper(data)] : []}
+								data={[bonusAllMapper(data)]}
 								bonusType={bonus_type}
 								filterColumnKey={filterKey}
 							/>
@@ -234,7 +235,11 @@ export function BonusAllTable({
 					</Dialog>
 				</BonusToolbarFunctionsProvider>
 			) : (
-				<></>
+				<>
+					<p>
+						Something Bad Happened
+					</p>
+				</>
 			)}
 		</>
 	);
