@@ -291,7 +291,7 @@ export class EmployeeTrustService {
 			})
 		);
 		return current_employee_trustFE
-			.filter((emp_trust) => emp_trust != null)
+			.filter((emp_trust): emp_trust is NonNullable<typeof emp_trust> => emp_trust != null)
 			.sort(
 				(a, b) =>
 					(b as NonNullable<typeof b>).emp_trust_reserve -
