@@ -3,12 +3,14 @@ import { z } from "zod";
 import { Id } from "./common_type";
 import { WorkTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
+import { CostCategoryEnum } from "./cost_category_type";
 
 //MARK:employee_data
 const employeeData = z.object({
 	period_id: z.number(),
 	emp_no: z.string(),
 	emp_name: z.string(),
+  cost_category: CostCategoryEnum,
 	position: z.number(),
 	position_type: z.string(),
 	group_insurance_type: z.string(),

@@ -7,6 +7,8 @@ import { Transaction } from "../database/entity/SALARY/transaction";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { EmployeeBonusService } from "./employee_bonus_service";
 import { bonusTypeEnum } from "../api/types/bonus_type_enum";
+import { CostCategoryEnum } from "../api/types/cost_category_type";
+import { dateToString, dateToStringNullable } from "../api/types/z_utils";
 
 @injectable()
 export class ImportService {
@@ -18,18 +20,18 @@ export class ImportService {
 	) {}
 
 	async importTransaction(data: ImportFieldsType[]): Promise<void> {
-    console.log("importing transaction");
-    // De-dup the data
-    const importTransactionTasks = data.map(d => this.importTransactionRow(d));
-    await Promise.all(importTransactionTasks);
-  }
+		console.log("importing transaction");
+		const importTransactionTasks = data.map(d => this.importTransactionRow(d));
+		await Promise.all(importTransactionTasks);
+	}
 
 	async importTransactionRow(data: ImportFieldsType): Promise<void> {
-
+		console.log("employee data");
 		await this.employeeDataService.createEmployeeData({
 			period_id: data.period_id,
 			emp_no: data.emp_no,
 			emp_name: data.emp_name,
+			cost_category: CostCategoryEnum.Values.成本直接,
 			position: data.position,
 			position_type: data.position_type,
 			group_insurance_type: data.group_insurance_type,
@@ -40,7 +42,7 @@ export class ImportService {
 			sex_type: data.sex_type,
 			dependents: data.dependents,
 			healthcare_dependents: data.healthcare_dependents,
-			registration_date: data.registration_date,
+			registration_date: dateToString.parse(data.registration_date),
 			quit_date: data.quit_date,
 			license_id: data.license_id,
 			bank_account_taiwan: data.bank_account_taiwan,
@@ -48,6 +50,7 @@ export class ImportService {
 			received_elderly_benefits: data.received_elderly_benefits,
 		});
 
+		console.log("employee payment");
 		await this.employeePaymentService.insertEmployeePayment({
 			emp_no: data.emp_no,
 			base_salary: data.base_salary,
@@ -57,7 +60,7 @@ export class ImportService {
 			subsidy_allowance: data.subsidy_allowance,
 			long_service_allowance: data.long_service_allowance,
 			long_service_allowance_type: LongServiceEnum.Values.month_allowance,
-			l_r_self_ratio: parseFloat((data.l_r_self / data.l_r).toFixed(2)),
+			l_r_self_ratio: data.l_r_self === 0 ? 0 : parseFloat((data.l_r_self / data.l_r).toFixed(2)),
 			l_i: data.l_i,
 			h_i: data.h_i,
 			l_r: data.l_r,
@@ -66,6 +69,7 @@ export class ImportService {
 			end_date: null,
 		});
 
+		console.log("employee trust");
 		await this.employeeTrustService.insertEmployeeTrust({
 			emp_no: data.emp_no,
 			emp_trust_reserve: data.emp_trust_reserve,
@@ -92,6 +96,7 @@ export class ImportService {
 		// 	start_date: new Date(),
 		// 	end_date: new Date(),
 		// });
+		console.log("transaction");
 		await this.createTransaction(data);
 	}
 
@@ -99,6 +104,9 @@ export class ImportService {
 		await Transaction.create({
 			...data,
 			// period_id: period_id, // 期別
+      issue_date: dateToString.parse(data.issue_date),
+			entry_date: data.entry_date,
+			registration_date: dateToString.parse(data.registration_date), // TODO: change to date
 			disabled: false,
 			create_by: "system",
 			update_by: "system",
