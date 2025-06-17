@@ -34,8 +34,11 @@ import {
 } from "./import_context_provider";
 import { type ExcelSheetType } from "~/components/file_operations/excel_type";
 import { ExcelParser } from "~/components/file_operations/excel_parser";
+import { ExcelValidator } from "~/components/file_operations/excel_validator";
+import { reqNodeEmpNo } from "./excel_requirement";
 
 const excelParser = new ExcelParser();
+const excelValidator = new ExcelValidator([]);
 
 export function ImportCarousel() {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -61,6 +64,14 @@ export function ImportCarousel() {
       excel = excelParser.parseSingleSheet(data);
     } catch (error) {
       console.log(error);
+      return
+    }
+
+    const result = excelValidator.validate(excel);
+    if (!result.success) {
+      for (const error of result.errors) {
+        console.log(error.toString());
+      }
       return
     }
 

@@ -1,28 +1,28 @@
 import { z } from "zod";
 import { type ExcelSheetType } from "./excel_type";
 
-class ExpNodeRequirement {
+export class ExpNodeRequirement<T = unknown> {
 
-  constructor(description: string, check: (data: unknown) => boolean, isFatal = true) {
+  constructor(description: string, check: (data: T) => boolean, isFatal = true) {
     this.description = description;
     this.check = check;
     this.isFatal = isFatal;
   }
 
   description: string;
-  check: (data: unknown) => boolean;
+  check: (data: T) => boolean;
   isFatal: boolean;
 }
 
-class DestinationExpNode {
+export class DestinationExpNode<T = string, U = unknown> {
 
-  constructor(name: string, requirements: ExpNodeRequirement[]) {
+  constructor(name: T, requirements: ExpNodeRequirement<U>[]) {
     this.name = name;
     this.requirements = requirements;
   }
 
-  name: string;
-  requirements: ExpNodeRequirement[]; 
+  name: T;
+  requirements: ExpNodeRequirement<U>[]; 
 }
 
 
@@ -30,7 +30,7 @@ const ValidateErrorTypeEnum = z.enum(["missingColumn", "missingData"]);
 type ValidateErrorTypeEnumType = z.infer<typeof ValidateErrorTypeEnum>;
 
 
-class ValidateErrorCode {
+export class ValidateErrorCode {
   constructor(type: ValidateErrorTypeEnumType, field: DestinationExpNode, row: number) {
     this.type = type;
     this.field = field;
@@ -40,6 +40,10 @@ class ValidateErrorCode {
   type: ValidateErrorTypeEnumType;
   field: DestinationExpNode;
   row: number;
+
+  toString(): string {
+    return `Error type := ${this.type}, field := ${this.field.name}, row := ${this.row}`;
+  }
 }
 
 type ValidateResult = { success: boolean; errors: ValidateErrorCode[] };
@@ -52,6 +56,8 @@ export class ExcelValidator {
   }
 
   validate(excel: ExcelSheetType): ValidateResult {
+    console.log("Validating excel:", excel.sheet_name);
+
     const errors: ValidateErrorCode[] = [];
 
     const columnIdxReq: Record<number, DestinationExpNode> = {};
