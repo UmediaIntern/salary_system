@@ -34,6 +34,7 @@ import { convert_employee_payment, convert_employee_trust } from "~/pages/test/t
 import { IncomeTaxSettingFEType } from "../api/types/income_tax_setting_type";
 import { IncomeTaxSettingService } from "./income_tax_setting_service";
 import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
+import { EmployeeBonusService } from "./employee_bonus_service";
 
 
 type CommonParametersType = {
@@ -53,6 +54,8 @@ type CommonParametersType = {
 	expense_class_list: ExpenseClass[],
 	salary_income_tax_list: SalaryIncomeTaxDecType[],
 	income_tax_setting: IncomeTaxSetting,
+	accumulated_bonus_list: {emp_no: string, sum: number}[],
+	accumulated_trust_list: {emp_no: string, sum: number}[],
 }
 
 @injectable()
@@ -63,6 +66,7 @@ export class TransactionService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly ehrService: EHRService,
 		private readonly employeeTrustService: EmployeeTrustService,
+		private readonly employeeBonusService: EmployeeBonusService,
 		private readonly insuranceRateSettingService: InsuranceRateSettingService,
 		private readonly salaryIncomeTaxService: SalaryIncomeTaxService,
 		private readonly holidaysTypeService: HolidaysTypeService,
@@ -73,6 +77,7 @@ export class TransactionService {
 	async getCommonParameters(
 		period_id: number,
 		pay_type: PayTypeEnumType,
+		emp_no_list: string[]
 	) {
 		// MARK: Data
 		const allowance_list = await this.ehrService.getAllowance(period_id);
@@ -99,6 +104,8 @@ export class TransactionService {
 		const expense_list = await this.ehrService.getExpense(period_id);		
 		const expense_class_list = await this.ehrService.getExpenseClass();
 		const salary_income_tax_list = await this.salaryIncomeTaxService.getCurrentSalaryIncomeTax(period_id);
+		const accumulated_bonus_list = await this.employeeBonusService.getAccumulatedBonus(period_id,emp_no_list);
+		const accumulated_trust_list = await this.employeeTrustService.getAccumulatedTrust(period_id,emp_no_list);
 
 		// & Income Tax Setting table (in parameters)
 		const income_tax_setting = await this.incomeTaxSettingService.getCurrentIncomeTaxSetting(period_id);
@@ -121,6 +128,8 @@ export class TransactionService {
 			salary_income_tax_list: salary_income_tax_list,
 
 			income_tax_setting: income_tax_setting!,
+			accumulated_bonus_list: accumulated_bonus_list,
+			accumulated_trust_list: accumulated_trust_list
 		};
 
 		return commonParameters;
@@ -151,7 +160,8 @@ export class TransactionService {
 		const expense_list = commonParameters.expense_list.filter(e => e.emp_no === emp_no);
 		const expense_class_list = commonParameters.expense_class_list;
 		const salary_income_tax_list = commonParameters.salary_income_tax_list;
-
+		const accumulated_bonus = commonParameters.accumulated_bonus_list.find(e => e.emp_no === emp_no);
+		const accumulated_trust = commonParameters.accumulated_trust_list.find(e => e.emp_no === emp_no);
 		const income_tax_setting = commonParameters.income_tax_setting;
 
 		const has_trust = employee_trust ? true : false;
@@ -238,7 +248,7 @@ export class TransactionService {
 		const other_deduction_tax = await this.calculateService.getOtherDeductionTax(expense_list, expense_class_list);
 		const discounted_gross_salary = await this.calculateService.getGrossSalary(discounted_employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
 		const special_leave_deduction = await this.calculateService.getSpecialPersonalLeaveDeduction(employee_data!, holidays_type_list, holiday_list, gross_salary, insurance_rate_setting!, professional_cert_allowance);
-		const l_i_deduction = await this.calculateService.getLaborInsuranceDeduction(employee_data!, discounted_employee_payment!, payset!, insurance_rate_setting!);
+		const l_i_deduction = await this.calculateService.getLaborInsuranceDeduction(employee_data!, discounted_employee_payment!, payset!, insurance_rate_setting!,received_elderly_benefits);
 		const h_i_deduction = await this.calculateService.getHealthInsuranceDeduction(employee_data!, discounted_employee_payment!, insurance_rate_setting!);
 		const welfare_contribution = await this.calculateService.getWelfareContribution(employee_data!, discounted_employee_payment!, full_attendance_bonus, operational_performance_bonus);
 		const subsidy_allowance = discounted_employee_payment!.subsidy_allowance;
@@ -285,7 +295,7 @@ export class TransactionService {
 		const assessment_bonus = await this.calculateService.getAssessmentBonus();
 		const probation_period_over = false;
 		const disabilty_level = employee_data!.disabilty_level;
-		const v_2_h_i = await this.calculateService.getSecondGenerationHealthInsurance(period_id, emp_no, pay_type, insurance_rate_setting!, employee_payment!);
+		const v_2_h_i = await this.calculateService.getSecondGenerationHealthInsurance(period_id, emp_no, pay_type, insurance_rate_setting!, employee_payment!,accumulated_bonus!.sum,accumulated_trust!.sum);
 		const emp_trust_reserve = employee_trust ? employee_trust.emp_trust_reserve : null;
 		const emp_special_trust_incent = employee_trust ? employee_trust!.emp_special_trust_incent : null;
 		const org_trust_reserve = employee_trust ? employee_trust!.org_trust_reserve : null;
