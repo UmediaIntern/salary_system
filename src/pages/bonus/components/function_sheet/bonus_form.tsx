@@ -33,6 +33,7 @@ export function BonusForm<SchemaType extends z.AnyZodObject>({
 	const onSubmit = (d: z.infer<typeof formSchema>) => {
 		console.log(d);
 		if (mode === "create") {
+			console.log("create");
 			createFunction.mutate({ ...d, bonus_type: selectedBonusType, period_id: selectedPeriod!.period_id });
 		} else if (mode === "update") {
 			updateFunction.mutate({ ...d, bonus_type: selectedBonusType, period_id: selectedPeriod!.period_id });
@@ -54,7 +55,14 @@ export function BonusForm<SchemaType extends z.AnyZodObject>({
 
 	return (
 		<>
-			{<StandardForm {...formProps} />}
+			{<StandardForm 
+				formSchema={formSchema}
+				formConfig={formConfig}
+				formSubmit={onSubmit}
+				defaultValue={data}
+				buttonText={mode}
+				closeSheet={closeSheet}
+			/>}
 		</>
 	);
 }

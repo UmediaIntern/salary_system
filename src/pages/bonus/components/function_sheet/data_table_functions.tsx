@@ -32,6 +32,7 @@ import {
 	FunctionMenuOption,
 	FunctionMenuOptionBase,
 } from "~/components/table_functions/function_menu/function_menu_option";
+import { ZodObject } from "zod";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -49,6 +50,7 @@ export function DataTableFunctions({
 
 	// ========================= Additional Condition for Schema =====================================
 	const schema = getSchema(tableType);
+	const baseSchema = schema as ZodObject<any>; // or a more specific type
 
 	return (
 		<div className={cn(className, "flex h-full items-center")}>
@@ -83,7 +85,7 @@ export function DataTableFunctions({
 						/>
 						<FunctionMenuOptionBase
 							onClick={() => {
-								setMode("create_with_blank");
+								setMode("create");
 								setOpen(true);
 							}}
 							itemName={t("button.create_with_blank")}
@@ -119,14 +121,22 @@ export function DataTableFunctions({
 						</DialogHeader>
 						{(mode == "create" || mode == "update") && (
 							<ScrollArea className="h-full w-full">
-								<BonusForm
+								{mode == "create" && <BonusForm
+									formSchema={baseSchema.omit({ id: true as const})}
+									// formConfig={[
+									// 	{ key: "id", config: { hidden: true } },
+									// ]}
+									mode={mode}
+									closeSheet={() => setOpen(false)}
+								/>}
+								{mode == "update" && <BonusForm
 									formSchema={schema}
 									formConfig={[
 										{ key: "id", config: { hidden: true } },
 									]}
 									mode={mode}
 									closeSheet={() => setOpen(false)}
-								/>
+								/>}
 								<ScrollBar orientation="horizontal" />
 							</ScrollArea>
 						)}
