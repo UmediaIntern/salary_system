@@ -23,7 +23,8 @@ export class LevelRangeService {
 		data: z.infer<typeof createLevelRangeService>
 	): Promise<LevelRange> {
 		const d = createLevelRangeService.parse(data);
-		const start_date = d.start_date ? new Date(d.start_date) : new Date();
+		const start_date = d.start_date ?? new Date();
+		// TODO: what is this doing, change
 		const start_date_adjust = new Date(
 			start_date.setFullYear(start_date.getFullYear(), 0, 1)
 		);
@@ -47,7 +48,9 @@ export class LevelRangeService {
 		});
 		if (existed_data != null) {
 			throw new Error(
-				`Data already exist type:${existed_data.type}, start_date: ${start_date_adjust}, end_date: ${end_date}`
+				`Data already exist type:${
+					existed_data.type
+				}, start_date: ${start_date_adjust.toDateString()}, end_date: ${end_date.toDateString()}`
 			);
 		}
 		const newData = await LevelRange.create(levelRange, {

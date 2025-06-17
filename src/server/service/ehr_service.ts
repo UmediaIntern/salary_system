@@ -16,7 +16,6 @@ import { AllowanceType } from "../database/entity/UMEDIA/allowance_type";
 import { Allowance } from "../database/entity/UMEDIA/allowance";
 import { HolidaysTypeService } from "./holidays_type_service";
 import { PayTypeEnum, type PayTypeEnumType } from "../api/types/pay_type_enum";
-import { EmpAll } from "../database/entity/UMEDIA/emp_all";
 
 export type BonusWithType = Omit<Bonus, "bonus_id" | "period_id"> & {
 	period_name: string;
@@ -81,9 +80,9 @@ export class EHRService {
 		if (dataList.length === 0) {
 			throw new BaseResponseError("Period Not Found");
 		}
-		const period_id = (dataList.find((period) => {
+		const period_id = dataList.find((period) => {
 			return date >= period.start_date && date <= period.end_date;
-		}))?.period_id;
+		})?.period_id;
 		if (!period_id) {
 			throw new BaseResponseError("Period Not Found");
 		}
@@ -97,7 +96,8 @@ export class EHRService {
 				type: QueryTypes.SELECT,
 			}
 		);
-		const holidayList: Holiday[] = dataList.map((o) => Holiday.fromDB(o))
+		const holidayList: Holiday[] = dataList
+			.map((o) => Holiday.fromDB(o))
 			.sort((a, b) => {
 				if (a.emp_no === b.emp_no) {
 					return a.pay_order - b.pay_order;
@@ -144,11 +144,14 @@ export class EHRService {
 					period_name: period_name,
 				};
 			}
-		)
+		);
 		return holidayWithTypeList;
 	}
 
-	async getOvertime(period_id: number, pay_type: PayTypeEnumType): Promise<Overtime[]> {
+	async getOvertime(
+		period_id: number,
+		pay_type: PayTypeEnumType
+	): Promise<Overtime[]> {
 		const pay = pay_type === PayTypeEnum.Enum.foreign_15_bonus ? 2 : 1;
 		const dbConnection = container.resolve(Database).ehr_connection;
 		const dataList = await dbConnection.query(
@@ -157,13 +160,14 @@ export class EHRService {
 				type: QueryTypes.SELECT,
 			}
 		);
-		const overtimeList: Overtime[] = dataList.map((o) => Overtime.fromDB(o))
+		const overtimeList: Overtime[] = dataList
+			.map((o) => Overtime.fromDB(o))
 			.sort((a, b) => {
 				if (a.emp_no === b.emp_no) {
 					return a.type_name.localeCompare(b.type_name);
 				}
 				return a.emp_no.localeCompare(b.emp_no);
-			})
+			});
 
 		return overtimeList;
 	}
@@ -171,7 +175,7 @@ export class EHRService {
 	async getOvertimeByEmpNoList(
 		period_id: number,
 		emp_no_list: string[],
-		pay_type: PayTypeEnumType,
+		pay_type: PayTypeEnumType
 	): Promise<Overtime[]> {
 		const all_overtime = await this.getOvertime(period_id, pay_type);
 		const filtered_overtime = all_overtime.filter((overtime) =>
@@ -188,7 +192,8 @@ export class EHRService {
 				type: QueryTypes.SELECT,
 			}
 		);
-		const paysetList: Payset[] = dataList.map((o) => Payset.fromDB(o))
+		const paysetList: Payset[] = dataList
+			.map((o) => Payset.fromDB(o))
 			.sort((a, b) => {
 				return a.emp_no.localeCompare(b.emp_no);
 			});
@@ -209,9 +214,12 @@ export class EHRService {
 
 	async getEmp(period_id: number): Promise<Emp[]> {
 		const dbConnection = container.resolve(Database).ehr_connection;
-		const dataList = await dbConnection.query(this.GET_EMP_QUERY(period_id), {
-			type: QueryTypes.SELECT,
-		});
+		const dataList = await dbConnection.query(
+			this.GET_EMP_QUERY(period_id),
+			{
+				type: QueryTypes.SELECT,
+			}
+		);
 		const empList: Emp[] = dataList.map((d) => Emp.fromDB(d));
 		return empList;
 	}
@@ -224,9 +232,10 @@ export class EHRService {
 		return dataList;
 	}
 
-
-
-	async getBonus(period_id: number, pay_type: PayTypeEnumType): Promise<Bonus[]> {
+	async getBonus(
+		period_id: number,
+		pay_type: PayTypeEnumType
+	): Promise<Bonus[]> {
 		const pay = pay_type === "foreign_15_bonus" ? 2 : 1;
 		const dbConnection = container.resolve(Database).ehr_connection;
 		const dataList = await dbConnection.query(
@@ -238,7 +247,8 @@ export class EHRService {
 		// if (dataList.length === 0) {
 		// 	throw new BaseResponseError("Bonus Not Found");
 		// }
-		const bonusList: Bonus[] = dataList.map((o) => Bonus.fromDB(o))
+		const bonusList: Bonus[] = dataList
+			.map((o) => Bonus.fromDB(o))
 			.sort((a, b) => {
 				if (a.emp_no === b.emp_no) {
 					return a.bonus_id - b.bonus_id;
@@ -307,7 +317,8 @@ export class EHRService {
 				type: QueryTypes.SELECT,
 			}
 		);
-		const expenseList: Expense[] = dataList.map((o) => Expense.fromDB(o))
+		const expenseList: Expense[] = dataList
+			.map((o) => Expense.fromDB(o))
 			.sort((a, b) => {
 				if (a.emp_no === b.emp_no) {
 					if (a.kind === b.kind) {
@@ -394,18 +405,18 @@ export class EHRService {
 		const period_name = await this.getPeriodById(period_id).then(
 			(period) => period.period_name
 		);
-		const allowanceWithTypeList: AllowanceWithType[] = filtered_allowance.map(
-			(allowance) => {
+		const allowanceWithTypeList: AllowanceWithType[] =
+			filtered_allowance.map((allowance) => {
 				const allowanceTypeName = allowance_type_list.find(
-					(allowanceType) => allowanceType.id === allowance.allowance_id
+					(allowanceType) =>
+						allowanceType.id === allowance.allowance_id
 				)?.name;
 				return {
 					...allowance,
 					allowance_type_name: allowanceTypeName!,
 					period_name: period_name,
 				};
-			}
-		);
+			});
 		return allowanceWithTypeList;
 	}
 
@@ -479,7 +490,6 @@ export class EHRService {
 
 	private GET_PERIOD_QUERY(): string {
 		return `SELECT "PERIOD_ID", "PERIOD_NAME", "START_DATE", "END_DATE", "STATUS", "ISSUE_DATE" FROM SYSTEM."U_HR_PERIOD_V" `;
-
 	}
 	// WHERE "U_HR_PERIOD_V"."STATUS" = 'OPEN'`
 	private GET_PERIOD_BY_ID_QUERY(period_id: number): string {
@@ -508,7 +518,6 @@ export class EHRService {
 	private GET_PROMOTION_QUERY(): string {
 		return `SELECT * FROM SYSTEM."U_HR_PROMOTION_V"`;
 	}
-
 
 	private GET_BONUS_QUERY(period_id: number, pay: number): string {
 		return `SELECT * FROM SYSTEM."U_HR_PAYDRAFT_BONUS_V" WHERE "U_HR_PAYDRAFT_BONUS_V"."PERIOD_ID" = '${period_id}' AND "U_HR_PAYDRAFT_BONUS_V"."PAY" = '${pay}'`;

@@ -276,6 +276,7 @@ export class LevelService {
 
 		return this.levelMapper.decode(result);
 	}
+
 	async rescheduleLevel(): Promise<void> {
 		const levels = await Level.findAll({
 			where: {
@@ -288,7 +289,7 @@ export class LevelService {
 		});
 
 		const groupedLevels = levels.reduce(
-			(acc: { [startDate: string]: Level[] }, level) => {
+			(acc: Record<string, Level[]>, level) => {
 				const startDate = level.start_date;
 				if (!acc[startDate]) {
 					acc[startDate] = [];
@@ -321,11 +322,13 @@ export class LevelService {
 								stringToDate.parse(level.end_date).getTime() >
 								new_end_date.getTime()
 							) {
+                // TODO: possible error, no await 
 								level_range_service.emptyInfluencedLevelRange(
 									dateToString.parse(nextStartDate),
 									level.end_date
 								);
 							} else {
+                // TODO: possible error, no await 
 								level_range_service.emptyInfluencedLevelRange(
 									dateToString.parse(addDays(stringToDate.parse(level.end_date), 1)),
 									dateToString.parse(new_end_date)
@@ -343,6 +346,7 @@ export class LevelService {
 				} else {
 					if (level.end_date != null) {
 						if (!changed_level_range) {
+              // TODO: possible error, no await 
 							level_range_service.emptyInfluencedLevelRange(
 								dateToString.parse(subDays(stringToDate.parse(level.end_date), 1)),
 								null

@@ -2,7 +2,7 @@ import { container, injectable } from "tsyringe";
 import { type z } from "zod";
 import {
 	EmployeeBonus,
-	EmployeeBonusDecType,
+	type EmployeeBonusDecType,
 } from "../database/entity/SALARY/employee_bonus";
 import { BaseResponseError } from "../errors/base_response_error";
 import { Round, select_value } from "./helper_function";

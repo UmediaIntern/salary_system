@@ -60,6 +60,7 @@ export class SalaryRaiseMapper extends BaseMapper<
 			)) ?? []
 		).filter((e) => e.emp_no === salary_raise.emp_no)[0]!.id;
 
+    // TODO: position and position_type are missing
 		const salaryRaiseFE: SalaryRaiseFEType = {
 			id: employee_bonus_id,
 			period_id: salary_raise.period_id,

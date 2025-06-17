@@ -11,7 +11,6 @@ import {
 	type updateSalaryRaiseService,
 } from "../api/types/salary_raise_type";
 import { LongServiceEnum } from "../api/types/long_service_enum";
-import { Op } from "sequelize";
 import { EmployeeDataService } from "./employee_data_service";
 import { SalaryRaiseAllService } from "./salary_raise_all_service";
 import { SalaryRaiseWorkTypeService } from "./salary_raise_work_type_service";
@@ -22,7 +21,6 @@ import { SalaryRaiseDepartmentService } from "./salary_raise_department_service"
 @injectable()
 export class SalaryRaiseService {
 	constructor(
-		private readonly ehrService: EHRService,
 		private readonly salaryRaiseMapper: SalaryRaiseMapper
 	) {}
 
@@ -32,7 +30,6 @@ export class SalaryRaiseService {
 		const d = createSalaryRaiseService.parse(data);
 		const salaryRaise = await this.salaryRaiseMapper.encode({
 			...d,
-			start_date: d.start_date ?? new Date(),
 			disabled: false,
 			create_by: "system",
 			update_by: "system",
