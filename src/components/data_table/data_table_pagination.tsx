@@ -17,7 +17,7 @@ import { ChevronFirstIcon, ChevronLastIcon } from "lucide-react";
 interface DataTablePaginationProps<TData>
 	extends React.HTMLAttributes<HTMLDivElement> {
 	table: Table<TData>;
-	setDataPerRow: (dataPerRow: number) => void;
+	setDataPerRow?: (dataPerRow: number) => void;
 }
 
 export function DataTablePagination<TData>({
@@ -30,13 +30,15 @@ export function DataTablePagination<TData>({
 	const dataNum = table.getFilteredRowModel().rows.length;
 	const [rowNum, setRowNum] = React.useState(10);
 	const [columnNum, setColumnNum] = React.useState(1);
-	const [displayPageIndex, setDisplayPageIndex] = React.useState((pageIndex + 1).toString());
+	const [displayPageIndex, setDisplayPageIndex] = React.useState(
+		(pageIndex + 1).toString()
+	);
 
 	useEffect(() => {
 		setDisplayPageIndex((pageIndex + 1).toString());
 	}, [pageIndex]);
 
-	const { t } = useTranslation(['common']);
+	const { t } = useTranslation(["common"]);
 
 	return (
 		<div
@@ -49,10 +51,19 @@ export function DataTablePagination<TData>({
 			<div className="text-sm text-muted-foreground">
 				{
 					<div className="min-w-[100px]">
-						{t('others.data_num_template')
-							.replace('$1', (pageIndex * pageSize + 1).toString())
-							.replace('$2', (Math.min((pageIndex + 1) * pageSize, dataNum)).toString())
-							.replace('$3', (dataNum).toString())}
+						{t("others.data_num_template")
+							.replace(
+								"$1",
+								(pageIndex * pageSize + 1).toString()
+							)
+							.replace(
+								"$2",
+								Math.min(
+									(pageIndex + 1) * pageSize,
+									dataNum
+								).toString()
+							)
+							.replace("$3", dataNum.toString())}
 					</div>
 				}
 			</div>
@@ -75,66 +86,85 @@ export function DataTablePagination<TData>({
 									key={value}
 									value={(value + 1).toString()}
 								>
-									{t('others.row_template')
-										.replace('$1', (value + 1).toString())}
+									{t("others.row_template").replace(
+										"$1",
+										(value + 1).toString()
+									)}
 								</SelectItem>
 							)
 						)}
 					</SelectContent>
 				</Select>
 				<div className="w-2" />
-				<Select
-					defaultValue="1"
-					onValueChange={(value) => {
-						setColumnNum(Number(value));
-						setDataPerRow(Number(value));
-						table.setPageSize(rowNum * Number(value));
-					}}
-				>
-					<SelectTrigger className="w-36">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{Array.from({ length: 5 }, (_, i) => i).map((value) => (
-							<SelectItem
-								key={value}
-								value={(value + 1).toString()}
-							>
-								{t('others.col_template')
-									.replace('$1', (value + 1).toString())}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				{setDataPerRow && (
+					<Select
+						defaultValue="1"
+						onValueChange={(value) => {
+							setColumnNum(Number(value));
+							setDataPerRow(Number(value));
+							table.setPageSize(rowNum * Number(value));
+						}}
+					>
+						<SelectTrigger className="w-36">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{Array.from({ length: 5 }, (_, i) => i).map(
+								(value) => (
+									<SelectItem
+										key={value}
+										value={(value + 1).toString()}
+									>
+										{t("others.col_template").replace(
+											"$1",
+											(value + 1).toString()
+										)}
+									</SelectItem>
+								)
+							)}
+						</SelectContent>
+					</Select>
+				)}
 			</div>
 			{/* Pagination */}
 			<div className="ml-2 flex justify-end">
 				<div className=" flex items-center space-x-4">
-					<div className="flex w-30 items-center justify-center text-sm font-medium">
+					<div className="w-30 flex items-center justify-center text-sm font-medium">
 						<div>
-							{t('others.page_template').replace('$2', (table.getPageCount()).toString()).split('$1')[0]}
+							{
+								t("others.page_template")
+									.replace(
+										"$2",
+										table.getPageCount().toString()
+									)
+									.split("$1")[0]
+							}
 						</div>
 						<Input
-							className="flex text-center p-0 mx-1 w-10 h-6"
+							className="mx-1 flex h-6 w-10 p-0 text-center"
 							onKeyDown={(e) => {
-								if (e.key === 'Enter') {
+								if (e.key === "Enter") {
 									e.currentTarget.blur();
 								}
 							}}
 							onBlur={(e) => {
 								const page = Number(e.target.value);
 								if (isNaN(page) || page <= 0) {
-									setDisplayPageIndex('1');
+									setDisplayPageIndex("1");
 									table.setPageIndex(0);
-								};
+								}
 								if (page >= table.getPageCount()) {
-									setDisplayPageIndex((table.getPageCount()).toString());
-									table.setPageIndex(table.getPageCount() - 1);
+									setDisplayPageIndex(
+										table.getPageCount().toString()
+									);
+									table.setPageIndex(
+										table.getPageCount() - 1
+									);
 								}
 							}}
 							onChange={(e) => {
 								setDisplayPageIndex(e.target.value);
-								if (e.target.value === '') return;
+								if (e.target.value === "") return;
 								const page = Number(e.target.value);
 								if (page > 0 && page <= table.getPageCount()) {
 									table.setPageIndex(page - 1);
@@ -143,47 +173,58 @@ export function DataTablePagination<TData>({
 							value={displayPageIndex}
 						/>
 						<div>
-							{t('others.page_template').replace('$2', (table.getPageCount()).toString()).split('$1')[1]}
+							{
+								t("others.page_template")
+									.replace(
+										"$2",
+										table.getPageCount().toString()
+									)
+									.split("$1")[1]
+							}
 						</div>
 					</div>
 					<div className="flex items-center space-x-2">
 						<Button
 							variant="outline"
-							size="sm"
+							className="h-10 w-10"
+							size="icon"
 							onClick={() => table.firstPage()}
 							disabled={!table.getCanPreviousPage()}
 						>
 							<span className="sr-only">Go to first page</span>
-							<ChevronFirstIcon className="h-4 w-4" />
+							<ChevronFirstIcon />
 						</Button>
 						<Button
 							variant="outline"
-							size="sm"
+							className="h-10 w-10"
+							size="icon"
 							onClick={() => table.previousPage()}
 							disabled={!table.getCanPreviousPage()}
 						>
 							<span className="sr-only">Go to previous page</span>
-							<ChevronLeftIcon className="h-4 w-4" />
+							<ChevronLeftIcon />
 							{/* {t("button.previous_page")} */}
 						</Button>
 						<Button
 							variant="outline"
-							size="sm"
+							className="h-10 w-10"
+							size="icon"
 							onClick={() => table.nextPage()}
 							disabled={!table.getCanNextPage()}
 						>
 							<span className="sr-only">Go to next page</span>
 							{/* {t("button.next_page")} */}
-							<ChevronRightIcon className="h-4 w-4" />
+							<ChevronRightIcon />
 						</Button>
 						<Button
 							variant="outline"
-							size="sm"
+							className="h-10 w-10"
+							size="icon"
 							onClick={() => table.lastPage()}
 							disabled={!table.getCanNextPage()}
 						>
 							<span className="sr-only">Go to last page</span>
-							<ChevronLastIcon className="h-4 w-4" />
+							<ChevronLastIcon />
 						</Button>
 					</div>
 				</div>

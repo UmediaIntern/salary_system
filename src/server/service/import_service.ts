@@ -66,7 +66,7 @@ export class ImportService {
 			end_date: null,
 		});
 
-		await this.employeeTrustService.createEmployeeTrust({
+		await this.employeeTrustService.insertEmployeeTrust({
 			emp_no: data.emp_no,
 			emp_trust_reserve: data.emp_trust_reserve,
 			emp_special_trust_incent: data.emp_special_trust_incent,

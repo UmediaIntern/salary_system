@@ -32,6 +32,10 @@ import {
 	ImportContextProvider,
 	useImportContext,
 } from "./import_context_provider";
+import { type ExcelSheetType } from "~/components/file_operations/excel_type";
+import { ExcelParser } from "~/components/file_operations/excel_parser";
+
+const excelParser = new ExcelParser();
 
 export function ImportCarousel() {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -48,64 +52,68 @@ export function ImportCarousel() {
 
 		const data = await extractData(file);
 		console.log("extracted data", data);
-		if (data) {
-			const value = Object.values(data)[0];
-			if (value) {
-				const header: any[] | undefined = value[0];
-				if (!header) {
-					console.log("No header in excel");
-					return;
-				}
-				const indices: number[] = [];
-				importFieldsKeys.options.forEach((key) => {
-					const excelFieldName = excelFieldMapping[key];
-					const idx = header.indexOf(excelFieldName);
-					if (idx === -1) {
-						console.log(`${excelFieldName} not found in excel`);
-					}
-					indices.push(idx);
-					console.log(excelFieldName);
-				});
+    if (!data) {
+      return
+    }
 
-				// Processing rows
-				const transactionRows: ImportFieldsType[] = [];
-				const excelRows = value.slice(1);
-				let i = 0;
-				for (const row of excelRows) {
-					// console.log(row);
-					const obj: Record<string, unknown> = {};
-					importFieldsKeys.options.forEach((key, idx) => {
-						const dataIdx = indices[idx];
-						if (
-							dataIdx != undefined &&
-							dataIdx >= 0 &&
-							row[dataIdx] != undefined
-						) {
-							obj[key] = row[dataIdx];
-						} else {
-							console.log(
-								`${key} not found in excel idx=${idx} dataIdx=${dataIdx}`
-							);
-						}
-					});
+    let excel: ExcelSheetType;
+    try {
+      excel = excelParser.parseSingleSheet(data);
+    } catch (error) {
+      console.log(error);
+      return
+    }
 
-					const result = importFields.safeParse(obj);
-					if (!result.success) {
-						console.log(result.error.message);
-						console.log(row, i, obj);
-						i += 1;
-						return;
-					}
-					if (!result.data) {
-						console.log("No data");
-						i += 1;
-						return;
-					}
-					transactionRows.push(result.data);
-					setExcelData(transactionRows);
-				}
-			}
-		}
+    const indices: number[] = [];
+    importFieldsKeys.options.forEach((key) => {
+      const excelFieldName = excelFieldMapping[key];
+      const idx = excel.header.indexOf(excelFieldName);
+      if (idx === -1) {
+        console.log(`${excelFieldName} not found in excel`);
+      }
+      indices.push(idx);
+      console.log(excelFieldName);
+    });
+
+    // Processing rows
+    const transactionRows: ImportFieldsType[] = [];
+    const excelRows = excel.data;
+    let i = 0;
+    for (const row of excelRows) {
+      // console.log(row);
+      const obj: Record<string, unknown> = {};
+      importFieldsKeys.options.forEach((key, idx) => {
+        const dataIdx = indices[idx];
+        if (
+          dataIdx != undefined &&
+          dataIdx >= 0 &&
+          row[dataIdx] != undefined
+        ) {
+          obj[key] = row[dataIdx];
+        } else {
+          console.log(
+            `${key} not found in excel idx=${idx} dataIdx=${dataIdx}`
+          );
+        }
+      });
+
+      const result = importFields.safeParse(obj);
+      if (!result.success) {
+        console.log(result.error.message);
+        console.log(row, i, obj);
+        i += 1;
+        return;
+      }
+      if (!result.data) {
+        console.log("No data");
+        i += 1;
+        return;
+      }
+      transactionRows.push(result.data);
+    }
+    setExcelData(transactionRows);
+    console.log("trans", transactionRows);
+
 		carouselApi?.scrollNext();
 	}
 
@@ -125,6 +133,11 @@ export function ImportCarousel() {
 	return (
 		<Carousel
 			setApi={setCarouselApi}
+			opts={{
+				align: "start",
+				dragFree: true,
+				watchDrag: false,
+			}}
 			className="flex h-full w-full flex-col"
 		>
 			<CarouselContent className="h-full">
@@ -157,7 +170,7 @@ export function ImportCarousel() {
 				{/* ))} */}
 			</CarouselContent>
 
-			<div className="flex h-16 w-full flex-row justify-between py-4">
+			<div className="flex h-12 w-full flex-row justify-between py-2">
 				<CarouselDots />
 				<div className="flex flex-row gap-2">
 					<CarouselPrevious className="relative left-0 right-0 top-0 translate-x-0 translate-y-0" />
@@ -177,7 +190,7 @@ const PageImport: NextPageWithLayout = () => {
 		<div className="flex h-full w-full flex-col">
 			{/* header */}
 			<Header title={t("import")} showOptions />
-			<div className="flex h-0 grow flex-col p-4">
+			<div className="flex h-0 grow flex-col pt-4 pb-2 px-4">
 				<ImportContextProvider>
 					<ImportCarousel />
 				</ImportContextProvider>
