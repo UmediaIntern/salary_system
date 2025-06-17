@@ -10,7 +10,7 @@ export const excelFieldMapping: Record<ImportFieldsKeyType, string> = {
   department: "部門",
   emp_no: "員工編號",
   emp_name: "姓名",
-  cost_category: "成本類別",
+  cost_category: "成本分類",
   work_type: "工作類別",
   work_status: "工作型態",
   position: "職等",
