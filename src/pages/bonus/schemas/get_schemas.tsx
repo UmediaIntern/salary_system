@@ -25,8 +25,8 @@ export function getSchema(table: TableEnum) {
 		// 	return bonusPositionTypeSchema;
 		case "TableBonusSeniority":
 			return bonusSenioritySchema;
-		case "TableEmployeeBonus":
-			return employeeBonusSchema;
+		// case "TableEmployeeBonus":
+		// 	return employeeBonusSchema;
 		// level
 		// case "TablePerformanceLevel":
 		// 	return performanceLevelSchema;

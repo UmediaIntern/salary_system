@@ -129,7 +129,7 @@ export function BonusPositionAndPositionTypeTable({
 	viewOnly,
 }: BonusPositionAndPositionTypeTableProps) {
 	const { isLoading, isError, data, error } =
-		api.bonus.getBonusPositionType.useQuery({ period_id, bonus_type });
+		api.bonus.getBonusPosition.useQuery({ period_id, bonus_type });
 	const filterKey: RowItemKey = "position_and_position_type";
 
 	if (isLoading) {

@@ -48,6 +48,7 @@ const columnHelper = createColumnHelper<RowItem>();
 
 const columnNames: RowItemKey[] = [
 	"position",
+	"position_type",
 	"position_multiplier",
 	"position_type_multiplier",
 ];

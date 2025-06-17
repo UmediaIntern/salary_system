@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { z } from "zod";
 
 // Translation
@@ -25,6 +25,15 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "~/components/ui/sheet";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from "~/components/ui/select";
 import { ExcelViewer } from "./excel_viewer";
 
 // Functions
@@ -32,6 +41,7 @@ import { api } from "~/utils/api";
 import { getExcelData, getDefaults } from "./utils";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { Transaction } from "~/server/database/entity/SALARY/transaction";
 
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
@@ -72,6 +82,7 @@ function excludeDataColumn(dataList: any[], excludedColumns: Array<string>) {
 
 function ExportPage() {
 	const { selectedPeriod } = usePeriodContext();
+	const [selectedExcelIndex, setSelectedExcelIndex] = useState(0);
 	const [selectedSheetIndex, setSelectedSheetIndex] = useState(0);
 	const [toExcludedColumns, setToExcludedColumns] = useState([
 		"id",
@@ -83,20 +94,64 @@ function ExportPage() {
 	]);
 	const [toDisplayData, setToDisplayData] = useState<any>(null);
 
-	const getExcelA = api.report.getTransactionIndividual.useQuery({
+
+	// ! Declare All Excel Data
+	const all_data_api: {
+		transaction?: 	ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+		test?: 			ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+	} = {};
+
+	type AllDataApiKeys = keyof typeof all_data_api;
+
+	const all_data_isPending: Partial<Record<AllDataApiKeys, boolean>> = {};
+	const all_data_content:   Partial<Record<AllDataApiKeys, ReactNode>> = {};
+	const all_data: {
+		transaction?: 	(Transaction|null)[];
+		test?: 			(any|null)[];
+	} = {};
+
+
+	// ! Declare Excel Order
+	const excel_order: (keyof typeof all_data_api)[] = [
+		'transaction',
+		'test',
+	]
+
+
+	// & Assign Excel Data From API
+	all_data_api['transaction'] = api.report.getTransactionIndividual.useQuery({
 		period_id: selectedPeriod?.period_id ?? 0,
 		pay_type: "month_salary",
 	});
+	const { isPending: transactionIsPending, content: transactionContent, data: transactionData } = useQueryHandle(all_data_api['transaction']);
+	all_data_isPending['transaction'] = transactionIsPending;
+	all_data_content['transaction'] = transactionContent;
+	all_data['transaction'] = transactionData as (Transaction | null)[];
 
-	const { isPending, content, data } = useQueryHandle(getExcelA);
+	
+	all_data_api['test'] = api.report.getTransactionIndividual.useQuery({
+		period_id: selectedPeriod?.period_id ?? 0,
+		pay_type: "month_salary",
+	});
+	all_data_isPending['test'] = transactionIsPending;
+	all_data_content['test'] = transactionContent;
+	all_data['test'] = [{name: "test", data: [
+		{test1: "test1", test2: "test2", test3: "test3"},
+		{test1: "test1", test2: "test2", test3: "test3"},
+	]}, {name: "second_sheet", data: [
+		{test4: "test1", test5: "test2", test6: "test3"},
+		{test4: "test1", test5: "test2", test6: "test3"},
+	]}];
+
 
 	function createSchema() {
-		const keys = getExcelA.isFetched
+		const selectedExcel = excel_order[selectedExcelIndex]!;
+		const keys = all_data_api[selectedExcel]?.isFetched
 			? Object.keys(
-				getExcelA!.data!.map((sheet: any) =>
-					sheet.data.length > 0 ? sheet.data[0] : []
-				)[selectedSheetIndex]
-			)
+					all_data[selectedExcel]!.map((sheet: any) =>
+						sheet.data.length > 0 ? sheet.data[0] : []
+					)[selectedSheetIndex]
+			  )
 			: [];
 		const schemaShape = keys.reduce((acc: any, key) => {
 			if (toExcludedColumns.includes(key)) {
@@ -140,7 +195,7 @@ function ExportPage() {
 								setToDisplayData(
 									getExcelData(
 										excludeDataColumn(
-											getExcelA.data!,
+											all_data['transaction'] ?? [],
 											newExcludedColumns
 										)
 									)
@@ -156,22 +211,66 @@ function ExportPage() {
 		);
 	}
 
-	if (isPending) {
-		return content;
+	function SelectExcelComponent() {
+		const selectedExcel = excel_order[selectedExcelIndex]!;
+		return (
+			<>
+				<Select
+					value={selectedExcel}
+					onValueChange={(value) => {
+						setSelectedExcelIndex(excel_order.indexOf(value as keyof typeof all_data_api));
+					}}
+				>
+					<SelectTrigger className="w-[180px]">
+						<SelectValue placeholder="Select a sheet" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<SelectLabel>Excels</SelectLabel>
+							{excel_order.map(
+								(excel_name: string) => {
+									console.log(excel_name);
+									return (
+										<SelectItem
+											key={excel_name}
+											value={excel_name}
+										>
+											{excel_name}
+										</SelectItem>
+									);
+								}
+							)}
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</>
+		);
+	}
+
+
+
+	if (all_data_isPending['transaction']) {
+		return all_data_content['transaction'];
 	}
 
 	return (
-		<ExcelViewer
-			original_sheets={
-				toDisplayData ??
-				getExcelData(
-					excludeDataColumn(data, toExcludedColumns)
-				)
-			}
-			filter_component={<FilterComponent />}
-			selectedSheetIndex={selectedSheetIndex}
-			setSelectedSheetIndex={setSelectedSheetIndex}
-		/>
+		<>
+			<div className="flex h-full flex-col">
+				<ExcelViewer
+					original_sheets={
+						toDisplayData ??
+						getExcelData(
+							excludeDataColumn(all_data[excel_order[selectedExcelIndex]!] ?? [], toExcludedColumns)
+						)
+					}
+					filter_component={<FilterComponent />}
+					selectedExcelComponent={<SelectExcelComponent />}
+					selectedSheetIndex={selectedSheetIndex}
+					selected_excel_name={excel_order[selectedExcelIndex]!}
+					setSelectedSheetIndex={setSelectedSheetIndex}
+				/>
+			</div>
+		</>
 	);
 }
 
