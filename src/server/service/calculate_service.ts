@@ -1691,6 +1691,11 @@ export class CalculateService {
 	): Promise<number> {
 		const employee_bonus_service = container.resolve(EmployeeBonusService);
 		const employee_trust_service = container.resolve(EmployeeTrustService);
+		const employee_trust =
+			await employee_trust_service.getCurrentEmployeeTrustFEByEmpNo(
+				emp_no,
+				period_id
+			);
 		const employee_bonus_list =
 			await employee_bonus_service.getEmployeeBonusByEmpNo(
 				period_id,
@@ -1698,9 +1703,11 @@ export class CalculateService {
 			);
 		if (pay_type === PayTypeEnum.Enum.month_salary) {
 			const new_all =
-				employee_bonus_list.filter(
+				employee_trust.org_trust_reserve +
+				employee_trust.org_special_trust_incent +
+				(employee_bonus_list.filter(
 					(e) => e.bonus_type === bonusTypeEnum.Enum.project_bonus
-				)[0]?.app_amount ?? 0;
+				)[0]?.app_amount ?? 0);
 			const other_bonus =
 				employee_bonus_list.filter(
 					(e) => e.bonus_type !== bonusTypeEnum.Enum.project_bonus
@@ -1729,7 +1736,11 @@ export class CalculateService {
 				employee_bonus_list.filter(
 					(e) => e.bonus_type !== bonusTypeEnum.Enum.project_bonus
 				)[0]?.app_amount ?? 0;
-			const accumulated_all = accumulated_bonus + accumulated_trust;
+			const accumulated_all =
+				accumulated_bonus +
+				accumulated_trust +
+				employee_trust.org_trust_reserve +
+				employee_trust.org_special_trust_incent;
 			const v2_h_i_rate = insurance_rate_setting.v2_h_i_supp_pay_rate;
 			const v2_h_i_multiplier = insurance_rate_setting.v2_h_i_multiplier;
 			const h_i = employee_payment?.h_i ?? 0;
