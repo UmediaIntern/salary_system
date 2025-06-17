@@ -250,7 +250,7 @@ export class Transaction extends Model<
 	/** 持股信託_YN */
 	declare has_trust: boolean;
 	/** 是否禁用 */
-	declare disable: boolean;
+	declare disabled: boolean;
   
 	/** 建立日期 */
 	declare create_date: CreationOptional<Date>;
@@ -379,19 +379,19 @@ export function initTransaction(sequelize: Sequelize) {
 				comment: "試用期滿",
 			},
 			l_i: {
-				type: DataTypes.STRING(128),
+				type: DataTypes.INTEGER,
 				comment: "勞保",
 			},
 			h_i: {
-				type: DataTypes.STRING(128),
+				type: DataTypes.INTEGER,
 				comment: "健保",
 			},
 			l_r: {
-				type: DataTypes.STRING(128),
+				type: DataTypes.INTEGER,
 				comment: "勞退",
 			},
 			occupational_injury: {
-				type: DataTypes.STRING(128),
+				type: DataTypes.INTEGER,
 				comment: "職災",
 			},
 			base_salary: {
@@ -722,7 +722,7 @@ export function initTransaction(sequelize: Sequelize) {
 				type: DataTypes.BOOLEAN,
 				comment: "持股信託_YN",
 			},
-			disable: {
+			disabled: {
 				type: DataTypes.BOOLEAN,
 				comment: "是否禁用",
 			},

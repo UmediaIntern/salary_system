@@ -26,27 +26,27 @@ export class ImportService {
 
 	async importTransactionRow(data: ImportFieldsType): Promise<void> {
 
-		// await this.employeeDataService.createEmployeeData({
-		// 	period_id: data.period_id,
-		// 	emp_no: data.emp_no,
-		// 	emp_name: data.emp_name,
-		// 	position: data.position,
-		// 	position_type: data.position_type,
-		// 	group_insurance_type: data.group_insurance_type,
-		// 	department: data.department,
-		// 	work_type: data.work_type,
-		// 	work_status: data.work_status,
-		// 	disabilty_level: data.disabilty_level,
-		// 	sex_type: data.sex_type,
-		// 	dependents: data.dependents,
-		// 	healthcare_dependents: data.healthcare_dependents,
-		// 	registration_date: data.registration_date,
-		// 	quit_date: data.quit_date,
-		// 	license_id: data.license_id,
-		// 	bank_account_taiwan: data.bank_account_taiwan,
-		// 	bank_account_foreign: data.bank_account_foreign,
-		// 	received_elderly_benefits: data.received_elderly_benefits,
-		// });
+		await this.employeeDataService.createEmployeeData({
+			period_id: data.period_id,
+			emp_no: data.emp_no,
+			emp_name: data.emp_name,
+			position: data.position,
+			position_type: data.position_type,
+			group_insurance_type: data.group_insurance_type,
+			department: data.department,
+			work_type: data.work_type,
+			work_status: data.work_status,
+			disabilty_level: data.disabilty_level,
+			sex_type: data.sex_type,
+			dependents: data.dependents,
+			healthcare_dependents: data.healthcare_dependents,
+			registration_date: data.registration_date,
+			quit_date: data.quit_date,
+			license_id: data.license_id,
+			bank_account_taiwan: data.bank_account_taiwan,
+			bank_account_foreign: data.bank_account_foreign,
+			received_elderly_benefits: data.received_elderly_benefits,
+		});
 
 		await this.employeePaymentService.insertEmployeePayment({
 			emp_no: data.emp_no,
@@ -66,13 +66,13 @@ export class ImportService {
 			end_date: null,
 		});
 
-		// await this.employeeTrustService.createEmployeeTrust({
-		// 	emp_no: data.emp_no,
-		// 	emp_trust_reserve: data.emp_trust_reserve,
-		// 	emp_special_trust_incent: data.emp_special_trust_incent,
-		// 	start_date: new Date(),
-		// 	end_date: new Date(),
-		// });
+		await this.employeeTrustService.insertEmployeeTrust({
+			emp_no: data.emp_no,
+			emp_trust_reserve: data.emp_trust_reserve,
+			emp_special_trust_incent: data.emp_special_trust_incent,
+			start_date: new Date(),
+			end_date: null,
+		});
 
 		// await this.employeeBonusService.createEmployeeBonus({
 		// 	period_id: data.period_id,
@@ -92,7 +92,7 @@ export class ImportService {
 		// 	start_date: new Date(),
 		// 	end_date: new Date(),
 		// });
-		// await this.createTransaction(data);
+		await this.createTransaction(data);
 	}
 
 	async createTransaction(data: ImportFieldsType): Promise<void> {
