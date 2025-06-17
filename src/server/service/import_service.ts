@@ -99,7 +99,7 @@ export class ImportService {
 		await Transaction.create({
 			...data,
 			// period_id: period_id, // 期別
-			disable: false,
+			disabled: false,
 			create_by: "system",
 			update_by: "system",
 		});
