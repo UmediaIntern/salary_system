@@ -23,11 +23,11 @@ export function DataTableViewOptions<TData>({
 	table,
 	className,
 }: DataTableViewOptionsProps<TData>) {
+	const { t } = useTranslation(['common']);
+
 	if (!table) {
 		return <div />;
 	}
-
-	const { t } = useTranslation(['common']);
 
 	return (
 		<div className={cn(className)}>

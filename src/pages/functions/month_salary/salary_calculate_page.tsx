@@ -21,9 +21,13 @@ import { useQueryHandle } from "~/components/query_boundary/query_handle";
 export function SalaryCalculatePage({
 	period,
 	func,
+	selectedIndex,
+	setSelectedIndex,
 }: {
 	period: Period;
 	func: FunctionsEnumType;
+	selectedIndex: number;
+	setSelectedIndex: (index: number) => void;
 }) {
 	const q = api.sync.getPaidEmployees.useQuery({
 		period_id: period.period_id,
@@ -31,15 +35,24 @@ export function SalaryCalculatePage({
 	});
 	const { data, isPending, content } = useQueryHandle(q);
 
+	const { t } = useTranslation(['common'])
+
 	if (isPending) {
 		return content;
 	}
 
 	return (
-		<SalaryCalculateContent
-			period={period}
-			emp_no_list={data.map((emp) => emp.emp_no)}
-		/>
+		<>
+			<SalaryCalculateContent
+				period={period}
+				emp_no_list={data.map((emp) => emp.emp_no)}
+			/>
+			<div className="mt-4 flex justify-between">
+				<Button onClick={() => setSelectedIndex(selectedIndex - 1)}>
+					{t("button.previous_step")}
+				</Button>
+			</div>
+		</>
 	);
 }
 

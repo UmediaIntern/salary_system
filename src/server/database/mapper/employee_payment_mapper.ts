@@ -46,7 +46,7 @@ export class EmployeePaymentMapper extends BaseMapper<
 				return {
 					...e,
 					functions: {
-						creatable: true,
+						creatable: e.base_salary != 0,
 						updatable: e.start_date > new Date() || e.base_salary == 0,
 						deletable: e.start_date > new Date(),
 					},

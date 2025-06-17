@@ -150,6 +150,8 @@ function MonthSalaryContent({ period }: { period: Period }) {
 					key="salary_calculate"
 					period={period}
 					func={FunctionsEnum.enum.month_salary}
+					selectedIndex={selectedIndex}
+					setSelectedIndex={setSelectedIndex}
 				/>
 			),
 		},
