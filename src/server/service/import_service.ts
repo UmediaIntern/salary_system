@@ -66,7 +66,7 @@ export class ImportService {
 			subsidy_allowance: data.subsidy_allowance,
 			long_service_allowance: data.long_service_allowance,
 			long_service_allowance_type: LongServiceEnum.Values.month_allowance,
-			l_r_self_ratio: data.l_r_self === 0 ? 0 : parseFloat((data.l_r_self / data.l_r).toFixed(2)),
+			l_r_self_ratio: data.l_r_self === 0 ? 0 : (parseFloat((data.l_r_self / data.l_r).toFixed(2)) * 100),
 			l_i: data.l_i,
 			h_i: data.h_i,
 			l_r: data.l_r,
