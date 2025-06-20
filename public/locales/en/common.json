@@ -115,6 +115,8 @@
     "level_start": "Start",
     "level_end": "End",
     "sex_type": "Sex Type",
+    "residence_permit_start_date": "Residence Permit Start Date",
+    "residence_permit_end_date": "Residence Permit End Date",
     "registration_date": "Registration Date",
     "quit_date": "Quit Date",
     "license_id": "License Id",
