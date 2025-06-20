@@ -4,11 +4,11 @@ import {
 	type InferAttributes,
 	type InferCreationAttributes,
 	type CreationOptional,
-	Sequelize,
+	type Sequelize,
 } from "sequelize";
-import { CostCategoryEnumType } from "~/server/api/types/cost_category_type";
-import { WorkStatusEnumType } from "~/server/api/types/work_status_enum";
-import { WorkTypeEnumType } from "~/server/api/types/work_type_enum";
+import { type CostCategoryEnumType } from "~/server/api/types/cost_category_type";
+import { type WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { type WorkTypeEnumType } from "~/server/api/types/work_type_enum";
 
 export class Transaction extends Model<
 	InferAttributes<Transaction>,
@@ -248,7 +248,7 @@ export class Transaction extends Model<
 	declare note: string;
   
 	/** 外幣幣別 */
-	declare currency_foreign: string;
+	declare currency_foreign: string | null;
 	/** 匯率 */
 	declare exchange_rate: number;
 	/** 外幣金額 */
@@ -732,6 +732,7 @@ export function initTransaction(sequelize: Sequelize) {
 			},
 			currency_foreign: {
 				type: DataTypes.STRING(128),
+        allowNull: true,
 				comment: "外幣幣別",
 			},
 			exchange_rate: {

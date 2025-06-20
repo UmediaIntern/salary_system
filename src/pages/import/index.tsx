@@ -38,6 +38,7 @@ import { ExcelValidator } from "~/components/file_operations/excel_validator";
 import { reqNodeEmpNo } from "./excel_requirement";
 import { convertFromDBWorkStatusEnum } from "~/server/api/types/work_status_enum";
 import { MB } from "~/lib/utils/define";
+import { dateToStringNullable } from "~/server/api/types/z_utils";
 
 const excelParser = new ExcelParser();
 // const excelValidator = new ExcelValidator([]);
@@ -50,7 +51,6 @@ export function ImportCarousel() {
 
 	async function handleFileUpload(files: File[]) {
 		if (files.length !== 1 || !files[0]) {
-			// toast
 			throw new Error("Only one file can be uploaded at a time");
 		}
 		const file: File = files[0];
@@ -100,7 +100,7 @@ export function ImportCarousel() {
         if (
           dataIdx != undefined &&
           dataIdx >= 0 &&
-          row[dataIdx] != undefined
+          row[dataIdx] !== undefined
         ) {
           if (key === "work_status") {
             obj[key] = convertFromDBWorkStatusEnum(row[dataIdx]);
@@ -114,6 +114,7 @@ export function ImportCarousel() {
         }
       });
 
+      // TODO: temporary
       const result = importFields.safeParse(obj);
       if (!result.success) {
         console.log(result.error.message);
@@ -162,7 +163,7 @@ export function ImportCarousel() {
 					<Card className="h-full">
 						<CardContent className="flex h-full grow items-center justify-center p-6">
 							<span className="text-4xl font-semibold">
-								<FileUploader onUpload={handleFileUpload} maxSize={MB(2)}/>
+								<FileUploader onUpload={handleFileUpload} maxSize={MB(5)}/>
 							</span>
 						</CardContent>
 					</Card>

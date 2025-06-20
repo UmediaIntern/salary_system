@@ -46,7 +46,7 @@ export class ImportService {
 			dependents: data.dependents,
 			healthcare_dependents: data.healthcare_dependents,
 			registration_date: dateToString.parse(data.registration_date),
-			quit_date: data.quit_date,
+			quit_date: dateToStringNullable.parse(data.quit_date),
 			license_id: data.license_id,
 			bank_account_taiwan: data.bank_account_taiwan,
 			received_elderly_benefits: data.received_elderly_benefits,
@@ -110,7 +110,9 @@ export class ImportService {
 			...data,
 			// period_id: period_id, // 期別
       issue_date: dateToString.parse(data.issue_date),
-			entry_date: data.entry_date,
+      residence_permit_start_date: dateToStringNullable.parse(data.residence_permit_start_date),
+      residence_permit_end_date: dateToStringNullable.parse(data.residence_permit_end_date),
+      quit_date: dateToStringNullable.parse(data.quit_date),
 			registration_date: dateToString.parse(data.registration_date), // TODO: change to date
 			disabled: false,
 			create_by: "system",
