@@ -43,9 +43,6 @@ export function PeriodSelector() {
 	);
 
 	const { data, isPending, content } = useQueryHandle(getPeriod);
-	if (isPending) {
-		return content;
-	}
 
 	return (
 		<DialogContent>
@@ -55,79 +52,92 @@ export function PeriodSelector() {
 					{t("others.select_period")}
 				</DialogDescription>
 			</DialogHeader>
-			<div className="flex flex-col items-center">
-				<div className="flex w-full p-2">
-					<div className="flex-1">{t("others.period")}</div>
-					<div className="flex-1">
-						<Select
-							defaultValue={selectedPeriod?.period_name}
-							onValueChange={(chosen) => {
-								const targetPeriod = data.find(
-									(item) => item.period_name === chosen
-								)!;
-								setTmpPeriod(targetPeriod);
+			{isPending ? (
+				content
+			) : (
+				<>
+					<div className="flex flex-col items-center">
+						<div className="flex w-full p-2">
+							<div className="flex-1">{t("others.period")}</div>
+							<div className="flex-1">
+								<Select
+									defaultValue={selectedPeriod?.period_name}
+									onValueChange={(chosen) => {
+										const targetPeriod = data.find(
+											(item) =>
+												item.period_name === chosen
+										)!;
+										setTmpPeriod(targetPeriod);
+									}}
+								>
+									<SelectTrigger className="w-full font-mono">
+										<SelectValue
+											placeholder={t(
+												"others.select_period"
+											)}
+										/>
+									</SelectTrigger>
+									<SelectContent className="h-[20em]">
+										<SelectGroup>
+											<SelectLabel>
+												{t("others.period")}
+											</SelectLabel>
+											{data.map((period_info) => {
+												const original_name =
+													period_info.period_name;
+												const [month, year] =
+													original_name.split("-");
+												return (
+													<SelectItem
+														key={original_name}
+														value={original_name}
+														className="font-mono hover:cursor-pointer hover:bg-gray-100"
+													>
+														{`20${year}-${t(
+															`month.${month!.toLowerCase()}`
+														)}`}
+													</SelectItem>
+												);
+											})}
+										</SelectGroup>
+									</SelectContent>
+								</Select>
+							</div>
+						</div>
+						<div className="flex w-full p-2">
+							<div className="flex-1">
+								{t("table.issue_date")}
+							</div>
+							<div className="flex-1">
+								<DatePicker
+									date={tmpPayDate ?? undefined}
+									setDate={(date: Date | undefined) => {
+										setTmpPayDate(date ?? null);
+									}}
+								/>
+							</div>
+						</div>
+					</div>
+					<DialogClose asChild>
+						<Button
+							onClick={() => {
+								if (tmpPeriod != null) {
+									setSelectedPeriod(tmpPeriod);
+									SessionStorage.setSelectedPeriod(tmpPeriod);
+								}
+								if (tmpPayDate != null) {
+									setSelectedPayDate(tmpPayDate);
+									SessionStorage.setSelectedPayDate(
+										tmpPayDate
+									);
+								}
 							}}
 						>
-							<SelectTrigger className="w-full font-mono">
-								<SelectValue
-									placeholder={t("others.select_period")}
-								/>
-							</SelectTrigger>
-							<SelectContent className="h-[20em]">
-								<SelectGroup>
-									<SelectLabel>
-										{t("others.period")}
-									</SelectLabel>
-									{data.map((period_info) => {
-										const original_name =
-											period_info.period_name;
-										const [month, year] =
-											original_name.split("-");
-										return (
-											<SelectItem
-												key={original_name}
-												value={original_name}
-												className="font-mono hover:cursor-pointer hover:bg-gray-100"
-											>
-												{`20${year}-${t(
-													`month.${month!.toLowerCase()}`
-												)}`}
-											</SelectItem>
-										);
-									})}
-								</SelectGroup>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-				<div className="flex w-full p-2">
-					<div className="flex-1">{t("table.issue_date")}</div>
-					<div className="flex-1">
-						<DatePicker
-							date={tmpPayDate ?? undefined}
-							setDate={(date: Date | undefined) => {
-								setTmpPayDate(date ?? null);
-							}}
-						/>
-					</div>
-				</div>
-			</div>
-			<DialogClose asChild>
-				<Button
-					onClick={() => {
-						if (tmpPeriod != null) {
-							setSelectedPeriod(tmpPeriod);
-							SessionStorage.setSelectedPeriod(tmpPeriod);
-						}
-						if (tmpPayDate != null) {
-							setSelectedPayDate(tmpPayDate);
-							SessionStorage.setSelectedPayDate(tmpPayDate);
-						}
-					}}
-				>
-					{t("button.save")}
-				</Button>
-			</DialogClose>
+							{t("button.save")}
+						</Button>
+					</DialogClose>
+				</>
+			)}
 		</DialogContent>
 	);
 }

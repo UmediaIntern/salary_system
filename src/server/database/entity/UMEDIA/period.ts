@@ -1,5 +1,7 @@
+import { z } from "zod";
 import { stringToDate } from "~/server/api/types/z_utils";
-import { get_date_string } from "~/server/service/helper_function";
+import { PeriodModelErrorScope } from "~/server/errors/error_scope";
+import { ParserError } from "~/server/errors/parser_error";
 
 // TODO: date should be date type not string
 export class Period {
@@ -16,7 +18,7 @@ export class Period {
 		start_date: Date,
 		end_date: Date,
 		status: string,
-		issue_date: Date, 
+		issue_date: Date
 	) {
 		this.period_id = period_id;
 		this.period_name = period_name;
@@ -36,17 +38,46 @@ export class Period {
 			ISSUE_DATE,
 		} = data;
 
-		const formattedStartDate = stringToDate.parse(START_DATE);
-		const formattedEndDate = stringToDate.parse(END_DATE);
-		const formattedIssueDate = stringToDate.parse(ISSUE_DATE);
+		let startDate: Date;
+		if (START_DATE instanceof Date) {
+			startDate = START_DATE;
+		} else {
+			const { data, error, success } = stringToDate.safeParse(START_DATE);
+			if (!success) {
+				throw new ParserError(error.message, PeriodModelErrorScope);
+			}
+			startDate = data;
+		}
+
+		let endDate: Date;
+		if (END_DATE instanceof Date) {
+			endDate = END_DATE;
+		} else {
+			const { data, error, success } = stringToDate.safeParse(END_DATE);
+			if (!success) {
+				throw new ParserError(error.message, PeriodModelErrorScope);
+			}
+			endDate = data;
+		}
+
+		let issueDate: Date;
+		if (ISSUE_DATE instanceof Date) {
+			issueDate = ISSUE_DATE;
+		} else {
+			const { data, error, success } = stringToDate.safeParse(ISSUE_DATE);
+			if (!success) {
+				throw new ParserError(error.message, PeriodModelErrorScope);
+			}
+			issueDate = data;
+		}
 
 		return new Period(
 			PERIOD_ID as number,
 			PERIOD_NAME as string,
-			formattedStartDate,
-			formattedEndDate,
+			startDate,
+			endDate,
 			STATUS as string,
-			formattedIssueDate
+			issueDate
 		);
 	}
 }
