@@ -1,21 +1,22 @@
+import { stringToDate } from "~/server/api/types/z_utils";
 import { get_date_string } from "~/server/service/helper_function";
 
 // TODO: date should be date type not string
 export class Period {
 	declare period_id: number;
 	declare period_name: string;
-	declare start_date: string;
-	declare end_date: string;
+	declare start_date: Date;
+	declare end_date: Date;
 	declare status: string;
-	declare issue_date: string;
+	declare issue_date: Date;
 
 	constructor(
 		period_id: number,
 		period_name: string,
-		start_date: string,
-		end_date: string,
+		start_date: Date,
+		end_date: Date,
 		status: string,
-		issue_date: string
+		issue_date: Date, 
 	) {
 		this.period_id = period_id;
 		this.period_name = period_name;
@@ -35,9 +36,9 @@ export class Period {
 			ISSUE_DATE,
 		} = data;
 
-		const formattedStartDate = get_date_string(START_DATE as Date);
-		const formattedEndDate = get_date_string(END_DATE as Date);
-		const formattedIssueDate = get_date_string(ISSUE_DATE as Date);
+		const formattedStartDate = stringToDate.parse(START_DATE);
+		const formattedEndDate = stringToDate.parse(END_DATE);
+		const formattedIssueDate = stringToDate.parse(ISSUE_DATE);
 
 		return new Period(
 			PERIOD_ID as number,

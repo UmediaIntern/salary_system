@@ -41,13 +41,13 @@ export const importFields = z.object({
     /** 健保眷口數 */
     healthcare_dependents: z.number(),
     /** 居留證開始日期 */
-    residence_permit_start_date: z.string().nullable(),
+    residence_permit_start_date: z.date().nullable(), // TODO: Fix
     /** 居留證截止日期 */
-    residence_permit_end_date: z.string().nullable(),
+    residence_permit_end_date: z.date().nullable(), // TODO: Fix
     /** 到職日期 */
-    registration_date: z.string(),
+    registration_date: z.date(), // TODO: Fix
     /** 離職日期 */
-    quit_date: z.string().nullable(),
+    quit_date: z.date().nullable(), // TODO: Fix
     /** 台幣帳號 */
     bank_account_taiwan: z.string(),
     /** 外幣帳號 */
@@ -250,5 +250,3 @@ export type ImportFieldsType = z.infer<typeof importFields>;
 
 export const importFieldsKeys = importFields.keyof();
 export type ImportFieldsKeyType = z.infer<typeof importFieldsKeys>;
-
-

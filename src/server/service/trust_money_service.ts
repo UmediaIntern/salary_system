@@ -85,7 +85,7 @@ export class TrustMoneyService {
 	): Promise<TrustMoneyDecType | null> {
 		const ehr_service = container.resolve(EHRService);
 		const period = await ehr_service.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const trustMoney = await TrustMoney.findOne({
 			where: {
 				start_date: {
@@ -110,7 +110,7 @@ export class TrustMoneyService {
 	): Promise<TrustMoneyDecType[]> {
 		const ehr_service = container.resolve(EHRService);
 		const period = await ehr_service.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const trustMoney = await TrustMoney.findAll({
 			where: {
 				start_date: {

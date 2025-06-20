@@ -19,12 +19,13 @@ import {
 	type WorkTypeEnumType,
 } from "~/server/api/types/work_type_enum";
 import { dateCreateF, systemF, systemKeys } from "../../mapper/mapper_utils";
-import { CostCategoryEnumType } from "~/server/api/types/cost_category_type";
+import { CostCategoryEnum, CostCategoryEnumType } from "~/server/api/types/cost_category_type";
 
 const dbEmployeeData = z.object({
 	period_id: z.number(),
 	emp_no: z.string(), //員工編號
 	emp_name: z.string(), //員工姓名
+  cost_category: CostCategoryEnum,
 	position: z.number(), //職等
 	position_type: z.string(), //職級
 	group_insurance_type: z.string(), //團保類別

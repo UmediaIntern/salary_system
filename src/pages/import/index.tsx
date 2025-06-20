@@ -36,6 +36,7 @@ import { type ExcelSheetData } from "~/components/file_operations/excel_type";
 import { ExcelParser } from "~/components/file_operations/excel_parser";
 import { ExcelValidator } from "~/components/file_operations/excel_validator";
 import { reqNodeEmpNo } from "./excel_requirement";
+import { convertFromDBWorkStatusEnum } from "~/server/api/types/work_status_enum";
 
 const excelParser = new ExcelParser();
 // const excelValidator = new ExcelValidator([]);
@@ -100,7 +101,11 @@ export function ImportCarousel() {
           dataIdx >= 0 &&
           row[dataIdx] != undefined
         ) {
-          obj[key] = row[dataIdx];
+          if (key === "work_status") {
+            obj[key] = convertFromDBWorkStatusEnum(row[dataIdx]);
+          } else {
+            obj[key] = row[dataIdx];
+          }
         } else {
           console.log(
             `${key} not found in excel idx=${idx} dataIdx=${dataIdx}`

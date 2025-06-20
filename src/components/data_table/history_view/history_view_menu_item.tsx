@@ -1,6 +1,5 @@
 import { ArrowRightCircle, GitCommitHorizontal } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { is_date_available } from "~/server/service/helper_function";
 import { Badge } from "~/components/ui/badge";
 import { formatDate } from "~/lib/utils/format_date";
 import { useTranslation } from "react-i18next";
@@ -16,6 +15,26 @@ interface HistoryViewEntryProp {
 	updateBy: string;
 	onClick: () => void;
 }
+
+function is_date_available(
+	period: Period | null,
+	start_date: Date,
+	end_date: Date | null
+): boolean {
+	if (!period) {
+		return false;
+	}
+	const targetDate = period.end_date;
+
+	if (end_date && end_date < targetDate) {
+		return false;
+	}
+	if (start_date && start_date > targetDate) {
+		return false;
+	}
+	return true;
+}
+
 /* e.id === selectedEmpData?.id */
 export function HistoryViewMenuItem({
 	id,
@@ -28,11 +47,7 @@ export function HistoryViewMenuItem({
 }: HistoryViewEntryProp) {
 	const { t } = useTranslation(["common"]);
 
-	const isDateAvailable = is_date_available(
-		period,
-		startDate.toString(),
-		endDate?.toString() ?? ""
-	);
+	const isDateAvailable = is_date_available(period, startDate, endDate);
 
 	return (
 		<div
