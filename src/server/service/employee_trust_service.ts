@@ -16,7 +16,11 @@ import {
 	type updateEmployeeTrustService,
 } from "../api/types/employee_trust_type";
 import { EmployeeTrustMapper } from "../database/mapper/employee_trust_mapper";
-import { dateToString, dateToStringNullable, stringToDate } from "../api/types/z_utils";
+import {
+	dateToString,
+	dateToStringNullable,
+	stringToDate,
+} from "../api/types/z_utils";
 import { EmployeeDataService } from "./employee_data_service";
 import { isSameDay, subDays } from "date-fns";
 import { Period } from "../database/entity/UMEDIA/period";
@@ -30,7 +34,7 @@ export class EmployeeTrustService {
 		@inject(delay(() => EmployeeTrustMapper))
 		private readonly employeeTrustMapper: EmployeeTrustMapperType,
 		private readonly ehrService: EHRService,
-		private readonly employeeDataService: EmployeeDataService
+		private readonly employeeDataService: EmployeeDataService,
 	) {}
 
 	async createEmployeeTrust(
@@ -59,10 +63,8 @@ export class EmployeeTrustService {
 		return newData;
 	}
 
-  async insertEmployeeTrust(
-		d: z.input<typeof employeeTrustCreateService>
-	) {
-    const data = employeeTrustCreateService.parse(d)
+	async insertEmployeeTrust(d: z.input<typeof employeeTrustCreateService>) {
+		const data = employeeTrustCreateService.parse(d);
 		const inputDate = dateToStringNullable.parse(data.start_date);
 		if (!data.start_date || !inputDate) {
 			throw new Error("start_date is required");
@@ -86,9 +88,7 @@ export class EmployeeTrustService {
 		let dLatestTrust = null;
 		let isSameBefore = false;
 		if (latestTrust != null) {
-			dLatestTrust = await this.employeeTrustMapper.decode(
-				latestTrust
-			);
+			dLatestTrust = await this.employeeTrustMapper.decode(latestTrust);
 			isSameBefore = isEqualEmployeeTrust(dLatestTrust, data);
 		}
 
@@ -133,8 +133,8 @@ export class EmployeeTrustService {
 				console.log("creating new employee trust");
 				await this.createEmployeeTrust(data);
 				return;
-			}
-			else { // Inserting an earlier payment
+			} else {
+				// Inserting an earlier payment
 				console.log("Different from trust after, create new trust");
 				await this.createEmployeeTrust({
 					...data,
@@ -142,8 +142,8 @@ export class EmployeeTrustService {
 				});
 				return;
 			}
-		}
-		else { // latestPayment != null
+		} else {
+			// latestPayment != null
 			if (dClosestFutureTrust != null) {
 				// Just to check
 				if (
@@ -158,7 +158,7 @@ export class EmployeeTrustService {
 					);
 				}
 				console.log("creating new employee trust. end date set");
-        await latestTrust?.update("end_date", inputDate);
+				await latestTrust?.update("end_date", inputDate);
 				await this.createEmployeeTrust({
 					...data,
 					end_date: dLatestTrust.end_date,
@@ -166,7 +166,7 @@ export class EmployeeTrustService {
 				return;
 			} else {
 				console.log("creating new employee trust. (no end date)");
-        await latestTrust?.update("end_date", inputDate);
+				await latestTrust?.update("end_date", inputDate);
 				await this.createEmployeeTrust(data);
 				return;
 			}
@@ -291,7 +291,10 @@ export class EmployeeTrustService {
 			})
 		);
 		return current_employee_trustFE
-			.filter((emp_trust): emp_trust is NonNullable<typeof emp_trust> => emp_trust != null)
+			.filter(
+				(emp_trust): emp_trust is NonNullable<typeof emp_trust> =>
+					emp_trust != null
+			)
 			.sort(
 				(a, b) =>
 					(b as NonNullable<typeof b>).emp_trust_reserve -
@@ -572,11 +575,13 @@ export class EmployeeTrustService {
 			const year = String(parseInt(period_name.split("-")[1]!) - 1);
 			start_period = await this.ehrService.getPeriodByName("DEC-" + year);
 		}
-		// const end_period = this.ehrService.getPeriodById(period_id-1);
+		const end_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		const result = await Transaction.findAll({
 			where: {
 				period_id: {
-					[Op.between]: [start_period.period_id, period_id - 1],
+					[Op.between]: [start_period.period_id, end_period_id],
 				},
 				emp_no: {
 					[Op.in]: emp_no_list,

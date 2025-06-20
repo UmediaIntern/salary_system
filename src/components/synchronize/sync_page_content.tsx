@@ -72,16 +72,16 @@ export function SyncPageContent({ data }: { data: SyncData[] }) {
 						let ehrValue = c.ehr_value;
 						switch (c.key) {
 							case "work_status":
-								salaryValue = t(`work_status.${convertToKey(c.salary_value as WorkStatusEnumType)}`);
+								salaryValue = salaryValue ? t(`work_status.${convertToKey(c.salary_value as WorkStatusEnumType)}`) : salaryValue;
 								ehrValue = t(`work_status.${convertToKey(c.ehr_value as WorkStatusEnumType)}`);
 								break;
 							case "registration_date":
 							case "quit_date":
-								salaryValue = formatDate("day", c.salary_value) ?? "";
-								ehrValue = formatDate("day", c.ehr_value) ?? "";
+								salaryValue =  salaryValue ? formatDate("day", c.salary_value) : salaryValue;
+								ehrValue = ehrValue ? formatDate("day", c.ehr_value) : ehrValue;
 								break;
 							case "received_elderly_benefits":
-								salaryValue = t(`others.${c.salary_value}`);
+								salaryValue = salaryValue ? t(`others.${c.salary_value}`): salaryValue;
 								ehrValue = t(`others.${c.ehr_value}`);
 								break;
 						}
@@ -244,7 +244,7 @@ export function SyncPageContent({ data }: { data: SyncData[] }) {
 										(c) => c.check_status === "checked"
 									);
 									const newEmployee = employee.comparisons.every(
-										(c) => c.salary_value === undefined
+										(c) => c.salary_value === null
 									);
 									return {
 										...employee,
