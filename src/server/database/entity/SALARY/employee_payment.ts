@@ -29,6 +29,7 @@ import {
 const dbEmployeePayment = z.object({
 	emp_no: z.string(),
 	long_service_allowance_type: LongServiceEnum,
+	bank_account_foreign: z.string().nullable(),
 	create_by: z.string(),
 	update_by: z.string(),
 	disabled: z.coerce.boolean(),
@@ -133,6 +134,7 @@ export class EmployeePayment extends Model<
 	declare h_i_enc: string;
 	declare l_r_enc: string;
 	declare occupational_injury_enc: string;
+	declare bank_account_foreign: string | null;
 	declare start_date: string;
 	declare end_date: string | null;
 	declare disabled: boolean;
@@ -205,6 +207,10 @@ export function initEmployeePayment(sequelize: Sequelize) {
 			occupational_injury_enc: {
 				type: DataTypes.STRING(128),
 				allowNull: false,
+			},
+			bank_account_foreign: {
+				type: DataTypes.STRING(32),
+				allowNull: true,
 			},
 			start_date: {
 				type: DataTypes.STRING(128),

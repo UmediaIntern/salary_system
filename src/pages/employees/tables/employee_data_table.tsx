@@ -29,7 +29,6 @@ type RowItem = {
 	quit_date: string | null;
 	license_id: string | null;
 	bank_account_taiwan: string;
-	bank_account_foreign: string | null;
 	received_elderly_benefits: boolean;
 	month_salary_status: MonthSalaryStatusEnumType,
 };
@@ -55,7 +54,6 @@ const columns = (t: I18nType) => {
 		"quit_date",
 		"license_id",
 		"bank_account_taiwan",
-		"bank_account_foreign",
 		"received_elderly_benefits",
 		"month_salary_status",
 	];

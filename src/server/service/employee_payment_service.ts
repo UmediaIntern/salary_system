@@ -708,6 +708,7 @@ export class EmployeePaymentService {
 		h_i,
 		l_r,
 		occupational_injury,
+		bank_account_foreign,
 		start_date,
 		end_date,
 	}: z.infer<typeof updateEmployeePaymentService>): Promise<
@@ -756,6 +757,10 @@ export class EmployeePaymentService {
 			occupational_injury: select_value(
 				occupational_injury,
 				employeePayment.occupational_injury
+			),
+			bank_account_foreign: select_value(
+				bank_account_foreign,
+				employeePayment.bank_account_foreign
 			),
 			start_date: select_value(start_date, employeePayment.start_date),
 			end_date: select_value(end_date, employeePayment.end_date),

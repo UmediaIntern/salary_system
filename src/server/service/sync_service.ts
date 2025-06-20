@@ -146,7 +146,6 @@ export class SyncService {
 			quit_date: ehr_data.quit_date!,
 			license_id: ehr_data.license_id!,
 			bank_account_taiwan: ehr_data.bank_account_taiwan,
-			bank_account_foreign: ehr_data.bank_account_foreign,
 			received_elderly_benefits: ehr_data.received_elderly_benefits,
 		};
 	}
@@ -568,6 +567,7 @@ export class SyncService {
 					h_i: 0,
 					l_r: 0,
 					occupational_injury: 0,
+					bank_account_foreign: null,
 				});
 
 				await this.employeeTrustService.createEmployeeTrust({

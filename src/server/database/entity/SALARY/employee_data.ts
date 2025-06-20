@@ -39,7 +39,6 @@ const dbEmployeeData = z.object({
 	quit_date: z.string().nullable(), //離職日期
 	license_id: z.string().nullable(), //身分證字號
 	bank_account_taiwan: z.string(), //台幣帳號
-	bank_account_foreign: z.string().nullable(), //外幣帳號
 	received_elderly_benefits: z.coerce.boolean(), // TODO: is this okay?
 	create_by: z.string(),
 	update_by: z.string(),
@@ -99,11 +98,10 @@ export class EmployeeData extends Model<
 	declare healthcare_dependents: number | null; // 健保眷口數
 	declare registration_date: string; // 到職日期
 	declare quit_date: string | null; // 離職日期
-	declare entry_date: string | null; // 入境日期
-	declare exit_date: string | null; // 離境日期
+	declare residence_permit_start_date: string | null; // 居留證開始日期
+	declare residence_permit_end_date: string | null; // 居留證截止日期
 	declare license_id: string | null; // 身分證字號
 	declare bank_account_taiwan: string; // 台幣帳號
-	declare bank_account_foreign: string | null; // 外幣帳號
 	declare probation_period_over: boolean; // 試用期滿
 	declare received_elderly_benefits: boolean; //是否領取老年給付
 	// timestamps!
@@ -149,6 +147,7 @@ export function initEmployeeData(sequelize: Sequelize) {
 			},
 			disabilty_level: {
 				type: DataTypes.STRING,
+				allowNull: true,
 			},
 			department: {
 				type: DataTypes.STRING(32),
@@ -186,23 +185,20 @@ export function initEmployeeData(sequelize: Sequelize) {
 				type: DataTypes.STRING(32),
 				allowNull: true,
 			},
-			entry_date: {
+			residence_permit_start_date: {
 				type: DataTypes.STRING(32),
 				allowNull: true,
 			},
-			exit_date: {
+			residence_permit_end_date: {
 				type: DataTypes.STRING(32),
 				allowNull: true,
 			},
 			license_id: {
 				type: DataTypes.STRING(32),
+				allowNull: true,
 			},
 			bank_account_taiwan: {
 				type: DataTypes.STRING(32),
-			},
-			bank_account_foreign: {
-				type: DataTypes.STRING(32),
-				allowNull: true,
 			},
 			probation_period_over: {
 				type: DataTypes.BOOLEAN,

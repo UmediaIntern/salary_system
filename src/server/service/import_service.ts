@@ -49,7 +49,6 @@ export class ImportService {
 			quit_date: data.quit_date,
 			license_id: data.license_id,
 			bank_account_taiwan: data.bank_account_taiwan,
-			bank_account_foreign: data.bank_account_foreign,
 			received_elderly_benefits: data.received_elderly_benefits,
 		});
 
@@ -70,7 +69,8 @@ export class ImportService {
 			h_i: data.h_i,
 			l_r: data.l_r,
 			occupational_injury: data.occupational_injury,
-			start_date: period.start_date, 
+			bank_account_foreign: data.bank_account_foreign ?? null,
+			start_date: period.start_date,
 			end_date: null,
 		});
 

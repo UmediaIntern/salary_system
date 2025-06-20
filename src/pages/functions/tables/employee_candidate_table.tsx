@@ -123,6 +123,7 @@ export function EmployeeCandidateTable({ period_id, func }: EmployeeCandidateTab
 			h_i: payment?.h_i ?? 0,
 			l_r: payment?.l_r ?? 0,
 			occupational_injury: payment?.occupational_injury ?? 0,
+			bank_account_foreign: payment?.bank_account_foreign ?? null,
 		}
 	})
 
