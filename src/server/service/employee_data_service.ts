@@ -19,14 +19,14 @@ import { ParserError } from "../errors/parser_error";
 
 @injectable()
 export class EmployeeDataService {
-	constructor(private readonly employeeDataMapper: EmployeeDataMapper) { }
+	constructor(private readonly employeeDataMapper: EmployeeDataMapper) {}
 
 	async createEmployeeData(
 		data: z.infer<typeof createEmployeeDataService>
 	): Promise<EmployeeDataDecType> {
 		const result = createEmployeeDataService.safeParse(data);
 
-    if (!result.success) {
+		if (!result.success) {
 			throw new ParserError(result.error.message);
 		}
 		const d = result.data;
@@ -220,7 +220,7 @@ export class EmployeeDataService {
 					: undefined,
 				update_by: "system",
 			},
-			{ where: { id: employeeData.id } },
+			{ where: { id: employeeData.id } }
 		);
 		if (affectedCount[0] == 0) {
 			throw new BaseResponseError("Update error");
@@ -234,6 +234,13 @@ export class EmployeeDataService {
 		if (destroyedRows != 1) {
 			throw new BaseResponseError("Delete error");
 		}
+	}
+
+	async dropEmployeeDataPeriod(period_id: number): Promise<number> {
+		const deletedRows = await EmployeeData.destroy({
+			where: { period_id: period_id },
+		});
+		return deletedRows;
 	}
 
 	private async getEmployeeDataAfterSelectValue(
