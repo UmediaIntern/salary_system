@@ -25,16 +25,18 @@ const dbEmployeeData = z.object({
 	period_id: z.number(),
 	emp_no: z.string(), //員工編號
 	emp_name: z.string(), //員工姓名
-  cost_category: CostCategoryEnum,
 	position: z.number(), //職等
 	position_type: z.string(), //職級
 	group_insurance_type: z.string(), //團保類別
 	department: z.string(), //部門
+	cost_category: CostCategoryEnum, //成本分類
 	work_type: WorkTypeEnum, //工作類別
 	disabilty_level: z.string().nullable(), //殘障等級
 	sex_type: z.string(), //性別
 	dependents: z.number().nullable(), //扶養人數
 	healthcare_dependents: z.number().nullable(), //健保眷口數
+	residence_permit_start_date: z.string().nullable(), //居留證開始日期
+	residence_permit_end_date: z.string().nullable(), //居留證截止日期
 	registration_date: z.string(), //到職日期
 	quit_date: z.string().nullable(), //離職日期
 	license_id: z.string().nullable(), //身分證字號
@@ -96,10 +98,10 @@ export class EmployeeData extends Model<
 	declare sex_type: string; // 性別
 	declare dependents: number | null; // 扶養人數
 	declare healthcare_dependents: number | null; // 健保眷口數
-	declare registration_date: string; // 到職日期
-	declare quit_date: string | null; // 離職日期
 	declare residence_permit_start_date: string | null; // 居留證開始日期
 	declare residence_permit_end_date: string | null; // 居留證截止日期
+	declare registration_date: string; // 到職日期
+	declare quit_date: string | null; // 離職日期
 	declare license_id: string | null; // 身分證字號
 	declare bank_account_taiwan: string; // 台幣帳號
 	declare probation_period_over: boolean; // 試用期滿
@@ -177,19 +179,19 @@ export function initEmployeeData(sequelize: Sequelize) {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: true,
 			},
-			registration_date: {
-				type: DataTypes.STRING(32),
-				allowNull: false,
-			},
-			quit_date: {
-				type: DataTypes.STRING(32),
-				allowNull: true,
-			},
 			residence_permit_start_date: {
 				type: DataTypes.STRING(32),
 				allowNull: true,
 			},
 			residence_permit_end_date: {
+				type: DataTypes.STRING(32),
+				allowNull: true,
+			},
+			registration_date: {
+				type: DataTypes.STRING(32),
+				allowNull: false,
+			},
+			quit_date: {
 				type: DataTypes.STRING(32),
 				allowNull: true,
 			},

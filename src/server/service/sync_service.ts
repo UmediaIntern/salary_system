@@ -40,7 +40,7 @@ export class SyncService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeDataMapper: EmployeeDataMapper
-	) {}
+	) { }
 	// TODO: move this
 	parsedPeriod(
 		period: Period
@@ -136,12 +136,15 @@ export class SyncService {
 			position_type: ehr_data.position_type,
 			group_insurance_type: ehr_data.group_insurance_type,
 			department: ehr_data.department,
+			cost_category: ehr_data.cost_category,
 			work_type: ehr_data.work_type,
 			work_status: ehr_data.work_status,
 			disabilty_level: ehr_data.disabilty_level,
 			sex_type: ehr_data.sex_type,
 			dependents: ehr_data.dependents,
 			healthcare_dependents: ehr_data.healthcare_dependents,
+			residence_permit_start_date: ehr_data.residence_permit_start_date,
+			residence_permit_end_date: ehr_data.residence_permit_end_date,
 			registration_date: ehr_data.registration_date,
 			quit_date: ehr_data.quit_date!,
 			license_id: ehr_data.license_id!,
@@ -214,7 +217,7 @@ export class SyncService {
 		if (
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
 			ehrEmp.work_status ==
-				WorkStatusEnum.Values.NewEmployeePartialMonth ||
+			WorkStatusEnum.Values.NewEmployeePartialMonth ||
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployee
 		) {
 			for (const key in ehrEmp) {

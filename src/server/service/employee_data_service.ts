@@ -244,12 +244,15 @@ export class EmployeeDataService {
 			position_type,
 			group_insurance_type,
 			department,
+			cost_category,
 			work_type,
 			work_status,
 			disabilty_level,
 			sex_type,
 			dependents,
 			healthcare_dependents,
+			residence_permit_start_date,
+			residence_permit_end_date,
 			registration_date,
 			quit_date,
 			license_id,
@@ -271,6 +274,10 @@ export class EmployeeDataService {
 				employee_data.group_insurance_type
 			),
 			department: select_value(department, employee_data.department),
+			cost_category: select_value(
+				cost_category,
+				employee_data.cost_category
+			),
 			work_type: select_value(work_type, employee_data.work_type),
 			work_status: select_value(work_status, employee_data.work_status),
 			disabilty_level: select_value(
@@ -282,6 +289,14 @@ export class EmployeeDataService {
 			healthcare_dependents: select_value(
 				healthcare_dependents,
 				employee_data.healthcare_dependents
+			),
+			residence_permit_start_date: select_value(
+				residence_permit_start_date,
+				employee_data.residence_permit_start_date
+			),
+			residence_permit_end_date: select_value(
+				residence_permit_end_date,
+				employee_data.residence_permit_end_date
 			),
 			registration_date: select_value(
 				registration_date,
