@@ -16,7 +16,6 @@ import { AllowanceType } from "../database/entity/UMEDIA/allowance_type";
 import { Allowance } from "../database/entity/UMEDIA/allowance";
 import { HolidaysTypeService } from "./holidays_type_service";
 import { PayTypeEnum, type PayTypeEnumType } from "../api/types/pay_type_enum";
-import { EmpAll } from "../database/entity/UMEDIA/emp_all";
 import { QuitDateEnum, QuitDateEnumType } from "../api/types/sync_type";
 
 export type BonusWithType = Omit<Bonus, "bonus_id" | "period_id"> & {
@@ -161,10 +160,7 @@ export class EHRService {
 			throw new BaseResponseError("Period Not Found");
 		}
 		const period_id = dataList.find((period) => {
-			return (
-				date >= new Date(period.start_date) &&
-				date <= new Date(period.end_date)
-			);
+			return date >= period.start_date && date <= period.end_date;
 		})?.period_id;
 		if (!period_id) {
 			throw new BaseResponseError("Period Not Found");

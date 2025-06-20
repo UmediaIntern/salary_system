@@ -40,7 +40,7 @@ export class SyncService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeDataMapper: EmployeeDataMapper
-	) {}
+	) { }
 	// TODO: move this
 	
 
@@ -58,17 +58,19 @@ export class SyncService {
 			position_type: ehr_data.position_type,
 			group_insurance_type: ehr_data.group_insurance_type,
 			department: ehr_data.department,
+			cost_category: ehr_data.cost_category,
 			work_type: ehr_data.work_type,
 			work_status: ehr_data.work_status,
 			disabilty_level: ehr_data.disabilty_level,
 			sex_type: ehr_data.sex_type,
 			dependents: ehr_data.dependents,
 			healthcare_dependents: ehr_data.healthcare_dependents,
+			residence_permit_start_date: ehr_data.residence_permit_start_date,
+			residence_permit_end_date: ehr_data.residence_permit_end_date,
 			registration_date: ehr_data.registration_date,
 			quit_date: ehr_data.quit_date!,
 			license_id: ehr_data.license_id!,
 			bank_account_taiwan: ehr_data.bank_account_taiwan,
-			bank_account_foreign: ehr_data.bank_account_foreign,
 			received_elderly_benefits: ehr_data.received_elderly_benefits,
 		};
 	}
@@ -133,41 +135,41 @@ export class SyncService {
 		});
 
 		syncData.comparisons = [];
-		// if (
-		// 	ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
-		// 	ehrEmp.work_status ==
-		// 		WorkStatusEnum.Values.NewEmployeePartialMonth ||
-		// 	ehrEmp.work_status == WorkStatusEnum.Values.NewEmployee
-		// ) {
-		// 	for (const key in ehrEmp) {
-		// 		if (
-		// 			key == "emp_no" ||
-		// 			key == "id" ||
-		// 			key == "work_status" ||
-		// 			key == "department" ||
-		// 			key == "emp_name"
-		// 		)
-		// 			continue;
-		// 		syncData.comparisons.push(
-		// 			this.dataComparison(
-		// 				key as keyof EmployeeData,
-		// 				ehrEmp[key],
-		// 				salaryEmp?.[key]
-		// 			)
-		// 		);
-		// 	}
-		// } else {
-		for (const key in ehrEmp) {
-			if (key == "emp_no" || key == "id") continue;
-			syncData.comparisons.push(
-				this.dataComparison(
-					key as keyof EmployeeData,
-					ehrEmp[key],
-					salaryEmp?.[key]
+		if (
+			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
+			ehrEmp.work_status ==
+			WorkStatusEnum.Values.NewEmployeePartialMonth ||
+			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployee
+		) {
+			for (const key in ehrEmp) {
+				if (
+					key == "emp_no" ||
+					key == "id" ||
+					key == "work_status" ||
+					key == "department" ||
+					key == "emp_name"
 				)
-			);
+					continue;
+				syncData.comparisons.push(
+					this.dataComparison(
+						key as keyof EmployeeData,
+						ehrEmp[key],
+						salaryEmp?.[key]
+					)
+				);
+			}
+		} else {
+			for (const key in ehrEmp) {
+				if (key == "emp_no" || key == "id") continue;
+				syncData.comparisons.push(
+					this.dataComparison(
+						key as keyof EmployeeData,
+						ehrEmp[key],
+						salaryEmp?.[key]
+					)
+				);
+			}
 		}
-		// }
 		return syncData;
 	}
 
@@ -476,7 +478,7 @@ export class SyncService {
 					emp_no: ehr_emp_data.emp_no,
 					long_service_allowance_type:
 						LongServiceEnum.Enum.month_allowance,
-					start_date: new Date(period.start_date),
+					start_date: period.start_date,
 					end_date: null,
 					base_salary: 0,
 					food_allowance: 0,
@@ -489,6 +491,7 @@ export class SyncService {
 					h_i: 0,
 					l_r: 0,
 					occupational_injury: 0,
+					bank_account_foreign: null,
 				});
 
 				await this.employeeTrustService.createEmployeeTrust({

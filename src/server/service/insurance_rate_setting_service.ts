@@ -15,6 +15,7 @@ import {
 	createInsuranceRateSettingService,
 	type updateInsuranceRateSettingService,
 } from "../api/types/insurance_rate_setting_type";
+import { dateToString } from "../api/types/z_utils";
 
 @injectable()
 export class InsuranceRateSettingService {
@@ -57,7 +58,7 @@ export class InsuranceRateSettingService {
 		period_id: number
 	): Promise<InsuranceRateSettingDecType | null> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const insuranceRateSettingList = await InsuranceRateSetting.findAll({
 			where: {
 				start_date: {

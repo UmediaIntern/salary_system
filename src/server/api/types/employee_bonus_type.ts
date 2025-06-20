@@ -56,7 +56,10 @@ export const updateEmployeeBonusService = employeeBonusUpdate
 // Frontend
 const employeeBonusFE = z
 	.object({
+		residence_permit_start_date: z.coerce.string().nullable(),
+		residence_permit_end_date: z.coerce.string().nullable(),
 		registration_date: z.coerce.string(),
+		quit_date: z.coerce.string().nullable(),
 		seniority: z.coerce.number(),
 		position_position_type: z.coerce.string(),
 		work_status: z.coerce.string(),

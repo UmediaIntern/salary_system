@@ -244,17 +244,19 @@ export class EmployeeDataService {
 			position_type,
 			group_insurance_type,
 			department,
+			cost_category,
 			work_type,
 			work_status,
 			disabilty_level,
 			sex_type,
 			dependents,
 			healthcare_dependents,
+			residence_permit_start_date,
+			residence_permit_end_date,
 			registration_date,
 			quit_date,
 			license_id,
 			bank_account_taiwan,
-			bank_account_foreign,
 			received_elderly_benefits,
 		}: z.infer<typeof updateEmployeeDataByEmpNoService>,
 		employee_data: EmployeeDataDecType
@@ -272,6 +274,10 @@ export class EmployeeDataService {
 				employee_data.group_insurance_type
 			),
 			department: select_value(department, employee_data.department),
+			cost_category: select_value(
+				cost_category,
+				employee_data.cost_category
+			),
 			work_type: select_value(work_type, employee_data.work_type),
 			work_status: select_value(work_status, employee_data.work_status),
 			disabilty_level: select_value(
@@ -284,6 +290,14 @@ export class EmployeeDataService {
 				healthcare_dependents,
 				employee_data.healthcare_dependents
 			),
+			residence_permit_start_date: select_value(
+				residence_permit_start_date,
+				employee_data.residence_permit_start_date
+			),
+			residence_permit_end_date: select_value(
+				residence_permit_end_date,
+				employee_data.residence_permit_end_date
+			),
 			registration_date: select_value(
 				registration_date,
 				employee_data.registration_date
@@ -293,10 +307,6 @@ export class EmployeeDataService {
 			bank_account_taiwan: select_value(
 				bank_account_taiwan,
 				employee_data.bank_account_taiwan
-			),
-			bank_account_foreign: select_value(
-				bank_account_foreign,
-				employee_data.bank_account_foreign
 			),
 			received_elderly_benefits: select_value(
 				received_elderly_benefits,

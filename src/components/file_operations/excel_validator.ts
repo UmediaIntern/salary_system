@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type ExcelSheetType } from "./excel_type";
+import { type ExcelSheetData } from "./excel_type";
 
 export class ExpNodeRequirement<T = unknown> {
 
@@ -55,7 +55,7 @@ export class ExcelValidator {
     this.requiredDest = requiredColumns;
   }
 
-  validate(excel: ExcelSheetType): ValidateResult {
+  validate(excel: ExcelSheetData): ValidateResult {
     console.log("Validating excel:", excel.sheet_name);
 
     const errors: ValidateErrorCode[] = [];
@@ -64,14 +64,14 @@ export class ExcelValidator {
 
     // Validate header
     for (const req of this.requiredDest) {
-      const idx = excel.header.indexOf(req.name)
+      const idx = excel.raw_header.indexOf(req.name)
       if (idx === -1 ) {
         errors.push(new ValidateErrorCode("missingColumn", req, 0)); 
       } 
       columnIdxReq[idx] = req;
     }
 
-    for (const row of excel.data) {
+    for (const row of excel.raw_data) {
       row.forEach((cell, idx) => {
         const req = columnIdxReq[idx];
         if (req) {

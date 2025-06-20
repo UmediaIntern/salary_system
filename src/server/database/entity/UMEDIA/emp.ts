@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CostCategoryEnum, CostCategoryEnumType } from "~/server/api/types/cost_category_type";
 import {
 	convertFromDBWorkStatusEnum,
 	DBWorkStatusEnum,
@@ -44,17 +45,19 @@ export class Emp {
 	position_type: string;
 	group_insurance_type: string;
 	department: string;
+	cost_category: CostCategoryEnumType;
 	work_type: WorkTypeEnumType;
 	work_status: WorkStatusEnumType;
 	disabilty_level: string | null;
 	sex_type: string;
 	dependents: number | null;
 	healthcare_dependents: number | null; //健保眷口數
+	residence_permit_start_date: string | null;
+	residence_permit_end_date: string | null;
 	registration_date: string;
 	quit_date: string | null;
 	license_id: string | null;
 	bank_account_taiwan: string;
-	bank_account_foreign: string | null;
 	received_elderly_benefits: boolean;
 
 	constructor(
@@ -65,17 +68,19 @@ export class Emp {
 		position_type: string,
 		group_insurance_type: string,
 		department: string,
+		cost_category: CostCategoryEnumType,
 		work_type: WorkTypeEnumType,
 		work_status: WorkStatusEnumType,
 		disabilty_level: string | null,
 		sex_type: string,
 		dependents: number | null,
 		healthcare_dependents: number | null,
+		residence_permit_start_date: string | null,
+		residence_permit_end_date: string | null,
 		registration_date: string,
 		quit_date: string | null,
 		license_id: string | null,
 		bank_account_taiwan: string,
-		bank_account_foreign: string | null,
 		received_elderly_benefits: boolean
 	) {
 		this.change_flag = change_flag;
@@ -85,17 +90,19 @@ export class Emp {
 		this.position_type = position_type;
 		this.group_insurance_type = group_insurance_type;
 		this.department = department;
+		this.cost_category = cost_category;
 		this.work_type = work_type;
 		this.work_status = work_status;
 		this.disabilty_level = disabilty_level;
 		this.sex_type = sex_type;
 		this.dependents = dependents;
 		this.healthcare_dependents = healthcare_dependents;
+		this.residence_permit_start_date = residence_permit_start_date;
+		this.residence_permit_end_date = residence_permit_end_date;
 		this.registration_date = registration_date;
 		this.quit_date = quit_date;
 		this.license_id = license_id;
 		this.bank_account_taiwan = bank_account_taiwan;
-		this.bank_account_foreign = bank_account_foreign;
 		this.received_elderly_benefits = received_elderly_benefits;
 	}
 
@@ -124,17 +131,19 @@ export class Emp {
 			data.POSITION_TYPE,
 			data.GINSURANCE_TYPE,
 			data.U_DEP,
+			CostCategoryEnum.Values.成本直接, // TODO: cost_category
 			data.WORK_TYPE,
 			data.WORK_STATUS,
 			data.ACCESSIBLE,
 			data.SEX_TYPE,
 			data.DEPENDENTS !== 0 ? data.DEPENDENTS : null,
 			data.HEALTHCARE !== 0 ? data.HEALTHCARE : null,
+			null, // TODO: residence_permit_start_date
+			null, // TODO: residence_permit_end_date
 			FORMAT_REGISTRATION_DATE,
 			FORMAT_QUIT_DATE,
 			data.LICENS_ID,
 			data.NBANKNUMBER,
-			null,
 			false
 		);
 	}

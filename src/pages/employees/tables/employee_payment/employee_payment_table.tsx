@@ -38,6 +38,7 @@ const columnNames: PaymentRowItemKey[] = [
 	"h_i",
 	"l_r",
 	"occupational_injury",
+	"bank_account_foreign",
 	"start_date",
 	"end_date",
 ];

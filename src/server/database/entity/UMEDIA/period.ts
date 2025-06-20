@@ -1,21 +1,24 @@
-import { get_date_string } from "~/server/service/helper_function";
+import { z } from "zod";
+import { stringToDate } from "~/server/api/types/z_utils";
+import { PeriodModelErrorScope } from "~/server/errors/error_scope";
+import { ParserError } from "~/server/errors/parser_error";
 
 // TODO: date should be date type not string
 export class Period {
 	declare period_id: number;
 	declare period_name: string;
-	declare start_date: string;
-	declare end_date: string;
+	declare start_date: Date;
+	declare end_date: Date;
 	declare status: string;
-	declare issue_date: string;
+	declare issue_date: Date;
 
 	constructor(
 		period_id: number,
 		period_name: string,
-		start_date: string,
-		end_date: string,
+		start_date: Date,
+		end_date: Date,
 		status: string,
-		issue_date: string
+		issue_date: Date
 	) {
 		this.period_id = period_id;
 		this.period_name = period_name;
@@ -35,17 +38,46 @@ export class Period {
 			ISSUE_DATE,
 		} = data;
 
-		const formattedStartDate = get_date_string(START_DATE as Date);
-		const formattedEndDate = get_date_string(END_DATE as Date);
-		const formattedIssueDate = get_date_string(ISSUE_DATE as Date);
+		let startDate: Date;
+		if (START_DATE instanceof Date) {
+			startDate = START_DATE;
+		} else {
+			const { data, error, success } = stringToDate.safeParse(START_DATE);
+			if (!success) {
+				throw new ParserError(error.message, PeriodModelErrorScope);
+			}
+			startDate = data;
+		}
+
+		let endDate: Date;
+		if (END_DATE instanceof Date) {
+			endDate = END_DATE;
+		} else {
+			const { data, error, success } = stringToDate.safeParse(END_DATE);
+			if (!success) {
+				throw new ParserError(error.message, PeriodModelErrorScope);
+			}
+			endDate = data;
+		}
+
+		let issueDate: Date;
+		if (ISSUE_DATE instanceof Date) {
+			issueDate = ISSUE_DATE;
+		} else {
+			const { data, error, success } = stringToDate.safeParse(ISSUE_DATE);
+			if (!success) {
+				throw new ParserError(error.message, PeriodModelErrorScope);
+			}
+			issueDate = data;
+		}
 
 		return new Period(
 			PERIOD_ID as number,
 			PERIOD_NAME as string,
-			formattedStartDate,
-			formattedEndDate,
+			startDate,
+			endDate,
 			STATUS as string,
-			formattedIssueDate
+			issueDate
 		);
 	}
 }

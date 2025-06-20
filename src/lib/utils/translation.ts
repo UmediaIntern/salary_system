@@ -11,7 +11,7 @@ export function Translate(word: string) {
 		if (word === "create_by") return "建立者";
 		if (word === "multiplier") return "倍率";
 		if (word === "update_date") return "更新時間";
-		if (word === "create_date") return "建立時間";
+		if (word === "create_date") return "建立日期";
 		if (word === "performance_level") return "績效等級";
 		if (word === "position") return "職等"; //number
 		if (word === "position_type") return "職級"; //string
@@ -21,8 +21,8 @@ export function Translate(word: string) {
 			return "特別信託獎勵金公司";
 		if (word === "emp_special_trust_incent_limit")
 			return "特別信託獎勵金員工";
-		if (word === "end_date") return "截止時間";
-		if (word === "start_date") return "開始時間";
+		if (word === "end_date") return "截止日期";
+		if (word === "start_date") return "開始日期";
 		if (word === "sick_leave_deduction") return "病假扣薪";
 		if (word === "personal_leave_deduction") return "事假扣薪";
 		if (word === "rate_of_unpaid_leave") return "不休假代金比率";
@@ -64,7 +64,6 @@ export function Translate(word: string) {
 		if (word === "birthdate") return "生日";
 		if (word === "work_type") return "工作類別";
 		if (word === "hire_date") return "到職日期";
-		if (word === "entry_date") return "入境日期";
 		if (word === "postal_code") return "通訊郵遞區號";
 		if (word === "nationality") return "國籍別";
 		if (word === "work_status") return "工作型態";
@@ -342,7 +341,6 @@ export function Translate(word: string) {
 		if (word === "birthdate") return "Birthdate";
 		if (word === "work_type") return "Work Type";
 		if (word === "hire_date") return "Hire Date";
-		if (word === "entry_date") return "Entry Date";
 		if (word === "postal_code") return "Postal Code";
 		if (word === "nationality") return "Nationality";
 		if (word === "work_status") return "Work Status";

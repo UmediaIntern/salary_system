@@ -75,6 +75,8 @@ export function SyncPageContent({ data }: { data: SyncData[] }) {
 								salaryValue = salaryValue ? t(`work_status.${convertToKey(c.salary_value as WorkStatusEnumType)}`) : salaryValue;
 								ehrValue = t(`work_status.${convertToKey(c.ehr_value as WorkStatusEnumType)}`);
 								break;
+							case "residence_permit_start_date":
+							case "residence_permit_end_date":
 							case "registration_date":
 							case "quit_date":
 								salaryValue =  salaryValue ? formatDate("day", c.salary_value) : salaryValue;
