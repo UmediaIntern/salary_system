@@ -37,6 +37,7 @@ import { ExcelParser } from "~/components/file_operations/excel_parser";
 import { ExcelValidator } from "~/components/file_operations/excel_validator";
 import { reqNodeEmpNo } from "./excel_requirement";
 import { convertFromDBWorkStatusEnum } from "~/server/api/types/work_status_enum";
+import { MB } from "~/lib/utils/define";
 
 const excelParser = new ExcelParser();
 // const excelValidator = new ExcelValidator([]);
@@ -161,7 +162,7 @@ export function ImportCarousel() {
 					<Card className="h-full">
 						<CardContent className="flex h-full grow items-center justify-center p-6">
 							<span className="text-4xl font-semibold">
-								<FileUploader onUpload={handleFileUpload} />
+								<FileUploader onUpload={handleFileUpload} maxSize={MB(2)}/>
 							</span>
 						</CardContent>
 					</Card>
