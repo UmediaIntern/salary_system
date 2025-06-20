@@ -19,6 +19,7 @@ import { EmployeeTrustMapper } from "../database/mapper/employee_trust_mapper";
 import {
 	dateToString,
 	dateToStringNullable,
+	stringToDate,
 } from "../api/types/z_utils";
 import { EmployeeDataService } from "./employee_data_service";
 import { isSameDay, subDays } from "date-fns";
@@ -33,7 +34,7 @@ export class EmployeeTrustService {
 		@inject(delay(() => EmployeeTrustMapper))
 		private readonly employeeTrustMapper: EmployeeTrustMapperType,
 		private readonly ehrService: EHRService,
-		private readonly employeeDataService: EmployeeDataService
+		private readonly employeeDataService: EmployeeDataService,
 	) {}
 
 	async createEmployeeTrust(
@@ -294,7 +295,11 @@ export class EmployeeTrustService {
 				(emp_trust): emp_trust is NonNullable<typeof emp_trust> =>
 					emp_trust != null
 			)
-			.sort((a, b) => b.emp_trust_reserve - a.emp_trust_reserve);
+			.sort(
+				(a, b) =>
+					(b as NonNullable<typeof b>).emp_trust_reserve -
+					(a as NonNullable<typeof a>).emp_trust_reserve
+			);
 	}
 
 	async getCurrentEmployeeTrustFEByEmpNo(
@@ -568,11 +573,13 @@ export class EmployeeTrustService {
 			const year = String(parseInt(period_name.split("-")[1]!) - 1);
 			start_period = await this.ehrService.getPeriodByName("DEC-" + year);
 		}
-		// const end_period = this.ehrService.getPeriodById(period_id-1);
+		const end_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		const result = await Transaction.findAll({
 			where: {
 				period_id: {
-					[Op.between]: [start_period.period_id, period_id - 1],
+					[Op.between]: [start_period.period_id, end_period_id],
 				},
 				emp_no: {
 					[Op.in]: emp_no_list,

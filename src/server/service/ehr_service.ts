@@ -16,6 +16,7 @@ import { AllowanceType } from "../database/entity/UMEDIA/allowance_type";
 import { Allowance } from "../database/entity/UMEDIA/allowance";
 import { HolidaysTypeService } from "./holidays_type_service";
 import { PayTypeEnum, type PayTypeEnumType } from "../api/types/pay_type_enum";
+import { QuitDateEnum, QuitDateEnumType } from "../api/types/sync_type";
 
 export type BonusWithType = Omit<Bonus, "bonus_id" | "period_id"> & {
 	period_name: string;
@@ -38,6 +39,84 @@ export type HolidayWithType = Omit<Holiday, "pay_order"> & {
 
 @injectable()
 export class EHRService {
+	parsedPeriod(
+		period: Period
+	): Period & { period_year: number; period_month: number } {
+		const current_year = "20" + period.period_name.split("-")[1];
+		const current_month = period.period_name.split("-")[0]!;
+		const year = parseInt(current_year);
+
+		const monthDict: Record<string, number> = {
+			JAN: 1,
+			FEB: 2,
+			MAR: 3,
+			APR: 4,
+			MAY: 5,
+			JUN: 6,
+			JUL: 7,
+			AUG: 8,
+			SEP: 9,
+			OCT: 10,
+			NOV: 11,
+			DEC: 12,
+		};
+
+		const month = monthDict[current_month];
+		if (!month) {
+			throw new Error(`Invalid month: ${current_month}`);
+		}
+
+		return { ...period, period_year: year, period_month: month };
+	}
+
+	async getPreviousPeriodId(period_id: number): Promise<number> {
+		const previousMonthDict: Record<string, string> = {
+			JAN: "DEC",
+			FEB: "JAN",
+			MAR: "FEB",
+			APR: "MAR",
+			MAY: "APR",
+			JUN: "MAY",
+			JUL: "JUN",
+			AUG: "JUL",
+			SEP: "AUG",
+			OCT: "SEP",
+			NOV: "OCT",
+			DEC: "NOV",
+		};
+		const period_name = (await this.getPeriodById(period_id))
+			.period_name;
+		const previous_month = previousMonthDict[period_name.split("-")[0]!];
+		const year =
+			previous_month === "DEC"
+				? String(parseInt(period_name.split("-")[1]!) - 1)
+				: period_name.split("-")[1];
+		const previous_period_id = (
+			await this.getPeriodByName(`${previous_month}-${year}`)
+		).period_id;
+		return previous_period_id;
+	}
+	async checkQuitDate(
+		parsedPeriod: Period & { period_year: number; period_month: number },
+		quit_date: string | null
+	): Promise<QuitDateEnumType> {
+		if (!quit_date) return QuitDateEnum.Values.null;
+
+		const leaving_year_str = quit_date.split("-")[0]!; //讀出來是2023-05-04的形式
+		const leaving_month_str = quit_date.split("-")[1]!;
+		const levaing_year = parseInt(leaving_year_str);
+		const leaving_month = parseInt(leaving_month_str);
+
+		if (parsedPeriod.period_year < levaing_year)
+			return QuitDateEnum.Values.future;
+		else if (parsedPeriod.period_year == levaing_year) {
+			if (parsedPeriod.period_month < leaving_month)
+				return QuitDateEnum.Values.future;
+			else if (parsedPeriod.period_month == leaving_month)
+				return QuitDateEnum.Values.current;
+			else return QuitDateEnum.Values.past;
+		} else return QuitDateEnum.Values.past;
+	}
 	async getPeriod(): Promise<Period[]> {
 		const dbConnection = container.resolve(Database).ehr_connection;
 		const dataList = await dbConnection.query(this.GET_PERIOD_QUERY(), {

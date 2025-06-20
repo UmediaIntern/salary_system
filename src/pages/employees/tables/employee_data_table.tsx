@@ -10,6 +10,7 @@ import { ColumnCellComponent } from "~/components/data_table/column_cell_compone
 import { type MonthSalaryStatusEnumType } from "~/server/api/types/month_salary_status_enum";
 import { useEmployeeTableContext } from "../components/context/data_table_context_provider";
 import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { CostCategoryEnumType } from "~/server/api/types/cost_category_type";
 
 // TODO: move to schema
 type RowItem = {
@@ -19,12 +20,15 @@ type RowItem = {
 	position: number;
 	position_type: string;
 	group_insurance_type: string;
+	cost_category: CostCategoryEnumType;
 	work_type: string;
 	work_status: string;
 	disabilty_level: string | null;
 	sex_type: string;
 	dependents: number | null;
 	healthcare_dependents: number | null;
+	residence_permit_start_date: string | null;
+	residence_permit_end_date: string | null;
 	registration_date: string;
 	quit_date: string | null;
 	license_id: string | null;
@@ -44,12 +48,15 @@ const columns = (t: I18nType) => {
 		"position",
 		"position_type",
 		"group_insurance_type",
+		"cost_category",
 		"work_type",
 		"work_status",
 		"disabilty_level",
 		"sex_type",
 		"dependents",
 		"healthcare_dependents",
+		"residence_permit_start_date",
+		"residence_permit_end_date",
 		"registration_date",
 		"quit_date",
 		"license_id",
@@ -73,6 +80,12 @@ const columns = (t: I18nType) => {
 					case "work_status":
 						const work_status = row.original.work_status as WorkStatusEnumType;
 						content = t(`work_status.${convertToKey(work_status)}`);
+						break;
+					case "residence_permit_start_date":
+						content = formatDate("day", row.original.residence_permit_start_date) ?? "";
+						break;
+					case "residence_permit_end_date":
+						content = formatDate("day", row.original.residence_permit_end_date) ?? "";
 						break;
 					case "registration_date":
 						content = formatDate("day", row.original.registration_date) ?? "";

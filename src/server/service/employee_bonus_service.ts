@@ -22,11 +22,13 @@ import {
 import { BonusAllService } from "./bonus_all_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { Op } from "sequelize";
+import { SyncService } from "./sync_service";
 
 @injectable()
 export class EmployeeBonusService {
 	constructor(
 		private readonly ehrService: EHRService,
+		private readonly syncService: SyncService,
 		private readonly employeeBonusMapper: EmployeeBonusMapper
 	) {}
 
@@ -154,7 +156,7 @@ export class EmployeeBonusService {
 	}
 
 	async getAccumulatedBonus(period_id: number, emp_no_list: string[]) {
-		// return accumulated bonus until period_id - 1
+		// return accumulated bonus until previous period
 		const period_name = await this.ehrService
 			.getPeriodById(period_id)
 			.then((period) => period.period_name);
@@ -169,7 +171,10 @@ export class EmployeeBonusService {
 				await this.ehrService.getPeriodByName("DEC-" + year)
 			).period_id;
 		}
-		const end_period_id = period_id - 1;
+
+		const end_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		const result = await EmployeeBonus.findAll({
 			where: {
 				period_id: {

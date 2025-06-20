@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CostCategoryEnum, CostCategoryEnumType } from "~/server/api/types/cost_category_type";
 import {
 	WorkStatusEnum,
 	WorkStatusEnumType,
@@ -42,12 +43,15 @@ export class EmpAll {
 	position_type: string;
 	group_insurance_type: string;
 	department: string;
+	cost_category: CostCategoryEnumType;
 	work_type: WorkTypeEnumType;
 	work_status: WorkStatusEnumType;
 	disabilty_level: string | null;
 	sex_type: string;
 	dependents: number | null;
 	healthcare_dependents: number | null; //健保眷口數
+	residence_permit_start_date: string | null;
+	residence_permit_end_date: string | null;
 	registration_date: string;
 	quit_date: string | null;
 	license_id: string | null;
@@ -61,12 +65,15 @@ export class EmpAll {
 		position_type: string,
 		group_insurance_type: string,
 		department: string,
+		cost_category: CostCategoryEnumType,
 		work_type: WorkTypeEnumType,
 		work_status: WorkStatusEnumType,
 		disabilty_level: string | null,
 		sex_type: string,
 		dependents: number | null,
 		healthcare_dependents: number | null,
+		residence_permit_start_date: string | null,
+		residence_permit_end_date: string | null,
 		registration_date: string,
 		quit_date: string | null,
 		license_id: string | null,
@@ -79,12 +86,15 @@ export class EmpAll {
 		this.position_type = position_type;
 		this.group_insurance_type = group_insurance_type;
 		this.department = department;
+		this.cost_category = cost_category;
 		this.work_type = work_type;
 		this.work_status = work_status;
 		this.disabilty_level = disabilty_level;
 		this.sex_type = sex_type;
 		this.dependents = dependents;
 		this.healthcare_dependents = healthcare_dependents;
+		this.residence_permit_start_date = residence_permit_start_date;
+		this.residence_permit_end_date = residence_permit_end_date;
 		this.registration_date = registration_date;
 		this.quit_date = quit_date;
 		this.license_id = license_id;
@@ -95,10 +105,10 @@ export class EmpAll {
 	static fromDB(db_data: any): EmpAll {
 		const result = dbEmpAll.safeParse(db_data);
 
-        // USER_YIM: db_data.USER_YIM ?? "MISSING",
-        // WORK_STATUS: db_data.WORK_STATUS ?? "一般員工",
-        // ACCESSIBLE: db_data.ACCESSIBLE !== 0 ? db_data.ACCESSIBLE : null,
-        // NBANKNUMBER: db_data.NBANKNUMBER ?? "MISSING",
+		// USER_YIM: db_data.USER_YIM ?? "MISSING",
+		// WORK_STATUS: db_data.WORK_STATUS ?? "一般員工",
+		// ACCESSIBLE: db_data.ACCESSIBLE !== 0 ? db_data.ACCESSIBLE : null,
+		// NBANKNUMBER: db_data.NBANKNUMBER ?? "MISSING",
 
 		if (!result.success) {
 			throw new Error(result.error.message);
@@ -121,12 +131,15 @@ export class EmpAll {
 			data.POSITION_TYPE,
 			data.GIN,
 			data.USER_YIM,
+			CostCategoryEnum.Values.成本直接, // TODO: cost_category
 			data.DL_IDL,
 			data.WORK_STATUS,
 			data.ACCESSIBLE,
 			data.SEX_TYPE,
 			data.扶養人數,
 			data.健保眷口數,
+			null, // TODO: residence_permit_start_date
+			null, // TODO: residence_permit_end_date
 			FORMAT_REGISTRATION_DATE,
 			FORMAT_QUIT_DATE,
 			data.LICENS_ID,
