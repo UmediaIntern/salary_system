@@ -21,7 +21,6 @@ const columns = (t: I18nType) => [
 	"quit_date",
 	"license_id",
 	"bank_account_taiwan",
-	"bank_account_foreign",
 	"received_elderly_benefits",
 ].map((key) => {
 	return {

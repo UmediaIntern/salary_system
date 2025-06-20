@@ -144,7 +144,6 @@ export const employeeDataRouter = createTRPCRouter({
 						quit_date: data["離職日期"] ?? null,
 						license_id: data["身份字號"],
 						bank_account_taiwan: "abcd", // data["帳號2"] ?? // TODO: what is the default
-						bank_account_foreign: data["外幣帳號"] ?? "", // TODO: what is the default
 						received_elderly_benefits: false,
 					};
 				}
@@ -174,6 +173,7 @@ export const employeeDataRouter = createTRPCRouter({
 					h_i: 0,
 					l_r: 0,
 					occupational_injury: 0,
+					bank_account_foreign: null,
 				});
 
 				await employeeTrustService.createEmployeeTrust({

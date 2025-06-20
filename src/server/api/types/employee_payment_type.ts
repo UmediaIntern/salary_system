@@ -24,6 +24,7 @@ const employeePaymentBase = z.object({
 	h_i: z.number(),
 	l_r: z.number(),
 	occupational_injury: z.number(),
+	bank_account_foreign: z.string().nullable(),
 });
 
 const employeePaymentUpdate = z
@@ -41,6 +42,7 @@ const employeePaymentUpdate = z
 		h_i: optionalNumDefaultZero,
 		l_r: optionalNumDefaultZero,
 		occupational_injury: optionalNumDefaultZero,
+		bank_account_foreign: z.string().nullable().optional(),
 	})
 	.merge(dateAll);
 
@@ -97,6 +99,7 @@ export function isEqualEmployeePayment(
 		a.l_i === b.l_i &&
 		a.h_i === b.h_i &&
 		a.l_r === b.l_r &&
-		a.occupational_injury === b.occupational_injury
+		a.occupational_injury === b.occupational_injury &&
+		a.bank_account_foreign === b.bank_account_foreign
 	);
 }

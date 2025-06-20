@@ -30,7 +30,6 @@ export function getEmployeeDataList(data: any) {
             quit_date: d.quit_date,
             license_id: d.license_id,
             bank_account_taiwan: d.bank_account_taiwan,
-            bank_account_foreign: d.bank_account_foreign,
             received_elderly_benefits: d.received_elderly_benefits,
 
             create_date: new Date(),
@@ -64,6 +63,7 @@ export function getEmployeePaymentList(data: any) {
             h_i: d.h_i,
             l_r: d.l_r,
             occupational_injury: d.occupational_injury,
+            bank_account_foreign: d.bank_account_foreign ?? null,
 
             create_by: "system",
             update_by: "system",

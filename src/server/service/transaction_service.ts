@@ -54,8 +54,8 @@ type CommonParametersType = {
 	expense_class_list: ExpenseClass[],
 	salary_income_tax_list: SalaryIncomeTaxDecType[],
 	income_tax_setting: IncomeTaxSetting,
-	accumulated_bonus_list: {emp_no: string, sum: number}[],
-	accumulated_trust_list: {emp_no: string, sum: number}[],
+	accumulated_bonus_list: { emp_no: string, sum: number }[],
+	accumulated_trust_list: { emp_no: string, sum: number }[],
 }
 
 @injectable()
@@ -104,8 +104,8 @@ export class TransactionService {
 		const expense_list = await this.ehrService.getExpense(period_id);
 		const expense_class_list = await this.ehrService.getExpenseClass();
 		const salary_income_tax_list = await this.salaryIncomeTaxService.getCurrentSalaryIncomeTax(period_id);
-		const accumulated_bonus_list = await this.employeeBonusService.getAccumulatedBonus(period_id,emp_no_list);
-		const accumulated_trust_list = await this.employeeTrustService.getAccumulatedTrust(period_id,emp_no_list);
+		const accumulated_bonus_list = await this.employeeBonusService.getAccumulatedBonus(period_id, emp_no_list);
+		const accumulated_trust_list = await this.employeeTrustService.getAccumulatedTrust(period_id, emp_no_list);
 
 		// & Income Tax Setting table (in parameters)
 		const income_tax_setting = await this.incomeTaxSettingService.getCurrentIncomeTaxSetting(period_id);
@@ -184,7 +184,8 @@ export class TransactionService {
 		const license_id = employee_data!.license_id;
 		const dependents = employee_data!.dependents;
 		const healthcare_dependents = employee_data!.healthcare_dependents;
-		const entry_date = new Date().toDateString();	// ! TODO: employee_trust!.entry_date;
+		const residence_permit_start_date = employee_data!.residence_permit_start_date;
+		const residence_permit_end_date = employee_data!.residence_permit_end_date;
 		const quit_date = employee_data!.quit_date;
 		const registration_date = employee_data!.registration_date;
 
@@ -248,7 +249,7 @@ export class TransactionService {
 		const other_deduction_tax = await this.calculateService.getOtherDeductionTax(expense_list, expense_class_list);
 		const discounted_gross_salary = await this.calculateService.getGrossSalary(discounted_employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
 		const special_leave_deduction = await this.calculateService.getSpecialPersonalLeaveDeduction(employee_data!, holidays_type_list, holiday_list, gross_salary, insurance_rate_setting!, professional_cert_allowance);
-		const l_i_deduction = await this.calculateService.getLaborInsuranceDeduction(employee_data!, discounted_employee_payment!, payset!, insurance_rate_setting!,received_elderly_benefits);
+		const l_i_deduction = await this.calculateService.getLaborInsuranceDeduction(employee_data!, discounted_employee_payment!, payset!, insurance_rate_setting!, received_elderly_benefits);
 		const h_i_deduction = await this.calculateService.getHealthInsuranceDeduction(employee_data!, discounted_employee_payment!, insurance_rate_setting!);
 		const welfare_contribution = await this.calculateService.getWelfareContribution(employee_data!, discounted_employee_payment!, full_attendance_bonus, operational_performance_bonus);
 		const subsidy_allowance = discounted_employee_payment!.subsidy_allowance;
@@ -295,7 +296,7 @@ export class TransactionService {
 		const assessment_bonus = await this.calculateService.getAssessmentBonus();
 		const probation_period_over = false;
 		const disabilty_level = employee_data!.disabilty_level;
-		const v_2_h_i = await this.calculateService.getSecondGenerationHealthInsurance(period_id, emp_no, pay_type, insurance_rate_setting!, employee_payment!,accumulated_bonus!.sum,accumulated_trust!.sum);
+		const v_2_h_i = await this.calculateService.getSecondGenerationHealthInsurance(period_id, emp_no, pay_type, insurance_rate_setting!, employee_payment!, accumulated_bonus!.sum, accumulated_trust!.sum);
 		const emp_trust_reserve = employee_trust ? employee_trust.emp_trust_reserve : null;
 		const emp_special_trust_incent = employee_trust ? employee_trust!.emp_special_trust_incent : null;
 		const org_trust_reserve = employee_trust ? employee_trust!.org_trust_reserve : null;
@@ -326,7 +327,8 @@ export class TransactionService {
 			license_id: license_id ?? "",									// 身份(居留)證字號
 			dependents: dependents ?? 0, 									// 扶養人數
 			healthcare_dependents: healthcare_dependents ?? 0, 				// 健保眷口數
-			entry_date: entry_date,											// 入境日期
+			residence_permit_start_date: residence_permit_start_date,		// 居留證開始日期
+			residence_permit_end_date: residence_permit_end_date,			// 居留證截止日期
 			registration_date: registration_date,							// 到職日期
 			quit_date: quit_date,											// 離職日期
 			bank_account_taiwan: bank_account_taiwan,						// 台幣帳號

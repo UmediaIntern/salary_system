@@ -254,7 +254,6 @@ export class EmployeeDataService {
 			quit_date,
 			license_id,
 			bank_account_taiwan,
-			bank_account_foreign,
 			received_elderly_benefits,
 		}: z.infer<typeof updateEmployeeDataByEmpNoService>,
 		employee_data: EmployeeDataDecType
@@ -293,10 +292,6 @@ export class EmployeeDataService {
 			bank_account_taiwan: select_value(
 				bank_account_taiwan,
 				employee_data.bank_account_taiwan
-			),
-			bank_account_foreign: select_value(
-				bank_account_foreign,
-				employee_data.bank_account_foreign
 			),
 			received_elderly_benefits: select_value(
 				received_elderly_benefits,

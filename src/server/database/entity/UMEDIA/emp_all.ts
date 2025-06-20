@@ -52,7 +52,6 @@ export class EmpAll {
 	quit_date: string | null;
 	license_id: string | null;
 	bank_account_taiwan: string;
-	bank_account_foreign: string | null;
 	received_elderly_benefits: boolean;
 
 	constructor(
@@ -72,7 +71,6 @@ export class EmpAll {
 		quit_date: string | null,
 		license_id: string | null,
 		bank_account_taiwan: string,
-		bank_account_foreign: string,
 		received_elderly_benefits: boolean
 	) {
 		this.emp_no = emp_no;
@@ -91,7 +89,6 @@ export class EmpAll {
 		this.quit_date = quit_date;
 		this.license_id = license_id;
 		this.bank_account_taiwan = bank_account_taiwan;
-		this.bank_account_foreign = bank_account_foreign;
 		this.received_elderly_benefits = received_elderly_benefits;
 	}
 
@@ -134,7 +131,6 @@ export class EmpAll {
 			FORMAT_QUIT_DATE,
 			data.LICENS_ID,
 			data.NBANKNUMBER,
-			"",
 			false
 		);
 	}
