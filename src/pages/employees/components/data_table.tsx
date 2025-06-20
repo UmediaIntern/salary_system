@@ -4,7 +4,7 @@ import { Separator } from "~/components/ui/separator";
 
 import { DataTablePagination } from "~/components/data_table/data_table_pagination";
 import { DataTableStandardBody } from "~/components/data_table/default/data_table_standard_body";
-import { WithDataTableStandardState } from "~/components/data_table/default/data_table_standard_state";
+import { useDataTableStandardState } from "~/components/data_table/default/data_table_standard_state";
 import { DataTableToolbar } from "./data_table_toolbar";
 
 interface DataTableProps<TData> {
@@ -20,13 +20,13 @@ export function DataTable<TData>({
 	filterColumnKey,
 	initialColumnVisibility,
 }: DataTableProps<TData>) {
-	return WithDataTableStandardState({
-		columns: columns,
+  const table = useDataTableStandardState({
+		columns,
 		data,
-		props: { filterColumnKey },
-		WrappedComponent: DataTableContent,
 		initialColumnVisibility,
-	});
+  })
+
+  return <DataTableContent table={table} filterColumnKey={filterColumnKey}/>
 }
 
 function DataTableContent<TData>({
