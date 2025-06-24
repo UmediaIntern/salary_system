@@ -19,6 +19,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "~/components/ui/dialog";
+import { Progress } from "~/components/ui/progress";
 
 const fields = ["a", "b", "c"];
 
@@ -27,8 +28,9 @@ export function ValidateExcel() {
 	const [openDialog, setOpenDialog] = useState(false);
 	// TODO: move to context and set by the parser or processor
 	const [periodId, setPeriodId] = useState<number | null>(null);
-	const trpcUtils = api.useUtils();
+	const [progress, setProgress] = useState(0);
 
+	const trpcUtils = api.useUtils();
 	const deleteTransaction =
 		api.importTransaction.deleteTransactionPeriod.useMutation();
 	const importTransaction =
@@ -37,15 +39,25 @@ export function ValidateExcel() {
 	const { excelData } = useImportContext();
 
 	function uploadData() {
+		const toastId = toast.loading("Loading…");
 		console.log(excelData);
+    setProgress(80);
 		importTransaction.mutate(excelData, {
-			onSuccess: () => setIsUploading(false),
-			onError: () => setIsUploading(false),
+			onSuccess: () => {
+				toast.success("Upload success", { id: toastId });
+        handleFinal();
+			},
+			onError: (error) => {
+				toast.error(`Upload error ${error.message}`, {
+					id: toastId,
+				});
+			},
 		});
 	}
 
 	async function handleUpload() {
 		setIsUploading(true);
+		setProgress(5);
 
 		// TODO: Improve. Try to find the period id
 		const period_id = excelData.at(0)?.period_id;
@@ -61,8 +73,10 @@ export function ValidateExcel() {
 				await trpcUtils.importTransaction.checkImportTransaction.fetch({
 					period_id: period_id,
 				});
+			setProgress(40);
 
 			if (empty) {
+        setProgress(60);
 				uploadData();
 			} else {
 				setOpenDialog(true);
@@ -73,9 +87,10 @@ export function ValidateExcel() {
 		}
 	}
 
-	function handleCancel() {
+	function handleFinal() {
 		setOpenDialog(false);
 		setIsUploading(false);
+    setProgress(0);
 	}
 
 	function handleConfirm() {
@@ -90,6 +105,8 @@ export function ValidateExcel() {
 			{
 				onSuccess: () => {
 					toast.success("Delete success", { id: toastId });
+          setProgress(60);
+					uploadData();
 				},
 				onError: (error) => {
 					toast.error(`Delete error ${error.message}`, {
@@ -99,7 +116,6 @@ export function ValidateExcel() {
 			}
 		);
 		setOpenDialog(false);
-		uploadData();
 	}
 	async function handleDelete() {
 		toast.warning("Continue to delete?", {
@@ -153,10 +169,13 @@ export function ValidateExcel() {
 					onClick={onPromise(handleUpload)}
 				>
 					upload
+					{isUploading && (
+						<Progress value={progress} className="w-40 border-2" />
+					)}
 				</Button>
 				<DeleteTransactionDialog
 					onClose={() => {
-						handleCancel();
+						handleFinal();
 					}}
 					onSubmit={onPromise(handleDelete)}
 				/>
