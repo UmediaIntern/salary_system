@@ -10,7 +10,7 @@ export const RootLayout = (props: PropsWithChildren) => {
 				{props.children}
 			</ThemeProvider>
 			<Toaster />
-      <SonnerToaster />
+      <SonnerToaster richColors position="top-right"/>
 		</main>
 	);
 };

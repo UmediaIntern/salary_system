@@ -9,7 +9,7 @@ import { useImportContext } from "./import_context_provider";
 import { ImportPreview } from "./import_preview";
 import { useState } from "react";
 import { onPromise } from "~/utils/on_promise";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import {
 	Dialog,
 	DialogClose,
@@ -58,7 +58,6 @@ export function ValidateExcel() {
 				});
 			} else {
 				setOpenDialog(true);
-				setIsUploading(false);
 			}
 		} catch (err) {
 			console.error("checkImportTransaction failed:", err);
@@ -66,12 +65,20 @@ export function ValidateExcel() {
 		}
 	}
 
+	function handleCancel() {
+		setOpenDialog(false);
+		setIsUploading(false);
+	}
+
 	async function handleDelete() {
-		toast("Continue to delete?", {
+		toast.warning("Continue to delete?", {
+			id: "confirm-delete-transaction",
+			closeButton: true,
+			duration: Infinity,
 			description: "Confirm to delete",
 			action: {
 				label: "Confirm",
-				onClick: () => console.log("Delete"),
+				onClick: () => {},
 			},
 		});
 	}
@@ -116,7 +123,7 @@ export function ValidateExcel() {
 				</Button>
 				<DeleteTransactionDialog
 					onClose={() => {
-						setOpenDialog(false);
+            handleCancel()
 					}}
 					onSubmit={onPromise(handleDelete)}
 				/>
