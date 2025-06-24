@@ -44,12 +44,4 @@ export class ReportService {
         const combinedTransactions = Array.from(departmentMap.values());
         return combinedTransactions;
     }
-
-    private transactionMapper(transaction: Transaction): Transaction {
-        transaction.pay_type = t(`others.${transaction.pay_type}`);
-        transaction.work_status = t(`work_status.${convertToKey(transaction.work_status)}`);
-        transaction.received_elderly_benefits = t(`others.${transaction.received_elderly_benefits}`);
-        transaction.probation_period_over = t(`others.${transaction.probation_period_over}`);
-        return transaction;
-    }
 }
