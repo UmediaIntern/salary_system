@@ -158,7 +158,7 @@ export class TransactionService {
 		const accumulated_trust = commonParameters.accumulated_trust_list.find(e => e.emp_no === emp_no);
 		const income_tax_setting = commonParameters.income_tax_setting;
 
-		const has_trust = employee_trust ? true : false;
+		const has_trust = (employee_trust && employee_trust.emp_trust_reserve!=0) ? true : false;
 		const discounted_employee_payment = await this.calculateService.discountedPayment(employee_payment!, payset);
 		const full_attendance_bonus = await this.calculateService.getFullAttendanceBonus(bonus_list, bonus_type_list);
 		const reissue_salary = await this.calculateService.getReissueSalary(expense_list, expense_class_list);
@@ -287,7 +287,7 @@ export class TransactionService {
 		const annual_days_in_service = 365; // MARK: 年度在職天數不知道在哪
 		const l_r_contribution = await this.calculateService.getLaborRetirementContribution(employee_data!, discounted_employee_payment!, payset);
 		const old_l_r_contribution = await this.calculateService.getOldLaborRetirementContribution(employee_data!, taxable_subtotal, non_taxable_subtotal, payset);
-		const seniority = 0;
+		const seniority = await this.calculateService.getSeniority(employee_data!, period_id);
 		const assessment_rate = 0;
 		const assessment_bonus = await this.calculateService.getAssessmentBonus();
 		const probation_period_over = false;
