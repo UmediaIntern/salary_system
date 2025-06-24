@@ -14,35 +14,35 @@ import {
 } from "@tanstack/react-table";
 import { type ComponentType, useEffect, useState } from "react";
 
-import { RowData } from '@tanstack/table-core';
-declare module '@tanstack/table-core' {
+import { RowData } from "@tanstack/table-core";
+declare module "@tanstack/table-core" {
 	interface TableMeta<TData extends RowData> {
-		original_columns: Array<string> | undefined
+		original_columns: Array<string> | undefined;
 	}
 }
 
-
 type WithTableProps<TableT, P> = { table: TableT } & P;
 
-interface DataTableStandardStateProps<TData, P> {
+interface DataTableStandardStateProps<TData> {
 	columns: ColumnDef<TData, any>[];
 	data: TData[];
-	WrappedComponent: ComponentType<WithTableProps<Table<TData>, P>>;
 	onUpdate?: (table: Table<TData>) => void;
-	props: P;
 	original_columns?: Array<string>;
 	initialColumnVisibility?: VisibilityState;
 }
 
-export function WithDataTableStandardState<TData, P>({
+interface WithDataTableStandardStateProps<TData, P> extends DataTableStandardStateProps<TData> {
+	WrappedComponent: ComponentType<WithTableProps<Table<TData>, P>>;
+	props: P;
+}
+
+export function useDataTableStandardState<TData>({
 	columns,
 	data,
-	WrappedComponent,
 	onUpdate,
-	props,
 	original_columns,
 	initialColumnVisibility = {},
-}: DataTableStandardStateProps<TData, P>) {
+}: DataTableStandardStateProps<TData>) {
 	const [rowSelection, setRowSelection] = useState({});
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
 		initialColumnVisibility
@@ -72,8 +72,57 @@ export function WithDataTableStandardState<TData, P>({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 
 		meta: {
-			original_columns: original_columns
-		}
+			original_columns: original_columns,
+		},
+	});
+
+	useEffect(() => {
+		onUpdate && onUpdate(table);
+	}, [columnVisibility, table, onUpdate]);
+
+	return table;
+}
+
+export function WithDataTableStandardState<TData, P>({
+	columns,
+	data,
+	WrappedComponent,
+	onUpdate,
+	props,
+	original_columns,
+	initialColumnVisibility = {},
+}: WithDataTableStandardStateProps<TData, P>) {
+	const [rowSelection, setRowSelection] = useState({});
+	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+		initialColumnVisibility
+	);
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [sorting, setSorting] = useState<SortingState>([]);
+
+	const table = useReactTable({
+		data,
+		columns,
+		state: {
+			sorting,
+			columnVisibility,
+			rowSelection,
+			columnFilters,
+		},
+		enableRowSelection: true,
+		onRowSelectionChange: setRowSelection,
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		onColumnVisibilityChange: setColumnVisibility,
+		getCoreRowModel: getCoreRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFacetedRowModel: getFacetedRowModel(),
+		getFacetedUniqueValues: getFacetedUniqueValues(),
+
+		meta: {
+			original_columns: original_columns,
+		},
 	});
 
 	useEffect(() => {

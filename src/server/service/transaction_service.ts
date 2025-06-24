@@ -25,13 +25,7 @@ import { Bonus } from "../database/entity/UMEDIA/bonus";
 import { Expense } from "../database/entity/UMEDIA/expense";
 import { ExpenseClass } from "../database/entity/UMEDIA/expense_class";
 import { SalaryIncomeTaxDecType } from "../database/entity/SALARY/salary_income_tax";
-
-import { container } from "tsyringe";
-import { BonusMapper } from "~/server/database/mapper/bonus_mapper";
-import { OtherMapper } from "../database/mapper/other_mapper";
-import { OtherFEType } from "../api/types/other_type";
-import { convert_employee_payment, convert_employee_trust } from "~/pages/test/test_function";
-import { IncomeTaxSettingFEType } from "../api/types/income_tax_setting_type";
+import { convert_employee_payment } from "~/pages/test/test_function";
 import { IncomeTaxSettingService } from "./income_tax_setting_service";
 import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
 import { EmployeeBonusService } from "./employee_bonus_service";
@@ -221,8 +215,8 @@ export class TransactionService {
 		// const bank_account_1 = employee_data!.bank_account_taiwan;
 		// const bank_account_2 = employee_acount![1]?.bank_account!;
 		const bank_account_taiwan = employee_data!.bank_account_taiwan;
-		const bank_account_foreign = employee_data!.bank_account_foreign;
-		const currency_foreign = "";
+		const bank_account_foreign = employee_payment!.bank_account_foreign;
+		const currency_foreign = null;
 		const exchange_rate = 0;								// ! TODO: no data yet
 		const currency_amount_foreign = 0;						// ! TODO: no data yet
 		const currency_amount_taiwan = 0;						// ! TODO: no data yet
@@ -244,10 +238,12 @@ export class TransactionService {
 		const received_elderly_benefits = false;
 		// MARK: Calculated Results
 		const gross_salary = await this.calculateService.getGrossSalary(employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
+		const discounted_gross_salary = await this.calculateService.getGrossSalary(discounted_employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
+		const salary_total = await this.calculateService.getSalaryTotal(discounted_gross_salary, shift_allowance, professional_cert_allowance);
 		const special_personal_leave_deduction_hours = await this.calculateService.getSpecialPersonalLeaveHours(holiday_list, holidays_type_list);
+		const vehicle_loan = await this.calculateService.getVehicleLoan(expense_list, expense_class_list);
 		const special_personal_leave_deduct = await this.calculateService.getSpecialPersonalLeave(holiday_list, holidays_type_list, gross_salary);
 		const other_deduction_tax = await this.calculateService.getOtherDeductionTax(expense_list, expense_class_list);
-		const discounted_gross_salary = await this.calculateService.getGrossSalary(discounted_employee_payment!, payset!, professional_cert_allowance, pay_type, full_attendance_bonus, employee_data!, operational_performance_bonus);
 		const special_leave_deduction = await this.calculateService.getSpecialPersonalLeaveDeduction(employee_data!, holidays_type_list, holiday_list, gross_salary, insurance_rate_setting!, professional_cert_allowance);
 		const l_i_deduction = await this.calculateService.getLaborInsuranceDeduction(employee_data!, discounted_employee_payment!, payset!, insurance_rate_setting!, received_elderly_benefits);
 		const h_i_deduction = await this.calculateService.getHealthInsuranceDeduction(employee_data!, discounted_employee_payment!, insurance_rate_setting!);
@@ -296,12 +292,13 @@ export class TransactionService {
 		const assessment_bonus = await this.calculateService.getAssessmentBonus();
 		const probation_period_over = false;
 		const disabilty_level = employee_data!.disabilty_level;
-		const v_2_h_i = await this.calculateService.getSecondGenerationHealthInsurance(period_id, emp_no, pay_type, insurance_rate_setting!, employee_payment!, accumulated_bonus!.sum, accumulated_trust!.sum);
+		const v_2_h_i = await this.calculateService.getSecondGenerationHealthInsurance(period_id, emp_no, pay_type, insurance_rate_setting!, employee_payment!, accumulated_bonus?.sum ?? 0, accumulated_trust?.sum ?? 0); // TODO
 		const emp_trust_reserve = employee_trust ? employee_trust.emp_trust_reserve : null;
 		const emp_special_trust_incent = employee_trust ? employee_trust!.emp_special_trust_incent : null;
 		const org_trust_reserve = employee_trust ? employee_trust!.org_trust_reserve : null;
 		const org_special_trust_incent = employee_trust ? employee_trust!.org_special_trust_incent : null;
 		const g_i_deduction_promotion = await this.calculateService.getGroupInsuranceDeductionPromotion(expense_list, expense_class_list);
+		const addition_subtotal = await this.calculateService.getAdditionSubtotal(pay_type, weekday_overtime_pay, rest_overtime_pay, exceed_overtime_pay, full_attendance_bonus, reissue_salary, non_leave_compensation, retirement_income, project_bonus, other_addition, other_addition_tax);
 		const deduction_subtotal = await this.calculateService.getDeductionSubtotal(pay_type, salary_income_tax, bonus_tax, welfare_contribution, l_i_deduction, h_i_deduction, group_insurance_deduction, g_i_deduction_promotion, leave_deduction, special_leave_deduction, other_deduction, other_deduction_tax, income_tax_deduction, l_r_self, parking_fee, brokerage_fee, v_2_h_i, meal_deduction, emp_trust_reserve ?? 0);
 		const net_salary = await this.calculateService.getNetSalary(pay_type, taxable_subtotal, non_taxable_subtotal, deduction_subtotal);
 		const full_attendance_personal_leave = await this.calculateService.getFullAtendancePersonalLeave(holiday_list, holidays_type_list);
@@ -350,9 +347,9 @@ export class TransactionService {
 			subsidy_allowance: subsidy_allowance, 							// 補助津貼
 			food_allowance: food_allowance, 								// 伙食津貼
 			gross_salary: discounted_gross_salary,							// 應發底薪
-			// original_gross_salary: gross_salary,							// ! 理論上要有原應發底薪
 			shift_allowance: shift_allowance,								// 輪班津貼
 			professional_cert_allowance: professional_cert_allowance,		// 專業証照津貼
+			salary_total: salary_total,										// 薪資總額
 			full_attendance_bonus: full_attendance_bonus, 					// 全勤獎金
 			operational_performance_bonus: operational_performance_bonus, 	// 營運績效獎金
 			occupational_performance_bonus: occupational_performance_bonus, // 職務績效獎金
@@ -378,9 +375,11 @@ export class TransactionService {
 			h_i_addition_previous: h_i_addition_previous,					// 健保加項
 			other_addition: other_addition,									// 其他加項
 			other_addition_tax: other_addition_tax,							// 其他加項稅
+			addition_subtotal: addition_subtotal,							// 加項小計
 
 			// 減項
 			// TODO: 請假時數
+			vehicle_loan: vehicle_loan, 									// 車輛貸款
 			special_personal_leave_deduct: special_personal_leave_deduct, 	// 特別事假扣款
 			leave_deduction: leave_deduction, 								// 請假扣款
 			emp_trust_reserve: emp_trust_reserve ?? 0,						// 員工信託提存金

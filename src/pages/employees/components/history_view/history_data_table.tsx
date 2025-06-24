@@ -1,7 +1,7 @@
 import { type ColumnDef, type Table } from "@tanstack/react-table";
 import { useState } from "react";
 import { DataTablePagination } from "~/components/data_table/data_table_pagination";
-import { WithDataTableStandardState } from "~/components/data_table/default/data_table_standard_state";
+import { useDataTableStandardState } from "~/components/data_table/default/data_table_standard_state";
 import { DataTableStandardBody } from "~/components/data_table/default/data_table_standard_body";
 import { useEmployeeTableContext } from "../context/data_table_context_provider";
 
@@ -13,15 +13,14 @@ interface DataTableProps<TData> {
 export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
 	const { setSelectedTable } = useEmployeeTableContext();
 
-	return WithDataTableStandardState({
+	const table = useDataTableStandardState({
 		columns: columns,
 		data,
-		props: {},
-		WrappedComponent: HistoryViewContent,
 		onUpdate: (table) => {
 			setSelectedTable({ table: table });
 		},
 	});
+	return <HistoryViewContent table={table} />;
 }
 
 function HistoryViewContent<TData>({ table }: { table: Table<TData> }) {

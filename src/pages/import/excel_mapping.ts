@@ -66,7 +66,7 @@ export const excelFieldMapping: Record<ImportFieldsKeyType, string> = {
   rest_167_tax_overtime_hours: "休息日1.67加班時數(稅)",
   rest_267_tax_overtime_hours: "休息日2.67加班時數(稅)",
   weekday_overtime_pay: "平日加班費",
-  rest_overtime_pay: "假日加班費",
+  rest_overtime_pay: "休息日加班費",
   exceed_overtime_pay: "超時加班費",
   l_i_addition_previous: "勞保加項",
   h_i_addition_previous: "健保加項",
@@ -123,5 +123,5 @@ export const excelFieldMapping: Record<ImportFieldsKeyType, string> = {
   exchange_rate: "匯率",
   currency_amount_foreign: "外幣金額",
   currency_amount_taiwan: "台幣金額",
-  has_trust: "持股信託_YN"
+  has_trust: "持股信託"
 };
