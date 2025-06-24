@@ -113,23 +113,23 @@ export class AllowanceMapper {
 				return {
 					emp_no: employee_payment.emp_no,
 					supervisor_allowance:
-						employee_payment.supervisor_allowance ===
+						employee_payment.supervisor_allowance !==
 						prev_employee_payment?.supervisor_allowance,
 					subsidy_allowance:
-						employee_payment.subsidy_allowance ===
+						employee_payment.subsidy_allowance !==
 						prev_employee_payment?.subsidy_allowance,
 					occupational_allowance:
-						employee_payment.occupational_allowance ===
+						employee_payment.occupational_allowance !==
 						prev_employee_payment?.occupational_allowance,
 					food_allowance:
-						employee_payment.food_allowance ===
+						employee_payment.food_allowance !==
 						prev_employee_payment?.food_allowance,
 					long_service_allowance:
-						employee_payment.long_service_allowance ===
+						employee_payment.long_service_allowance !==
 						prev_employee_payment?.long_service_allowance,
-					shift_allowance: shift_allowance === prev_shift_allowance,
+					shift_allowance: shift_allowance !== prev_shift_allowance,
 					professional_cert_allowance:
-						professional_cert_allowance ===
+						professional_cert_allowance !==
 						prev_professional_cert_allowance,
 				};
 			})

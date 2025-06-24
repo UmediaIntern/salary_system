@@ -220,10 +220,6 @@ export const functionRouter = createTRPCRouter({
 				EmployeePaymentService
 			);
 			const allowance_mapper = container.resolve(AllowanceMapper);
-
-			const previous_period_id = await ehrService.getPreviousPeriodId(
-				input.period_id
-			);
 			const allowance_with_type_list =
 				await ehrService.getAllowanceWithTypeByEmpNoList(
 					input.period_id,
