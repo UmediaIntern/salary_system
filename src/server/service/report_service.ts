@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 import { Transaction } from "../database/entity/SALARY/transaction";
 import { TransactionService } from "./transaction_service";
 import { PayTypeEnumType } from "../api/types/pay_type_enum";
+import { convertToKey } from "../api/types/work_status_enum";
 
 @injectable()
 export class ReportService {
@@ -14,7 +15,8 @@ export class ReportService {
         period_id: number,
         pay_type: PayTypeEnumType,
     ): Promise<Transaction[]> {
-        return this.transactionService.getTransaction(period_id, pay_type);
+        const transactions = await this.transactionService.getTransaction(period_id, pay_type);
+        return transactions;
     }
 
     async getTransactionDepartment(
@@ -41,5 +43,13 @@ export class ReportService {
 
         const combinedTransactions = Array.from(departmentMap.values());
         return combinedTransactions;
+    }
+
+    private transactionMapper(transaction: Transaction): Transaction {
+        transaction.pay_type = t(`others.${transaction.pay_type}`);
+        transaction.work_status = t(`work_status.${convertToKey(transaction.work_status)}`);
+        transaction.received_elderly_benefits = t(`others.${transaction.received_elderly_benefits}`);
+        transaction.probation_period_over = t(`others.${transaction.probation_period_over}`);
+        return transaction;
     }
 }
