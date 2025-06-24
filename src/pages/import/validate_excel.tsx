@@ -18,7 +18,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "~/components/ui/dialog";
 
 const fields = ["a", "b", "c"];
@@ -26,12 +25,24 @@ const fields = ["a", "b", "c"];
 export function ValidateExcel() {
 	const [isUploading, setIsUploading] = useState(false);
 	const [openDialog, setOpenDialog] = useState(false);
+	// TODO: move to context and set by the parser or processor
+	const [periodId, setPeriodId] = useState<number | null>(null);
 	const trpcUtils = api.useUtils();
 
+	const deleteTransaction =
+		api.importTransaction.deleteTransactionPeriod.useMutation();
 	const importTransaction =
 		api.importTransaction.importTransaction.useMutation();
 
 	const { excelData } = useImportContext();
+
+	function uploadData() {
+		console.log(excelData);
+		importTransaction.mutate(excelData, {
+			onSuccess: () => setIsUploading(false),
+			onError: () => setIsUploading(false),
+		});
+	}
 
 	async function handleUpload() {
 		setIsUploading(true);
@@ -44,6 +55,7 @@ export function ValidateExcel() {
 			return;
 		}
 
+		setPeriodId(period_id);
 		try {
 			const { empty } =
 				await trpcUtils.importTransaction.checkImportTransaction.fetch({
@@ -51,11 +63,7 @@ export function ValidateExcel() {
 				});
 
 			if (empty) {
-				console.log(excelData);
-				importTransaction.mutate(excelData, {
-					onSuccess: () => setIsUploading(false),
-					onError: () => setIsUploading(false),
-				});
+				uploadData();
 			} else {
 				setOpenDialog(true);
 			}
@@ -70,6 +78,29 @@ export function ValidateExcel() {
 		setIsUploading(false);
 	}
 
+	function handleConfirm() {
+		if (periodId === null) {
+			console.log("periodId is null");
+			return;
+		}
+
+		const toastId = toast.loading("Loading…");
+		deleteTransaction.mutate(
+			{ period_id: periodId },
+			{
+				onSuccess: () => {
+					toast.success("Delete success", { id: toastId });
+				},
+				onError: (error) => {
+					toast.error(`Delete error ${error.message}`, {
+						id: toastId,
+					});
+				},
+			}
+		);
+		setOpenDialog(false);
+		uploadData();
+	}
 	async function handleDelete() {
 		toast.warning("Continue to delete?", {
 			id: "confirm-delete-transaction",
@@ -78,7 +109,9 @@ export function ValidateExcel() {
 			description: "Confirm to delete",
 			action: {
 				label: "Confirm",
-				onClick: () => {},
+				onClick: () => {
+					handleConfirm();
+				},
 			},
 		});
 	}
@@ -90,14 +123,14 @@ export function ValidateExcel() {
 					direction="vertical"
 					className="flex h-full w-full flex-col"
 				>
-					<ResizablePanel defaultSize={50}>
+					<ResizablePanel defaultSize={70}>
 						<div className="h-full w-full">
 							<ImportPreview />
 						</div>
 					</ResizablePanel>
 					<ResizableHandle />
 
-					<ResizablePanel defaultSize={50}>
+					<ResizablePanel defaultSize={30}>
 						{/* Missing fields */}
 						{/* Invalid values */}
 						<div className="flex h-full w-full flex-col bg-muted p-4">
@@ -123,7 +156,7 @@ export function ValidateExcel() {
 				</Button>
 				<DeleteTransactionDialog
 					onClose={() => {
-            handleCancel()
+						handleCancel();
 					}}
 					onSubmit={onPromise(handleDelete)}
 				/>
