@@ -3,7 +3,10 @@ import { createTRPCRouter, userProcedure } from "~/server/api/trpc";
 import { importFields } from "../types/import_type";
 import { ImportService } from "~/server/service/import_service";
 import { z } from "zod";
-import { checkImportResult } from "../types/import_api_type";
+import {
+	checkImportResult,
+	deleteTransactionAndEmpDatas,
+} from "../types/import_api_type";
 
 export const importTransactionRouter = createTRPCRouter({
 	importTransaction: userProcedure
@@ -22,5 +25,15 @@ export const importTransactionRouter = createTRPCRouter({
 				input.period_id
 			);
 			return checkImportResult.parse({ empty });
+		}),
+
+	deleteTransaction: userProcedure
+		.input(z.object({ period_id: z.number() }))
+		.output(deleteTransactionAndEmpDatas)
+		.mutation(async ({ input }) => {
+			const importService = container.resolve(ImportService);
+			return await importService.deleteExistingTransactionAndData(
+				input.period_id
+			);
 		}),
 });

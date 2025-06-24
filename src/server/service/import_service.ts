@@ -10,6 +10,8 @@ import { bonusTypeEnum } from "../api/types/bonus_type_enum";
 import { CostCategoryEnum } from "../api/types/cost_category_type";
 import { dateToString, dateToStringNullable } from "../api/types/z_utils";
 import { EHRService } from "./ehr_service";
+import { deleteTransactionAndEmpDatas } from "../api/types/import_api_type";
+import { z } from "zod";
 
 @injectable()
 export class ImportService {
@@ -31,7 +33,28 @@ export class ImportService {
 		return transaction === null;
 	}
 
-	async deleteExistingTransactionAndData() {}
+	async deleteExistingTransactionAndData(
+		period_id: number
+	): Promise<z.infer<typeof deleteTransactionAndEmpDatas>> {
+		const dataDeleted =
+			await this.employeeDataService.dropEmployeeDataPeriod(period_id);
+		const paymentDeleted =
+			await this.employeePaymentService.dropEmployeePaymentPeriod(
+				period_id
+			);
+		const trustDeleted =
+			await this.employeeTrustService.dropEmployeeTrustPeriod(period_id);
+
+		console.log(`empDataDeleted: ${dataDeleted}`);
+		console.log(`empPaymentDeleted: ${paymentDeleted}`);
+		console.log(`empTrustDeleted: ${trustDeleted}`);
+
+		return deleteTransactionAndEmpDatas.parse({
+			empDataDeleted: dataDeleted,
+			empPaymentDeleted: paymentDeleted,
+			empTrustDeleted: trustDeleted,
+		});
+	}
 
 	async importTransaction(data: ImportFieldsType[]): Promise<void> {
 		console.log("importing transaction");
