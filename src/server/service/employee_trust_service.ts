@@ -620,4 +620,13 @@ export class EmployeeTrustService {
 		});
 		return accumulated_trust_list;
 	}
+	async dropEmployeeTrustPeriod(period_id: number): Promise<number> {
+		const start_date = (await this.ehrService.getPeriodById(
+			period_id
+		)).start_date;
+		const deletedRows = await EmployeeTrust.destroy({
+			where: { start_date: start_date },
+		});
+		return deletedRows;
+	}
 }
