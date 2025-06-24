@@ -18,17 +18,30 @@ export class ImportService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeBonusService: EmployeeBonusService,
-    private readonly ehrService: EHRService,
+		private readonly ehrService: EHRService
 	) {}
+
+	async checkImportTransaction(period_id: number): Promise<boolean> {
+		const transaction = await Transaction.findOne({
+			where: {
+				period_id: period_id,
+			},
+		});
+
+		return transaction === null;
+	}
+
+	async deleteExistingTransactionAndData() {}
 
 	async importTransaction(data: ImportFieldsType[]): Promise<void> {
 		console.log("importing transaction");
-		const importTransactionTasks = data.map(d => this.importTransactionRow(d));
+		const importTransactionTasks = data.map((d) =>
+			this.importTransactionRow(d)
+		);
 		await Promise.all(importTransactionTasks);
 	}
 
 	async importTransactionRow(data: ImportFieldsType): Promise<void> {
-
 		console.log("employee data");
 		await this.employeeDataService.createEmployeeData({
 			period_id: data.period_id,
@@ -45,8 +58,12 @@ export class ImportService {
 			sex_type: data.sex_type,
 			dependents: data.dependents,
 			healthcare_dependents: data.healthcare_dependents,
-			residence_permit_start_date: dateToStringNullable.parse(data.residence_permit_start_date),
-			residence_permit_end_date: dateToStringNullable.parse(data.residence_permit_end_date),
+			residence_permit_start_date: dateToStringNullable.parse(
+				data.residence_permit_start_date
+			),
+			residence_permit_end_date: dateToStringNullable.parse(
+				data.residence_permit_end_date
+			),
 			registration_date: dateToString.parse(data.registration_date),
 			quit_date: dateToStringNullable.parse(data.quit_date),
 			license_id: data.license_id,
@@ -54,8 +71,8 @@ export class ImportService {
 			received_elderly_benefits: data.received_elderly_benefits,
 		});
 
-    const period = await this.ehrService.getPeriodById(data.period_id);
-    
+		const period = await this.ehrService.getPeriodById(data.period_id);
+
 		console.log("employee payment");
 		await this.employeePaymentService.insertEmployeePayment({
 			emp_no: data.emp_no,
@@ -66,7 +83,10 @@ export class ImportService {
 			subsidy_allowance: data.subsidy_allowance,
 			long_service_allowance: data.long_service_allowance,
 			long_service_allowance_type: LongServiceEnum.Values.month_allowance,
-			l_r_self_ratio: data.l_r_self === 0 ? 0 : (parseFloat((data.l_r_self / data.l_r).toFixed(2)) * 100),
+			l_r_self_ratio:
+				data.l_r_self === 0
+					? 0
+					: parseFloat((data.l_r_self / data.l_r).toFixed(2)) * 100,
 			l_i: data.l_i,
 			h_i: data.h_i,
 			l_r: data.l_r,
@@ -111,9 +131,13 @@ export class ImportService {
 		await Transaction.create({
 			...data,
 			// period_id: period_id, // 期別
-      issue_date: dateToString.parse(data.issue_date),
-			residence_permit_start_date: dateToStringNullable.parse(data.residence_permit_start_date),
-			residence_permit_end_date: dateToStringNullable.parse(data.residence_permit_end_date),
+			issue_date: dateToString.parse(data.issue_date),
+			residence_permit_start_date: dateToStringNullable.parse(
+				data.residence_permit_start_date
+			),
+			residence_permit_end_date: dateToStringNullable.parse(
+				data.residence_permit_end_date
+			),
 			registration_date: dateToString.parse(data.registration_date), // TODO: change to date
 			quit_date: dateToStringNullable.parse(data.quit_date),
 			disabled: false,

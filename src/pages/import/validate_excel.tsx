@@ -7,18 +7,21 @@ import {
 import { api } from "~/utils/api";
 import { useImportContext } from "./import_context_provider";
 import { ImportPreview } from "./import_preview";
+import { useState } from "react";
 
 const fields = ["a", "b", "c"];
 
 export function ValidateExcel() {
+	const [inputPeriod, setInputPeriod] = useState(null);
+
 	const importTransaction =
 		api.importTransaction.importTransaction.useMutation();
 
-  const { excelData } = useImportContext();
+	const { excelData } = useImportContext();
 
 	function handleUpload() {
 		console.log(excelData);
-		importTransaction.mutate(excelData);
+		importTransaction.mutate(excelData, { onSuccess: () => {} });
 	}
 
 	return (
@@ -29,15 +32,15 @@ export function ValidateExcel() {
 			>
 				<ResizablePanel defaultSize={50}>
 					<div className="h-full w-full">
-            <ImportPreview />
-          </div>
+						<ImportPreview />
+					</div>
 				</ResizablePanel>
 				<ResizableHandle />
 
 				<ResizablePanel defaultSize={50}>
 					{/* Missing fields */}
 					{/* Invalid values */}
-					<div className="h-full flex w-full flex-col p-4 bg-muted">
+					<div className="flex h-full w-full flex-col bg-muted p-4">
 						{fields.map((field) => (
 							<div key={field}>
 								<Button
