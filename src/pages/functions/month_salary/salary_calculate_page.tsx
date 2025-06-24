@@ -102,7 +102,7 @@ function SalaryCalculateContent({
 									period_id: period.period_id,
 									issue_date: new Date(period.issue_date),
 									pay_type: "month_salary",
-									note: "計算月薪",
+									note: "",
 								});
 							}}
 						>

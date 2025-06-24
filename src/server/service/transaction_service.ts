@@ -596,25 +596,13 @@ export class TransactionService {
 		); // ~ Need Check
 
 		const bonus_ratio = -1; //bonus_setting!.fixed_multiplier;
-		const annual_days_in_service = 365; // MARK: 年度在職天數不知道在哪
-		const l_r_contribution =
-			await this.calculateService.getLaborRetirementContribution(
-				employee_data!,
-				discounted_employee_payment!,
-				payset
-			);
-		const old_l_r_contribution =
-			await this.calculateService.getOldLaborRetirementContribution(
-				employee_data!,
-				taxable_subtotal,
-				non_taxable_subtotal,
-				payset
-			);
+		const annual_days_in_service = 0; // MARK: 年度在職天數不知道在哪
+		const l_r_contribution = await this.calculateService.getLaborRetirementContribution(employee_data!, discounted_employee_payment!, payset);
+		const old_l_r_contribution = await this.calculateService.getOldLaborRetirementContribution(employee_data!, taxable_subtotal, non_taxable_subtotal, payset);
 		const seniority = 0;
 		const assessment_rate = 0;
-		const assessment_bonus =
-			await this.calculateService.getAssessmentBonus();
-		const probation_period_over = false;
+		const assessment_bonus = await this.calculateService.getAssessmentBonus();
+		const probation_period_over = true;
 		const disabilty_level = employee_data!.disabilty_level;
 		const v_2_h_i =
 			await this.calculateService.getSecondGenerationHealthInsurance(
@@ -860,7 +848,7 @@ export class TransactionService {
 				period_id: period_id,
 				pay_type: pay_type,
 			},
-			order: [["emp_no", "ASC"]],
+			order: [["position", "ASC"], ["position_type", "ASC"], ["emp_no", "ASC"]],
 		});
 		return transactions;
 	}
