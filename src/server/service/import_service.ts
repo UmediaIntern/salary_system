@@ -12,6 +12,7 @@ import { dateToString, dateToStringNullable } from "../api/types/z_utils";
 import { EHRService } from "./ehr_service";
 import { deleteTransactionAndEmpDatas } from "../api/types/import_api_type";
 import { z } from "zod";
+import { TransactionService } from "./transaction_service";
 
 @injectable()
 export class ImportService {
@@ -20,6 +21,7 @@ export class ImportService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeBonusService: EmployeeBonusService,
+    private readonly transactionService: TransactionService,
 		private readonly ehrService: EHRService
 	) {}
 
@@ -44,15 +46,18 @@ export class ImportService {
 			);
 		const trustDeleted =
 			await this.employeeTrustService.dropEmployeeTrustPeriod(period_id);
+    const transactionDeleted = await this.transactionService.dropTransactionPeriod(period_id);
 
 		console.log(`empDataDeleted: ${dataDeleted}`);
 		console.log(`empPaymentDeleted: ${paymentDeleted}`);
 		console.log(`empTrustDeleted: ${trustDeleted}`);
+    console.log(`transactionDeleted: ${transactionDeleted}`);
 
 		return deleteTransactionAndEmpDatas.parse({
 			empDataDeleted: dataDeleted,
 			empPaymentDeleted: paymentDeleted,
 			empTrustDeleted: trustDeleted,
+      transactionDeleted: transactionDeleted,
 		});
 	}
 

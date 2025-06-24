@@ -625,7 +625,7 @@ export class EmployeeTrustService {
 			period_id
 		)).start_date;
 		const deletedRows = await EmployeeTrust.destroy({
-			where: { start_date: start_date },
+			where: { start_date: dateToString.parse(start_date) },
 		});
 		return deletedRows;
 	}

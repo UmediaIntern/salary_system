@@ -27,7 +27,7 @@ export const importTransactionRouter = createTRPCRouter({
 			return checkImportResult.parse({ empty });
 		}),
 
-	deleteTransaction: userProcedure
+	deleteTransactionPeriod: userProcedure
 		.input(z.object({ period_id: z.number() }))
 		.output(deleteTransactionAndEmpDatas)
 		.mutation(async ({ input }) => {
