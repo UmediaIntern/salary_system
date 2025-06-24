@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 import { Transaction } from "../database/entity/SALARY/transaction";
 import { TransactionService } from "./transaction_service";
 import { PayTypeEnumType } from "../api/types/pay_type_enum";
+import { convertToKey } from "../api/types/work_status_enum";
 
 @injectable()
 export class ReportService {
@@ -14,7 +15,8 @@ export class ReportService {
         period_id: number,
         pay_type: PayTypeEnumType,
     ): Promise<Transaction[]> {
-        return this.transactionService.getTransaction(period_id, pay_type);
+        const transactions = await this.transactionService.getTransaction(period_id, pay_type);
+        return transactions;
     }
 
     async getTransactionDepartment(

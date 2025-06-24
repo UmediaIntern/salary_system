@@ -839,7 +839,7 @@ export class EmployeePaymentService {
 			period_id
 		)).start_date;
 		const deletedRows = await EmployeePayment.destroy({
-			where: { start_date: start_date },
+			where: { start_date: dateToString.parse(start_date) },
 		});
 		return deletedRows;
 	}
