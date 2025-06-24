@@ -131,6 +131,8 @@
     "level_start": "起",
     "level_end": "迄",
     "sex_type": "性別",
+    "residence_permit_start_date": "居留證起始日期",
+    "residence_permit_end_date": "居留證截止日期",
     "registration_date": "到職日期",
     "quit_date": "離職日期",
     "license_id": "身份(居留)證字號",

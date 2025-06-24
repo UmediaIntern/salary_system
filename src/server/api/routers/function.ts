@@ -44,11 +44,24 @@ export const functionRouter = createTRPCRouter({
 			const employeeDataService = container.resolve(EmployeeDataService);
 			const holiday_mapper = container.resolve(HolidayMapper);
 
-			await ehrService.getHolidayWithTypeByEmpNoList(input.period_id, input.emp_no_list);
+			await ehrService.getHolidayWithTypeByEmpNoList(
+				input.period_id,
+				input.emp_no_list
+			);
 
-			const holiday_list = await ehrService.getHolidayByEmpNoList(input.period_id, input.emp_no_list);
-			const employee_data_list = await employeeDataService.getEmployeeDataByEmpNoListByPeriod(input.period_id, input.emp_no_list);
-			const payset_list = await ehrService.getPaysetByEmpNoList(input.period_id, input.emp_no_list);
+			const holiday_list = await ehrService.getHolidayByEmpNoList(
+				input.period_id,
+				input.emp_no_list
+			);
+			const employee_data_list =
+				await employeeDataService.getEmployeeDataByEmpNoListByPeriod(
+					input.period_id,
+					input.emp_no_list
+				);
+			const payset_list = await ehrService.getPaysetByEmpNoList(
+				input.period_id,
+				input.emp_no_list
+			);
 
 			return await holiday_mapper.getHolidayFE(
 				holiday_list,
@@ -70,9 +83,20 @@ export const functionRouter = createTRPCRouter({
 			const employeeDataService = container.resolve(EmployeeDataService);
 			const overtime_mapper = container.resolve(OvertimeMapper);
 
-			const overtime_list = await ehrService.getOvertimeByEmpNoList(input.period_id, input.emp_no_list, input.pay_type);
-			const employee_data_list = await employeeDataService.getEmployeeDataByEmpNoListByPeriod(input.period_id, input.emp_no_list);
-			const payset_list = await ehrService.getPaysetByEmpNoList(input.period_id, input.emp_no_list);
+			const overtime_list = await ehrService.getOvertimeByEmpNoList(
+				input.period_id,
+				input.emp_no_list,
+				input.pay_type
+			);
+			const employee_data_list =
+				await employeeDataService.getEmployeeDataByEmpNoListByPeriod(
+					input.period_id,
+					input.emp_no_list
+				);
+			const payset_list = await ehrService.getPaysetByEmpNoList(
+				input.period_id,
+				input.emp_no_list
+			);
 
 			return await overtime_mapper.getOvertimeFE(
 				overtime_list,
@@ -138,7 +162,11 @@ export const functionRouter = createTRPCRouter({
 		.query(async ({ input }) => {
 			const ehrService = container.resolve(EHRService);
 			const calculate_service = container.resolve(CalculateService);
-			const expense_with_type_list = await ehrService.getExpenseWithTypeByEmpNoList(input.period_id, input.emp_no_list);
+			const expense_with_type_list =
+				await ehrService.getExpenseWithTypeByEmpNoList(
+					input.period_id,
+					input.emp_no_list
+				);
 			const allowance_type_list = await ehrService.getAllowanceType();
 			const expense_class_list = await ehrService.getExpenseClass();
 			const other_addition_list =
@@ -188,13 +216,30 @@ export const functionRouter = createTRPCRouter({
 		.query(async ({ input }) => {
 			const ehrService = container.resolve(EHRService);
 			const employeeDataService = container.resolve(EmployeeDataService);
-			const employeePaymentService = container.resolve(EmployeePaymentService);
+			const employeePaymentService = container.resolve(
+				EmployeePaymentService
+			);
 			const allowance_mapper = container.resolve(AllowanceMapper);
+			const allowance_with_type_list =
+				await ehrService.getAllowanceWithTypeByEmpNoList(
+					input.period_id,
+					input.emp_no_list
+				);
+			const employee_data_list =
+				await employeeDataService.getEmployeeDataByEmpNoListByPeriod(
+					input.period_id,
+					input.emp_no_list
+				);
+			const employee_payment_list =
+				await employeePaymentService.getCurrentEmployeePaymentByEmpNoList(
+					input.emp_no_list,
+					input.period_id
+				);
 
-			const allowance_with_type_list = await ehrService.getAllowanceWithTypeByEmpNoList(input.period_id, input.emp_no_list);
-			const employee_data_list = await employeeDataService.getEmployeeDataByEmpNoListByPeriod(input.period_id, input.emp_no_list);
-			const employee_payment_list = await employeePaymentService.getCurrentEmployeePaymentByEmpNoList(input.emp_no_list, input.period_id);
-			const payset_list = await ehrService.getPaysetByEmpNoList(input.period_id, input.emp_no_list);
+			const payset_list = await ehrService.getPaysetByEmpNoList(
+				input.period_id,
+				input.emp_no_list
+			);
 
 			const allowanceFE_list: AllowanceFEType[] = [];
 			const promises = allowance_with_type_list.map(async (allowance) => {
@@ -215,5 +260,84 @@ export const functionRouter = createTRPCRouter({
 			);
 			return newAllowanceFE_list;
 		}),
-});
+	getNewAllowanceFEDiffByEmpNoList: publicProcedure
+		.input(
+			z.object({
+				cur_period_id: z.number(),
+				emp_no_list: z.string().array(),
+			})
+		)
+		.query(async ({ input }) => {
+			const ehrService = container.resolve(EHRService);
+			const employeeDataService = container.resolve(EmployeeDataService);
+			const employeePaymentService = container.resolve(
+				EmployeePaymentService
+			);
+			const allowance_mapper = container.resolve(AllowanceMapper);
 
+			const previous_period_id = await ehrService.getPreviousPeriodId(
+				input.cur_period_id
+			);
+			const allowance_with_type_list =
+				await ehrService.getAllowanceWithTypeByEmpNoList(
+					input.cur_period_id,
+					input.emp_no_list
+				);
+			const prev_allowance_with_type_list =
+				await ehrService.getAllowanceWithTypeByEmpNoList(
+					previous_period_id,
+					input.emp_no_list
+				);
+			const employee_data_list =
+				await employeeDataService.getEmployeeDataByEmpNoListByPeriod(
+					input.cur_period_id,
+					input.emp_no_list
+				);
+			const employee_payment_list =
+				await employeePaymentService.getCurrentEmployeePaymentByEmpNoList(
+					input.emp_no_list,
+					input.cur_period_id
+				);
+			const prev_employee_payment_list =
+				await employeePaymentService.getCurrentEmployeePaymentByEmpNoList(
+					input.emp_no_list,
+					previous_period_id
+				);
+			const payset_list = await ehrService.getPaysetByEmpNoList(
+				input.cur_period_id,
+				input.emp_no_list
+			);
+
+			const allowanceFE_list: AllowanceFEType[] = [];
+			const prev_allowanceFE_list: AllowanceFEType[] = [];
+			const promises = allowance_with_type_list.map(async (allowance) => {
+				allowanceFE_list.push(
+					await allowance_mapper.getAllowanceFE(
+						allowance,
+						employee_data_list,
+						payset_list
+					)
+				);
+			});
+			await Promise.all(promises);
+			const promises2 = prev_allowance_with_type_list.map(
+				async (allowance) => {
+					prev_allowanceFE_list.push(
+						await allowance_mapper.getAllowanceFE(
+							allowance,
+							employee_data_list,
+							payset_list
+						)
+					);
+				}
+			);
+			await Promise.all(promises2);
+			const Difference = allowance_mapper.getDifference(
+				allowanceFE_list,
+				prev_allowanceFE_list,
+				employee_payment_list,
+				prev_employee_payment_list
+			);
+			return Difference;
+		}),
+});

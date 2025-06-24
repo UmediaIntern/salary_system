@@ -69,7 +69,7 @@ const MonthSalary: NextPageWithLayout = () => {
 function MonthSalaryContent({ period }: { period: Period }) {
 	const periodId = period.period_id;
 	const router = useRouter();
-	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [selectedIndex, setSelectedIndex] = useState(1);
 
 	const { t } = useTranslation(['common', 'nav'])
 
