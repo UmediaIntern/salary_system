@@ -26,20 +26,19 @@ type WithTableProps<TableT, P> = { table: TableT } & P;
 interface DataTableStandardStateProps<TData> {
 	columns: ColumnDef<TData, any>[];
 	data: TData[];
-	onUpdate?: (table: Table<TData>) => void;
 	original_columns?: Array<string>;
 	initialColumnVisibility?: VisibilityState;
 }
 
 interface WithDataTableStandardStateProps<TData, P> extends DataTableStandardStateProps<TData> {
 	WrappedComponent: ComponentType<WithTableProps<Table<TData>, P>>;
+	onUpdate?: (table: Table<TData>) => void;
 	props: P;
 }
 
 export function useDataTableStandardState<TData>({
 	columns,
 	data,
-	onUpdate,
 	original_columns,
 	initialColumnVisibility = {},
 }: DataTableStandardStateProps<TData>) {
@@ -75,10 +74,6 @@ export function useDataTableStandardState<TData>({
 			original_columns: original_columns,
 		},
 	});
-
-	useEffect(() => {
-		onUpdate && onUpdate(table);
-	}, [columnVisibility, table, onUpdate]);
 
 	return table;
 }
