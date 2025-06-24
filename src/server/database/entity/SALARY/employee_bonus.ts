@@ -7,19 +7,19 @@ import {
 	type Sequelize,
 } from "sequelize";
 import { z } from "zod";
-import { bonusTypeEnum, type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
 import {
-    dateCreateF,
-	systemF,
-	systemKeys,
-} from "../../mapper/mapper_utils";
+	bonusTypeEnum,
+	type BonusTypeEnumType,
+} from "~/server/api/types/bonus_type_enum";
+import { dateCreateF, systemF, systemKeys } from "../../mapper/mapper_utils";
 import {
 	decodeStringToNumberNullable as dSNN,
 	decodeStringToNumber as dSN,
 	encodeString,
-  encodeStringNullable as eSN,
-  decodeStringToStringNullable,
+	encodeStringNullable as eSN,
+	decodeStringToStringNullable,
 } from "~/server/api/types/z_utils";
+import { CurrencyForeignEnumType, currencyForeignEnum } from "~/server/api/types/currency_foreign_enum";
 
 const dbEmployeeBonus = z.object({
 	period_id: z.number(),
@@ -28,6 +28,7 @@ const dbEmployeeBonus = z.object({
 	create_by: z.string(),
 	update_by: z.string(),
 	disabled: z.coerce.boolean(),
+	currency_foreign: currencyForeignEnum.nullable(),
 });
 
 const decFields = z.object({
@@ -37,13 +38,16 @@ const decFields = z.object({
 	fixed_amount: z.number(),
 	bud_effective_salary: z.number(),
 	bud_amount: z.number(),
-  // nullable
+	// nullable
 	sup_performance_level: z.string().nullable(),
 	sup_effective_salary: z.number().nullable(),
 	sup_amount: z.number().nullable(),
 	app_performance_level: z.string().nullable(),
 	app_effective_salary: z.number().nullable(),
 	app_amount: z.number().nullable(),
+	exchange_rate: z.number().nullable(),
+	currency_amount_foreign: z.number().nullable(),
+	currency_amount_taiwan: z.number().nullable(),
 });
 
 const encFields = z.object({
@@ -52,13 +56,16 @@ const encFields = z.object({
 	fixed_amount_enc: z.string(),
 	bud_effective_salary_enc: z.string(),
 	bud_amount_enc: z.string(),
-  // nullable
+	// nullable
 	sup_performance_level_enc: z.string().nullable(),
 	sup_effective_salary_enc: z.string().nullable(),
 	sup_amount_enc: z.string().nullable(),
 	app_performance_level_enc: z.string().nullable(),
 	app_effective_salary_enc: z.string().nullable(),
 	app_amount_enc: z.string().nullable(),
+	exchange_rate_enc: z.string().nullable(),
+	currency_amount_foreign_enc: z.string().nullable(),
+	currency_amount_taiwan_enc: z.string().nullable(),
 });
 
 const encF = dbEmployeeBonus.merge(encFields);
@@ -75,13 +82,20 @@ export const decEmployeeBonus = encF
 		fixed_amount: dSN.parse(v.fixed_amount_enc),
 		bud_effective_salary: dSN.parse(v.bud_effective_salary_enc),
 		bud_amount: dSN.parse(v.bud_amount_enc),
-    // nullable
-		sup_performance_level: decodeStringToStringNullable.parse(v.sup_performance_level_enc),
+		// nullable
+		sup_performance_level: decodeStringToStringNullable.parse(
+			v.sup_performance_level_enc
+		),
 		sup_effective_salary: dSNN.parse(v.sup_effective_salary_enc),
 		sup_amount: dSNN.parse(v.sup_amount_enc),
-		app_performance_level: decodeStringToStringNullable.parse(v.app_performance_level_enc),
+		app_performance_level: decodeStringToStringNullable.parse(
+			v.app_performance_level_enc
+		),
 		app_effective_salary: dSNN.parse(v.app_effective_salary_enc),
 		app_amount: dSNN.parse(v.app_amount_enc),
+		exchange_rate: dSNN.parse(v.exchange_rate_enc),
+		currency_amount_foreign: dSNN.parse(v.currency_amount_foreign_enc),
+		currency_amount_taiwan: dSNN.parse(v.currency_amount_taiwan_enc),
 	}))
 	.pipe(decF);
 
@@ -89,18 +103,21 @@ export const encEmployeeBonus = decF
 	.omit(systemKeys)
 	.transform((v) => ({
 		...v,
-    special_multiplier_enc: encodeString.parse(v.special_multiplier),
-    multiplier_enc: encodeString.parse(v.multiplier),
-    fixed_amount_enc: encodeString.parse(v.fixed_amount),
-    bud_effective_salary_enc: encodeString.parse(v.bud_effective_salary),
-    bud_amount_enc: encodeString.parse(v.bud_amount),
-    // nullable
-    sup_performance_level_enc: eSN.parse(v.sup_performance_level),
-    sup_effective_salary_enc: eSN.parse(v.sup_effective_salary),
-    sup_amount_enc: eSN.parse(v.sup_amount),
-    app_performance_level_enc: eSN.parse(v.app_performance_level),
-    app_effective_salary_enc: eSN.parse(v.app_effective_salary),
-    app_amount_enc: eSN.parse(v.app_amount),
+		special_multiplier_enc: encodeString.parse(v.special_multiplier),
+		multiplier_enc: encodeString.parse(v.multiplier),
+		fixed_amount_enc: encodeString.parse(v.fixed_amount),
+		bud_effective_salary_enc: encodeString.parse(v.bud_effective_salary),
+		bud_amount_enc: encodeString.parse(v.bud_amount),
+		// nullable
+		sup_performance_level_enc: eSN.parse(v.sup_performance_level),
+		sup_effective_salary_enc: eSN.parse(v.sup_effective_salary),
+		sup_amount_enc: eSN.parse(v.sup_amount),
+		app_performance_level_enc: eSN.parse(v.app_performance_level),
+		app_effective_salary_enc: eSN.parse(v.app_effective_salary),
+		app_amount_enc: eSN.parse(v.app_amount),
+		exchange_rate_enc: eSN.parse(v.exchange_rate),
+		currency_ammount_foreign_enc: eSN.parse(v.currency_amount_foreign),
+		currency_ammount_taiwan_enc: eSN.parse(v.currency_amount_taiwan),
 	}))
 	.pipe(encF);
 
@@ -124,6 +141,10 @@ export class EmployeeBonus extends Model<
 	declare app_performance_level_enc: string | null;
 	declare app_effective_salary_enc: string | null;
 	declare app_amount_enc: string | null;
+	declare currency_foreign: CurrencyForeignEnumType | null;
+	declare exchange_rate_enc: string | null;
+	declare currency_amount_foreign_enc: string | null;
+	declare currency_amount_taiwan_enc: string | null;
 	declare disabled: boolean;
 
 	// timestamps!
@@ -196,6 +217,22 @@ export function initEmployeeBonus(sequelize: Sequelize) {
 				allowNull: true,
 			},
 			app_amount_enc: {
+				type: new DataTypes.STRING(128),
+				allowNull: true,
+			},
+			currency_foreign: {
+				type: new DataTypes.STRING(32),
+				allowNull: true,
+			},
+			exchange_rate_enc: {
+				type: new DataTypes.STRING(128),
+				allowNull: true,
+			},
+			currency_amount_foreign_enc: {
+				type: new DataTypes.STRING(128),
+				allowNull: true,
+			},
+			currency_amount_taiwan_enc: {
 				type: new DataTypes.STRING(128),
 				allowNull: true,
 			},

@@ -2,6 +2,8 @@ import { z } from "zod";
 import { CostCategoryEnum } from "./cost_category_type";
 import { WorkTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
+import { currencyForeignEnum } from "./currency_foreign_enum";
+
 
 export const importFields = z.object({
     /** 薪資期間 ID */
@@ -235,7 +237,7 @@ export const importFields = z.object({
     note: z.string(),
 
     /** 外幣幣別 */
-    currency_foreign: z.string(),
+    currency_foreign: currencyForeignEnum,
     /** 匯率 */
     exchange_rate: z.number(),
     /** 外幣金額 */

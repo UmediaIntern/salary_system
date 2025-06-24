@@ -13,7 +13,6 @@ export class OtherMapper {
 		private readonly ehrService: EHRService,
 		private readonly employeeDataService: EmployeeDataService,
 		private readonly employeePaymentService: EmployeePaymentService,
-		private readonly syncService: SyncService
 	) {}
 	async getOtherFE(
 		period_id: number,
