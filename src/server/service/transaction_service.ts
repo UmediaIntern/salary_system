@@ -205,7 +205,7 @@ export class TransactionService {
 		);
 		const income_tax_setting = commonParameters.income_tax_setting;
 
-		const has_trust = employee_trust ? true : false;
+		const has_trust = (employee_trust && employee_trust.emp_trust_reserve!=0) ? true : false;
 		const discounted_employee_payment =
 			await this.calculateService.discountedPayment(
 				employee_payment!,
@@ -599,7 +599,7 @@ export class TransactionService {
 		const annual_days_in_service = 0; // MARK: 年度在職天數不知道在哪
 		const l_r_contribution = await this.calculateService.getLaborRetirementContribution(employee_data!, discounted_employee_payment!, payset);
 		const old_l_r_contribution = await this.calculateService.getOldLaborRetirementContribution(employee_data!, taxable_subtotal, non_taxable_subtotal, payset);
-		const seniority = 0;
+		const seniority = await this.calculateService.getSeniority(employee_data!, period_id);
 		const assessment_rate = 0;
 		const assessment_bonus = await this.calculateService.getAssessmentBonus();
 		const probation_period_over = true;
