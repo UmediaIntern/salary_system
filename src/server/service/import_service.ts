@@ -10,6 +10,8 @@ import { bonusTypeEnum } from "../api/types/bonus_type_enum";
 import { CostCategoryEnum } from "../api/types/cost_category_type";
 import { dateToString, dateToStringNullable } from "../api/types/z_utils";
 import { EHRService } from "./ehr_service";
+import { deleteTransactionAndEmpDatas } from "../api/types/import_api_type";
+import { z } from "zod";
 
 @injectable()
 export class ImportService {
@@ -18,17 +20,51 @@ export class ImportService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeBonusService: EmployeeBonusService,
-    private readonly ehrService: EHRService,
+		private readonly ehrService: EHRService
 	) {}
+
+	async checkImportTransaction(period_id: number): Promise<boolean> {
+		const transaction = await Transaction.findOne({
+			where: {
+				period_id: period_id,
+			},
+		});
+
+		return transaction === null;
+	}
+
+	async deleteExistingTransactionAndData(
+		period_id: number
+	): Promise<z.infer<typeof deleteTransactionAndEmpDatas>> {
+		const dataDeleted =
+			await this.employeeDataService.dropEmployeeDataPeriod(period_id);
+		const paymentDeleted =
+			await this.employeePaymentService.dropEmployeePaymentPeriod(
+				period_id
+			);
+		const trustDeleted =
+			await this.employeeTrustService.dropEmployeeTrustPeriod(period_id);
+
+		console.log(`empDataDeleted: ${dataDeleted}`);
+		console.log(`empPaymentDeleted: ${paymentDeleted}`);
+		console.log(`empTrustDeleted: ${trustDeleted}`);
+
+		return deleteTransactionAndEmpDatas.parse({
+			empDataDeleted: dataDeleted,
+			empPaymentDeleted: paymentDeleted,
+			empTrustDeleted: trustDeleted,
+		});
+	}
 
 	async importTransaction(data: ImportFieldsType[]): Promise<void> {
 		console.log("importing transaction");
-		const importTransactionTasks = data.map(d => this.importTransactionRow(d));
+		const importTransactionTasks = data.map((d) =>
+			this.importTransactionRow(d)
+		);
 		await Promise.all(importTransactionTasks);
 	}
 
 	async importTransactionRow(data: ImportFieldsType): Promise<void> {
-
 		console.log("employee data");
 		await this.employeeDataService.createEmployeeData({
 			period_id: data.period_id,
@@ -45,8 +81,12 @@ export class ImportService {
 			sex_type: data.sex_type,
 			dependents: data.dependents,
 			healthcare_dependents: data.healthcare_dependents,
-			residence_permit_start_date: dateToStringNullable.parse(data.residence_permit_start_date),
-			residence_permit_end_date: dateToStringNullable.parse(data.residence_permit_end_date),
+			residence_permit_start_date: dateToStringNullable.parse(
+				data.residence_permit_start_date
+			),
+			residence_permit_end_date: dateToStringNullable.parse(
+				data.residence_permit_end_date
+			),
 			registration_date: dateToString.parse(data.registration_date),
 			quit_date: dateToStringNullable.parse(data.quit_date),
 			license_id: data.license_id,
@@ -54,8 +94,8 @@ export class ImportService {
 			received_elderly_benefits: data.received_elderly_benefits,
 		});
 
-    const period = await this.ehrService.getPeriodById(data.period_id);
-    
+		const period = await this.ehrService.getPeriodById(data.period_id);
+
 		console.log("employee payment");
 		await this.employeePaymentService.insertEmployeePayment({
 			emp_no: data.emp_no,
@@ -66,7 +106,10 @@ export class ImportService {
 			subsidy_allowance: data.subsidy_allowance,
 			long_service_allowance: data.long_service_allowance,
 			long_service_allowance_type: LongServiceEnum.Values.month_allowance,
-			l_r_self_ratio: data.l_r_self === 0 ? 0 : (parseFloat((data.l_r_self / data.l_r).toFixed(2)) * 100),
+			l_r_self_ratio:
+				data.l_r_self === 0
+					? 0
+					: parseFloat((data.l_r_self / data.l_r).toFixed(2)) * 100,
 			l_i: data.l_i,
 			h_i: data.h_i,
 			l_r: data.l_r,
@@ -111,9 +154,13 @@ export class ImportService {
 		await Transaction.create({
 			...data,
 			// period_id: period_id, // 期別
-      issue_date: dateToString.parse(data.issue_date),
-			residence_permit_start_date: dateToStringNullable.parse(data.residence_permit_start_date),
-			residence_permit_end_date: dateToStringNullable.parse(data.residence_permit_end_date),
+			issue_date: dateToString.parse(data.issue_date),
+			residence_permit_start_date: dateToStringNullable.parse(
+				data.residence_permit_start_date
+			),
+			residence_permit_end_date: dateToStringNullable.parse(
+				data.residence_permit_end_date
+			),
 			registration_date: dateToString.parse(data.registration_date), // TODO: change to date
 			quit_date: dateToStringNullable.parse(data.quit_date),
 			disabled: false,

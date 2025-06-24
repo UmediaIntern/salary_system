@@ -834,4 +834,13 @@ export class EmployeePaymentService {
 
 		return updatedEmployeePayment;
 	}
+	async dropEmployeePaymentPeriod(period_id: number): Promise<number> {
+		const start_date = (await this.ehrService.getPeriodById(
+			period_id
+		)).start_date;
+		const deletedRows = await EmployeePayment.destroy({
+			where: { start_date: start_date },
+		});
+		return deletedRows;
+	}
 }

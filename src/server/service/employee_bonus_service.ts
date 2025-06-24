@@ -22,14 +22,13 @@ import {
 import { BonusAllService } from "./bonus_all_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { Op } from "sequelize";
-import { SyncService } from "./sync_service";
 
 @injectable()
 export class EmployeeBonusService {
 	constructor(
 		private readonly ehrService: EHRService,
-		private readonly syncService: SyncService,
-		private readonly employeeBonusMapper: EmployeeBonusMapper
+		private readonly employeeBonusMapper: EmployeeBonusMapper,
+		private readonly employeePaymentService: EmployeePaymentService
 	) {}
 
 	async createEmployeeBonus(
@@ -82,6 +81,10 @@ export class EmployeeBonusService {
 				app_performance_level: null,
 				app_effective_salary: null,
 				app_amount: null,
+				currency_foreign: null,
+				exchange_rate: null,
+				currency_amount_foreign: null,
+				currency_amount_taiwan: null,
 				start_date: null,
 				end_date: null,
 			});
@@ -317,6 +320,10 @@ export class EmployeeBonusService {
 		app_performance_level,
 		app_effective_salary,
 		app_amount,
+		currency_foreign,
+		exchange_rate,
+		currency_amount_foreign,
+		currency_amount_taiwan,
 	}: z.infer<typeof updateEmployeeBonusService>) {
 		const employeeBonus = await this.getEmployeeBonusById(id);
 		if (employeeBonus == null) {
@@ -361,6 +368,22 @@ export class EmployeeBonusService {
 				employeeBonus.app_effective_salary
 			),
 			app_amount: select_value(app_amount, employeeBonus.app_amount),
+			currency_foreign: select_value(
+				currency_foreign,
+				employeeBonus.currency_foreign
+			),
+			exchange_rate: select_value(
+				exchange_rate,
+				employeeBonus.exchange_rate
+			),
+			currency_amount_foreign: select_value(
+				currency_amount_foreign,
+				employeeBonus.currency_amount_foreign
+			),
+			currency_amount_taiwan: select_value(
+				currency_amount_taiwan,
+				employeeBonus.currency_amount_taiwan
+			),
 			start_date: null,
 			end_date: null,
 		});
@@ -421,9 +444,8 @@ export class EmployeeBonusService {
 		if (!employeeBonus) {
 			throw new BaseResponseError("Employee bonus does not exist");
 		}
-		const employee_bonus_mapper = container.resolve(EmployeeBonusMapper);
 		const employee_bonus_fe =
-			await employee_bonus_mapper.getEmployeeBonusFE({
+			await this.employeeBonusMapper.getEmployeeBonusFE({
 				...employeeBonus,
 				sup_performance_level: sup_performance_level!,
 				sup_effective_salary: sup_effective_salary!,
@@ -494,12 +516,8 @@ export class EmployeeBonusService {
 		);
 
 		const promises = emp_no_list.map(async (emp_no) => {
-			const employee_payment_service = container.resolve(
-				EmployeePaymentService
-			);
-
 			const employee_payment_dec =
-				await employee_payment_service.getCurrentEmployeePaymentByEmpNo(
+				await this.employeePaymentService.getCurrentEmployeePaymentByEmpNo(
 					emp_no,
 					period_id
 				);

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { dateAll, dateCreate, empData, func, Id } from "./common_type";
 import { bonusTypeEnum } from "./bonus_type_enum";
 import { optionalNumDefaultZero } from "./z_utils";
+import { currencyForeignEnum } from "./currency_foreign_enum";
 
 const employeeBonusBase = z.object({
 	period_id: z.number(),
@@ -18,6 +19,11 @@ const employeeBonusBase = z.object({
 	app_performance_level: z.string().nullable(),
 	app_effective_salary: z.number().nullable(),
 	app_amount: z.number().nullable(),
+	currency_foreign: currencyForeignEnum.nullable(),
+	exchange_rate: z.number().nullable(),
+	currency_amount_foreign: z.number().nullable(),
+	currency_amount_taiwan: z.number().nullable(),
+
 });
 
 const employeeBonusUpdate = z
@@ -36,6 +42,10 @@ const employeeBonusUpdate = z
 		app_performance_level: z.string().nullable(),
 		app_effective_salary: optionalNumDefaultZero,
 		app_amount: optionalNumDefaultZero,
+		currency_foreign: currencyForeignEnum.nullable(),
+		exchange_rate: optionalNumDefaultZero,
+		currency_amount_foreign: optionalNumDefaultZero,
+		currency_amount_taiwan: optionalNumDefaultZero,
 	})
 	.merge(dateAll);
 
@@ -77,6 +87,6 @@ const employeeBonusFE = z
 	.merge(empData)
 	.merge(dateAll)
 	.merge(func)
-	.omit({ start_date: true, end_date: true });
+	.omit({ start_date: true, end_date: true, position: true, position_type: true });
 
 export type EmployeeBonusFEType = z.infer<typeof employeeBonusFE>;
