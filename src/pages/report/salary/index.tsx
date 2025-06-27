@@ -117,8 +117,22 @@ function ExportPage() {
 		"update_by",
 		"update_date",
 		"disabled",
+
+		// Exclude other from transaction
 	]);
-	const [toDisplayData, setToDisplayData] = useState<any>(null);
+	const [toDisplayData, setToDisplayData] = useState<any>(null);	
+
+
+	/*	Transaction Individual Exclude
+		// "operational_performance_bonus",
+		// "quarterly_performance_bonus",
+		// "org_trust_reserve",
+		// "org_special_trust_incent",
+		// "currency_foreign",
+		// "exchange_rate",
+		// "currency_amount_foreign",
+		// "currency_amount_taiwan"
+	*/
 
 
 	// ! Declare All Excel Data
