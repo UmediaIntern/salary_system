@@ -1,7 +1,7 @@
 import {
 	type NewAllowanceFEType,
 	type AllowanceFEType,
-	newAllowanceFEDiffType,
+	NewAllowanceFEDiffType,
 } from "~/server/api/types/allowance_type";
 import { type AllowanceWithType } from "~/server/service/ehr_service";
 import { type EmployeePaymentDecType } from "../entity/SALARY/employee_payment";
@@ -81,7 +81,7 @@ export class AllowanceMapper {
 		employee_payment_list: EmployeePaymentDecType[],
 		prev_employee_payment_list: EmployeePaymentDecType[]
 	) {
-		const difference: newAllowanceFEDiffType[] = await Promise.all(
+		const difference: NewAllowanceFEDiffType[] = await Promise.all(
 			employee_payment_list.map(async (employee_payment) => {
 				const prev_employee_payment = prev_employee_payment_list.find(
 					(e) => e.emp_no === employee_payment.emp_no

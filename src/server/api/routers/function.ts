@@ -119,7 +119,7 @@ export const functionRouter = createTRPCRouter({
 
 			return await payset_mapper.getPaysetFE(payset, input.period_id);
 		}),
-	getBonusWithTypeByEmpNoList: publicProcedure
+	getNewBonusFEByEmpNoList: publicProcedure
 		.input(
 			z.object({
 				period_id: z.number(),
@@ -143,7 +143,41 @@ export const functionRouter = createTRPCRouter({
 			);
 			return new_bonusFE_list;
 		}),
-	getNewOtherByEmpNoList: publicProcedure
+	getNewBonusFEDiffByEmpNoList: publicProcedure
+		.input(
+			z.object({
+				cur_period_id: z.number(),
+				emp_no_list: z.string().array(),
+				pay_type: PayTypeEnum,
+			})
+		)
+		.query(async ({ input }) => {
+			const ehrService = container.resolve(EHRService);
+			const bonus_with_type_list =
+				await ehrService.getBonusWithTypeByEmpNoList(
+					input.cur_period_id,
+					input.emp_no_list,
+					input.pay_type
+				);
+			const previous_period_id = await ehrService.getPreviousPeriodId(
+				input.cur_period_id
+			)
+			const prev_bonus_with_type_list =
+				await ehrService.getBonusWithTypeByEmpNoList(
+					previous_period_id,
+					input.emp_no_list,
+					input.pay_type
+			)
+			const bonus_mapper = container.resolve(BonusMapper);
+			const difference = await bonus_mapper.getDifference(
+				input.cur_period_id,
+				prev_bonus_with_type_list,
+				bonus_with_type_list,
+				input.emp_no_list
+			);
+			return difference;
+		}),
+	getNewOtherFEByEmpNoList: publicProcedure
 		.input(
 			z.object({ period_id: z.number(), emp_no_list: z.string().array() })
 		)
@@ -154,6 +188,18 @@ export const functionRouter = createTRPCRouter({
 				input.emp_no_list
 			);
 			return newOther_list;
+		}),
+	getNewOtherFEDiffByEmpNoList: publicProcedure
+		.input(
+			z.object({ cur_period_id: z.number(), emp_no_list: z.string().array() })
+		)
+		.query(async ({ input }) => {
+			const otherMapper = container.resolve(OtherMapper);
+			const difference = await otherMapper.getDifference(
+				input.cur_period_id,
+				input.emp_no_list
+			);
+			return difference;
 		}),
 	getOtherDetailsByEmpNoList: publicProcedure
 		.input(
@@ -321,10 +367,10 @@ export const functionRouter = createTRPCRouter({
 			});
 			await Promise.all(promises);
 			const promises2 = prev_allowance_with_type_list.map(
-				async (allowance) => {
+				async (prev_allowance) => {
 					prev_allowanceFE_list.push(
 						await allowance_mapper.getAllowanceFE(
-							allowance,
+							prev_allowance,
 							employee_data_list,
 							payset_list
 						)

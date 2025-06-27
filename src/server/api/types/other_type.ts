@@ -22,5 +22,24 @@ export const otherFE=z.object({
     l_i_disability_reduction: z.number(),
     h_i_subsidy: z.number(),
 })
+export const otherFEDiff=z.object({
+    emp_no: z.string(),
+    other_addition: z.boolean(),
+    other_addition_tax: z.boolean(),
+    other_deduction: z.boolean(),
+    other_deduction_tax: z.boolean(),
+    dorm_deduction: z.boolean(),
+    reissue_salary: z.boolean(),
+    g_i_deduction_promotion: z.boolean(),
+    g_i_deduction_family: z.boolean(),
+    income_tax_deduction: z.boolean(),
+    l_r_self: z.boolean(),
+    parking_fee: z.boolean(),
+    brokerage_fee: z.boolean(),
+    retirement_income: z.boolean(),
+    l_i_disability_reduction: z.boolean(),
+    h_i_subsidy: z.boolean(),
+})
 
-export type OtherFEType = z.infer<typeof otherFE>
+export type NewOtherFEType = z.infer<typeof otherFE>
+export type NewOtherFEDiffType = z.infer<typeof otherFEDiff>

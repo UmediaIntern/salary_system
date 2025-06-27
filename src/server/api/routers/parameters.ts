@@ -255,7 +255,7 @@ export const parametersRouter = createTRPCRouter({
 				return null;
 			}
 			const InsuranceRateSettingFE = {
-				...roundProperties(insuranceRateSetting, 4),
+				...roundProperties(insuranceRateSetting, 5),
 				functions: {
 					creatable: true,
 					updatable: insuranceRateSetting.start_date > new Date(),
@@ -280,7 +280,7 @@ export const parametersRouter = createTRPCRouter({
 				(insurance_rate_setting_list) => {
 					const list = insurance_rate_setting_list.map((a) => {
 						return {
-							...roundProperties(a, 4),
+							...roundProperties(a, 5),
 							functions: {
 								creatable: true,
 								updatable: a.start_date > new Date(),
@@ -300,7 +300,7 @@ export const parametersRouter = createTRPCRouter({
 		);
 		const insuranceRateSetting =
 			await insuranceRateService.getAllFutureInsuranceRateSetting();
-		return insuranceRateSetting.map((e) => roundProperties(e, 4));
+		return insuranceRateSetting.map((e) => roundProperties(e, 5));
 	}),
 
 	createInsuranceRateSetting: publicProcedure

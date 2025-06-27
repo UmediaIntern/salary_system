@@ -5,8 +5,10 @@ import { type I18nType } from "~/lib/utils/i18n_type";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
+import { NewAllowanceFEDiffType } from "~/server/api/types/allowance_type";
+import { cn } from "~/lib/utils";
 
-const columns = (t: I18nType) =>
+const columns = (t: I18nType, dataDiff: NewAllowanceFEDiffType[]) =>
 	[
 		// "period_name",
 		"department",
@@ -50,6 +52,16 @@ const columns = (t: I18nType) =>
 					</div>
 				);
 			},
+			cell: ({ row }: any) => {
+				let diff = false;
+				for (let [k, v] of Object.entries(dataDiff.find(e => e.emp_no == row.original.emp_no) ?? {})) {
+					if (k == key) {
+						diff = v == true;
+					}
+				}
+				let content = row.original[key]?.toString() ?? "";
+				return <div className={cn("text-center font-medium", diff && "text-red-500")}>{content}</div>;
+			},
 		};
 	});
 
@@ -65,17 +77,23 @@ export function AllowanceTable({ period_id, emp_no_list }: AllowanceTableProps) 
 			emp_no_list: emp_no_list,
 		});
 
+	const { isLoading: isLoadingDiff, isError: isErrorDiff, data: dataDiff, error: errorDiff } =
+		api.function.getNewAllowanceFEDiffByEmpNoList.useQuery({
+			cur_period_id: period_id,
+			emp_no_list: emp_no_list,
+		});
+
 	const { t } = useTranslation(["common"]);
 
-	if (isLoading) {
+	if (isLoading || isLoadingDiff) {
 		return <LoadingSpinner />; // TODO: Loading element with toast
 	}
 
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
+	if (isError || isErrorDiff) {
+		return <span>Data Error: {error?.message ?? ""}, Diff Error: {errorDiff?.message ?? ""}</span>; // TODO: Error element with toast
 	}
 
-	if (data) {
+	if (data && dataDiff) {
 		const filteredData = data.filter((d: any) =>
 			["supervisor_allowance",
 				"occupational_allowance",
@@ -86,7 +104,7 @@ export function AllowanceTable({ period_id, emp_no_list }: AllowanceTableProps) 
 				.some(key => d[key] > 0)
 			|| d.food_allowance !== 2400
 		);
-		return <DataTable columns={columns(t)} data={filteredData} />;
+		return <DataTable columns={columns(t, dataDiff)} data={filteredData} />;
 	}
 	return <div />;
 }
