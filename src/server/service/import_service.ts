@@ -171,6 +171,13 @@ export class ImportService {
 			disabled: false,
 			create_by: "system",
 			update_by: "system",
+			org_trust_reserve: 0,
+			org_special_trust_incent: 0,
+			operational_performance_bonus: 0,
+			quarterly_performance_bonus: 0,
+			exchange_rate: 0,
+			currency_amount_foreign: 0,
+			currency_amount_taiwan: 0
 		});
 	}
 }
