@@ -60,6 +60,7 @@ export class CalculateService {
 	) {}
 
 	// MARK: 平日加班費
+	// 合理情況是只有平日的134 167，但這邊照舊系統邏輯會全部都算在平日加班費，待決定怎麼修正
 	async getWeekdayOvertimePay(
 		employee_data: EmployeeDataDecType,
 		discounted_employee_payment_dec: EmployeePaymentFEType,
@@ -128,6 +129,7 @@ export class CalculateService {
 			);
 	}
 	//MARK: 假日加班費
+	// 合理情況是只有假日的134 167 267，但這邊照舊系統邏輯會全部都算在平日加班費，假日加班費永遠為0，待決定怎麼修正
 	async getHolidayOvertimePay(
 		employee_data: EmployeeDataDecType,
 		discounted_employee_payment_dec: EmployeePaymentFEType,

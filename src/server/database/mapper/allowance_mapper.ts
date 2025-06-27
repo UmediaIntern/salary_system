@@ -86,6 +86,18 @@ export class AllowanceMapper {
 				const prev_employee_payment = prev_employee_payment_list.find(
 					(e) => e.emp_no === employee_payment.emp_no
 				);
+				if (!prev_employee_payment) { // 如果上個月沒有薪資檔案，就不提示差異
+					return {
+						emp_no: employee_payment.emp_no,
+						supervisor_allowance: false,
+						occupational_allowance: false,
+						subsidy_allowance: false,
+						shift_allowance: false,
+						professional_cert_allowance: false,
+						long_service_allowance: false,
+						food_allowance: false,
+					};
+				}
 				const shift_allowance =
 					allowanceFE_list.findLast(
 						(allowanceFE) =>
