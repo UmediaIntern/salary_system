@@ -392,15 +392,19 @@ export class CalculateService {
 					(
 						Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
 						Round((Tax * wci_ji * 0.200001 * PartTimeDay) / 30)
-					) * hinder_rate
+					)
+					* hinder_rate
 				)
 			); // 'Jerry 07/07/19 由工作天數改為加勞保天數計算
 
 		return (
 			Round(
-				Round(Tax * wci_normal * 0.200001) +
-				Round(Tax * wci_ji * 0.200001)
-			) * hinder_rate
+				(
+					Round(Tax * wci_normal * 0.200001) +
+					Round(Tax * wci_ji * 0.200001)
+				)
+				* hinder_rate
+			)
 		);
 	}
 	//MARK: 健保扣除額(要多考慮本人障礙 眷屬正常)
