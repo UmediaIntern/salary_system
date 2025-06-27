@@ -57,7 +57,7 @@ export class CalculateService {
 		private readonly ehrService: EHRService,
 		private readonly employeeBonusService: EmployeeBonusService,
 		private readonly employeeTrustService: EmployeeTrustService
-	) {}
+	) { }
 
 	// MARK: 平日加班費
 	async getWeekdayOvertimePay(
@@ -114,17 +114,17 @@ export class CalculateService {
 			return Round(
 				// hourly_fee * t1 +
 				hourly_fee * t2 * 1.34 +
-					hourly_fee * t3 * 1.67 +
-					hourly_fee * t4 * 2 +
-					hourly_fee * t5 * 2.67
+				hourly_fee * t3 * 1.67 +
+				hourly_fee * t4 * 2 +
+				hourly_fee * t5 * 2.67
 			);
 		} else
 			return Round(
 				// hourly_fee * t1 +
 				hourly_fee * t2 * 1.34 +
-					hourly_fee * t3 * 1.67 +
-					hourly_fee * t4 * 2 +
-					hourly_fee * t5 * 2.67
+				hourly_fee * t3 * 1.67 +
+				hourly_fee * t4 * 2 +
+				hourly_fee * t5 * 2.67
 			);
 	}
 	//MARK: 假日加班費
@@ -254,16 +254,16 @@ export class CalculateService {
 			hourly_fee = Floor(insurance_rate_setting.min_wage / 240, 2);
 			return Round(
 				hourly_fee * t1 * 1.34 +
-					hourly_fee * t2 * 1.67 +
-					hourly_fee * t3 * 2 +
-					hourly_fee * t4 * 2.67
+				hourly_fee * t2 * 1.67 +
+				hourly_fee * t3 * 2 +
+				hourly_fee * t4 * 2.67
 			);
 		} else
 			return Round(
 				hourly_fee * t1 * 1.34 +
-					hourly_fee * t2 * 1.67 +
-					hourly_fee * t3 * 2 +
-					hourly_fee * t4 * 2.67
+				hourly_fee * t2 * 1.67 +
+				hourly_fee * t3 * 2 +
+				hourly_fee * t4 * 2.67
 			);
 	}
 	//MARK: 應發底薪
@@ -303,7 +303,7 @@ export class CalculateService {
 				(employee_payment_dec.occupational_allowance ?? 0) +
 				(employee_payment_dec.subsidy_allowance ?? 0) +
 				(employee_payment_dec.long_service_allowance_type ==
-				LongServiceEnum.enum.month_allowance
+					LongServiceEnum.enum.month_allowance
 					? employee_payment_dec.long_service_allowance
 					: 0);
 			return gross_salary;
@@ -334,8 +334,8 @@ export class CalculateService {
 		// hinder: CheckNull(rd("殘障等級"), "正常")
 		// Work_type: rd("已領老年給付")
 
-		const wci_normal = insuranceRateSetting.l_i_accident_rate; // 勞工保險普通事故險
-		const wci_ji = insuranceRateSetting.l_i_employment_pay_rate; // 勞工保險就業保險率
+		const wci_normal = insuranceRateSetting.l_i_accident_rate; // 勞保事故費率
+		const wci_ji = insuranceRateSetting.l_i_employment_pay_rate; // 勞保就業保險費率
 
 		const hinderDict: { [key: string]: number } = {
 			正常: 1,
@@ -356,22 +356,27 @@ export class CalculateService {
 		if (received_elderly_benefits) return 0; // 'Jerry 100426 已領老年給付者,員工免付勞保
 
 		if (kind1 === FOREIGN || kind2 === WorkStatusEnum.enum.ForeignWorker)
-			return Round(
-				Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) *
-					hinder_rate
+			return (
+				Round(
+					Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30 * hinder_rate)
+				)
 			); // 'Jerry 2023/04/06 由工作天數改為加勞保天數計算
 		if (kind2 === WorkStatusEnum.Enum.Consultant) return 0;
 		if (kind2 === WorkStatusEnum.Enum.Boss)
 			return (
-				Round(Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30)) *
-				hinder_rate
+				Round(
+					Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) * hinder_rate
+				)
 			); //   'Jerry 10/04/26 由工作天數改為加勞保天數計算
 		if (kind2 === WorkStatusEnum.Enum.DailyWage)
 			return (
 				Round(
-					Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
+					(
+						Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
 						Round((Tax * wci_ji * 0.200001 * PartTimeDay) / 30)
-				) * hinder_rate
+					)
+					* hinder_rate
+				)
 			);
 		if (
 			kind2 === WorkStatusEnum.Enum.NewEmployee ||
@@ -382,15 +387,17 @@ export class CalculateService {
 		)
 			return (
 				Round(
-					Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
+					(
+						Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
 						Round((Tax * wci_ji * 0.200001 * PartTimeDay) / 30)
-				) * hinder_rate
+					) * hinder_rate
+				)
 			); // 'Jerry 07/07/19 由工作天數改為加勞保天數計算
 
 		return (
 			Round(
 				Round(Tax * wci_normal * 0.200001) +
-					Round(Tax * wci_ji * 0.200001)
+				Round(Tax * wci_ji * 0.200001)
 			) * hinder_rate
 		);
 	}
@@ -674,7 +681,7 @@ export class CalculateService {
 
 	// MARK: 職務績效獎金
 	async getOccupationalPerformanceBonus(): // TODO
-	Promise<number> {
+		Promise<number> {
 		// TODO
 		return 0;
 	}
@@ -717,7 +724,7 @@ export class CalculateService {
 			(discounted_employee_payment_dec.occupational_allowance ?? 0) +
 			operational_performance_bonus +
 			(discounted_employee_payment_dec.long_service_allowance_type ==
-			LongServiceEnum.enum.month_allowance
+				LongServiceEnum.enum.month_allowance
 				? discounted_employee_payment_dec.long_service_allowance
 				: 0) +
 			reissue_salary +
@@ -848,7 +855,7 @@ export class CalculateService {
 					Tax <
 					(insurance_rate_setting.min_wage -
 						income_tax_setting.deduction) *
-						income_tax_setting.multiplier
+					income_tax_setting.multiplier
 				)
 					return Round(Tax * income_tax_setting.tax_ratio_1 * 0.01);
 				else return Round(Tax * income_tax_setting.tax_ratio_2 * 0.01);
@@ -969,7 +976,7 @@ export class CalculateService {
 				(professional_cert_allowance ?? 0) +
 				(discounted_employee_payment_dec.occupational_allowance ?? 0) +
 				(discounted_employee_payment_dec.long_service_allowance_type ==
-				LongServiceEnum.Enum.month_allowance
+					LongServiceEnum.Enum.month_allowance
 					? discounted_employee_payment_dec.long_service_allowance
 					: 0) +
 				operational_performance_bonus + //在bonus裡 id=2
@@ -1361,25 +1368,25 @@ export class CalculateService {
 			) {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-						Round((occupational_injury * wci_oi * l_i_day) / 30)
+					Round((occupational_injury * wci_oi * l_i_day) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-						Round(
-							(occupational_injury * wci_oi * additional_l_i) / 30
-						)
+					Round(
+						(occupational_injury * wci_oi * additional_l_i) / 30
+					)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			} else if (employee_data.work_status === WorkStatusEnum.Enum.Boss) {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-						Round((occupational_injury * wci_oi * l_i_day) / 30)
+					Round((occupational_injury * wci_oi * l_i_day) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-						Round(
-							(occupational_injury * wci_oi * additional_l_i) / 30
-						)
+					Round(
+						(occupational_injury * wci_oi * additional_l_i) / 30
+					)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			} else if (
@@ -1391,29 +1398,29 @@ export class CalculateService {
 			) {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-						Round((l_i * 0.700001 * wci_ji * l_i_day) / 30) +
-						Round((occupational_injury * wci_oi * l_i_day) / 30)
+					Round((l_i * 0.700001 * wci_ji * l_i_day) / 30) +
+					Round((occupational_injury * wci_oi * l_i_day) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-						Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
-						Round(
-							(occupational_injury * wci_oi * additional_l_i) / 30
-						)
+					Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
+					Round(
+						(occupational_injury * wci_oi * additional_l_i) / 30
+					)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			} else {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-						Round((l_i * wci_ji * 0.700001 * l_i_day) / 30) +
-						Round((occupational_injury * wci_oi * l_i_day) / 30)
+					Round((l_i * wci_ji * 0.700001 * l_i_day) / 30) +
+					Round((occupational_injury * wci_oi * l_i_day) / 30)
 				);
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-						Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
-						Round(
-							(occupational_injury * wci_oi * additional_l_i) / 30
-						)
+					Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
+					Round(
+						(occupational_injury * wci_oi * additional_l_i) / 30
+					)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			}
@@ -1626,7 +1633,7 @@ export class CalculateService {
 			(discounted_employee_payment_dec.occupational_allowance ?? 0) +
 			(discounted_employee_payment_dec.subsidy_allowance ?? 0) +
 			(discounted_employee_payment_dec.long_service_allowance_type ==
-			LongServiceEnum.enum.month_allowance
+				LongServiceEnum.enum.month_allowance
 				? discounted_employee_payment_dec.long_service_allowance
 				: 0) +
 			full_attendance_bonus +
@@ -2103,7 +2110,7 @@ export class CalculateService {
 			30;
 		new_employee_payment_dec.long_service_allowance =
 			((employee_payment_dec.long_service_allowance_type ==
-			LongServiceEnum.Enum.month_allowance
+				LongServiceEnum.Enum.month_allowance
 				? employee_payment_dec.long_service_allowance
 				: 0) *
 				(payset ? payset.work_day! : 30)) /
@@ -2131,11 +2138,11 @@ if (!健保追加)
 			.end_date;
 		const seniority = Round(
 			(cur_date.getTime() - registration_date.getTime()) /
-				1000 /
-				60 /
-				60 /
-				24 /
-				365,
+			1000 /
+			60 /
+			60 /
+			24 /
+			365,
 			2
 		);
 		return seniority;
