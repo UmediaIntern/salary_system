@@ -31,6 +31,7 @@ import {
 } from "../api/types/work_status_enum";
 import { z } from "zod";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
+import { IncomeTaxSettingService } from "./income_tax_setting_service";
 
 @injectable()
 export class SyncService {
@@ -39,10 +40,10 @@ export class SyncService {
 		private readonly employeeDataService: EmployeeDataService,
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
-		private readonly employeeDataMapper: EmployeeDataMapper
-	) { }
+		private readonly employeeDataMapper: EmployeeDataMapper,
+		private readonly incomeTaxSettingService: IncomeTaxSettingService
+	) {}
 	// TODO: move this
-
 
 	// TODO: move this
 	// 將EHR資料格式轉換 Salary資料格式
@@ -147,7 +148,7 @@ export class SyncService {
 		if (
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
 			ehrEmp.work_status ==
-			WorkStatusEnum.Values.NewEmployeePartialMonth ||
+				WorkStatusEnum.Values.NewEmployeePartialMonth ||
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployee
 		) {
 			for (const key in ehrEmp) {
@@ -169,7 +170,8 @@ export class SyncService {
 			}
 		} else {
 			for (const key in ehrEmp) {
-				if (key == "emp_no" || key == "id" || key == "work_status") continue;
+				if (key == "emp_no" || key == "id" || key == "work_status")
+					continue;
 				syncData.comparisons.push(
 					this.dataComparison(
 						key as keyof EmployeeData,
@@ -263,7 +265,10 @@ export class SyncService {
 					switch (emp.work_status) {
 						case WorkStatusEnum.Values.RegularEmployee:
 							// 檢查不合理的離職日期
-							if (quit_date !== QuitDateEnum.Values.future && quit_date !== QuitDateEnum.Values.null) {
+							if (
+								quit_date !== QuitDateEnum.Values.future &&
+								quit_date !== QuitDateEnum.Values.null
+							) {
 								msg = `一般員工卻有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
@@ -297,7 +302,10 @@ export class SyncService {
 							break;
 						default:
 							// 檢查不合理的離職日期
-							if (quit_date !== QuitDateEnum.Values.future && quit_date !== QuitDateEnum.Values.null) {
+							if (
+								quit_date !== QuitDateEnum.Values.future &&
+								quit_date !== QuitDateEnum.Values.null
+							) {
 								msg = `有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
@@ -327,7 +335,9 @@ export class SyncService {
 				period_id: period_id,
 			},
 		});
-		const previous_period_id = await this.ehrService.getPreviousPeriodId(period_id);
+		const previous_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		if (salary_datas.length == 0) {
 			await Promise.all(
 				emp_no_list.map(async (emp_no) => {
@@ -368,7 +378,9 @@ export class SyncService {
 		func: FunctionsEnumType,
 		period_id: number
 	): Promise<SyncData[] | null> {
-		const previous_period_id = await this.ehrService.getPreviousPeriodId(period_id);
+		const previous_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		const previous_paid_emps = await this.getPaidEmps(
 			func,
 			previous_period_id
@@ -463,7 +475,14 @@ export class SyncService {
 			db_salary_datas
 		);
 
-		// Get services
+		const incomeTaxSetting =
+			await this.incomeTaxSettingService.getIncomeTaxSettingByDate(
+				period.end_date
+			);
+		if (!incomeTaxSetting) {
+			throw new Error("Income tax setting not found");
+		}
+		const defaultFoodAllowance = incomeTaxSetting.deduction;
 
 		// Update fields
 		const updatedDatas: EmployeeDataDecType[] = [];
@@ -490,7 +509,7 @@ export class SyncService {
 					start_date: period.start_date,
 					end_date: null,
 					base_salary: 0,
-					food_allowance: 0,
+					food_allowance: defaultFoodAllowance,
 					supervisor_allowance: 0,
 					occupational_allowance: 0,
 					subsidy_allowance: 0,
