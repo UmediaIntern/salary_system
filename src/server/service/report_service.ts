@@ -27,22 +27,33 @@ export class ReportService {
         const transactions = await this.transactionService.getTransaction(period_id, pay_type);
         const departmentMap = new Map<string, TransactionDepartmentType>();
 
+        const keyOfTransactionDepartment = TransactionDepartment.keyof().options;
+
         for (const tx of transactions) {
+            let data: TransactionDepartmentType = keyOfTransactionDepartment.reduce((acc: any, key) => {
+                if (Object.keys(tx.dataValues).includes(key) && Object.keys(TransactionDepartment.shape).includes(key)) {
+                    acc[key] = tx.dataValues[key as keyof typeof tx.dataValues];
+                } else if (Object.keys(TransactionDepartment.shape).includes(key)) {
+                    acc[key] = 0;
+                }
+                return acc;
+            }, {} as TransactionDepartmentType);
+
             const dept = tx.department;
             if (!departmentMap.has(dept)) {
-                departmentMap.set(dept, );
+                departmentMap.set(dept, data);
             } else {
                 const aggTx = departmentMap.get(dept)!;
-                for (const key of Object.keys(TransactionDepartment)) {
+                for (const key of keyOfTransactionDepartment) {
                     console.log(`Processing key: ${key}, type: ${typeof (tx.dataValues as any)[key]}`);
                     // append 0 if key not in tx.dataValues
                     if (Object.keys(tx.dataValues as any).includes(key)) {
                         if (typeof (tx.dataValues as any)[key] === "number" && key !== "id") {
-                            (aggTx.dataValues as any)[key] += (tx.dataValues as any)[key];
+                            (aggTx as any)[key] += (tx.dataValues as any)[key];
                         }
                     }
                     else {
-                        (aggTx.dataValues as any)[key] = 0;
+                        (aggTx as any)[key] = 0;
                     }
                 }
             }
