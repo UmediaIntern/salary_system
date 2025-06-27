@@ -32,7 +32,8 @@ export const syncRouter = createTRPCRouter({
 				input.func,
 				input.period_id
 			);
-			return diffDatas;
+			const filteredDatas = await syncService.filterExcludedColumns(diffDatas);
+			return filteredDatas;
 		}),
 
 	synchronize: publicProcedure

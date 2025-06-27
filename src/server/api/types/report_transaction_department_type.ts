@@ -4,10 +4,10 @@ import { WorkStatusEnum } from "./work_status_enum";
 import { CostCategoryEnum } from "./cost_category_type";
 
 export const TransactionDepartment = z.object({
-	id: z.number(),
-	period_id: z.number(),
-	issue_date: z.string(),
-	pay_type: z.string(),
+	// id: z.number(),
+	// period_id: z.number(),
+	// issue_date: z.string(),
+	// pay_type: z.string(),
 
 	// 勞工相關信息
 	department: z.string(),
