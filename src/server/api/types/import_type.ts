@@ -94,8 +94,8 @@ export const importFields = z.object({
 	salary_total: z.number(),
 	/** 全勤獎金 */
 	full_attendance_bonus: z.number(),
-	/** 營運績效獎金 */
-	operational_performance_bonus: z.number(),
+	// /** 營運績效獎金 */
+	// operational_performance_bonus: z.number(),
 	/** 職務績效獎金 */
 	occupational_performance_bonus: z.number(),
 	/** 補發薪資 */
@@ -106,8 +106,8 @@ export const importFields = z.object({
 	retirement_income: z.number(),
 	/** 專案獎金 */
 	project_bonus: z.number(),
-	/** 季績效獎金 */
-	quarterly_performance_bonus: z.number(),
+	// /** 季績效獎金 */
+	// quarterly_performance_bonus: z.number(),
 	/** 平日134加班時數 */
 	weekday_134_overtime_hours: z.number(),
 	/** 平日167加班時數 */
@@ -217,10 +217,10 @@ export const importFields = z.object({
 	l_r_contribution: z.number(),
 	/** 勞退金提撥_舊制 */
 	old_l_r_contribution: z.number(),
-	/** 信託提存金 */
-	org_trust_reserve: z.number(),
-	/** 特別信託獎勵金_公司 */
-	org_special_trust_incent: z.number(),
+	// /** 信託提存金 */
+	// org_trust_reserve: z.number(),
+	// /** 特別信託獎勵金_公司 */
+	// org_special_trust_incent: z.number(),
 	/** 薪資區隔 */
 	salary_range: z.number(),
 	/** 薪資總額 */
@@ -240,14 +240,14 @@ export const importFields = z.object({
 		.transform((value) => value ?? "")
 		.pipe(z.string()),
 
-    /** 外幣幣別 */
-    currency_foreign: currencyForeignEnum.nullable(),
-    /** 匯率 */
-    exchange_rate: z.number(),
-    /** 外幣金額 */
-    currency_amount_foreign: z.number(),
-    /** 台幣金額 */
-    currency_amount_taiwan: z.number(),
+    // /** 外幣幣別 */
+    // currency_foreign: currencyForeignEnum.nullable(),
+    // /** 匯率 */
+    // exchange_rate: z.number(),
+    // /** 外幣金額 */
+    // currency_amount_foreign: z.number(),
+    // /** 台幣金額 */
+    // currency_amount_taiwan: z.number(),
     /** 持股信託_YN */
     has_trust: z.coerce.boolean()
 });
