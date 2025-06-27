@@ -46,6 +46,37 @@ export class SyncService {
 
 	// TODO: move this
 	// 將EHR資料格式轉換 Salary資料格式
+	private readonly excludedKeys: (keyof EmployeeData)[] = [
+		"id",	
+		// "accumulated_bonus",
+		"create_date",
+		"create_by",
+		"update_date",
+		"update_by",
+	];
+	private readonly ehrConfirmKeys: (keyof EmployeeData)[] = [
+		// "period_id",
+		// "emp_name",
+		// "emp_no",
+		// "position",
+		// "position_type",
+		// "group_insurance_type",
+		// "department",
+		// "cost_category",
+		// "work_type",
+		// // "work_status",
+		// "disabilty_level",
+		// "sex_type",
+		// "dependents",
+		// "healthcare_dependents",
+		// "residence_permit_start_date",
+		// "residence_permit_end_date",
+		// "registration_date",
+		// "quit_date",
+		// "license_id",
+		// // "bank_account_taiwan",
+		// // "received_elderly_benefits",
+	]
 	empToEmployee(
 		ehr_data: Emp,
 		period_id: number
@@ -80,17 +111,10 @@ export class SyncService {
 		ehrData: ValueT,
 		salaryData?: ValueT
 	) {
-		const excludedKeys: (keyof EmployeeData)[] = [
-			"id",
-			// "accumulated_bonus",
-			"create_date",
-			"create_by",
-			"update_date",
-			"update_by",
-		];
+		
 
 		const isDifferent =
-			!excludedKeys.includes(key) && ehrData !== salaryData;
+			!this.excludedKeys.includes(key) && ehrData !== salaryData;
 		const comparison: DataComparison = {
 			key: key,
 			salary_value: salaryData ?? null,
@@ -179,6 +203,7 @@ export class SyncService {
 				);
 			}
 		}
+
 		return syncData;
 	}
 
@@ -438,6 +463,20 @@ export class SyncService {
 		}
 
 		return changedDatas;
+	}
+	async filterExcludedColumns(changedDatas: SyncData[] | null) {
+		if (!changedDatas) return null;
+		return changedDatas.map((data) => {
+			return {
+				emp_no: data.emp_no,
+				name: data.name,
+				department: data.department,
+				english_name: data.english_name,
+				comparisons: data.comparisons.filter((cmp) => {
+					return !this.ehrConfirmKeys.includes(cmp.key as keyof EmployeeData);
+				}),
+			};
+		});
 	}
 
 	async synchronize(period_id: number, change_emp_list: SyncInputType[]) {
