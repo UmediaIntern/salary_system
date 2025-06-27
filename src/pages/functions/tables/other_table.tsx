@@ -6,7 +6,8 @@ import { type I18nType } from "~/lib/utils/i18n_type";
 import { useTranslation } from "react-i18next";
 import { Button } from "~/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { NewOtherFEDiffType } from "~/server/api/types/other_type";
+import { cn } from "~/lib/utils";
 
 /*
 	emp_no: z.string(),
@@ -30,7 +31,7 @@ import { useEffect, useState } from "react";
 
 */
 
-const columns = (t: I18nType) =>
+const columns = (t: I18nType, dataDiff: NewOtherFEDiffType[]) =>
 	[
 		// "period_name",
 		// "emp_no",
@@ -88,6 +89,16 @@ const columns = (t: I18nType) =>
 					</div>
 				);
 			},
+			cell: ({ row }: any) => {
+				let diff = false;
+				for (let [k, v] of Object.entries(dataDiff.find(e => e.emp_no == row.original.emp_no) ?? {})) {
+					if (k == key) {
+						diff = v == true;
+					}
+				}
+				let content = row.original[key]?.toString() ?? "";
+				return <div className={cn("text-center font-medium", diff && "text-red-500")}>{content}</div>;
+			},
 		};
 	});
 
@@ -103,6 +114,12 @@ export function OtherTable({ period_id, emp_no_list }: OtherTableProps) {
 			emp_no_list: emp_no_list,
 		});
 
+	const { isLoading: isLoadingDiff, isError: isErrorDiff, data: dataDiff, error: errorDiff } =
+		api.function.getNewOtherFEDiffByEmpNoList.useQuery({
+			cur_period_id: period_id,
+			emp_no_list: emp_no_list,
+		});
+
 	const details =
 		api.function.getOtherDetailsByEmpNoList.useQuery({
 			period_id: period_id,
@@ -111,19 +128,19 @@ export function OtherTable({ period_id, emp_no_list }: OtherTableProps) {
 
 	const { t } = useTranslation(["common"]);
 
-	if (isLoading || details.isLoading) {
+	if (isLoading || isLoadingDiff || details.isLoading) {
 		return <LoadingSpinner />; // TODO: Loading element with toast
 	}
 
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
+	if (isError || isErrorDiff || details.isError) {
+		return <span>Error: {error?.message ?? ""}, Diff Error: {errorDiff?.message ?? ""}, Details Error: {details.error?.message ?? ""}</span>; // TODO: Error element with toast
 	}
 
 	// if (details.isFetched) {
 	// 	return <Button onClick={() => console.log(details.data)}>test</Button>
 	// }	
 
-	if (data) {
+	if (data && dataDiff) {
 		const filteredData = data.filter((d: any) =>
 			["reissue_salary",
 				"retirement_income",
@@ -143,7 +160,7 @@ export function OtherTable({ period_id, emp_no_list }: OtherTableProps) {
 				.some(key => d[key] > 0)
 		);
 
-		return <DataTable columns={columns(t)} data={filteredData} detailData={
+		return <DataTable columns={columns(t, dataDiff)} data={filteredData} detailData={
 			details.data!.map((emp_data: any) => {
 				return {
 					"other_addition": emp_data.other_addition.map((expense: ExpenseWithType) => {

@@ -42,7 +42,7 @@ export class SyncService {
 		private readonly employeeDataMapper: EmployeeDataMapper
 	) { }
 	// TODO: move this
-	
+
 
 	// TODO: move this
 	// 將EHR資料格式轉換 Salary資料格式
@@ -135,6 +135,15 @@ export class SyncService {
 		});
 
 		syncData.comparisons = [];
+		if ("work_status" in ehrEmp) {
+			syncData.comparisons.push(
+				this.dataComparison(
+					"work_status",
+					ehrEmp["work_status"],
+					salaryEmp?.["work_status"]
+				)
+			);
+		}
 		if (
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
 			ehrEmp.work_status ==
@@ -160,7 +169,7 @@ export class SyncService {
 			}
 		} else {
 			for (const key in ehrEmp) {
-				if (key == "emp_no" || key == "id") continue;
+				if (key == "emp_no" || key == "id" || key == "work_status") continue;
 				syncData.comparisons.push(
 					this.dataComparison(
 						key as keyof EmployeeData,
