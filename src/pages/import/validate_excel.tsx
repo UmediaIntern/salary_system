@@ -9,7 +9,7 @@ import { useImportContext } from "./import_context_provider";
 import { ImportPreview } from "./import_preview";
 import { useState } from "react";
 import { onPromise } from "~/utils/on_promise";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import {
 	Dialog,
 	DialogClose,
@@ -18,23 +18,46 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "~/components/ui/dialog";
+import { Progress } from "~/components/ui/progress";
 
 const fields = ["a", "b", "c"];
 
 export function ValidateExcel() {
 	const [isUploading, setIsUploading] = useState(false);
 	const [openDialog, setOpenDialog] = useState(false);
-	const trpcUtils = api.useUtils();
+	// TODO: move to context and set by the parser or processor
+	const [periodId, setPeriodId] = useState<number | null>(null);
+	const [progress, setProgress] = useState(0);
 
+	const trpcUtils = api.useUtils();
+	const deleteTransaction =
+		api.importTransaction.deleteTransactionPeriod.useMutation();
 	const importTransaction =
 		api.importTransaction.importTransaction.useMutation();
 
 	const { excelData } = useImportContext();
 
+	function uploadData() {
+		const toastId = toast.loading("Loading…");
+		console.log(excelData);
+    setProgress(80);
+		importTransaction.mutate(excelData, {
+			onSuccess: () => {
+				toast.success("Upload success", { id: toastId });
+        handleFinal();
+			},
+			onError: (error) => {
+				toast.error(`Upload error ${error.message}`, {
+					id: toastId,
+				});
+			},
+		});
+	}
+
 	async function handleUpload() {
 		setIsUploading(true);
+		setProgress(5);
 
 		// TODO: Improve. Try to find the period id
 		const period_id = excelData.at(0)?.period_id;
@@ -44,21 +67,19 @@ export function ValidateExcel() {
 			return;
 		}
 
+		setPeriodId(period_id);
 		try {
 			const { empty } =
 				await trpcUtils.importTransaction.checkImportTransaction.fetch({
 					period_id: period_id,
 				});
+			setProgress(40);
 
 			if (empty) {
-				console.log(excelData);
-				importTransaction.mutate(excelData, {
-					onSuccess: () => setIsUploading(false),
-					onError: () => setIsUploading(false),
-				});
+        setProgress(60);
+				uploadData();
 			} else {
 				setOpenDialog(true);
-				setIsUploading(false);
 			}
 		} catch (err) {
 			console.error("checkImportTransaction failed:", err);
@@ -66,12 +87,47 @@ export function ValidateExcel() {
 		}
 	}
 
+	function handleFinal() {
+		setOpenDialog(false);
+		setIsUploading(false);
+    setProgress(0);
+	}
+
+	function handleConfirm() {
+		if (periodId === null) {
+			console.log("periodId is null");
+			return;
+		}
+
+		const toastId = toast.loading("Loading…");
+		deleteTransaction.mutate(
+			{ period_id: periodId },
+			{
+				onSuccess: () => {
+					toast.success("Delete success", { id: toastId });
+          setProgress(60);
+					uploadData();
+				},
+				onError: (error) => {
+					toast.error(`Delete error ${error.message}`, {
+						id: toastId,
+					});
+				},
+			}
+		);
+		setOpenDialog(false);
+	}
 	async function handleDelete() {
-		toast("Continue to delete?", {
+		toast.warning("Continue to delete?", {
+			id: "confirm-delete-transaction",
+			closeButton: true,
+			duration: Infinity,
 			description: "Confirm to delete",
 			action: {
 				label: "Confirm",
-				onClick: () => console.log("Delete"),
+				onClick: () => {
+					handleConfirm();
+				},
 			},
 		});
 	}
@@ -83,14 +139,14 @@ export function ValidateExcel() {
 					direction="vertical"
 					className="flex h-full w-full flex-col"
 				>
-					<ResizablePanel defaultSize={50}>
+					<ResizablePanel defaultSize={70}>
 						<div className="h-full w-full">
 							<ImportPreview />
 						</div>
 					</ResizablePanel>
 					<ResizableHandle />
 
-					<ResizablePanel defaultSize={50}>
+					<ResizablePanel defaultSize={30}>
 						{/* Missing fields */}
 						{/* Invalid values */}
 						<div className="flex h-full w-full flex-col bg-muted p-4">
@@ -113,10 +169,13 @@ export function ValidateExcel() {
 					onClick={onPromise(handleUpload)}
 				>
 					upload
+					{isUploading && (
+						<Progress value={progress} className="w-40 border-2" />
+					)}
 				</Button>
 				<DeleteTransactionDialog
 					onClose={() => {
-						setOpenDialog(false);
+						handleFinal();
 					}}
 					onSubmit={onPromise(handleDelete)}
 				/>

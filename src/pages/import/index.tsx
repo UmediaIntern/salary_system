@@ -158,7 +158,7 @@ export function ImportCarousel() {
 			}}
 			className="flex h-full w-full flex-col"
 		>
-			<CarouselContent className="h-full">
+			<CarouselContent className="h-full px-[2px]">
 				<CarouselItem key={0}>
 					<Card className="h-full">
 						<CardContent className="flex h-full grow items-center justify-center p-6">

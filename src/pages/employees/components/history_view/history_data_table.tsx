@@ -1,5 +1,5 @@
 import { type ColumnDef, type Table } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataTablePagination } from "~/components/data_table/data_table_pagination";
 import { useDataTableStandardState } from "~/components/data_table/default/data_table_standard_state";
 import { DataTableStandardBody } from "~/components/data_table/default/data_table_standard_body";
@@ -16,10 +16,12 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
 	const table = useDataTableStandardState({
 		columns: columns,
 		data,
-		onUpdate: (table) => {
-			setSelectedTable({ table: table });
-		},
 	});
+
+	useEffect(() => {
+		setSelectedTable({ table: table });
+	}, [setSelectedTable, table]);
+
 	return <HistoryViewContent table={table} />;
 }
 
