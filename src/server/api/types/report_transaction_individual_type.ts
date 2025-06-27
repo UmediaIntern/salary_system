@@ -26,8 +26,8 @@ export const TransactionIndividual = z.object({
 	residence_permit_end_date: z.string().nullable(),		/** 居留證截止日期 */
 	registration_date: z.string(),							/** 入職日期 */
 	quit_date: z.string().nullable(),						/** 離職日期 */
-	// ! bank_account_taiwan: z.string(),						/** 台幣帳號 */
-	// ! bank_account_foreign: z.string().nullable(),			/** 外幣帳號 */
+	bank_account_taiwan: z.string(),						/** 台幣帳號 */
+	bank_account_foreign: z.string().nullable(),			/** 外幣帳號 */
 	received_elderly_benefits: z.boolean(),					/** 已領老年給付 */
 	seniority: z.number(),									/** 年資 */
 	annual_days_in_service: z.number(),						/** 年度在職天數 */
