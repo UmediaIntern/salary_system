@@ -4,10 +4,10 @@ import {
 	useTableFunctionState,
 } from "~/components/table_functions/context/table_functions_context";
 import { type FunctionsItem } from "~/components/table_functions/table_functions_types";
-import { type EmployeePaymentFEType } from "~/server/api/types/employee_payment_type";
+import { type EmployeePaymentWithInfoFEType } from "~/server/api/types/employee_payment_type";
 
 export type PaymentRowItem = Omit<
-	EmployeePaymentFEType,
+	EmployeePaymentWithInfoFEType,
 	"start_date" | "end_date" | "long_service_allowance_type"
 > & {
 	long_service_allowance_type: string;

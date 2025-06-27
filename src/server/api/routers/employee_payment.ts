@@ -12,6 +12,8 @@ import {
 	employeePaymentCreateAPI,
 	employeePaymentFE,
 	type EmployeePaymentFEType,
+	employeePaymentWithInfoFE,
+	EmployeePaymentWithInfoFEType,
 	updateEmployeePaymentAPI,
 	updateEmployeePaymentService,
 } from "../types/employee_payment_type";
@@ -24,6 +26,15 @@ export const employeePaymentRouter = createTRPCRouter({
 	getCurrentEmployeePayment: userProcedure
 		.input(z.object({ period_id: z.number() }))
 		.query(async ({ ctx, input }) => {
+			// Filter by access
+			const role = getRoleFromCtx(ctx);
+			const accessService = container.resolve(AccessService);
+			const access = await accessService.getAccessByRole(role);
+			if (!access.employees) {
+				throw new BaseResponseError("Access denied", 403);
+			}
+
+			// Logic
 			const employeePaymentService = container.resolve(
 				EmployeePaymentService
 			);
@@ -32,6 +43,18 @@ export const employeePaymentRouter = createTRPCRouter({
 					input.period_id
 				);
 
+			// Filter by access level
+			const accessibleEmpData = employeePaymentFE.filter((emp) => {
+				return (emp.position ?? 0) <= access.employees_r_lv;
+			});
+
+			return accessibleEmpData;
+		}),
+
+	getCurrentEmployeePaymentWithInfo: userProcedure
+		.input(z.object({ period_id: z.number() }))
+		.output(employeePaymentWithInfoFE.array())
+		.query(async ({ ctx, input }) => {
 			// Filter by access
 			const role = getRoleFromCtx(ctx);
 			const accessService = container.resolve(AccessService);
@@ -39,7 +62,29 @@ export const employeePaymentRouter = createTRPCRouter({
 			if (!access.employees) {
 				throw new BaseResponseError("Access denied", 403);
 			}
-			const accessibleEmpData = employeePaymentFE.filter((emp) => {
+
+			const employeePaymentService = container.resolve(
+				EmployeePaymentService
+			);
+			const employeePaymentFE: EmployeePaymentFEType[] =
+				await employeePaymentService.getCurrentEmployeePayment(
+					input.period_id
+				);
+
+			const employeePaymentWithInfos: EmployeePaymentWithInfoFEType[] =
+				employeePaymentFE.map((emp) => ({
+					...emp,
+					info: {
+						isPositionModified: emp.id % 2 == 0,
+						isPositionTypeModified: emp.id % 4 == 1,
+					},
+				}));
+
+			// Filter by access level
+			if (!access.employees) {
+				throw new BaseResponseError("Access denied", 403);
+			}
+			const accessibleEmpData = employeePaymentWithInfos.filter((emp) => {
 				return (emp.position ?? 0) <= access.employees_r_lv;
 			});
 

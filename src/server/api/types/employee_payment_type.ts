@@ -79,7 +79,19 @@ export const employeePaymentFE = employeePaymentBase
 	.merge(dateMetaFE)
 	.merge(func);
 
+export const employeePaymentWithInfoFE = employeePaymentFE.merge(
+	z.object({
+		info: z.object({
+			isPositionModified: z.boolean(),
+			isPositionTypeModified: z.boolean(),
+		}),
+	})
+);
+
 export type EmployeePaymentFEType = z.infer<typeof employeePaymentFE>;
+export type EmployeePaymentWithInfoFEType = z.infer<
+	typeof employeePaymentWithInfoFE
+>;
 
 // Types functions
 export function isEqualEmployeePayment(

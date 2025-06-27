@@ -10,7 +10,7 @@ export function EmployeePaymentCurrentTable() {
 	const { t } = useTranslation(["common"]);
 
 	const { isPending, isError, data, error } =
-		api.employeePayment.getCurrentEmployeePayment.useQuery({ period_id });
+		api.employeePayment.getCurrentEmployeePaymentWithInfo.useQuery({ period_id });
 
 	if (isPending) {
 		return <LoadingSpinner />; // TODO: Loading element with toast
