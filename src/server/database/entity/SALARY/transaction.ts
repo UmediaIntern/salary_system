@@ -671,7 +671,7 @@ export function initTransaction(sequelize: Sequelize) {
 				comment: "非課說小計",
 			},
 			salary_advance: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.FLOAT,
 				comment: "工資墊償",
 			},
 			l_i_pay: {
