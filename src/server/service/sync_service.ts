@@ -31,6 +31,7 @@ import {
 } from "../api/types/work_status_enum";
 import { z } from "zod";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
+import { IncomeTaxSettingService } from "./income_tax_setting_service";
 
 @injectable()
 export class SyncService {
@@ -39,13 +40,44 @@ export class SyncService {
 		private readonly employeeDataService: EmployeeDataService,
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
-		private readonly employeeDataMapper: EmployeeDataMapper
-	) { }
+		private readonly employeeDataMapper: EmployeeDataMapper,
+		private readonly incomeTaxSettingService: IncomeTaxSettingService
+	) {}
 	// TODO: move this
-
 
 	// TODO: move this
 	// 將EHR資料格式轉換 Salary資料格式
+	private readonly excludedKeys: (keyof EmployeeData)[] = [
+		"id",	
+		// "accumulated_bonus",
+		"create_date",
+		"create_by",
+		"update_date",
+		"update_by",
+	];
+	private readonly ehrConfirmKeys: (keyof EmployeeData)[] = [
+		// "period_id",
+		// "emp_name",
+		// "emp_no",
+		// "position",
+		// "position_type",
+		// "group_insurance_type",
+		// "department",
+		// "cost_category",
+		// "work_type",
+		// // "work_status",
+		// "disabilty_level",
+		// "sex_type",
+		// "dependents",
+		// "healthcare_dependents",
+		// "residence_permit_start_date",
+		// "residence_permit_end_date",
+		// "registration_date",
+		// "quit_date",
+		// "license_id",
+		// // "bank_account_taiwan",
+		// // "received_elderly_benefits",
+	]
 	empToEmployee(
 		ehr_data: Emp,
 		period_id: number
@@ -80,17 +112,10 @@ export class SyncService {
 		ehrData: ValueT,
 		salaryData?: ValueT
 	) {
-		const excludedKeys: (keyof EmployeeData)[] = [
-			"id",
-			// "accumulated_bonus",
-			"create_date",
-			"create_by",
-			"update_date",
-			"update_by",
-		];
+		
 
 		const isDifferent =
-			!excludedKeys.includes(key) && ehrData !== salaryData;
+			!this.excludedKeys.includes(key) && ehrData !== salaryData;
 		const comparison: DataComparison = {
 			key: key,
 			salary_value: salaryData ?? null,
@@ -147,7 +172,7 @@ export class SyncService {
 		if (
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
 			ehrEmp.work_status ==
-			WorkStatusEnum.Values.NewEmployeePartialMonth ||
+				WorkStatusEnum.Values.NewEmployeePartialMonth ||
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployee
 		) {
 			for (const key in ehrEmp) {
@@ -169,7 +194,8 @@ export class SyncService {
 			}
 		} else {
 			for (const key in ehrEmp) {
-				if (key == "emp_no" || key == "id" || key == "work_status") continue;
+				if (key == "emp_no" || key == "id" || key == "work_status")
+					continue;
 				syncData.comparisons.push(
 					this.dataComparison(
 						key as keyof EmployeeData,
@@ -179,6 +205,7 @@ export class SyncService {
 				);
 			}
 		}
+
 		return syncData;
 	}
 
@@ -263,7 +290,10 @@ export class SyncService {
 					switch (emp.work_status) {
 						case WorkStatusEnum.Values.RegularEmployee:
 							// 檢查不合理的離職日期
-							if (quit_date !== QuitDateEnum.Values.future && quit_date !== QuitDateEnum.Values.null) {
+							if (
+								quit_date !== QuitDateEnum.Values.future &&
+								quit_date !== QuitDateEnum.Values.null
+							) {
 								msg = `一般員工卻有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
@@ -297,7 +327,10 @@ export class SyncService {
 							break;
 						default:
 							// 檢查不合理的離職日期
-							if (quit_date !== QuitDateEnum.Values.future && quit_date !== QuitDateEnum.Values.null) {
+							if (
+								quit_date !== QuitDateEnum.Values.future &&
+								quit_date !== QuitDateEnum.Values.null
+							) {
 								msg = `有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
@@ -327,7 +360,9 @@ export class SyncService {
 				period_id: period_id,
 			},
 		});
-		const previous_period_id = await this.ehrService.getPreviousPeriodId(period_id);
+		const previous_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		if (salary_datas.length == 0) {
 			await Promise.all(
 				emp_no_list.map(async (emp_no) => {
@@ -368,7 +403,9 @@ export class SyncService {
 		func: FunctionsEnumType,
 		period_id: number
 	): Promise<SyncData[] | null> {
-		const previous_period_id = await this.ehrService.getPreviousPeriodId(period_id);
+		const previous_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		const previous_paid_emps = await this.getPaidEmps(
 			func,
 			previous_period_id
@@ -439,6 +476,20 @@ export class SyncService {
 
 		return changedDatas;
 	}
+	async filterExcludedColumns(changedDatas: SyncData[] | null) {
+		if (!changedDatas) return null;
+		return changedDatas.map((data) => {
+			return {
+				emp_no: data.emp_no,
+				name: data.name,
+				department: data.department,
+				english_name: data.english_name,
+				comparisons: data.comparisons.filter((cmp) => {
+					return !this.ehrConfirmKeys.includes(cmp.key as keyof EmployeeData);
+				}),
+			};
+		});
+	}
 
 	async synchronize(period_id: number, change_emp_list: SyncInputType[]) {
 		// NOTE: All employee data from EHR
@@ -463,7 +514,14 @@ export class SyncService {
 			db_salary_datas
 		);
 
-		// Get services
+		const incomeTaxSetting =
+			await this.incomeTaxSettingService.getIncomeTaxSettingByDate(
+				period.end_date
+			);
+		if (!incomeTaxSetting) {
+			throw new Error("Income tax setting not found");
+		}
+		const defaultFoodAllowance = incomeTaxSetting.deduction;
 
 		// Update fields
 		const updatedDatas: EmployeeDataDecType[] = [];
@@ -490,7 +548,7 @@ export class SyncService {
 					start_date: period.start_date,
 					end_date: null,
 					base_salary: 0,
-					food_allowance: 0,
+					food_allowance: defaultFoodAllowance,
 					supervisor_allowance: 0,
 					occupational_allowance: 0,
 					subsidy_allowance: 0,
