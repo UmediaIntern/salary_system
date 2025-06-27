@@ -50,7 +50,7 @@ interface BonusTableProps {
 
 export function BonusTable({ period_id, emp_no_list, pay_type }: BonusTableProps) {
 	const { isLoading, isError, data, error } =
-		api.function.getBonusWithTypeByEmpNoList.useQuery({
+		api.function.getNewBonusFEByEmpNoList.useQuery({
 			period_id: period_id,
 			emp_no_list: emp_no_list,
 			pay_type: pay_type,

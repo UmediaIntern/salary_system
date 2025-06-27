@@ -10,4 +10,11 @@ export const newBonusFE = z.object({
     full_attendance_bonus: z.number(),
 })
 
+export const newBonusFEDiff = z.object({
+    emp_no: z.string(),
+    project_bonus: z.boolean(),
+    full_attendance_bonus: z.boolean(),
+})
+
 export type BonusFEType = z.infer<typeof newBonusFE>;
+export type BonusFEDiffType = z.infer<typeof newBonusFEDiff>;

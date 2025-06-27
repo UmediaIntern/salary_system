@@ -98,7 +98,7 @@ interface OtherTableProps {
 
 export function OtherTable({ period_id, emp_no_list }: OtherTableProps) {
 	const { isLoading, isError, data, error } =
-		api.function.getNewOtherByEmpNoList.useQuery({
+		api.function.getNewOtherFEByEmpNoList.useQuery({
 			period_id: period_id,
 			emp_no_list: emp_no_list,
 		});
