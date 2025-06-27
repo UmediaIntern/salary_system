@@ -29,7 +29,7 @@ import { SalaryIncomeTaxDecType } from "../database/entity/SALARY/salary_income_
 import { container } from "tsyringe";
 import { BonusMapper } from "~/server/database/mapper/bonus_mapper";
 import { OtherMapper } from "../database/mapper/other_mapper";
-import { OtherFEType } from "../api/types/other_type";
+import { NewOtherFEType } from "../api/types/other_type";
 import { convert_employee_payment, convert_employee_trust } from "~/pages/test/test_function";
 import { IncomeTaxSettingFEType } from "../api/types/income_tax_setting_type";
 import { IncomeTaxSettingService } from "./income_tax_setting_service";

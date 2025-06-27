@@ -38,4 +38,4 @@ export const newAllowanceFEDiff = z.object({
 
 export type AllowanceFEType = z.infer<typeof allowanceFE>;
 export type NewAllowanceFEType = z.infer<typeof newAllowanceFE>;
-export type newAllowanceFEDiffType = z.infer<typeof newAllowanceFEDiff>
+export type NewAllowanceFEDiffType = z.infer<typeof newAllowanceFEDiff>

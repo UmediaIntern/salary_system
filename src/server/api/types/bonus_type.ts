@@ -16,5 +16,5 @@ export const newBonusFEDiff = z.object({
     full_attendance_bonus: z.boolean(),
 })
 
-export type BonusFEType = z.infer<typeof newBonusFE>;
-export type BonusFEDiffType = z.infer<typeof newBonusFEDiff>;
+export type NewBonusFEType = z.infer<typeof newBonusFE>;
+export type NewBonusFEDiffType = z.infer<typeof newBonusFEDiff>;

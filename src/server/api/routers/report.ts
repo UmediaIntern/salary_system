@@ -4,6 +4,7 @@ import { BaseResponseError } from "../../errors/base_response_error";
 import { z } from "zod";
 import { ReportService } from "~/server/service/report_service";
 import { PayTypeEnum } from "../types/pay_type_enum";
+import { roundProperties } from "~/server/database/mapper/helper_function";
 
 export const reportRouter = createTRPCRouter({
     getTransactionIndividual: publicProcedure
@@ -17,7 +18,7 @@ export const reportRouter = createTRPCRouter({
             if (transactions == null) {
                 throw new BaseResponseError("Transactions does not exist");
             }
-            return [{ name: "transactions", data: transactions }];
+            return [{ name: "transactions", data: transactions.map(e => roundProperties(e, 2)) }];
         }),
 
     getTransactionDepartment: publicProcedure
@@ -31,6 +32,6 @@ export const reportRouter = createTRPCRouter({
             if (transactions == null) {
                 throw new BaseResponseError("Transactions does not exist");
             }
-            return [{ name: "transactions", data: transactions }];
+            return [{ name: "transactions", data: transactions.map(e => roundProperties(e, 2)) }];
         })
 });

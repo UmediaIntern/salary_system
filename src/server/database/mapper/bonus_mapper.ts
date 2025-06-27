@@ -1,7 +1,7 @@
 import { type BonusWithType, EHRService } from "~/server/service/ehr_service";
 import {
-	BonusFEDiffType,
-	type BonusFEType,
+	NewBonusFEDiffType,
+	type NewBonusFEType,
 } from "~/server/api/types/bonus_type";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
 import { EmployeeBonusMapper } from "./employee_bonus_mapper";
@@ -21,7 +21,7 @@ export class BonusMapper {
 		period_id: number,
 		bonus_with_type_list: BonusWithType[],
 		emp_no_list: string[]
-	): Promise<BonusFEType[]> {
+	): Promise<NewBonusFEType[]> {
 		const employeeDataList =
 			await this.employeeDataService.getLatestEmployeeDataByEmpNoList(
 				emp_no_list
@@ -37,7 +37,7 @@ export class BonusMapper {
 				emp_no_list
 			);
 
-		const new_bonusFE_list: BonusFEType[] = await Promise.all(
+		const new_bonusFE_list: NewBonusFEType[] = await Promise.all(
 			emp_no_list.map(async (emp_no) => {
 				const employee_data = employeeDataList.find(
 					(e) => e.emp_no === emp_no
@@ -74,7 +74,7 @@ export class BonusMapper {
 		prev_bonus_with_type_list: BonusWithType[],
 		bonus_with_type_list: BonusWithType[],
 		emp_no_list: string[]
-	): Promise<BonusFEDiffType[]> {
+	): Promise<NewBonusFEDiffType[]> {
 		const previous_period_id = await this.ehrService.getPreviousPeriodId(
 			cur_period_id
 		);
@@ -90,7 +90,7 @@ export class BonusMapper {
 				"project_bonus",
 				emp_no_list
 			);
-		const difference: BonusFEDiffType[] = await Promise.all(
+		const difference: NewBonusFEDiffType[] = await Promise.all(
 			emp_no_list.map(async (emp_no) => {
 				const employee_bonus = employee_bonus_list.find(
 					(e) => e.emp_no === emp_no

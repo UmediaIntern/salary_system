@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { OtherFEDiffType, type OtherFEType } from "~/server/api/types/other_type";
+import { NewOtherFEDiffType, type NewOtherFEType } from "~/server/api/types/other_type";
 import { CalculateService } from "~/server/service/calculate_service";
 import { EHRService } from "~/server/service/ehr_service";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
@@ -17,7 +17,7 @@ export class OtherMapper {
 	async getOtherFE(
 		period_id: number,
 		emp_no_list: string[]
-	): Promise<OtherFEType[]> {
+	): Promise<NewOtherFEType[]> {
 		const previous_period_id = await this.ehrService.getPreviousPeriodId(
 			period_id
 		);
@@ -319,7 +319,7 @@ export class OtherMapper {
 	async getDifference(
 		cur_period_id: number,
 		emp_no_list: string[]
-	): Promise<OtherFEDiffType[]> {
+	): Promise<NewOtherFEDiffType[]> {
 		const previous_period_id = await this.ehrService.getPreviousPeriodId(
 			cur_period_id
 		);
@@ -369,7 +369,7 @@ export class OtherMapper {
 			emp_no_list
 		);
 
-		const difference: OtherFEDiffType[] = await Promise.all(
+		const difference: NewOtherFEDiffType[] = await Promise.all(
 			emp_no_list.map(async (emp_no) => {
 				const employee_payment = employee_payment_list.find(
 					(e) => e.emp_no === emp_no

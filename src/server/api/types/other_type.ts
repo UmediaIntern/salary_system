@@ -41,5 +41,5 @@ export const otherFEDiff=z.object({
     h_i_subsidy: z.boolean(),
 })
 
-export type OtherFEType = z.infer<typeof otherFE>
-export type OtherFEDiffType = z.infer<typeof otherFEDiff>
+export type NewOtherFEType = z.infer<typeof otherFE>
+export type NewOtherFEDiffType = z.infer<typeof otherFEDiff>
