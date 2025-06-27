@@ -84,3 +84,5 @@ export const TransactionDepartment = z.object({
 	emp_trust_reserve: z.number(),					// 員工提存金之總計
 	emp_special_trust_incent: z.number(),			// 特別獎勵金_員工之總計
 });
+
+export type TransactionDepartmentType = z.infer<typeof TransactionDepartment>;
