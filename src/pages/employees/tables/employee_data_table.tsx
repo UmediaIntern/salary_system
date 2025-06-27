@@ -141,7 +141,7 @@ export function EmployeeDataTable() {
 
 	return (
 		<>
-		<button onClick={() => console.log(testData)}>TEST</button>
+		{/* <button onClick={() => console.log(testData)}>TEST</button> */}
 		<DataTable
 			columns={columns(t)}
 			data={testData ? testData : []}
