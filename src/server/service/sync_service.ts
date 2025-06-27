@@ -48,7 +48,7 @@ export class SyncService {
 	// TODO: move this
 	// 將EHR資料格式轉換 Salary資料格式
 	private readonly excludedKeys: (keyof EmployeeData)[] = [
-		"id",	
+		"id",
 		// "accumulated_bonus",
 		"create_date",
 		"create_by",
@@ -77,7 +77,7 @@ export class SyncService {
 		// "license_id",
 		// // "bank_account_taiwan",
 		// // "received_elderly_benefits",
-	]
+	];
 	empToEmployee(
 		ehr_data: Emp,
 		period_id: number
@@ -112,8 +112,6 @@ export class SyncService {
 		ehrData: ValueT,
 		salaryData?: ValueT
 	) {
-		
-
 		const isDifferent =
 			!this.excludedKeys.includes(key) && ehrData !== salaryData;
 		const comparison: DataComparison = {
@@ -164,8 +162,8 @@ export class SyncService {
 			syncData.comparisons.push(
 				this.dataComparison(
 					"work_status",
-					ehrEmp["work_status"],
-					salaryEmp?.["work_status"]
+					ehrEmp.work_status,
+					salaryEmp?.work_status
 				)
 			);
 		}
@@ -434,6 +432,16 @@ export class SyncService {
 			);
 		}
 
+		return await this.compareEhrWithSalaryEmployeeData(
+			period_id,
+			salary_datas
+		);
+	}
+
+	async compareEhrWithSalaryEmployeeData(
+		period_id: number,
+		salary_datas: EmployeeDataDecType[]
+	): Promise<SyncData[] | null> {
 		const ehr_datas: Emp[] = await this.ehrService.getEmp(period_id);
 		const ehr_datas_transformed: z.infer<
 			typeof createEmployeeDataService
@@ -458,10 +466,10 @@ export class SyncService {
 
 		// Compare data
 		const changedDatas: SyncData[] = [];
-		for (const cand_emp_no of cand_emp_no_list) {
+		for (const cand_emp of salary_datas) {
 			// Get data from lookup table
-			const ehrEmp = ehrDict.get(cand_emp_no);
-			const salaryEmp = salaryDict.get(cand_emp_no);
+			const ehrEmp = ehrDict.get(cand_emp.emp_no);
+			const salaryEmp = salaryDict.get(cand_emp.emp_no);
 
 			if (!ehrEmp) {
 				continue;
@@ -476,6 +484,7 @@ export class SyncService {
 
 		return changedDatas;
 	}
+
 	async filterExcludedColumns(changedDatas: SyncData[] | null) {
 		if (!changedDatas) return null;
 		return changedDatas.map((data) => {
@@ -485,7 +494,9 @@ export class SyncService {
 				department: data.department,
 				english_name: data.english_name,
 				comparisons: data.comparisons.filter((cmp) => {
-					return !this.ehrConfirmKeys.includes(cmp.key as keyof EmployeeData);
+					return !this.ehrConfirmKeys.includes(
+						cmp.key as keyof EmployeeData
+					);
 				}),
 			};
 		});
