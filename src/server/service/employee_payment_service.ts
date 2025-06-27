@@ -209,7 +209,7 @@ export class EmployeePaymentService {
 		period_id: number
 	): Promise<EmployeePaymentFEType[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const employeePayment = await EmployeePayment.findAll({
 			where: {
 				start_date: {
@@ -243,7 +243,7 @@ export class EmployeePaymentService {
 		period_id: number
 	): Promise<EmployeePaymentDecType[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const employeePayment = await EmployeePayment.findAll({
 			where: {
 				id: id,
@@ -275,7 +275,7 @@ export class EmployeePaymentService {
 		period_id: number
 	): Promise<EmployeePaymentDecType | null> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const employeePayment = await EmployeePayment.findOne({
 			where: {
 				emp_no: emp_no,
@@ -304,7 +304,7 @@ export class EmployeePaymentService {
 		period_id: number
 	): Promise<EmployeePaymentDecType[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const employeePayment = await EmployeePayment.findAll({
 			where: {
 				emp_no: {
@@ -602,7 +602,7 @@ export class EmployeePaymentService {
 		const employee_data = await this.employeeDataService.getLatestEmployeeDataByEmpNo(emp_no);
 		const period_id = await this.ehrService.getPeriodIdByDate(new Date(employee_data.quit_date!));
 		const period = await this.ehrService.getPeriodById(period_id);
-		const quit_date = period.end_date;
+		const quit_date = dateToString.parse(period.end_date);
 		// TODO: why not use the getAll function
 		const employeePaymentList = await EmployeePayment.findAll({
 			where: { emp_no: emp_no, disabled: false },
@@ -708,6 +708,7 @@ export class EmployeePaymentService {
 		h_i,
 		l_r,
 		occupational_injury,
+		bank_account_foreign,
 		start_date,
 		end_date,
 	}: z.infer<typeof updateEmployeePaymentService>): Promise<
@@ -756,6 +757,10 @@ export class EmployeePaymentService {
 			occupational_injury: select_value(
 				occupational_injury,
 				employeePayment.occupational_injury
+			),
+			bank_account_foreign: select_value(
+				bank_account_foreign,
+				employeePayment.bank_account_foreign
 			),
 			start_date: select_value(start_date, employeePayment.start_date),
 			end_date: select_value(end_date, employeePayment.end_date),
@@ -828,5 +833,14 @@ export class EmployeePaymentService {
 		};
 
 		return updatedEmployeePayment;
+	}
+	async dropEmployeePaymentPeriod(period_id: number): Promise<number> {
+		const start_date = (await this.ehrService.getPeriodById(
+			period_id
+		)).start_date;
+		const deletedRows = await EmployeePayment.destroy({
+			where: { start_date: dateToString.parse(start_date) },
+		});
+		return deletedRows;
 	}
 }

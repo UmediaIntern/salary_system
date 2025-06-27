@@ -7,7 +7,7 @@
 */
 import { container, injectable } from "tsyringe";
 import { EmployeeDataDecType } from "../database/entity/SALARY/employee_data";
-import { ExpenseWithType } from "./ehr_service";
+import { EHRService, ExpenseWithType } from "./ehr_service";
 import { Overtime } from "../database/entity/UMEDIA/overtime";
 import { Payset } from "../database/entity/UMEDIA/payset";
 import { InsuranceRateSettingDecType } from "../database/entity/SALARY/insurance_rate_setting";
@@ -33,6 +33,7 @@ import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
 import { EmployeeTrustService } from "./employee_trust_service";
 import { EmployeeTrustFEType } from "../api/types/employee_trust_type";
+import { stringToDate } from "../api/types/z_utils";
 
 const FOREIGN = "外籍勞工";
 const PROFESSOR = "顧問";
@@ -52,7 +53,11 @@ const rd = (key: string) => {
 
 @injectable()
 export class CalculateService {
-	constructor() {}
+	constructor(
+		private readonly ehrService: EHRService,
+		private readonly employeeBonusService: EmployeeBonusService,
+		private readonly employeeTrustService: EmployeeTrustService
+	) {}
 
 	// MARK: 平日加班費
 	async getWeekdayOvertimePay(
@@ -86,8 +91,8 @@ export class CalculateService {
 		let hourly_fee =
 			(gross_salary +
 				shift_allowance +
-				full_attendance_bonus +
-				professional_cert_allowance) /
+				professional_cert_allowance +
+				full_attendance_bonus) /
 			240;
 		// let t1 = 0;
 		let t2 = 0;
@@ -155,8 +160,8 @@ export class CalculateService {
 		let hourly_fee =
 			(gross_salary +
 				shift_allowance +
-				full_attendance_bonus +
-				professional_cert_allowance) /
+				professional_cert_allowance +
+				full_attendance_bonus) /
 			240;
 		let t1 = 0;
 		let t2 = 0;
@@ -225,8 +230,8 @@ export class CalculateService {
 		let hourly_fee =
 			(gross_salary +
 				shift_allowance +
-				full_attendance_bonus +
-				professional_cert_allowance) /
+				professional_cert_allowance +
+				full_attendance_bonus) /
 			240;
 		let t1 = 0;
 		let t2 = 0;
@@ -303,6 +308,14 @@ export class CalculateService {
 					: 0);
 			return gross_salary;
 		}
+	}
+	//MARK: 薪資總額
+	async getSalaryTotal(
+		gross_salary: number,
+		shift_allowance: number,
+		professional_cert_allowance: number
+	): Promise<number> {
+		return gross_salary + shift_allowance + professional_cert_allowance;
 	}
 	//MARK: 勞保扣除額
 	async getLaborInsuranceDeduction(
@@ -448,6 +461,22 @@ export class CalculateService {
 		operational_performance_bonus: number
 	): Promise<number> {
 		// rd("福利金提撥") = GetFooMoney(rd("工作類別"), rd("工作形態"), rd("底薪"), rd("伙食津貼"), CheckNull(rd("營運積效獎金"), 0), CheckNull(rd("全勤獎金"), 0))
+		// 		'福利金提撥
+		// 'Function GetFooMoney(ByVal kind As String, ByVal money As Long, ByVal food As Integer, ByVal Effect As Integer, ByVal Fulltime As Integer) 'Jerry 06/05/18
+		//  Function GetFooMoney(ByVal kind1 As String, ByVal kind2 As String, ByVal money As Long, ByVal food As Integer, ByVal Effect As Long, ByVal Fulltime As Long)
+		//   If kind1 = Foreign_Man Then   'Jerry 07/01/31 主要區別外籍勞工 同時也是當月離職人員的算法會與間接人員計計算邏輯衝突,因此以工作類別區分外籍勞工
+		//             GetFooMoney = Round((money + food + Effect + Fulltime) * 0.005, 0)
+		//   Else
+		//      Select Case kind2
+		//         Case Leave_Man, Professor, PartTime_1, PartTime_2, Contract, Day_Pay:
+		//             GetFooMoney = 0
+		//         Case Foreign
+		//             GetFooMoney = Round((money + food + Effect + Fulltime) * 0.005, 0)
+		//         Case Else
+		//             GetFooMoney = Round((money + food) * 0.005, 0)
+		//     End Select
+		//   End If
+		// End Function
 		const kind1 = employee_data.work_type;
 		const kind2 = employee_data.work_status;
 		const money = discounted_employee_payment_dec.base_salary;
@@ -457,7 +486,6 @@ export class CalculateService {
 
 		if (kind1 === FOREIGN || kind2 === WorkStatusEnum.Enum.ForeignWorker)
 			return Round((money + food + Effect + Fulltime) * 0.005);
-		if (kind2 === WorkStatusEnum.Enum.RegularEmployee) return 0;
 		if (kind2 === WorkStatusEnum.Enum.Consultant) return 0;
 		if (kind2 === WorkStatusEnum.Enum.PartTimeWorker) return 0;
 		if (kind2 === WorkStatusEnum.Enum.Intern) return 0;
@@ -486,8 +514,8 @@ export class CalculateService {
 		let hourly_fee =
 			(gross_salary +
 				shift_allowance +
-				full_attendance_bonus +
-				professional_cert_allowance) /
+				professional_cert_allowance +
+				full_attendance_bonus) /
 			240;
 		interface HolidaysTypeDict {
 			[key: number]: number;
@@ -1170,6 +1198,41 @@ export class CalculateService {
 			h_i_subsidy;
 		return non_taxable_subtotal;
 	}
+
+	//MARK:  加項小計
+	async getAdditionSubtotal(
+		pay_type: PayTypeEnumType,
+		weekday_overtime_pay: number,
+		rest_overtime_pay: number,
+		exceed_overtime_pay: number,
+		full_attendance_bonus: number,
+		reissue_salary: number,
+		non_leave_compensation: number,
+		retirement_income: number,
+		project_bonus: number,
+		other_addition: number,
+		other_addition_tax: number
+	): Promise<number> {
+		if (pay_type === PayTypeEnum.Enum.month_salary) {
+			const addition_subtotal =
+				weekday_overtime_pay +
+				rest_overtime_pay +
+				exceed_overtime_pay +
+				full_attendance_bonus +
+				reissue_salary +
+				non_leave_compensation +
+				retirement_income +
+				project_bonus +
+				other_addition +
+				other_addition_tax;
+			return addition_subtotal;
+		} else if (pay_type === PayTypeEnum.Enum.foreign_15_bonus) {
+			const addition_subtotal = other_addition + other_addition_tax;
+			return addition_subtotal;
+		}
+		return -1;
+	}
+
 	//MARK: 減項小計(要補信託提存)
 	async getDeductionSubtotal(
 		pay_type: PayTypeEnumType,
@@ -1689,15 +1752,13 @@ export class CalculateService {
 		accumulated_bonus: number,
 		accumulated_trust: number
 	): Promise<number> {
-		const employee_bonus_service = container.resolve(EmployeeBonusService);
-		const employee_trust_service = container.resolve(EmployeeTrustService);
 		const employee_trust =
-			await employee_trust_service.getCurrentEmployeeTrustFEByEmpNo(
+			await this.employeeTrustService.getCurrentEmployeeTrustFEByEmpNo(
 				emp_no,
 				period_id
 			);
 		const employee_bonus_list =
-			await employee_bonus_service.getEmployeeBonusByEmpNo(
+			await this.employeeBonusService.getEmployeeBonusByEmpNo(
 				period_id,
 				emp_no
 			);
@@ -1930,6 +1991,23 @@ export class CalculateService {
 		}
 		return -1;
 	}
+	//MARK: 車輛貸款
+	async getVehicleLoan(
+		expense_list: Expense[],
+		expense_class_list: ExpenseClass[]
+	): Promise<number> {
+		const expenseList = expense_list.filter((e) => e.kind === 2);
+		const vehicle_loan_id = expense_class_list.find(
+			(ec) => ec.name === "車輛貸款"
+		)?.id;
+		let vehicle_loan = 0;
+		for (const expense of expenseList) {
+			if (expense.id === vehicle_loan_id) {
+				vehicle_loan += expense.amount ?? 0;
+			}
+		}
+		return vehicle_loan;
+	}
 	//MARK: 特別事假時數
 	async getSpecialPersonalLeaveHours(
 		holiday_list: Holiday[],
@@ -2044,4 +2122,22 @@ if (!勞保追加)
 if (!健保追加)
 	建保追加 = False
 */
+	// MARK: 年資
+	async getSeniority(employee_data: EmployeeDataDecType, period_id: number) {
+		const registration_date = stringToDate.parse(
+			employee_data.registration_date
+		);
+		const cur_date = (await this.ehrService.getPeriodById(period_id))
+			.end_date;
+		const seniority = Round(
+			(cur_date.getTime() - registration_date.getTime()) /
+				1000 /
+				60 /
+				60 /
+				24 /
+				365,
+			2
+		);
+		return seniority;
+	}
 }

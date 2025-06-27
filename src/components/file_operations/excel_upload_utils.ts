@@ -1,5 +1,5 @@
 import { inverse_translate } from "public/locales/utils";
-import { ValueType, Workbook } from "exceljs";
+import { CellValue, ValueType, Workbook } from "exceljs";
 
 function trimRightEmptyValues(arr: any[]): any[] {
 	let end = arr.length;
@@ -109,10 +109,13 @@ export async function extractData(
 				const rowValues: any[] = [];
 
 				row.eachCell({ includeEmpty: true }, (cell) => {
-					const value =
-						cell.type === ValueType.RichText
-							? cell.text
-							: cell.value;
+          let value: CellValue = cell.value; 
+          if (cell.type === ValueType.Formula) {
+            value = cell.result;
+          }
+          if (cell.type === ValueType.RichText) {
+            value = cell.text;
+          }
 					rowValues.push(value);
 				});
 
@@ -126,7 +129,7 @@ export async function extractData(
 
 				const cleanedValues = Array.from<any[], unknown[]>(
 					trimmedValues,
-					(x) => x ?? ""
+					(x) => x ?? null 
 				);
 
 				if (cleanedValues.length > maxLen) {

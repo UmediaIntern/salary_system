@@ -32,13 +32,16 @@ import {
 	ImportContextProvider,
 	useImportContext,
 } from "./import_context_provider";
-import { type ExcelSheetType } from "~/components/file_operations/excel_type";
+import { type ExcelSheetData } from "~/components/file_operations/excel_type";
 import { ExcelParser } from "~/components/file_operations/excel_parser";
 import { ExcelValidator } from "~/components/file_operations/excel_validator";
 import { reqNodeEmpNo } from "./excel_requirement";
+import { convertFromDBWorkStatusEnum } from "~/server/api/types/work_status_enum";
+import { MB } from "~/lib/utils/define";
+import { dateToStringNullable } from "~/server/api/types/z_utils";
 
 const excelParser = new ExcelParser();
-const excelValidator = new ExcelValidator([]);
+// const excelValidator = new ExcelValidator([]);
 
 export function ImportCarousel() {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -48,7 +51,6 @@ export function ImportCarousel() {
 
 	async function handleFileUpload(files: File[]) {
 		if (files.length !== 1 || !files[0]) {
-			// toast
 			throw new Error("Only one file can be uploaded at a time");
 		}
 		const file: File = files[0];
@@ -59,7 +61,7 @@ export function ImportCarousel() {
       return
     }
 
-    let excel: ExcelSheetType;
+    let excel: ExcelSheetData;
     try {
       excel = excelParser.parseSingleSheet(data);
     } catch (error) {
@@ -67,18 +69,18 @@ export function ImportCarousel() {
       return
     }
 
-    const result = excelValidator.validate(excel);
-    if (!result.success) {
-      for (const error of result.errors) {
-        console.log(error.toString());
-      }
-      return
-    }
+    // const result = excelValidator.validate(excel);
+    // if (!result.success) {
+    //   for (const error of result.errors) {
+    //     console.log(error.toString());
+    //   }
+    //   return
+    // }
 
     const indices: number[] = [];
     importFieldsKeys.options.forEach((key) => {
       const excelFieldName = excelFieldMapping[key];
-      const idx = excel.header.indexOf(excelFieldName);
+      const idx = excel.raw_header.indexOf(excelFieldName);
       if (idx === -1) {
         console.log(`${excelFieldName} not found in excel`);
       }
@@ -88,7 +90,7 @@ export function ImportCarousel() {
 
     // Processing rows
     const transactionRows: ImportFieldsType[] = [];
-    const excelRows = excel.data;
+    const excelRows = excel.raw_data;
     let i = 0;
     for (const row of excelRows) {
       // console.log(row);
@@ -98,9 +100,13 @@ export function ImportCarousel() {
         if (
           dataIdx != undefined &&
           dataIdx >= 0 &&
-          row[dataIdx] != undefined
+          row[dataIdx] !== undefined
         ) {
-          obj[key] = row[dataIdx];
+          if (key === "work_status") {
+            obj[key] = convertFromDBWorkStatusEnum(row[dataIdx]);
+          } else {
+            obj[key] = row[dataIdx];
+          }
         } else {
           console.log(
             `${key} not found in excel idx=${idx} dataIdx=${dataIdx}`
@@ -108,6 +114,7 @@ export function ImportCarousel() {
         }
       });
 
+      // TODO: temporary
       const result = importFields.safeParse(obj);
       if (!result.success) {
         console.log(result.error.message);
@@ -151,12 +158,12 @@ export function ImportCarousel() {
 			}}
 			className="flex h-full w-full flex-col"
 		>
-			<CarouselContent className="h-full">
+			<CarouselContent className="h-full px-[2px]">
 				<CarouselItem key={0}>
 					<Card className="h-full">
 						<CardContent className="flex h-full grow items-center justify-center p-6">
 							<span className="text-4xl font-semibold">
-								<FileUploader onUpload={handleFileUpload} />
+								<FileUploader onUpload={handleFileUpload} maxSize={MB(5)}/>
 							</span>
 						</CardContent>
 					</Card>

@@ -15,6 +15,7 @@ import {
 } from "../api/types/attendance_setting_type";
 import { EHRService } from "./ehr_service";
 import { BaseMapper } from "../database/mapper/base_mapper";
+import { dateToString } from "../api/types/z_utils";
 
 @injectable()
 export class AttendanceSettingService {
@@ -57,7 +58,7 @@ export class AttendanceSettingService {
 		period_id: number
 	): Promise<AttendanceSettingDecType | null> {
 		const period = await this.ehrService.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const attendanceSettingList = await AttendanceSetting.findAll({
 			where: {
 				start_date: {

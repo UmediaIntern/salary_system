@@ -6,6 +6,7 @@ import Dropzone, {
 	type FileRejection,
 } from "react-dropzone";
 import { cn } from "~/lib/utils";
+import { MB } from "~/lib/utils/define";
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
 	/**
@@ -91,7 +92,7 @@ export function FileUploader(props: FileUploaderProps) {
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
 				[".xlsx"],
 		},
-		maxSize = 1024 * 1024 * 2,
+		maxSize = MB(2), 
 		maxFileCount = 1,
 		multiple = false,
 		disabled = false,
@@ -101,11 +102,24 @@ export function FileUploader(props: FileUploaderProps) {
 	} = props;
 
 	const onDrop = useCallback(
-		(acceptedFiles: File[], _: FileRejection[]) => {
+		(acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      const totalCount = acceptedFiles.length + fileRejections.length
+
 			if (!multiple && maxFileCount === 1 && acceptedFiles.length > 1) {
 				toast.error("Cannot upload more than 1 file at a time");
 				return;
 			}
+
+      if (fileRejections.length !== 0) {
+        console.log(`${fileRejections.length} files rejected`);
+        toast.error(`Failed: Try to upload ${totalCount} files. ${fileRejections.length} rejected / ${totalCount} total`);
+
+        // TODO: add onReject
+        // for (const file of fileRejections) {
+        //
+        // }
+        return;
+      }
 
 			onUpload?.(acceptedFiles).catch(() => {
 				toast.error("Failed to upload file");

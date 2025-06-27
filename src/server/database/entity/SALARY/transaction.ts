@@ -4,11 +4,11 @@ import {
 	type InferAttributes,
 	type InferCreationAttributes,
 	type CreationOptional,
-	Sequelize,
+	type Sequelize,
 } from "sequelize";
-import { CostCategoryEnumType } from "~/server/api/types/cost_category_type";
-import { WorkStatusEnumType } from "~/server/api/types/work_status_enum";
-import { WorkTypeEnumType } from "~/server/api/types/work_type_enum";
+import { type CostCategoryEnumType } from "~/server/api/types/cost_category_type";
+import { type WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { type WorkTypeEnumType } from "~/server/api/types/work_type_enum";
 
 export class Transaction extends Model<
 	InferAttributes<Transaction>,
@@ -53,8 +53,10 @@ export class Transaction extends Model<
 	declare dependents: number;
 	/** 健保眷口數 */
 	declare healthcare_dependents: number;
-	/** 入境日期 */
-	declare entry_date: string | null;
+	/** 居留證開始日期 */
+	declare residence_permit_start_date: string | null;
+	/** 居留證截止日期 */
+	declare residence_permit_end_date: string | null;
 	/** 到職日期 */
 	declare registration_date: string;
 	/** 離職日期 */
@@ -62,7 +64,7 @@ export class Transaction extends Model<
 	/** 台幣帳號 */
 	declare bank_account_taiwan: string;
 	/** 外幣帳號 */
-	declare bank_account_foreign: string;
+	declare bank_account_foreign: string | null;
 	/** 已領老年給付 */
 	declare received_elderly_benefits: boolean;
 	/** 年資 */
@@ -99,6 +101,8 @@ export class Transaction extends Model<
 	declare shift_allowance: number;
 	/** 專業証照津貼 */
 	declare professional_cert_allowance: number;
+	/** 薪資總計 */
+	declare salary_total: number;
 	/** 全勤獎金 */
 	declare full_attendance_bonus: number;
 	/** 營運績效獎金 */
@@ -149,8 +153,12 @@ export class Transaction extends Model<
 	declare other_addition: number;
 	/** 其他加項稅 */
 	declare other_addition_tax: number;
+	/** 加項小計 */
+	declare addition_subtotal: number;
   
 	// 減項
+	/** 車輛貸款 */
+	declare vehicle_loan: number;
 	/** 特別事假扣款 */
 	declare special_personal_leave_deduct: number;
 	/** 請假扣款 */
@@ -240,7 +248,7 @@ export class Transaction extends Model<
 	declare note: string;
   
 	/** 外幣幣別 */
-	declare currency_foreign: string;
+	declare currency_foreign: string | null;
 	/** 匯率 */
 	declare exchange_rate: number;
 	/** 外幣金額 */
@@ -342,9 +350,15 @@ export function initTransaction(sequelize: Sequelize) {
 				type: DataTypes.INTEGER,
 				comment: "健保眷口數",
 			},
-			entry_date: {
+			residence_permit_start_date: {
 				type: DataTypes.STRING(128),
-				comment: "入境日期",
+				allowNull: true,
+				comment: "居留證開始日期",
+			},
+			residence_permit_end_date: {
+				type: DataTypes.STRING(128),
+				allowNull: true,
+				comment: "居留證截止日期",
 			},
 			registration_date: {
 				type: DataTypes.STRING(128),
@@ -352,6 +366,7 @@ export function initTransaction(sequelize: Sequelize) {
 			},
 			quit_date: {
 				type: DataTypes.STRING(128),
+				allowNull: true,
 				comment: "離職日期",
 			},
 			bank_account_taiwan: {
@@ -360,6 +375,7 @@ export function initTransaction(sequelize: Sequelize) {
 			},
 			bank_account_foreign: {
 				type: DataTypes.STRING(128),
+				allowNull: true,
 				comment: "外幣帳號",
 			},
 			received_elderly_benefits: {
@@ -429,6 +445,10 @@ export function initTransaction(sequelize: Sequelize) {
 			professional_cert_allowance: {
 				type: DataTypes.INTEGER,
 				comment: "專業証照津貼",
+			},
+			salary_total: {
+				type: DataTypes.INTEGER,
+				comment: "薪資總計",
 			},
 			full_attendance_bonus: {
 				type: DataTypes.INTEGER,
@@ -529,6 +549,14 @@ export function initTransaction(sequelize: Sequelize) {
 			other_addition_tax: {
 				type: DataTypes.INTEGER,
 				comment: "其他加項稅",
+			},
+			addition_subtotal: {
+				type: DataTypes.INTEGER,
+				comment: "加項小計",
+			},
+			vehicle_loan: {
+				type: DataTypes.INTEGER,
+				comment: "車輛貸款",
 			},
 			special_personal_leave_deduct: {
 				type: DataTypes.INTEGER,
@@ -704,6 +732,7 @@ export function initTransaction(sequelize: Sequelize) {
 			},
 			currency_foreign: {
 				type: DataTypes.STRING(128),
+        allowNull: true,
 				comment: "外幣幣別",
 			},
 			exchange_rate: {

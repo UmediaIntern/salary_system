@@ -16,6 +16,7 @@ import {
 	createBankSettingService,
 	type updateBankSettingService,
 } from "../api/types/bank_setting_type";
+import { dateToString } from "../api/types/z_utils";
 
 @injectable()
 export class BankSettingService {
@@ -90,7 +91,7 @@ export class BankSettingService {
 	): Promise<BankSettingDecType[]> {
 		const ehr_service = container.resolve(EHRService);
 		const period = await ehr_service.getPeriodById(period_id);
-		const current_date_string = period.end_date;
+		const current_date_string = dateToString.parse(period.end_date);
 		const bankSetting = await BankSetting.findAll({
 			where: {
 				start_date: {

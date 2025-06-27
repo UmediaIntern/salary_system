@@ -14,3 +14,6 @@ export const MiddlewareErrorScope = createErrorScope('middleware');
 
 export const BonusAllServiceErrorScope = createErrorScope('BonusAllService');
 export const BonusDepartmentServiceErrorScope = createErrorScope('BonusDepartmentService');
+
+// EHR Model Error Scope
+export const PeriodModelErrorScope = createErrorScope('Period Model');

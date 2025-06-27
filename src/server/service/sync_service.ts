@@ -40,87 +40,9 @@ export class SyncService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeDataMapper: EmployeeDataMapper
-	) {}
+	) { }
 	// TODO: move this
-	parsedPeriod(
-		period: Period
-	): Period & { period_year: number; period_month: number } {
-		const current_year = "20" + period.period_name.split("-")[1];
-		const current_month = period.period_name.split("-")[0]!;
-		const year = parseInt(current_year);
-
-		const monthDict: Record<string, number> = {
-			JAN: 1,
-			FEB: 2,
-			MAR: 3,
-			APR: 4,
-			MAY: 5,
-			JUN: 6,
-			JUL: 7,
-			AUG: 8,
-			SEP: 9,
-			OCT: 10,
-			NOV: 11,
-			DEC: 12,
-		};
-
-		const month = monthDict[current_month];
-		if (!month) {
-			throw new Error(`Invalid month: ${current_month}`);
-		}
-
-		return { ...period, period_year: year, period_month: month };
-	}
-
-	async getPreviousPeriodId(period_id: number): Promise<number> {
-		const ehr_service = container.resolve(EHRService);
-		const previousMonthDict: Record<string, string> = {
-			JAN: "DEC",
-			FEB: "JAN",
-			MAR: "FEB",
-			APR: "MAR",
-			MAY: "APR",
-			JUN: "MAY",
-			JUL: "JUN",
-			AUG: "JUL",
-			SEP: "AUG",
-			OCT: "SEP",
-			NOV: "OCT",
-			DEC: "NOV",
-		};
-		const period_name = (await ehr_service.getPeriodById(period_id))
-			.period_name;
-		const previous_month = previousMonthDict[period_name.split("-")[0]!];
-		const year =
-			previous_month === "DEC"
-				? String(parseInt(period_name.split("-")[1]!) - 1)
-				: period_name.split("-")[1];
-		const previous_period_id = (
-			await ehr_service.getPeriodByName(`${previous_month}-${year}`)
-		).period_id;
-		return previous_period_id;
-	}
-	async checkQuitDate(
-		parsedPeriod: Period & { period_year: number; period_month: number },
-		quit_date: string | null
-	): Promise<QuitDateEnumType> {
-		if (!quit_date) return QuitDateEnum.Values.null;
-
-		const leaving_year_str = quit_date.split("-")[0]!; //讀出來是2023-05-04的形式
-		const leaving_month_str = quit_date.split("-")[1]!;
-		const levaing_year = parseInt(leaving_year_str);
-		const leaving_month = parseInt(leaving_month_str);
-
-		if (parsedPeriod.period_year < levaing_year)
-			return QuitDateEnum.Values.future;
-		else if (parsedPeriod.period_year == levaing_year) {
-			if (parsedPeriod.period_month < leaving_month)
-				return QuitDateEnum.Values.future;
-			else if (parsedPeriod.period_month == leaving_month)
-				return QuitDateEnum.Values.current;
-			else return QuitDateEnum.Values.past;
-		} else return QuitDateEnum.Values.past;
-	}
+	
 
 	// TODO: move this
 	// 將EHR資料格式轉換 Salary資料格式
@@ -136,17 +58,19 @@ export class SyncService {
 			position_type: ehr_data.position_type,
 			group_insurance_type: ehr_data.group_insurance_type,
 			department: ehr_data.department,
+			cost_category: ehr_data.cost_category,
 			work_type: ehr_data.work_type,
 			work_status: ehr_data.work_status,
 			disabilty_level: ehr_data.disabilty_level,
 			sex_type: ehr_data.sex_type,
 			dependents: ehr_data.dependents,
 			healthcare_dependents: ehr_data.healthcare_dependents,
+			residence_permit_start_date: ehr_data.residence_permit_start_date,
+			residence_permit_end_date: ehr_data.residence_permit_end_date,
 			registration_date: ehr_data.registration_date,
 			quit_date: ehr_data.quit_date!,
 			license_id: ehr_data.license_id!,
 			bank_account_taiwan: ehr_data.bank_account_taiwan,
-			bank_account_foreign: ehr_data.bank_account_foreign,
 			received_elderly_benefits: ehr_data.received_elderly_benefits,
 		};
 	}
@@ -167,10 +91,9 @@ export class SyncService {
 
 		const isDifferent =
 			!excludedKeys.includes(key) && ehrData !== salaryData;
-
 		const comparison: DataComparison = {
 			key: key,
-			salary_value: salaryData,
+			salary_value: salaryData ?? null,
 			ehr_value: ehrData,
 			is_different: isDifferent,
 		};
@@ -215,7 +138,7 @@ export class SyncService {
 		if (
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployeeFullMonth ||
 			ehrEmp.work_status ==
-				WorkStatusEnum.Values.NewEmployeePartialMonth ||
+			WorkStatusEnum.Values.NewEmployeePartialMonth ||
 			ehrEmp.work_status == WorkStatusEnum.Values.NewEmployee
 		) {
 			for (const key in ehrEmp) {
@@ -309,7 +232,7 @@ export class SyncService {
 
 			const all_emps = salary_emps.concat(new_employees); // 合併所有員工數據
 
-			// Updated employee data from changes in EHR (Besides new employees)
+			//假設用EHR資料更新掉衝突部分後的資料
 			const updated_all_emps = all_emps.map((salaryEmp) => {
 				const matching_ehr_emp = ehr_dict.get(salaryEmp.emp_no);
 				return matching_ehr_emp
@@ -318,20 +241,20 @@ export class SyncService {
 			});
 
 			const periodInfo = await this.ehrService.getPeriodById(period_id);
-			const parsedPeriod = this.parsedPeriod(periodInfo);
+			const parsedPeriod = this.ehrService.parsedPeriod(periodInfo);
 			// NOTE: check employee work status
 			// NOTE: 檢查所有員工的支付狀態有無不合理處
 			cand_paid_emps = await Promise.all(
 				updated_all_emps.map(async (emp) => {
 					let msg = "";
-					const quit_date = await this.checkQuitDate(
+					const quit_date = await this.ehrService.checkQuitDate(
 						parsedPeriod,
 						emp.quit_date
 					);
 					switch (emp.work_status) {
 						case WorkStatusEnum.Values.RegularEmployee:
 							// 檢查不合理的離職日期
-							if (quit_date !== QuitDateEnum.Values.future) {
+							if (quit_date !== QuitDateEnum.Values.future && quit_date !== QuitDateEnum.Values.null) {
 								msg = `一般員工卻有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
@@ -365,7 +288,7 @@ export class SyncService {
 							break;
 						default:
 							// 檢查不合理的離職日期
-							if (quit_date !== QuitDateEnum.Values.future) {
+							if (quit_date !== QuitDateEnum.Values.future && quit_date !== QuitDateEnum.Values.null) {
 								msg = `有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
@@ -395,7 +318,7 @@ export class SyncService {
 				period_id: period_id,
 			},
 		});
-		const previous_period_id = await this.getPreviousPeriodId(period_id);
+		const previous_period_id = await this.ehrService.getPreviousPeriodId(period_id);
 		if (salary_datas.length == 0) {
 			await Promise.all(
 				emp_no_list.map(async (emp_no) => {
@@ -436,15 +359,15 @@ export class SyncService {
 		func: FunctionsEnumType,
 		period_id: number
 	): Promise<SyncData[] | null> {
-		const previous_period_id = await this.getPreviousPeriodId(period_id);
-		const previous_cand_paid_emps = await this.getCandPaidEmployees(
+		const previous_period_id = await this.ehrService.getPreviousPeriodId(period_id);
+		const previous_paid_emps = await this.getPaidEmps(
 			func,
 			previous_period_id
 		);
-		const previous_cand_emp_no_list = previous_cand_paid_emps.map(
+		const previous_paid_emp_no_list = previous_paid_emps.map(
 			(emp) => emp.emp_no
 		);
-		await this.createNewMonthData(period_id, previous_cand_emp_no_list);
+		await this.createNewMonthData(period_id, previous_paid_emp_no_list); //複製並更新上個月已有的資料
 		const cand_paid_emps = await this.getCandPaidEmployees(func, period_id); // 獲取候選需支付員工數據
 		const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
 
@@ -555,7 +478,7 @@ export class SyncService {
 					emp_no: ehr_emp_data.emp_no,
 					long_service_allowance_type:
 						LongServiceEnum.Enum.month_allowance,
-					start_date: new Date(period.start_date),
+					start_date: period.start_date,
 					end_date: null,
 					base_salary: 0,
 					food_allowance: 0,
@@ -568,6 +491,7 @@ export class SyncService {
 					h_i: 0,
 					l_r: 0,
 					occupational_injury: 0,
+					bank_account_foreign: null,
 				});
 
 				await this.employeeTrustService.createEmployeeTrust({

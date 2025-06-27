@@ -10,7 +10,7 @@ import { usePeriodContext } from "../context/period_context_provider";
 import { useTranslation } from "react-i18next";
 
 export function SidebarPeriodSelector() {
-	const { selectedPeriod, selectedPayDate } = usePeriodContext();
+	const { displayPeriodName, selectedPeriod, selectedPayDate } = usePeriodContext();
 	const { t } = useTranslation(["nav", "common"]);
 
 	return (
@@ -27,7 +27,7 @@ export function SidebarPeriodSelector() {
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-semibold">
-									{t("period")}
+									{t("period")}  {displayPeriodName}
 								</span>
 								<span className="truncate text-xs">
 									{selectedPeriod?.period_name &&

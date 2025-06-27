@@ -3,6 +3,7 @@ import { container } from "tsyringe";
 import { z } from "zod";
 import { TransactionService } from "~/server/service/transaction_service";
 import { PayTypeEnum } from "~/server/api/types/pay_type_enum";
+import { dateToString } from "../types/z_utils";
 
 export const transactionRouter = createTRPCRouter({
 	createTransaction: publicProcedure
@@ -10,7 +11,7 @@ export const transactionRouter = createTRPCRouter({
 			z.object({
 				emp_no_list: z.string().array(),
 				period_id: z.number(),
-				issue_date: z.string(),
+				issue_date: z.date(),
 				pay_type: PayTypeEnum,
 				note: z.string(),
 			})
@@ -41,7 +42,7 @@ export const transactionRouter = createTRPCRouter({
 				await transactionService.createTransaction(
 					emp_no,
 					input.period_id,
-					input.issue_date,
+					dateToString.parse(input.issue_date), // TODO: shitty code
 					input.pay_type,
 					input.note,
 					commonParameters

@@ -2,7 +2,7 @@ import { container, injectable } from "tsyringe";
 import { type z } from "zod";
 import {
 	EmployeeBonus,
-	EmployeeBonusDecType,
+	type EmployeeBonusDecType,
 } from "../database/entity/SALARY/employee_bonus";
 import { BaseResponseError } from "../errors/base_response_error";
 import { Round, select_value } from "./helper_function";
@@ -27,7 +27,8 @@ import { Op } from "sequelize";
 export class EmployeeBonusService {
 	constructor(
 		private readonly ehrService: EHRService,
-		private readonly employeeBonusMapper: EmployeeBonusMapper
+		private readonly employeeBonusMapper: EmployeeBonusMapper,
+		private readonly employeePaymentService: EmployeePaymentService
 	) {}
 
 	async createEmployeeBonus(
@@ -80,6 +81,10 @@ export class EmployeeBonusService {
 				app_performance_level: null,
 				app_effective_salary: null,
 				app_amount: null,
+				currency_foreign: null,
+				exchange_rate: null,
+				currency_amount_foreign: null,
+				currency_amount_taiwan: null,
 				start_date: null,
 				end_date: null,
 			});
@@ -154,7 +159,7 @@ export class EmployeeBonusService {
 	}
 
 	async getAccumulatedBonus(period_id: number, emp_no_list: string[]) {
-		// return accumulated bonus until period_id - 1
+		// return accumulated bonus until previous period
 		const period_name = await this.ehrService
 			.getPeriodById(period_id)
 			.then((period) => period.period_name);
@@ -169,7 +174,10 @@ export class EmployeeBonusService {
 				await this.ehrService.getPeriodByName("DEC-" + year)
 			).period_id;
 		}
-		const end_period_id = period_id - 1;
+
+		const end_period_id = await this.ehrService.getPreviousPeriodId(
+			period_id
+		);
 		const result = await EmployeeBonus.findAll({
 			where: {
 				period_id: {
@@ -265,7 +273,7 @@ export class EmployeeBonusService {
 					period_id,
 					bonus_type,
 					Math.floor(
-						(new Date(issue_date).getTime() -
+						(issue_date.getTime() -
 							new Date(
 								employee_data.registration_date
 							).getTime()) /
@@ -312,6 +320,10 @@ export class EmployeeBonusService {
 		app_performance_level,
 		app_effective_salary,
 		app_amount,
+		currency_foreign,
+		exchange_rate,
+		currency_amount_foreign,
+		currency_amount_taiwan,
 	}: z.infer<typeof updateEmployeeBonusService>) {
 		const employeeBonus = await this.getEmployeeBonusById(id);
 		if (employeeBonus == null) {
@@ -356,6 +368,22 @@ export class EmployeeBonusService {
 				employeeBonus.app_effective_salary
 			),
 			app_amount: select_value(app_amount, employeeBonus.app_amount),
+			currency_foreign: select_value(
+				currency_foreign,
+				employeeBonus.currency_foreign
+			),
+			exchange_rate: select_value(
+				exchange_rate,
+				employeeBonus.exchange_rate
+			),
+			currency_amount_foreign: select_value(
+				currency_amount_foreign,
+				employeeBonus.currency_amount_foreign
+			),
+			currency_amount_taiwan: select_value(
+				currency_amount_taiwan,
+				employeeBonus.currency_amount_taiwan
+			),
 			start_date: null,
 			end_date: null,
 		});
@@ -416,9 +444,8 @@ export class EmployeeBonusService {
 		if (!employeeBonus) {
 			throw new BaseResponseError("Employee bonus does not exist");
 		}
-		const employee_bonus_mapper = container.resolve(EmployeeBonusMapper);
 		const employee_bonus_fe =
-			await employee_bonus_mapper.getEmployeeBonusFE({
+			await this.employeeBonusMapper.getEmployeeBonusFE({
 				...employeeBonus,
 				sup_performance_level: sup_performance_level!,
 				sup_effective_salary: sup_effective_salary!,
@@ -489,12 +516,8 @@ export class EmployeeBonusService {
 		);
 
 		const promises = emp_no_list.map(async (emp_no) => {
-			const employee_payment_service = container.resolve(
-				EmployeePaymentService
-			);
-
 			const employee_payment_dec =
-				await employee_payment_service.getCurrentEmployeePaymentByEmpNo(
+				await this.employeePaymentService.getCurrentEmployeePaymentByEmpNo(
 					emp_no,
 					period_id
 				);

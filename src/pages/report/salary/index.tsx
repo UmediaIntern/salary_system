@@ -42,6 +42,7 @@ import { getExcelData, getDefaults } from "./utils";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { Transaction } from "~/server/database/entity/SALARY/transaction";
+import { convertToKey } from "~/server/api/types/work_status_enum";
 
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
@@ -61,7 +62,7 @@ const Salary: NextPageWithLayout = () => {
 
 type KeyValuePair = Record<string, any>;
 
-function excludeDataColumn(dataList: any[], excludedColumns: Array<string>) {
+function excludeDataColumn(t: any, dataList: any[], excludedColumns: Array<string>) {
 	return dataList.map((data: any) => {
 		const sheetName = data.name;
 		const sheetData = data.data.map((row: KeyValuePair) => {
@@ -75,12 +76,37 @@ function excludeDataColumn(dataList: any[], excludedColumns: Array<string>) {
 		});
 		return {
 			name: sheetName,
-			data: sheetData,
+			data: displayMapper(t, sheetData),
 		};
 	});
 }
 
+function displayMapper(t: any, data: any[]) {
+
+	return data.map((row: KeyValuePair) => {
+		const newRow: KeyValuePair = {};
+		Object.keys(row).forEach((key) => {
+			switch (key) {
+				case "work_status":
+					newRow[key] = t(`work_status.${convertToKey(row[key])}`);
+					break;
+				case "pay_type":
+				case "received_elderly_benefits":
+				case "probation_period_over":
+				case "has_trust":
+					newRow[key] = t(`others.${row[key]}`);
+					break;
+				default:
+					newRow[key] = row[key];
+					break;
+			}
+		});
+		return newRow;
+	});
+}
+
 function ExportPage() {
+	const { t } = useTranslation("common");
 	const { selectedPeriod } = usePeriodContext();
 	const [selectedExcelIndex, setSelectedExcelIndex] = useState(0);
 	const [selectedSheetIndex, setSelectedSheetIndex] = useState(0);
@@ -90,24 +116,24 @@ function ExportPage() {
 		"create_date",
 		"update_by",
 		"update_date",
-		"disable",
+		"disabled",
 	]);
 	const [toDisplayData, setToDisplayData] = useState<any>(null);
 
 
 	// ! Declare All Excel Data
 	const all_data_api: {
-		transaction?: 	ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
-		test?: 			ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+		transaction?: ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+		test?: ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
 	} = {};
 
 	type AllDataApiKeys = keyof typeof all_data_api;
 
 	const all_data_isPending: Partial<Record<AllDataApiKeys, boolean>> = {};
-	const all_data_content:   Partial<Record<AllDataApiKeys, ReactNode>> = {};
+	const all_data_content: Partial<Record<AllDataApiKeys, ReactNode>> = {};
 	const all_data: {
-		transaction?: 	(Transaction|null)[];
-		test?: 			(any|null)[];
+		transaction?: (Transaction | null)[];
+		test?: (any | null)[];
 	} = {};
 
 
@@ -128,30 +154,34 @@ function ExportPage() {
 	all_data_content['transaction'] = transactionContent;
 	all_data['transaction'] = transactionData as (Transaction | null)[];
 
-	
+
 	all_data_api['test'] = api.report.getTransactionIndividual.useQuery({
 		period_id: selectedPeriod?.period_id ?? 0,
 		pay_type: "month_salary",
 	});
 	all_data_isPending['test'] = transactionIsPending;
 	all_data_content['test'] = transactionContent;
-	all_data['test'] = [{name: "test", data: [
-		{test1: "test1", test2: "test2", test3: "test3"},
-		{test1: "test1", test2: "test2", test3: "test3"},
-	]}, {name: "second_sheet", data: [
-		{test4: "test1", test5: "test2", test6: "test3"},
-		{test4: "test1", test5: "test2", test6: "test3"},
-	]}];
+	all_data['test'] = [{
+		name: "test", data: [
+			{ test1: "test1", test2: "test2", test3: "test3" },
+			{ test1: "test1", test2: "test2", test3: "test3" },
+		]
+	}, {
+		name: "second_sheet", data: [
+			{ test4: "test1", test5: "test2", test6: "test3" },
+			{ test4: "test1", test5: "test2", test6: "test3" },
+		]
+	}];
 
 
 	function createSchema() {
 		const selectedExcel = excel_order[selectedExcelIndex]!;
 		const keys = all_data_api[selectedExcel]?.isFetched
 			? Object.keys(
-					all_data[selectedExcel]!.map((sheet: any) =>
-						sheet.data.length > 0 ? sheet.data[0] : []
-					)[selectedSheetIndex]
-			  )
+				all_data[selectedExcel]!.map((sheet: any) =>
+					sheet.data.length > 0 ? sheet.data[0] : []
+				)[selectedSheetIndex]
+			)
 			: [];
 		const schemaShape = keys.reduce((acc: any, key) => {
 			if (toExcludedColumns.includes(key)) {
@@ -195,6 +225,7 @@ function ExportPage() {
 								setToDisplayData(
 									getExcelData(
 										excludeDataColumn(
+											t,
 											all_data['transaction'] ?? [],
 											newExcludedColumns
 										)
@@ -263,7 +294,7 @@ function ExportPage() {
 					original_sheets={
 						toDisplayData ??
 						getExcelData(
-							excludeDataColumn(all_data[excel_order[selectedExcelIndex]!] ?? [], toExcludedColumns)
+							excludeDataColumn(t, all_data[excel_order[selectedExcelIndex]!] ?? [], toExcludedColumns)
 						)
 					}
 					filter_component={<FilterComponent />}

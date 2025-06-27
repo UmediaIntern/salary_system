@@ -1,8 +1,4 @@
-import {
-	createContext,
-	useContext,
-	type PropsWithChildren,
-} from "react";
+import { createContext, useContext, type PropsWithChildren } from "react";
 import { type AccessFEType } from "~/server/api/types/access_page_type";
 import { api } from "~/utils/api";
 import { LoadingSpinner } from "../loading";
@@ -12,14 +8,14 @@ const accessContext = createContext<{ access: AccessFEType } | null>(null);
 export function AccessContextProvider({ children }: PropsWithChildren) {
 	const { isSuccess, data } = api.access.accessByRole.useQuery();
 
-    if (!isSuccess) {
-        return <LoadingSpinner />;
-    }
+	if (!isSuccess) {
+		return <LoadingSpinner />;
+	}
 
 	return (
 		<accessContext.Provider
 			value={{
-				access: data
+				access: data,
 			}}
 		>
 			{children}
