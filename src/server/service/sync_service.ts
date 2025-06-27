@@ -400,7 +400,7 @@ export class SyncService {
 	async checkEmployeeData(
 		func: FunctionsEnumType,
 		period_id: number
-	): Promise<SyncData[] | null> {
+	): Promise<SyncData[]> {
 		const previous_period_id = await this.ehrService.getPreviousPeriodId(
 			period_id
 		);
@@ -434,14 +434,16 @@ export class SyncService {
 
 		return await this.compareEhrWithSalaryEmployeeData(
 			period_id,
-			salary_datas
+			salary_datas,
+			cand_emp_no_list
 		);
 	}
 
 	async compareEhrWithSalaryEmployeeData(
 		period_id: number,
-		salary_datas: EmployeeDataDecType[]
-	): Promise<SyncData[] | null> {
+		salary_datas: EmployeeDataDecType[],
+		cand_emp_no_list: string[]
+	): Promise<SyncData[]> {
 		const ehr_datas: Emp[] = await this.ehrService.getEmp(period_id);
 		const ehr_datas_transformed: z.infer<
 			typeof createEmployeeDataService
@@ -457,19 +459,26 @@ export class SyncService {
 			EmployeeDataDecType
 		>();
 
-		ehr_datas_transformed.forEach((emp) => {
-			ehrDict.set(emp.emp_no, emp);
-		});
+		// Union of the emp_no // TODO: Test allEmpNo
+		const allEmpNo: string[] = [];
 		salary_datas.forEach((emp) => {
 			salaryDict.set(emp.emp_no, emp);
+			allEmpNo.push(emp.emp_no);
+		});
+
+		ehr_datas_transformed.forEach((emp) => {
+			ehrDict.set(emp.emp_no, emp);
+			if (!allEmpNo.includes(emp.emp_no)) {
+				allEmpNo.push(emp.emp_no);
+			}
 		});
 
 		// Compare data
 		const changedDatas: SyncData[] = [];
-		for (const cand_emp of salary_datas) {
+		for (const cand_emp_no of cand_emp_no_list) {
 			// Get data from lookup table
-			const ehrEmp = ehrDict.get(cand_emp.emp_no);
-			const salaryEmp = salaryDict.get(cand_emp.emp_no);
+			const ehrEmp = ehrDict.get(cand_emp_no);
+			const salaryEmp = salaryDict.get(cand_emp_no);
 
 			if (!ehrEmp) {
 				continue;
