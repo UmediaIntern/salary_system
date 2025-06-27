@@ -34,7 +34,8 @@ type RowItem = {
 	license_id: string | null;
 	bank_account_taiwan: string;
 	received_elderly_benefits: boolean;
-	month_salary_status: MonthSalaryStatusEnumType,
+	month_salary_status: MonthSalaryStatusEnumType;
+	difference: Array<string>;
 };
 type RowItemKey = keyof RowItem;
 
@@ -97,7 +98,16 @@ const columns = (t: I18nType) => {
 						content = t(`others.${row.original.received_elderly_benefits}`)
 						break;
 				}
-				return <ColumnCellComponent>{content}</ColumnCellComponent>;
+				return <ColumnCellComponent>
+					{ 
+						(row.original.difference.includes(key)) ? 
+						<div className="text-red-500">
+							{/* {console.log("RED")} */}
+							{content}
+						</div> :
+						<>{content}</>
+					}
+				</ColumnCellComponent>;
 			},
 			// filterFn: key === "work_status" ? "equalsString" : undefined,
 		});
@@ -108,6 +118,16 @@ export function EmployeeDataTable() {
 	const { period_id } = useEmployeeTableContext();
 	const { isPending, isError, data, error } =
 		api.employeeData.getCurrentEmployeeDataWithInfo.useQuery({ period_id });
+
+	const testData = data ? data!.map((d) => {
+		// add difference property to each data
+		const difference: string[] = [];
+		difference.push("position")
+		return {
+			...d,
+			difference: difference,
+		};
+	}) : undefined;
 
 	const { t } = useTranslation(["common"]);
 
@@ -120,10 +140,14 @@ export function EmployeeDataTable() {
 	}
 
 	return (
+		<>
+		{/* <button onClick={() => console.log(testData)}>TEST</button> */}
 		<DataTable
 			columns={columns(t)}
-			data={data}
+			data={testData ? testData : []}
+			// data = {data}
 			initialColumnVisibility={{ month_salary_status: false }}
 		/>
+		</>
 	);
 }

@@ -123,23 +123,26 @@ function ExportPage() {
 
 	// ! Declare All Excel Data
 	const all_data_api: {
-		transaction?: ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
-		test?: ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+		transaction?: 				ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+		transaction_department?: 	ReturnType<typeof api.report.getTransactionDepartment.useQuery>;
+		test?: 						ReturnType<typeof api.report.getTransactionIndividual.useQuery>;	
 	} = {};
 
 	type AllDataApiKeys = keyof typeof all_data_api;
 
-	const all_data_isPending: Partial<Record<AllDataApiKeys, boolean>> = {};
-	const all_data_content: Partial<Record<AllDataApiKeys, ReactNode>> = {};
+	const all_data_isPending: 	Partial<Record<AllDataApiKeys, boolean>> = {};
+	const all_data_content: 	Partial<Record<AllDataApiKeys, ReactNode>> = {};
 	const all_data: {
-		transaction?: (Transaction | null)[];
-		test?: (any | null)[];
+		transaction?: 				(Transaction | null)[];
+		transaction_department?: 	(Transaction | null)[];
+		test?: 						(any | null)[];
 	} = {};
 
 
 	// ! Declare Excel Order
 	const excel_order: (keyof typeof all_data_api)[] = [
 		'transaction',
+		'transaction_department',
 		'test',
 	]
 
@@ -154,7 +157,17 @@ function ExportPage() {
 	all_data_content['transaction'] = transactionContent;
 	all_data['transaction'] = transactionData as (Transaction | null)[];
 
+	all_data_api['transaction_department'] = api.report.getTransactionDepartment.useQuery({
+		period_id: selectedPeriod?.period_id ?? 0,
+		pay_type: "month_salary",
+	});
+	const { isPending: transactionDepartmentIsPending, content: transactionDepartmentContent, data: transactionDepartmentData } = useQueryHandle(all_data_api['transaction_department']);
+	all_data_isPending['transaction_department'] = transactionDepartmentIsPending;
+	all_data_content['transaction_department'] = transactionDepartmentContent;
+	all_data['transaction_department'] = transactionDepartmentData as (Transaction | null)[];
 
+
+	// ! Testing Data
 	all_data_api['test'] = api.report.getTransactionIndividual.useQuery({
 		period_id: selectedPeriod?.period_id ?? 0,
 		pay_type: "month_salary",
@@ -242,7 +255,9 @@ function ExportPage() {
 		);
 	}
 
-	function SelectExcelComponent() {
+	function SelectExcelComponent({t}: {
+		t: any
+	}) {
 		const selectedExcel = excel_order[selectedExcelIndex]!;
 		return (
 			<>
@@ -266,7 +281,7 @@ function ExportPage() {
 											key={excel_name}
 											value={excel_name}
 										>
-											{excel_name}
+											{t(`others.${excel_name}`)}
 										</SelectItem>
 									);
 								}
@@ -287,6 +302,9 @@ function ExportPage() {
 	return (
 		<>
 			<div className="flex h-full flex-col">
+				{/* <Button onClick={() => {console.log(selectedPeriod?.period_id, transactionData)}} variant={"destructive"}>	
+					TEST
+				</Button> */}
 				<ExcelViewer
 					original_sheets={
 						toDisplayData ??
@@ -295,7 +313,7 @@ function ExportPage() {
 						)
 					}
 					filter_component={<FilterComponent />}
-					selectedExcelComponent={<SelectExcelComponent />}
+					selectedExcelComponent={<SelectExcelComponent t={t} />}
 					selectedSheetIndex={selectedSheetIndex}
 					selected_excel_name={excel_order[selectedExcelIndex]!}
 					setSelectedSheetIndex={setSelectedSheetIndex}

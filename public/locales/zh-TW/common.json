@@ -89,7 +89,7 @@
     "tax_identification_code": "稅務識別碼",
     "probation_period_over": "試用期滿",
     "accumulated_bonus": "累計獎金",
-    "l_r_self_ratio": "勞退自提比例(%)",
+    "l_r_self_ratio": "勞退自提撥比例(%)",
     "h_i": "健保",
     "h_i_subsidy": "健保補助",
     "l_i": "勞保",
@@ -201,6 +201,7 @@
     "l_i_deduction": "勞保扣除額",
     "h_i_deduction": "健保扣除額",
     "welfare_contribution": "福利金提撥",
+    "overtime_pay": "加班費",
     "weekday_overtime_pay": "平日加班費",
     "rest_overtime_pay": "休息日加班費",
     "vehicle_loan": "車輛貸款",
@@ -473,6 +474,8 @@
     "start_calculate_month_salary": "月薪計算",
     "start_calculate_month_salary_button": "開始計算",
     "transaction": "薪資異動檔",
+    "transaction_department": "薪資異動檔(部門)",
+    "test": "這是一筆贊助測試",
     "new_data_start_date": "新資料開始日期",
     "true": "是",
     "false": "否"
@@ -515,5 +518,18 @@
     "contract_employee": "約聘人員",
     "daily_wage": "日薪制",
     "boss": "總經理"
+  },
+  "TODO": {
+    "year_award_contribution": "年獎提撥",
+    "night_fee": "夜點費",
+    "assessment_bonus": "考核獎金",
+    "year_end_bonus": "年終獎金",
+    "operational_assessment_bonus": "營運考核獎金",
+    "professional_cert_allowance_1": "專業證照之總計1",
+    "performance_bonus": "績效獎金",
+    "h_i_total": "健保費之總合計",
+    "stock_loan": "股票貸款",
+    "holiday_hours": "假日加班時數"
+    
   }
 }
