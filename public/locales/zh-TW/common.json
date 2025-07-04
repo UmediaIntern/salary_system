@@ -56,6 +56,7 @@
     "criterion_date": "獎金(發放)基準日",
     "fixed_multiplier": "固定比率",
     "ratio": "比例",
+    "bank_account_taiwan_name": "台幣帳號戶名",
     "bank_account_taiwan": "台幣帳號",
     "bank_account_foreign": "外幣帳號",
     "email": "E-Mail",
@@ -73,7 +74,7 @@
     "bank_full_name": "受款銀行全稱",
     "securities_code": "券商代碼",
     "indigenous_name": "原住民姓名",
-    "identity_number": "身分證字號",
+    "identity_number": "身份證字號",
     "mailing_address": "通訊地址",
     "old_age_benifit": "已領老年給付",
     "dependents": "扶養人數",
@@ -314,7 +315,28 @@
     "l_i_addition_previous": "勞保加項",
     "h_i_addition_previous": "健保加項",
     "fixed_deposit_deduction": "定存扣款",
-    "court_salary_garnishment": "法院薪資扣押款"
+    "court_salary_garnishment": "法院薪資扣押款",
+
+    "insured_amount": "投保金額",
+    "self": "本人",
+    "family": "眷屬",
+    "self_total": "個人總計",
+    "unit_total": "單位應計",
+
+    "insured_salary": "投保薪資",
+    "billing_population": "計費人數",
+
+    "l_r_level_range": "勞退級距",
+    "l_r_headcount": "勞退人數",
+
+    "l_r_insured_amount": "勞退投保金額",
+    "occupational_injury_insured_amount": "職災投保金額",
+
+    "l_i_reduction": "勞保減免",
+
+    "h_i_insured_amount": "健保投保金額",
+    "l_i_insured_amount": "勞保投保金額"
+
   },
   "table_name": {
     "attendanceSetting": "請假加班",
@@ -371,7 +393,11 @@
     "ignore": "忽略",
     "select": "選擇",
     "login": "登入",
-    "no_default_value": "不套用預設值"
+    "no_default_value": "不套用預設值",
+    "download": "下載",
+    "edit": "修改",
+    "done": "完成",
+    "keys": "欄位"
   },
   "month": {
     "jan": "01",
@@ -458,6 +484,8 @@
     "calculate_done": "薪資計算完成",
     "sync_error": "有錯誤的資料",
     "sync_error_msg": "請解決這些錯誤後再進行操作。您可能需要與EHR團隊聯繫。",
+    "excel_download_title": "下載Excel",
+    "excel_export_filename": "輸出檔案名稱",
     "bonus_filter": "獎金篩選及特殊倍率設定",
     "bonus_budget": "獎金預算計算",
     "bonus_excel_export": "匯出Excel",
@@ -474,7 +502,12 @@
     "start_calculate_month_salary": "月薪計算",
     "start_calculate_month_salary_button": "開始計算",
     "transaction": "薪資異動檔",
-    "transaction_department": "薪資異動檔(部門)",
+    "transaction_department": "部門薪資總表",
+    "h_i_level_range": "健保級距",
+    "l_i_level_range": "勞保級距",
+    "l_r_level_range": "勞退級距",
+    "h_i_details_out": "健保明細匯出",
+    "salary_out": "薪轉匯出",
     "test": "這是一筆贊助測試",
     "new_data_start_date": "新資料開始日期",
     "true": "是",
@@ -530,6 +563,6 @@
     "h_i_total": "健保費之總合計",
     "stock_loan": "股票貸款",
     "holiday_hours": "假日加班時數"
-    
+
   }
 }

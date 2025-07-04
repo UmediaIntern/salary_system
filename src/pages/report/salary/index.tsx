@@ -43,6 +43,11 @@ import { usePeriodContext } from "~/components/context/period_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { Transaction } from "~/server/database/entity/SALARY/transaction";
 import { convertToKey } from "~/server/api/types/work_status_enum";
+import { SalaryOutType } from "~/server/api/types/report_salary_out_type";
+import { HILevelRangeType } from "~/server/api/types/report_h_i_level_range_type";
+import { LILevelRangeType } from "~/server/api/types/report_l_i_level_range_type";
+import { LRLevelRangeType } from "~/server/api/types/report_l_r_level_range_type";
+import { HIDetailsOutType } from "~/server/api/types/report_h_i_details_out_range_type";
 
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
@@ -117,28 +122,20 @@ function ExportPage() {
 		"update_by",
 		"update_date",
 		"disabled",
-
 		// Exclude other from transaction
 	]);
 	const [toDisplayData, setToDisplayData] = useState<any>(null);	
-
-
-	/*	Transaction Individual Exclude
-		// "operational_performance_bonus",
-		// "quarterly_performance_bonus",
-		// "org_trust_reserve",
-		// "org_special_trust_incent",
-		// "currency_foreign",
-		// "exchange_rate",
-		// "currency_amount_foreign",
-		// "currency_amount_taiwan"
-	*/
 
 
 	// ! Declare All Excel Data
 	const all_data_api: {
 		transaction?: 				ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
 		transaction_department?: 	ReturnType<typeof api.report.getTransactionDepartment.useQuery>;
+		salary_out?: 				ReturnType<typeof api.report.getSalaryOut.useQuery>;
+		h_i_level_range?: 			ReturnType<typeof api.report.getHILevelRange.useQuery>;
+		l_i_level_range?: 			ReturnType<typeof api.report.getLILevelRange.useQuery>;
+		l_r_level_range?: 			ReturnType<typeof api.report.getLRLevelRange.useQuery>;
+		h_i_details_out?: 			ReturnType<typeof api.report.getHIDetailsOut.useQuery>;
 		test?: 						ReturnType<typeof api.report.getTransactionIndividual.useQuery>;	
 	} = {};
 
@@ -149,6 +146,11 @@ function ExportPage() {
 	const all_data: {
 		transaction?: 				(Transaction | null)[];
 		transaction_department?: 	(Transaction | null)[];
+		salary_out?: 				(SalaryOutType | null)[];
+		h_i_level_range?: 			(HILevelRangeType | null)[];
+		l_i_level_range?: 			(LILevelRangeType | null)[];
+		l_r_level_range?: 			(LRLevelRangeType | null)[];
+		h_i_details_out?: 			(HIDetailsOutType | null)[];
 		test?: 						(any | null)[];
 	} = {};
 
@@ -157,6 +159,11 @@ function ExportPage() {
 	const excel_order: (keyof typeof all_data_api)[] = [
 		'transaction',
 		'transaction_department',
+		'h_i_level_range',
+		'l_i_level_range',
+		'l_r_level_range',
+		'h_i_details_out',
+		'salary_out',
 		'test',
 	]
 
@@ -180,26 +187,35 @@ function ExportPage() {
 	all_data_content['transaction_department'] = transactionDepartmentContent;
 	all_data['transaction_department'] = transactionDepartmentData as (Transaction | null)[];
 
+	all_data_api['salary_out'] = api.report.getSalaryOut.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	const { isPending: salaryOutIsPending, content: salaryOutContent, data: salaryOutData } = useQueryHandle(all_data_api['salary_out']);
+	all_data_isPending['salary_out'] = salaryOutIsPending;
+	all_data_content['salary_out'] = salaryOutContent;
+	all_data['salary_out'] = salaryOutData as (SalaryOutType | null)[];
 
-	// ! Testing Data
-	all_data_api['test'] = api.report.getTransactionIndividual.useQuery({
-		period_id: selectedPeriod?.period_id ?? 0,
-		pay_type: "month_salary",
-	});
-	all_data_isPending['test'] = transactionIsPending;
-	all_data_content['test'] = transactionContent;
-	all_data['test'] = [{
-		name: "test", data: [
-			{ test1: "test1", test2: "test2", test3: "test3" },
-			{ test1: "test1", test2: "test2", test3: "test3" },
-		]
-	}, {
-		name: "second_sheet", data: [
-			{ test4: "test1", test5: "test2", test6: "test3" },
-			{ test4: "test1", test5: "test2", test6: "test3" },
-		]
-	}];
+	all_data_api['h_i_level_range'] = api.report.getHILevelRange.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	const { isPending: HILevelRangeIsPending, content: HILevelRangeContent, data: HILevelRangeData } = useQueryHandle(all_data_api['h_i_level_range']);
+	all_data_isPending['h_i_level_range'] = HILevelRangeIsPending;
+	all_data_content['h_i_level_range'] = HILevelRangeContent;
+	all_data['h_i_level_range'] = HILevelRangeData as (HILevelRangeType | null)[];
 
+	all_data_api['l_i_level_range'] = api.report.getLILevelRange.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	const { isPending: LILevelRangeIsPending, content: LILevelRangeContent, data: LILevelRangeData } = useQueryHandle(all_data_api['l_i_level_range']);
+	all_data_isPending['l_i_level_range'] = LILevelRangeIsPending;
+	all_data_content['l_i_level_range'] = LILevelRangeContent;
+	all_data['l_i_level_range'] = LILevelRangeData as (LILevelRangeType | null)[];
+
+	all_data_api['l_r_level_range'] = api.report.getLRLevelRange.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	const { isPending: LRLevelRangeIsPending, content: LRLevelRangeContent, data: LRLevelRangeData } = useQueryHandle(all_data_api['l_r_level_range']);
+	all_data_isPending['l_r_level_range'] = LRLevelRangeIsPending;
+	all_data_content['l_r_level_range'] = LRLevelRangeContent;
+	all_data['l_r_level_range'] = LRLevelRangeData as (LRLevelRangeType | null)[];
+
+	all_data_api['h_i_details_out'] = api.report.getHIDetailsOut.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	const { isPending: HIDetailsOutIsPending, content: HIDetailsOutContent, data: HIDetailsOutData } = useQueryHandle(all_data_api['h_i_details_out']);
+	all_data_isPending['h_i_details_out'] = HIDetailsOutIsPending;
+	all_data_content['h_i_details_out'] = HIDetailsOutContent;
+	all_data['h_i_details_out'] = HIDetailsOutData as (HIDetailsOutType | null)[];
 
 	function createSchema() {
 		const selectedExcel = excel_order[selectedExcelIndex]!;
@@ -227,7 +243,7 @@ function ExportPage() {
 		return (
 			<Sheet open={open} onOpenChange={setOpen}>
 				<SheetTrigger>
-					<Button variant="outline">Keys</Button>
+					<Button variant="outline">{t("button.keys")}</Button>
 				</SheetTrigger>
 				<SheetContent className="w-[40%]">
 					<SheetHeader>
