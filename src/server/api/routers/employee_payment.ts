@@ -21,6 +21,10 @@ import { EmployeePaymentMapper } from "~/server/database/mapper/employee_payment
 import { ValidateService } from "~/server/service/validate_service";
 import { getRoleFromCtx } from "../helper";
 import { AccessService } from "~/server/service/access_service";
+import { EmployeeDataService } from "~/server/service/employee_data_service";
+import { SyncService } from "~/server/service/sync_service";
+import { FunctionsEnum } from "../types/functions_enum";
+import { EHRService } from "~/server/service/ehr_service";
 
 export const employeePaymentRouter = createTRPCRouter({
 	getCurrentEmployeePayment: userProcedure
@@ -63,22 +67,70 @@ export const employeePaymentRouter = createTRPCRouter({
 				throw new BaseResponseError("Access denied", 403);
 			}
 
+			const period_id = input.period_id;
+			const ehrService = container.resolve(EHRService);
+			const previous_period_id = await ehrService.getPreviousPeriodId(
+				period_id
+			);
+
 			const employeePaymentService = container.resolve(
 				EmployeePaymentService
 			);
 			const employeePaymentFE: EmployeePaymentFEType[] =
 				await employeePaymentService.getCurrentEmployeePayment(
-					input.period_id
+					period_id
 				);
 
+			const employeeDataService = container.resolve(EmployeeDataService);
+			const employeeData =
+				await employeeDataService.getAllEmployeeDataByPeriod(
+					previous_period_id
+				);
+
+			const syncService = container.resolve(SyncService);
+			const cand_paid_emps = await syncService.getCandPaidEmployees(
+				FunctionsEnum.Values.month_salary,
+				period_id
+			); // 獲取候選需支付員工數據
+			const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
+			const differences =
+				await syncService.compareEhrWithSalaryEmployeeData(
+					period_id,
+					employeeData,
+					cand_emp_no_list
+				);
+
+			console.log(differences);
 			const employeePaymentWithInfos: EmployeePaymentWithInfoFEType[] =
-				employeePaymentFE.map((emp) => ({
-					...emp,
+				[];
+			for (const employeePayment of employeePaymentFE) {
+				const emp_diff = differences.find(
+					(diff) =>
+						diff.emp_no.salary_value == employeePayment.emp_no ||
+						diff.emp_no.ehr_value == employeePayment.emp_no
+				);
+
+				let isPositionModified = false;
+				let isPositionTypeModified = false;
+				if (emp_diff) {
+					isPositionModified =
+						emp_diff.comparisons.find(
+							(cmp) => cmp.key == "position"
+						)?.is_different ?? false;
+					isPositionTypeModified =
+						emp_diff.comparisons.find(
+							(cmp) => cmp.key == "position_type"
+						)?.is_different ?? false;
+				}
+
+				employeePaymentWithInfos.push({
+					...employeePayment,
 					info: {
-						isPositionModified: emp.id % 2 == 0,
-						isPositionTypeModified: emp.id % 4 == 1,
+						isPositionModified,
+						isPositionTypeModified,
 					},
-				}));
+				});
+			}
 
 			// Filter by access level
 			if (!access.employees) {
