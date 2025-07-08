@@ -1,7 +1,5 @@
 import { api } from "~/utils/api";
-import { Button } from "~/components/ui/button";
 import { createColumnHelper } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 import { DataTable as DataTableWithFunctions } from "../components/data_table";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
 import { type TableComponentProps } from "../tables_view";
@@ -15,13 +13,13 @@ import { levelRangeSchema } from "../schemas/configurations/level_range_schema";
 import { Sheet } from "~/components/ui/sheet";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { SelectLevelField } from "../components/function_sheet/form_fields/select_level_field";
-import {
-	type FunctionsItem,
-} from "../components/context/data_table_context";
+import { type FunctionsItem } from "../components/context/data_table_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
+import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 
 export type RowItem = {
 	type: string;
@@ -52,57 +50,36 @@ export const level_range_columns = ({
 			columnHelper.accessor(key, {
 				header: ({ column }) => {
 					return (
-						<div className="flex justify-center">
-							<div className="text-center font-medium">
-								<Button
-									variant="ghost"
-									onClick={() =>
-										column.toggleSorting(
-											column.getIsSorted() === "asc"
-										)
-									}
-								>
-									{t(`table.${key}`)}
-									<ArrowUpDown className="ml-2 h-4 w-4" />
-								</Button>
-							</div>
-						</div>
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
 					);
 				},
 				cell: ({ row }) => {
+					let content = "";
 					switch (key) {
 						case "start_date":
-							return (
-								<div className="text-center font-medium">{`${formatDate(
-									"day",
-									row.original.start_date
-								) ?? ""
-									}`}</div>
-							);
+							content =
+								formatDate("day", row.original.start_date) ??
+								"";
+							break;
 						case "end_date":
-							return (
-								<div className="text-center font-medium">{`${formatDate("day", row.original.end_date) ??
-									""
-									}`}</div>
-							);
+							content =
+								formatDate("day", row.original.end_date) ?? "";
+							break;
 						default:
-							return (
-								<div className="text-center font-medium">{`${row.original[
-									key
-								].toString()}`}</div>
-							);
+							content = row?.original[key]?.toString() ?? "";
 					}
+					return <ColumnCellComponent>{content}</ColumnCellComponent>;
 				},
 			})
 		),
 		columnHelper.accessor("functions", {
-			header: () => {
+			header: ({ column }) => {
 				return (
-					<div className="flex justify-center">
-						<div className="text-center font-medium">
-							{t(`others.functions`)}
-						</div>
-					</div>
+					<ColumnHeaderComponent column={column}>
+						{t(`others.functions`)}
+					</ColumnHeaderComponent>
 				);
 			},
 			cell: ({ row }) => {
