@@ -22,7 +22,6 @@ import {
 import { BonusAllService } from "./bonus_all_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { Op } from "sequelize";
-import { dateToStringNullable } from "../api/types/z_utils";
 
 @injectable()
 export class EmployeeBonusService {

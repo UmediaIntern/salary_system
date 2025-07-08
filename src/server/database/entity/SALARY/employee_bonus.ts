@@ -116,8 +116,8 @@ export const encEmployeeBonus = decF
 		app_effective_salary_enc: eSN.parse(v.app_effective_salary),
 		app_amount_enc: eSN.parse(v.app_amount),
 		exchange_rate_enc: eSN.parse(v.exchange_rate),
-		currency_ammount_foreign_enc: eSN.parse(v.currency_amount_foreign),
-		currency_ammount_taiwan_enc: eSN.parse(v.currency_amount_taiwan),
+		currency_amount_foreign_enc: eSN.parse(v.currency_amount_foreign),
+		currency_amount_taiwan_enc: eSN.parse(v.currency_amount_taiwan),
 	}))
 	.pipe(encF);
 

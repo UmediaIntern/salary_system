@@ -120,7 +120,7 @@ export class EmployeePaymentService {
 
 		if (isSameAfter) {
 			console.log("Same as payment after, update start date");
-			await closestFuturePayment?.update("start_date", inputDate);
+			await closestFuturePayment?.update({ start_date: inputDate });
 			return;
 		}
 
@@ -155,7 +155,7 @@ export class EmployeePaymentService {
 					);
 				}
 				console.log("creating new employee payment. end date set");
-        await latestPayment?.update("end_date", inputDate);
+				await latestPayment?.update({ end_date: inputDate });
 				await this.createEmployeePayment({
 					...data,
 					end_date: dLatestPayment.end_date,
@@ -163,7 +163,7 @@ export class EmployeePaymentService {
 				return;
 			} else {
 				console.log("creating new employee payment. (no end date)");
-        await latestPayment?.update("end_date", inputDate);
+				await latestPayment?.update({ end_date: inputDate });
 				await this.createEmployeePayment(data);
 				return;
 			}
