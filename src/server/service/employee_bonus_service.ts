@@ -85,8 +85,6 @@ export class EmployeeBonusService {
 				exchange_rate: null,
 				currency_amount_foreign: null,
 				currency_amount_taiwan: null,
-				start_date: null,
-				end_date: null,
 			});
 		});
 
