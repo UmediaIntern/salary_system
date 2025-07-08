@@ -49,7 +49,7 @@ const employeeBonusUpdate = z
 	})
 	.merge(dateAll);
 
-const employeeBonusCreate = employeeBonusBase.merge(dateCreate);
+const employeeBonusCreate = employeeBonusBase;
 
 
 // Exposed Types
