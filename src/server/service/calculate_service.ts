@@ -1025,14 +1025,82 @@ export class CalculateService {
 
 		return 0;
 	}
-	//MARK: 其他減項?
+	//MARK: 勞保減項(勞保保費追繳)
+	async getLIDeductionPrevious(
+		expense_list: Expense[],
+		expense_class_list: ExpenseClass[]
+	): Promise<number> {
+		const expenseList = expense_list.filter((e) => e.kind === 2);
+		let li_deduction_previous_id = expense_class_list.find(
+			(ec) => ec.name === "勞保保費追繳"
+		)?.id;
+		let li_deduction_previous = 0;
+		for (const expense of expenseList) {
+			if (expense.id === li_deduction_previous_id) {
+				li_deduction_previous += expense.amount ?? 0;
+			}
+		}
+		return li_deduction_previous;
+	}
+	//MARK: 健保減項(健保保費追繳)
+	async getHIDeductionPrevious(
+		expense_list: Expense[],
+		expense_class_list: ExpenseClass[]
+	): Promise<number> {
+		const expenseList = expense_list.filter((e) => e.kind === 2);
+		let hi_deduction_previous_id = expense_class_list.find(
+			(ec) => ec.name === "健保保費追繳"
+		)?.id;
+		let hi_deduction_previous = 0;
+		for (const expense of expenseList) {
+			if (expense.id === hi_deduction_previous_id) {
+				hi_deduction_previous += expense.amount ?? 0;
+			}
+		}
+		return hi_deduction_previous;
+	}
+	//MARK: 定存扣款
+	async getFixedDepositDeduction(
+		expense_list: Expense[],
+		expense_class_list: ExpenseClass[]
+	): Promise<number> {
+		const expenseList = expense_list.filter((e) => e.kind === 2);
+		let fixed_deposit_deduction_id = expense_class_list.find(
+			(ec) => ec.name === "定存扣款"
+		)?.id;
+		let fixed_deposit_deduction = 0;
+		for (const expense of expenseList) {
+			if (expense.id === fixed_deposit_deduction_id) {
+				fixed_deposit_deduction += expense.amount ?? 0;
+			}
+		}
+		return fixed_deposit_deduction;
+	}
+	//MARK: 法院薪資扣押款
+	async getCourtSalaryGarnishment(
+		expense_list: Expense[],
+		expense_class_list: ExpenseClass[]
+	): Promise<number> {
+		const expenseList = expense_list.filter((e) => e.kind === 2);
+		let court_salary_garnishment_id = expense_class_list.find(
+			(ec) => ec.name === "法院薪資扣押款"
+		)?.id;
+		let court_salary_garnishment = 0;
+		for (const expense of expenseList) {
+			if (expense.id === court_salary_garnishment_id) {
+				court_salary_garnishment += expense.amount ?? 0;
+			}
+		}
+		return court_salary_garnishment;
+	}
+	//MARK: 其他減項
 	async getOtherDeduction(
 		expense_list: Expense[],
 		expense_class_list: ExpenseClass[]
 	): Promise<number> {
 		const expenseList = expense_list.filter((e) => e.kind === 2);
 		let other_deduction_ids = expense_class_list
-			.filter((ec) => ec.other_less === 1)
+			.filter((ec) => ec.other_less === 1 && !["勞保保費追繳", "健保保費追繳", "定存扣款", "法院薪資扣押款"].includes(ec.name))
 			.map((ec) => ec.id);
 		let other_deduction = 0;
 		for (const expense of expenseList) {
@@ -1054,14 +1122,48 @@ export class CalculateService {
 		);
 		return other_deduction_list;
 	}
-	//MARK: 其他加項?
+	//MARK: 勞保加項(勞保費差額補給)
+	async getLIAdditionPrevious(
+		expense_list: Expense[],
+		allowance_type_list: AllowanceType[]
+	): Promise<number> {
+		const expenseList = expense_list.filter((e) => e.kind === 1);
+		let li_addition_previous_id = allowance_type_list.find(
+			(at) => at.name === "勞保費差額補給"
+		)?.id;
+		let li_addition_previous = 0;
+		for (const expense of expenseList) {
+			if (expense.id === li_addition_previous_id) {
+				li_addition_previous += expense.amount ?? 0;
+			}
+		}
+		return li_addition_previous;
+	}
+	//MARK: 健保加項(健保保費退款)
+	async getHIAdditionPrevious(
+		expense_list: Expense[],
+		allowance_type_list: AllowanceType[]
+	): Promise<number> {
+		const expenseList = expense_list.filter((e) => e.kind === 1);
+		let hi_addition_previous_id = allowance_type_list.find(
+			(at) => at.name === "健保保費退款"
+		)?.id;
+		let hi_addition_previous = 0;
+		for (const expense of expenseList) {
+			if (expense.id === hi_addition_previous_id) {
+				hi_addition_previous += expense.amount ?? 0;
+			}
+		}
+		return hi_addition_previous;
+	}
+	//MARK: 其他加項
 	async getOtherAddition(
 		expense_list: Expense[],
 		allowance_type_list: AllowanceType[]
 	): Promise<number> {
 		const expenseList = expense_list.filter((e) => e.kind === 1);
 		let other_addition_ids = allowance_type_list
-			.filter((at) => at.other_add === 1)
+			.filter((at) => at.other_add === 1 && !["勞保費差額補給", "健保保費退款"].includes(at.name))
 			.map((at) => at.id);
 		let other_addition = 0;
 		for (const expense of expenseList) {
@@ -1083,7 +1185,7 @@ export class CalculateService {
 		);
 		return other_addition_list;
 	}
-	//MARK: 其他加項稅 ?
+	//MARK: 其他加項稅
 	async getOtherAdditionTax(
 		expense_list: Expense[],
 		allowance_type_list: AllowanceType[]
@@ -1112,7 +1214,7 @@ export class CalculateService {
 		);
 		return other_addition_tax_list;
 	}
-	//MARK: 其他減項稅 ?
+	//MARK: 其他減項稅
 	async getOtherDeductionTax(
 		expense_list: Expense[],
 		expense_class_list: ExpenseClass[]

@@ -62,7 +62,7 @@ export const bonusRouter = createTRPCRouter({
 		.query(async ({ input }) => {
 			const bonusService = container.resolve(EmployeeBonusService);
 			const bonusMapper = container.resolve(EmployeeBonusMapper);
-			const bonusData = await bonusService.getAllEmployeeBonus(
+			const bonusData = await bonusService.getAllEmployeeBonusByPeriodIdByBonusType(
 				input.period_id,
 				input.bonus_type
 			);
