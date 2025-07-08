@@ -22,6 +22,7 @@ import {
 import { BonusAllService } from "./bonus_all_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { Op } from "sequelize";
+import { dateToStringNullable } from "../api/types/z_utils";
 
 @injectable()
 export class EmployeeBonusService {
@@ -37,7 +38,6 @@ export class EmployeeBonusService {
 		const d = createEmployeeBonusService.parse(data);
 		const employeeBonus = await this.employeeBonusMapper.encode({
 			...d,
-			// start_date: d.start_date ?? new Date(),
 			disabled: false,
 			create_by: "system",
 			update_by: "system",
@@ -304,6 +304,13 @@ export class EmployeeBonusService {
 		return result;
 	}
 
+	async dropEmployeeBonusPeriod(period_id: number): Promise<number> {
+		const deletedRows = await EmployeeBonus.destroy({
+			where: { period_id: period_id },
+		});
+		return deletedRows;
+	}
+
 	async updateEmployeeBonus({
 		id,
 		period_id,
@@ -384,8 +391,6 @@ export class EmployeeBonusService {
 				currency_amount_taiwan,
 				employeeBonus.currency_amount_taiwan
 			),
-			start_date: null,
-			end_date: null,
 		});
 	}
 

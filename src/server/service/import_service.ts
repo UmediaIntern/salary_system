@@ -21,7 +21,7 @@ export class ImportService {
 		private readonly employeePaymentService: EmployeePaymentService,
 		private readonly employeeTrustService: EmployeeTrustService,
 		private readonly employeeBonusService: EmployeeBonusService,
-    private readonly transactionService: TransactionService,
+		private readonly transactionService: TransactionService,
 		private readonly ehrService: EHRService
 	) {}
 
@@ -40,24 +40,33 @@ export class ImportService {
 	): Promise<z.infer<typeof deleteTransactionAndEmpDatas>> {
 		const dataDeleted =
 			await this.employeeDataService.dropEmployeeDataPeriod(period_id);
+
 		const paymentDeleted =
 			await this.employeePaymentService.dropEmployeePaymentPeriod(
 				period_id
 			);
+
 		const trustDeleted =
 			await this.employeeTrustService.dropEmployeeTrustPeriod(period_id);
-    const transactionDeleted = await this.transactionService.dropTransactionPeriod(period_id);
+
+		const transactionDeleted =
+			await this.transactionService.dropTransactionPeriod(period_id);
+
+		const bonusDeleted =
+			await this.employeeBonusService.dropEmployeeBonusPeriod(period_id);
 
 		console.log(`empDataDeleted: ${dataDeleted}`);
 		console.log(`empPaymentDeleted: ${paymentDeleted}`);
 		console.log(`empTrustDeleted: ${trustDeleted}`);
-    console.log(`transactionDeleted: ${transactionDeleted}`);
+		console.log(`empBonusDeleted: ${bonusDeleted}`);
+		console.log(`transactionDeleted: ${transactionDeleted}`);
 
 		return deleteTransactionAndEmpDatas.parse({
 			empDataDeleted: dataDeleted,
 			empPaymentDeleted: paymentDeleted,
 			empTrustDeleted: trustDeleted,
-      transactionDeleted: transactionDeleted,
+			empBonusDeleted: bonusDeleted,
+			transactionDeleted: transactionDeleted,
 		});
 	}
 
@@ -133,24 +142,27 @@ export class ImportService {
 			end_date: null,
 		});
 
-		// await this.employeeBonusService.createEmployeeBonus({
-		// 	period_id: data.period_id,
-		// 	emp_no: data.emp_no,
-		// 	bonus_type: bonusTypeEnum.Values.project_bonus,
-		// 	special_multiplier: -1,
-		// 	multiplier: -1,
-		// 	fixed_amount: -1,
-		// 	bud_effective_salary: -1,
-		// 	bud_amount: -1,
-		// 	sup_performance_level: "None",
-		// 	sup_effective_salary: -1,
-		// 	sup_amount: -1,
-		// 	app_performance_level: "None",
-		// 	app_effective_salary: -1,
-		// 	app_amount: data.project_bonus,
-		// 	start_date: new Date(),
-		// 	end_date: new Date(),
-		// });
+		await this.employeeBonusService.createEmployeeBonus({
+			period_id: data.period_id,
+			emp_no: data.emp_no,
+			bonus_type: bonusTypeEnum.Values.project_bonus,
+			special_multiplier: -1,
+			multiplier: -1,
+			fixed_amount: -1,
+			bud_effective_salary: -1,
+			bud_amount: -1,
+			sup_performance_level: "None",
+			sup_effective_salary: -1,
+			sup_amount: -1,
+			app_performance_level: "None",
+			app_effective_salary: -1,
+			app_amount: data.project_bonus,
+			currency_foreign: null,
+			exchange_rate: null,
+			currency_amount_foreign: null,
+			currency_amount_taiwan: null,
+		});
+
 		console.log("transaction");
 		await this.createTransaction(data);
 	}
@@ -177,7 +189,7 @@ export class ImportService {
 			quarterly_performance_bonus: 0,
 			exchange_rate: 0,
 			currency_amount_foreign: 0,
-			currency_amount_taiwan: 0
+			currency_amount_taiwan: 0,
 		});
 	}
 }
