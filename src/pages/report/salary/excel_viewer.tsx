@@ -318,7 +318,8 @@ export function ExcelViewer({
 											color: cell.textColor,
 										}}
 									>
-										{t(`table.${cell.content}`)}
+										{/* {t(`table.${cell.content}`)} */}
+										{t([`table.${cell.content}`, `others.${cell.content}`])}
 									</div>
 								</th>
 							))}
@@ -493,33 +494,33 @@ export function ExcelViewer({
 					});
 				}}
 			>
-				{mode === "view" ? "Edit" : "Done"}
+				{mode === "view" ? t("button.edit") : t("button.done")}
 			</Button>
 		);
 	}
 
 	function DownloadButton({ defaultFilename }: { defaultFilename: string }) {
-		const [filename, setFilename] = useState(defaultFilename);
+		const [filename, setFilename] = useState(t(`others.${defaultFilename}`));
 		return (
 			<div className={mode != "view" ? "cursor-not-allowed" : ""}>
 				<Dialog>
 					<DialogTrigger asChild>
 						<Button variant={"outline"} disabled={mode !== "view"}>
-							Download
+							{t("button.download")}
 						</Button>
 					</DialogTrigger>
-					<DialogContent className="sm:max-w-[425px]">
+					<DialogContent className="sm:max-w-[625px]">
 						<DialogHeader>
-							<DialogTitle>Download Excel File</DialogTitle>
+							<DialogTitle>{t("others.excel_download_title")}</DialogTitle>
 							<DialogDescription>
-								You may change the text and background color in
-								each cell before download.
+								{/* You may change the text and background color in
+								each cell before download. */}
 							</DialogDescription>
 						</DialogHeader>
 						<div className="grid gap-4 py-4">
-							<div className="grid grid-cols-4 items-center gap-4">
+							<div className="grid grid-cols-5 items-center gap-4">
 								<Label htmlFor="name" className="text-right">
-									Export Filename
+									{t("others.excel_export_filename")}
 								</Label>
 								<Input
 									id="filename"
@@ -542,7 +543,7 @@ export function ExcelViewer({
 									);
 								}}
 							>
-								Download
+								{t("button.download")}
 							</Button>
 						</DialogFooter>
 					</DialogContent>
