@@ -1115,7 +1115,7 @@ export class CalculateService {
 		expense_class_list: ExpenseClass[]
 	): Promise<ExpenseWithType[] | null> {
 		let other_deduction_ids = expense_class_list
-			.filter((ec) => ec.other_less === 1)
+			.filter((ec) => ec.other_less === 1 && !["勞保保費追繳", "健保保費追繳", "定存扣款", "法院薪資扣押款"].includes(ec.name))
 			.map((ec) => ec.id);
 		const other_deduction_list = expense_with_type_list.filter(
 			(e) => other_deduction_ids.includes(e.id) && e.kind === 2
@@ -1178,7 +1178,7 @@ export class CalculateService {
 		allowance_type_list: AllowanceType[]
 	): Promise<ExpenseWithType[] | null> {
 		let other_addition_ids = allowance_type_list
-			.filter((at) => at.other_add === 1)
+			.filter((at) => at.other_add === 1 && !["勞保費差額補給", "健保保費退款"].includes(at.name))
 			.map((at) => at.id);
 		const other_addition_list = expense_with_type_list.filter(
 			(a) => other_addition_ids.includes(a.id) && a.kind === 1
@@ -1266,6 +1266,8 @@ export class CalculateService {
 		weekday_overtime_pay: number,
 		rest_overtime_pay: number,
 		non_leave_compensation: number,
+		l_i_addition_previous: number,
+		h_i_addition_previous: number,
 		other_addition: number,
 		retirement_income: number,
 		expense_list: Expense[],
@@ -1307,6 +1309,8 @@ export class CalculateService {
 			rest_overtime_pay +
 			(discounted_employee_payment_dec.subsidy_allowance ?? 0) +
 			non_leave_compensation +
+			l_i_addition_previous +
+			h_i_addition_previous +
 			other_addition +
 			retirement_income +
 			l_i_subsidy +
@@ -1325,6 +1329,8 @@ export class CalculateService {
 		non_leave_compensation: number,
 		retirement_income: number,
 		project_bonus: number,
+		l_i_addition_previous: number,
+		h_i_addition_previous: number,
 		other_addition: number,
 		other_addition_tax: number
 	): Promise<number> {
@@ -1338,11 +1344,13 @@ export class CalculateService {
 				non_leave_compensation +
 				retirement_income +
 				project_bonus +
+				l_i_addition_previous +
+				h_i_addition_previous +
 				other_addition +
 				other_addition_tax;
 			return addition_subtotal;
 		} else if (pay_type === PayTypeEnum.Enum.foreign_15_bonus) {
-			const addition_subtotal = other_addition + other_addition_tax;
+			const addition_subtotal = l_i_addition_previous + h_i_addition_previous + other_addition + other_addition_tax;
 			return addition_subtotal;
 		}
 		return -1;
@@ -1360,6 +1368,10 @@ export class CalculateService {
 		group_insurance_deduction_promotion: number,
 		leave_deduction: number,
 		special_personal_leave_deduct: number,
+		l_i_deduction_previous: number,
+		h_i_deduction_previous: number,
+		fixed_deposit_deduction: number,
+		court_salary_garnishment: number,
 		other_deduction: number,
 		other_deduction_tax: number,
 		income_tax_deduction: number,
@@ -1397,6 +1409,10 @@ export class CalculateService {
 				leave_deduction +
 				special_personal_leave_deduct +
 				meal_deduction +
+				l_i_deduction_previous +
+				h_i_deduction_previous +
+				fixed_deposit_deduction +
+				court_salary_garnishment +
 				other_deduction +
 				other_deduction_tax +
 				// rd("股票貸款") +
@@ -1413,6 +1429,10 @@ export class CalculateService {
 			const deduction_subtotal =
 				salary_income_tax +
 				v_2_h_i +
+				l_i_deduction_previous +
+				h_i_deduction_previous +
+				fixed_deposit_deduction +
+				court_salary_garnishment +
 				other_deduction +
 				other_deduction_tax;
 			return deduction_subtotal;

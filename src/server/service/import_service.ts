@@ -79,7 +79,6 @@ export class ImportService {
 	}
 
 	async importTransactionRow(data: ImportFieldsType): Promise<void> {
-		console.log("employee data");
 		await this.employeeDataService.createEmployeeData({
 			period_id: data.period_id,
 			emp_no: data.emp_no,
@@ -110,7 +109,6 @@ export class ImportService {
 
 		const period = await this.ehrService.getPeriodById(data.period_id);
 
-		console.log("employee payment");
 		await this.employeePaymentService.insertEmployeePayment({
 			emp_no: data.emp_no,
 			base_salary: data.base_salary,
@@ -133,7 +131,6 @@ export class ImportService {
 			end_date: null,
 		});
 
-		console.log("employee trust");
 		await this.employeeTrustService.insertEmployeeTrust({
 			emp_no: data.emp_no,
 			emp_trust_reserve: data.emp_trust_reserve,
@@ -163,7 +160,6 @@ export class ImportService {
 			currency_amount_taiwan: null,
 		});
 
-		console.log("transaction");
 		await this.createTransaction(data);
 	}
 

@@ -550,6 +550,8 @@ export class TransactionService {
 				weekday_overtime_pay,
 				rest_overtime_pay,
 				non_leave_compensation,
+				l_i_addition_previous,
+				h_i_addition_previous,
 				other_addition,
 				retirement_income,
 				expense_list,
@@ -663,6 +665,8 @@ export class TransactionService {
 				non_leave_compensation,
 				retirement_income,
 				project_bonus,
+				l_i_addition_previous,
+				h_i_addition_previous,
 				other_addition,
 				other_addition_tax
 			);
@@ -678,6 +682,10 @@ export class TransactionService {
 				g_i_deduction_promotion,
 				leave_deduction,
 				special_leave_deduction,
+				l_i_deduction_previous,
+				h_i_deduction_previous,
+				fixed_deposit_deduction,
+				court_salary_garnishment,
 				other_deduction,
 				other_deduction_tax,
 				income_tax_deduction,

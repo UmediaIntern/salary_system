@@ -39,6 +39,7 @@ export const transactionRouter = createTRPCRouter({
 					);
 				}
 
+				const start = Date.now();
 				await transactionService.createTransaction(
 					emp_no,
 					input.period_id,
@@ -47,6 +48,8 @@ export const transactionRouter = createTRPCRouter({
 					input.note,
 					commonParameters
 				);
+				const end = Date.now();
+				console.log(`createTransaction for ${emp_no} took ${(end - start) / 1000} seconds`);
 			});
 
 			// console.log(commonParameters.expense_class_list);	// ~ Pony's Test

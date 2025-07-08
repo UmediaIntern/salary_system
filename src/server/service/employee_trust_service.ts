@@ -123,7 +123,7 @@ export class EmployeeTrustService {
 
 		if (isSameAfter) {
 			console.log("Same as trust after, update start date");
-			await closestFutureTrust?.update("start_date", inputDate);
+			await closestFutureTrust?.update({ start_date: inputDate });
 			return;
 		}
 
@@ -158,7 +158,7 @@ export class EmployeeTrustService {
 					);
 				}
 				console.log("creating new employee trust. end date set");
-				await latestTrust?.update("end_date", inputDate);
+				await latestTrust?.update({ end_date: inputDate });
 				await this.createEmployeeTrust({
 					...data,
 					end_date: dLatestTrust.end_date,
@@ -166,7 +166,7 @@ export class EmployeeTrustService {
 				return;
 			} else {
 				console.log("creating new employee trust. (no end date)");
-				await latestTrust?.update("end_date", inputDate);
+				await latestTrust?.update({ end_date: inputDate });
 				await this.createEmployeeTrust(data);
 				return;
 			}
