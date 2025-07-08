@@ -26,6 +26,7 @@ import { initEmployeeBonus } from "./entity/SALARY/employee_bonus";
 import { initBonusAll } from "./entity/SALARY/bonus_all";
 import { initIncomeTaxSetting } from "./entity/SALARY/income_tax_setting";
 import { initNotification } from "./entity/SALARY/notification";
+import { initAllowanceRange } from "./entity/SALARY/allowance_range";
 // import { initEmployeeDataMut } from "./entity/SALARY/employee_data_mut";
 
 const sequelize = container.resolve(Database).connection;
@@ -58,6 +59,7 @@ initTrustMoney(sequelize);
 initUser(sequelize);
 initNotification(sequelize);
 initIncomeTaxSetting(sequelize);
+initAllowanceRange(sequelize);
 
 User.associate();
 Access.associate();
