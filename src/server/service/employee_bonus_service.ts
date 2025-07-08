@@ -30,7 +30,7 @@ export class EmployeeBonusService {
 		private readonly ehrService: EHRService,
 		private readonly employeeBonusMapper: EmployeeBonusMapper,
 		private readonly employeePaymentService: EmployeePaymentService
-	) {}
+	) { }
 
 	async createEmployeeBonus(
 		data: z.input<typeof createEmployeeBonusService>
@@ -55,7 +55,7 @@ export class EmployeeBonusService {
 		bonus_type: BonusTypeEnumType,
 		emp_no_list: string[]
 	) {
-		const employeeBonus = await this.getAllEmployeeBonus(
+		const employeeBonus = await this.getAllEmployeeBonusByPeriodIdByBonusType(
 			period_id,
 			bonus_type
 		);
@@ -85,8 +85,6 @@ export class EmployeeBonusService {
 				exchange_rate: null,
 				currency_amount_foreign: null,
 				currency_amount_taiwan: null,
-				start_date: null,
-				end_date: null,
 			});
 		});
 
@@ -128,7 +126,28 @@ export class EmployeeBonusService {
 		return await this.employeeBonusMapper.decodeList(empList);
 	}
 
-	async getAllEmployeeBonus(
+	async getAllEmployeeBonus(): Promise<EmployeeBonusDecType[]> {
+		const result = await EmployeeBonus.findAll({
+			where: {
+				disabled: false,
+			},
+			order: [["emp_no", "ASC"]],
+		});
+		return await this.employeeBonusMapper.decodeList(result);
+	}
+
+	async getAllEmployeeBonusByPeriodId(period_id: number): Promise<EmployeeBonusDecType[]> {
+		const result = await EmployeeBonus.findAll({
+			where: {
+				period_id: period_id,
+				disabled: false,
+			},
+			order: [["period_id", "ASC"]],
+		});
+		return await this.employeeBonusMapper.decodeList(result);
+	}
+
+	async getAllEmployeeBonusByPeriodIdByBonusType(
 		period_id: number,
 		bonus_type: BonusTypeEnumType
 	) {
@@ -226,7 +245,7 @@ export class EmployeeBonusService {
 		period_id: number,
 		bonus_type: BonusTypeEnumType
 	) {
-		const all_emp_bonus_list = await this.getAllEmployeeBonus(
+		const all_emp_bonus_list = await this.getAllEmployeeBonusByPeriodIdByBonusType(
 			period_id,
 			bonus_type
 		);
@@ -277,7 +296,7 @@ export class EmployeeBonusService {
 							new Date(
 								employee_data.registration_date
 							).getTime()) /
-							(1000 * 60 * 60 * 24 * 365)
+						(1000 * 60 * 60 * 24 * 365)
 					)
 				)) *
 				(await bonus_department_service.getMultiplier(
@@ -512,7 +531,7 @@ export class EmployeeBonusService {
 			budget_amount: number;
 		}[] = [];
 		const emp_no_list = (
-			await this.getAllEmployeeBonus(period_id, bonus_type)
+			await this.getAllEmployeeBonusByPeriodIdByBonusType(period_id, bonus_type)
 		).map((e) => e.emp_no);
 		const emp_bonus_list = await this.getEmployeeBonusByEmpNoListByType(
 			period_id,
@@ -549,11 +568,11 @@ export class EmployeeBonusService {
 					employee_payment_dec.occupational_allowance +
 					employee_payment_dec.subsidy_allowance +
 					(employee_payment_dec.long_service_allowance_type ==
-					LongServiceEnum.enum.month_allowance
+						LongServiceEnum.enum.month_allowance
 						? employee_payment_dec.long_service_allowance
 						: 0)) *
-					employee_bonus_fe.special_multiplier *
-					employee_bonus_fe.multiplier +
+				employee_bonus_fe.special_multiplier *
+				employee_bonus_fe.multiplier +
 				employee_bonus_fe.fixed_amount;
 			if (budget_amount <= 0) {
 				budget_amount_list.push({
@@ -566,11 +585,11 @@ export class EmployeeBonusService {
 					emp_no: emp_no,
 					bud_effective_salary: Round(
 						budget_amount /
-							(employee_payment_dec.base_salary +
-								employee_payment_dec.food_allowance +
-								employee_payment_dec.supervisor_allowance +
-								employee_payment_dec.occupational_allowance +
-								employee_payment_dec.subsidy_allowance),
+						(employee_payment_dec.base_salary +
+							employee_payment_dec.food_allowance +
+							employee_payment_dec.supervisor_allowance +
+							employee_payment_dec.occupational_allowance +
+							employee_payment_dec.subsidy_allowance),
 						3
 					),
 					budget_amount: budget_amount,

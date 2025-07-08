@@ -29,6 +29,7 @@ import { convert_employee_payment } from "~/pages/test/test_function";
 import { IncomeTaxSettingService } from "./income_tax_setting_service";
 import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
 import { EmployeeBonusService } from "./employee_bonus_service";
+import { EmployeeBonusDecType } from "../database/entity/SALARY/employee_bonus";
 
 type CommonParametersType = {
 	allowance_list: Allowance[];
@@ -37,6 +38,7 @@ type CommonParametersType = {
 	employee_data_list: EmployeeDataDecType[];
 	employee_payment_list: EmployeePaymentFEType[];
 	employee_trust_list: EmployeeTrustFEType[];
+	employee_bonus_list: EmployeeBonusDecType[];
 	insurance_rate_setting: InsuranceRateSettingDecType;
 	overtime_list: Overtime[];
 	holiday_list: Holiday[];
@@ -64,7 +66,7 @@ export class TransactionService {
 		private readonly holidaysTypeService: HolidaysTypeService,
 		private readonly calculateService: CalculateService,
 		private readonly incomeTaxSettingService: IncomeTaxSettingService
-	) {}
+	) { }
 
 	async getCommonParameters(
 		period_id: number,
@@ -92,6 +94,9 @@ export class TransactionService {
 			await this.employeeTrustService.getCurrentEmployeeTrustFE(
 				period_id
 			);
+
+		const employee_bonus_list =
+			await this.employeeBonusService.getAllEmployeeBonusByPeriodId(period_id);
 		// // & Pony's Test
 		// const real_employee_trust_list = await this.employeeTrustService.getCurrentEmployeeTrustFE(period_id);
 		// const employee_trust_list = convert_employee_trust(real_employee_trust_list);
@@ -139,6 +144,7 @@ export class TransactionService {
 			employee_data_list: employee_data_list,
 			employee_payment_list: employee_payment_list,
 			employee_trust_list: employee_trust_list,
+			employee_bonus_list: employee_bonus_list,
 			insurance_rate_setting: insurance_rate_setting!,
 			overtime_list: overtime_list,
 			holiday_list: holiday_list,
@@ -148,7 +154,6 @@ export class TransactionService {
 			expense_list: expense_list,
 			expense_class_list: expense_class_list,
 			salary_income_tax_list: salary_income_tax_list,
-
 			income_tax_setting: income_tax_setting!,
 			accumulated_bonus_list: accumulated_bonus_list,
 			accumulated_trust_list: accumulated_trust_list,
@@ -205,7 +210,7 @@ export class TransactionService {
 		);
 		const income_tax_setting = commonParameters.income_tax_setting;
 
-		const has_trust = (employee_trust && employee_trust.emp_trust_reserve!=0) ? true : false;
+		const has_trust = (employee_trust && employee_trust.emp_trust_reserve != 0) ? true : false;
 		const discounted_employee_payment =
 			await this.calculateService.discountedPayment(
 				employee_payment!,
@@ -243,9 +248,9 @@ export class TransactionService {
 		const position_type = employee_data!.position_type;
 		const group_insurance_type = employee_data!.group_insurance_type;
 		const sex_type = employee_data!.sex_type;
-		const license_id = employee_data!.license_id;
-		const dependents = employee_data!.dependents;
-		const healthcare_dependents = employee_data!.healthcare_dependents;
+		const license_id = employee_data!.license_id ?? "";
+		const dependents = employee_data!.dependents ?? 0;
+		const healthcare_dependents = employee_data!.healthcare_dependents ?? 0;
 		const residence_permit_start_date =
 			employee_data!.residence_permit_start_date;
 		const residence_permit_end_date =
@@ -253,29 +258,45 @@ export class TransactionService {
 		const quit_date = employee_data!.quit_date;
 		const registration_date = employee_data!.registration_date;
 
-		const quarterly_performance_bonus = 0; // ! TODO: no data yet
-		const weekday_134_overtime_hours = 0; // ! TODO: no data yet
-		const weekday_167_overtime_hours = 0; // ! TODO: no data yet
+		const weekday_134_overtime_hours = overtime_list.reduce((acc, curr) => acc + (curr.hours_134 ?? 0), 0);
+		const weekday_167_overtime_hours = overtime_list.reduce((acc, curr) => acc + (curr.hours_167 ?? 0), 0);
 		const rest_134_overtime_hours = 0; // ! TODO: no data yet
 		const rest_167_overtime_hours = 0; // ! TODO: no data yet
-		const rest_267_overtime_hours = 0; // ! TODO: no data yet
-		const weekday_134_tax_overtime_hours = 0; // ! TODO: no data yet
-		const weekday_167_tax_overtime_hours = 0; // ! TODO: no data yet
+		const rest_267_overtime_hours = overtime_list.reduce((acc, curr) => acc + (curr.hours_267 ?? 0), 0);
+		const weekday_134_tax_overtime_hours = overtime_list.reduce((acc, curr) => acc + (curr.hours_134_TAX ?? 0), 0);
+		const weekday_167_tax_overtime_hours = overtime_list.reduce((acc, curr) => acc + (curr.hours_167_TAX ?? 0), 0);
 		const rest_134_tax_overtime_hours = 0; // ! TODO: no data yet
 		const rest_167_tax_overtime_hours = 0; // ! TODO: no data yet
-		const rest_267_tax_overtime_hours = 0; // ! TODO: no data yet
+		const rest_267_tax_overtime_hours = overtime_list.reduce((acc, curr) => acc + (curr.hours_267_TAX ?? 0), 0);
 
-		const l_i_addition_previous = 0; // ! TODO: no data yet
-		const h_i_addition_previous = 0; // ! TODO: no data yet
+		const l_i_addition_previous = await this.calculateService.getLIAdditionPrevious(expense_list, allowance_type_list);
+		const h_i_addition_previous = await this.calculateService.getHIAdditionPrevious(expense_list, allowance_type_list);
 
-		// ~ TODO
-		const project_bonus = 0; // TODO
+		// TODO
+		const quarterly_performance_bonus = commonParameters.employee_bonus_list.find(
+			(e) => e.emp_no === emp_no && ["q1_bonus", "q2_bonus", "q3_q4_bonus"].includes(e.bonus_type)
+		)?.app_amount ?? 0;
+		const project_bonus = commonParameters.employee_bonus_list.find(
+			(e) => e.emp_no === emp_no && e.bonus_type === "project_bonus"
+		)?.app_amount ?? 0;
 
-		const fixed_deposit_deduction = 0; // ! TODO: no data yet
-		const court_salary_garnishment = 0; // ! TODO: no data yet
+		const fixed_deposit_deduction = await this.calculateService.getFixedDepositDeduction(
+			expense_list,
+			expense_class_list
+		);
+		const court_salary_garnishment = await this.calculateService.getCourtSalaryGarnishment(
+			expense_list,
+			expense_class_list
+		);
 
-		const l_i_deduction_previous = 0;
-		const h_i_deduction_previous = 0;
+		const l_i_deduction_previous = await this.calculateService.getLIDeductionPrevious(
+			expense_list,
+			expense_class_list
+		);
+		const h_i_deduction_previous = await this.calculateService.getHIDeductionPrevious(
+			expense_list,
+			expense_class_list
+		);
 
 		const l_i_day = payset?.li_day ?? 30;
 		const h_i_day = 0; // ! TODO: no data yet
@@ -283,7 +304,7 @@ export class TransactionService {
 		// const bank_account_1 = employee_data!.bank_account_taiwan;
 		// const bank_account_2 = employee_acount![1]?.bank_account!;
 		const bank_account_taiwan = employee_data!.bank_account_taiwan;
-		const bank_account_foreign = employee_payment!.bank_account_foreign;
+		const bank_account_foreign = employee_payment!.bank_account_foreign ?? "";
 		const currency_foreign = null;
 		const exchange_rate = 0; // ! TODO: no data yet
 		const currency_amount_foreign = 0; // ! TODO: no data yet
@@ -603,7 +624,7 @@ export class TransactionService {
 		const assessment_rate = 0;
 		const assessment_bonus = await this.calculateService.getAssessmentBonus();
 		const probation_period_over = true;
-		const disabilty_level = employee_data!.disabilty_level;
+		const disabilty_level = employee_data!.disabilty_level ?? "正常";
 		const v_2_h_i =
 			await this.calculateService.getSecondGenerationHealthInsurance(
 				period_id,
@@ -616,16 +637,16 @@ export class TransactionService {
 			); // TODO
 		const emp_trust_reserve = employee_trust
 			? employee_trust.emp_trust_reserve
-			: null;
+			: 0;
 		const emp_special_trust_incent = employee_trust
 			? employee_trust!.emp_special_trust_incent
-			: null;
+			: 0;
 		const org_trust_reserve = employee_trust
 			? employee_trust!.org_trust_reserve
-			: null;
+			: 0;
 		const org_special_trust_incent = employee_trust
 			? employee_trust!.org_special_trust_incent
-			: null;
+			: 0;
 		const g_i_deduction_promotion =
 			await this.calculateService.getGroupInsuranceDeductionPromotion(
 				expense_list,
@@ -665,7 +686,7 @@ export class TransactionService {
 				brokerage_fee,
 				v_2_h_i,
 				meal_deduction,
-				emp_trust_reserve ?? 0
+				emp_trust_reserve
 			);
 		const net_salary = await this.calculateService.getNetSalary(
 			pay_type,
@@ -699,17 +720,17 @@ export class TransactionService {
 			position: position, // 職等
 			position_type: position_type, // 職等類別
 			group_insurance_type: group_insurance_type, // 團保類別
-			disabilty_level: disabilty_level ?? "正常", // 殘障等級
+			disabilty_level: disabilty_level, // 殘障等級
 			sex_type: sex_type, // 性別
-			license_id: license_id ?? "", // 身份(居留)證字號
-			dependents: dependents ?? 0, // 扶養人數
-			healthcare_dependents: healthcare_dependents ?? 0, // 健保眷口數
+			license_id: license_id, // 身份(居留)證字號
+			dependents: dependents, // 扶養人數
+			healthcare_dependents: healthcare_dependents, // 健保眷口數
 			residence_permit_start_date: residence_permit_start_date, // 居留證開始日期
 			residence_permit_end_date: residence_permit_end_date, // 居留證截止日期
 			registration_date: registration_date, // 到職日期
 			quit_date: quit_date, // 離職日期
 			bank_account_taiwan: bank_account_taiwan, // 台幣帳號
-			bank_account_foreign: bank_account_foreign ?? "", // 外幣帳號
+			bank_account_foreign: bank_account_foreign, // 外幣帳號
 			received_elderly_benefits: received_elderly_benefits, // 已領老年給付
 			seniority: seniority, // 在職年數
 			annual_days_in_service: annual_days_in_service, // 年度在職天數
@@ -762,8 +783,8 @@ export class TransactionService {
 			vehicle_loan: vehicle_loan, // 車輛貸款
 			special_personal_leave_deduct: special_personal_leave_deduct, // 特別事假扣款
 			leave_deduction: leave_deduction, // 請假扣款
-			emp_trust_reserve: emp_trust_reserve ?? 0, // 員工信託提存金
-			emp_special_trust_incent: emp_special_trust_incent ?? 0, // 特別信託獎勵金_員工
+			emp_trust_reserve: emp_trust_reserve, // 員工信託提存金
+			emp_special_trust_incent: emp_special_trust_incent, // 特別信託獎勵金_員工
 			l_i_deduction: l_i_deduction, // 勞保扣除額
 			h_i_deduction: h_i_deduction, // 健保扣除額
 			welfare_contribution: welfare_contribution, // 福利金提撥
@@ -795,8 +816,8 @@ export class TransactionService {
 			group_insurance_pay: group_insurance_pay, // 團保費
 			l_r_contribution: l_r_contribution, // 勞退金提撥
 			old_l_r_contribution: old_l_r_contribution, // 勞退金提撥_舊制
-			org_trust_reserve: org_trust_reserve ?? 0, // 公司獎勵金
-			org_special_trust_incent: org_special_trust_incent ?? 0, // 特別信託獎勵金_公司
+			org_trust_reserve: org_trust_reserve, // 公司獎勵金
+			org_special_trust_incent: org_special_trust_incent, // 特別信託獎勵金_公司
 			salary_range: salary_range, // 薪資區隔
 			total_salary: total_salary, // 薪資總額
 			net_salary: net_salary, // 實發金額
@@ -808,7 +829,7 @@ export class TransactionService {
 			exchange_rate: exchange_rate, // 匯率
 			currency_amount_foreign: currency_amount_foreign, // 外幣金額
 			currency_amount_taiwan: currency_amount_taiwan, // 台幣金額
-			has_trust: has_trust, // 持股信託_YN
+			has_trust: has_trust, // 持股信託
 			disabled: false,
 			create_by: "system",
 			update_by: "system",
