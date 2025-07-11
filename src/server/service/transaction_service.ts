@@ -82,13 +82,13 @@ export class TransactionService {
 			await this.employeeDataService.getCurrentEmployeeData(period_id);
 		// const employee_payment_list = await this.employeePaymentService.getCurrentEmployeePayment(period_id);
 		// ^ Pony's Test
-		let real_employee_payment_list =
+		let employee_payment_list =
 			await this.employeePaymentService.getCurrentEmployeePayment(
 				period_id
 			);
-		const employee_payment_list = convert_employee_payment(
-			real_employee_payment_list
-		);
+		// const employee_payment_list = convert_employee_payment(
+		// 	real_employee_payment_list
+		// );
 		// ^ End Pony's Test
 		const employee_trust_list =
 			await this.employeeTrustService.getCurrentEmployeeTrustFE(
@@ -241,7 +241,7 @@ export class TransactionService {
 
 		const department = employee_data!.department;
 		const emp_name = employee_data!.emp_name;
-		const cost_category = "成本直接"; // ! TODO: employee_data!.cost_category;
+		const cost_category = employee_data!.cost_category;
 		const work_type = employee_data!.work_type;
 		const work_status = employee_data!.work_status;
 		const position = employee_data!.position;

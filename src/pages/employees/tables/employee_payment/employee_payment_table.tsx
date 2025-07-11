@@ -18,6 +18,7 @@ import {
 import { EmployeePaymentFunctions } from "./employee_payment_functions";
 import { useAccessContext } from "~/components/context/access_context_provider";
 import { cn } from "~/lib/utils";
+import { OctagonAlert, OctagonX } from "lucide-react";
 
 const columnHelper = createColumnHelper<PaymentRowItem>();
 
@@ -29,11 +30,7 @@ const firstThreeColumns: PaymentRowItemKey[] = [
 
 const columnNames: PaymentRowItemKey[] = [
 	"base_salary",
-	"food_allowance",
-	"supervisor_allowance",
-	"occupational_allowance",
-	"subsidy_allowance",
-	"long_service_allowance",
+
 	"long_service_allowance_type",
 	"l_r_self_ratio",
 	"l_i",
@@ -106,6 +103,176 @@ export const employee_payment_columns = ({
 					)}
 				>
 					{row.original.position_type}
+				</ColumnCellComponent>
+			);
+		},
+	}),
+	columnHelper.accessor("supervisor_allowance", {
+		header: ({ column }) => {
+			return (
+				<ColumnHeaderComponent column={column}>
+					{t(`table.supervisor_allowance`)}
+				</ColumnHeaderComponent>
+			);
+		},
+		cell: ({ row }) => {
+			const error_flag =
+				!row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
+			const warning_flag =
+				row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
+			return (
+				<ColumnCellComponent
+					className={cn(
+						error_flag
+							? "text-destructive"
+							: warning_flag
+							? "text-yellow-400"
+							: ""
+					)}
+				>
+					<div className="flex items-center gap-2">
+						{error_flag && <OctagonX />}
+						{warning_flag && <OctagonAlert />}
+						{row.original.supervisor_allowance}
+					</div>
+				</ColumnCellComponent>
+			);
+		},
+	}),
+	columnHelper.accessor("food_allowance", {
+		header: ({ column }) => {
+			return (
+				<ColumnHeaderComponent column={column}>
+					{t(`table.food_allowance`)}
+				</ColumnHeaderComponent>
+			);
+		},
+		cell: ({ row }) => {
+			const error_flag =
+				!row.original.info.food.isInRange &&
+				!row.original.info.food.isModified;
+			const warning_flag =
+				row.original.info.food.isInRange &&
+				!row.original.info.food.isModified;
+			return (
+				<ColumnCellComponent
+					className={cn(
+						error_flag
+							? "text-destructive"
+							: warning_flag
+							? "text-yellow-400"
+							: ""
+					)}
+				>
+					<div className="flex items-center gap-2">
+						{error_flag && <OctagonX />}
+						{warning_flag && <OctagonAlert />}
+						{row.original.food_allowance}
+					</div>
+				</ColumnCellComponent>
+			);
+		},
+	}),
+	columnHelper.accessor("occupational_allowance", {
+		header: ({ column }) => {
+			return (
+				<ColumnHeaderComponent column={column}>
+					{t(`table.occupational_allowance`)}
+				</ColumnHeaderComponent>
+			);
+		},
+		cell: ({ row }) => {
+			const error_flag =
+				!row.original.info.occupational.isInRange &&
+				!row.original.info.occupational.isModified;
+			const warning_flag =
+				row.original.info.occupational.isInRange &&
+				!row.original.info.occupational.isModified;
+			return (
+				<ColumnCellComponent
+					className={cn(
+						error_flag
+							? "text-destructive"
+							: warning_flag
+							? "text-yellow-400"
+							: ""
+					)}
+				>
+					<div className="flex items-center gap-2">
+						{error_flag && <OctagonX />}
+						{warning_flag && <OctagonAlert />}
+						{row.original.occupational_allowance}
+					</div>
+				</ColumnCellComponent>
+			);
+		},
+	}),
+	columnHelper.accessor("subsidy_allowance", {
+		header: ({ column }) => {
+			return (
+				<ColumnHeaderComponent column={column}>
+					{t(`table.subsidy_allowance`)}
+				</ColumnHeaderComponent>
+			);
+		},
+		cell: ({ row }) => {
+			const error_flag =
+				!row.original.info.subsidy.isInRange &&
+				!row.original.info.subsidy.isModified;
+			const warning_flag =
+				row.original.info.subsidy.isInRange &&
+				!row.original.info.subsidy.isModified;
+			return (
+				<ColumnCellComponent
+					className={cn(
+						error_flag
+							? "text-destructive"
+							: warning_flag
+							? "text-yellow-400"
+							: ""
+					)}
+				>
+					<div className="flex items-center gap-2">
+						{error_flag && <OctagonX />}
+						{warning_flag && <OctagonAlert />}
+						{row.original.subsidy_allowance}
+					</div>
+				</ColumnCellComponent>
+			);
+		},
+	}),
+	columnHelper.accessor("long_service_allowance", {
+		header: ({ column }) => {
+			return (
+				<ColumnHeaderComponent column={column}>
+					{t(`table.long_service_allowance`)}
+				</ColumnHeaderComponent>
+			);
+		},
+		cell: ({ row }) => {
+			const error_flag =
+				!row.original.info.longService.isInRange &&
+				!row.original.info.longService.isModified;
+			const warning_flag =
+				row.original.info.longService.isInRange &&
+				!row.original.info.longService.isModified;
+			return (
+				<ColumnCellComponent
+					className={cn(
+						error_flag
+							? "text-destructive"
+							: warning_flag
+							? "text-yellow-400"
+							: ""
+					)}
+				>
+					<div className="flex items-center gap-2">
+						{error_flag && <OctagonX />}
+						{warning_flag && <OctagonAlert />}
+						{row.original.long_service_allowance}
+					</div>
 				</ColumnCellComponent>
 			);
 		},

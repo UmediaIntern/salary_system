@@ -748,13 +748,13 @@ export class CalculateService {
 				work_status === WorkStatusEnum.Enum.ForeignWorker
 			) {
 				return (
-					Round((l_i * wci_apf * l_i_day) / 30, 1) +
-					Round((l_i * wci_apf * additional_l_i) / 30, 1)
+					Round((l_i * wci_apf * l_i_day) / 30) +
+					Round((l_i * wci_apf * additional_l_i) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 			} else if (employee_data.work_status === WorkStatusEnum.Enum.Boss) {
 				return (
-					Round((l_i * wci_apf * l_i_day) / 30, 3) +
-					Round((l_i * wci_apf * additional_l_i) / 30, 3)
+					Round((l_i * wci_apf * l_i_day) / 30) +
+					Round((l_i * wci_apf * additional_l_i) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 			} else if (
 				work_status === WorkStatusEnum.Enum.PartTimeWorker ||
@@ -764,19 +764,19 @@ export class CalculateService {
 				work_status === WorkStatusEnum.Enum.ResignedEmployeePartialMonth
 			) {
 				return (
-					Round((l_i * wci_apf * l_i_day) / 30, 1) +
-					Round((l_i * wci_apf * additional_l_i) / 30, 1)
+					Round((l_i * wci_apf * l_i_day) / 30) +
+					Round((l_i * wci_apf * additional_l_i) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 			} else {
 				return (
-					Round((l_i * wci_apf * l_i_day) / 30, 1) +
-					Round((l_i * wci_apf * additional_l_i) / 30, 1)
+					Round((l_i * wci_apf * l_i_day) / 30) +
+					Round((l_i * wci_apf * additional_l_i) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 			}
 		}
 		return -1;
 	}
-	//MARK: 薪資所得稅 (缺表)
+	//MARK: 薪資所得稅 
 	async getSalaryIncomeTax(
 		employee_data: EmployeeDataDecType,
 		issue_date: string,
