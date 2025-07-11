@@ -1,16 +1,16 @@
 import { injectable } from "tsyringe";
 import {
-	type AttendanceSetting,
-	type AttendanceSettingDecType,
-	type decAttendanceSetting,
-	type encAttendanceSetting,
-} from "../entity/SALARY/attendance_setting";
+	type AllowanceRange,
+	type AllowanceRangeDecType,
+	type decAllowanceRange,
+	type encAllowanceRange,
+} from "../entity/SALARY/allowance_range";
 import { BaseMapper } from "./base_mapper";
 
 @injectable()
 export class AllowanceRangeMapper extends BaseMapper<
-	AttendanceSetting,
-	AttendanceSettingDecType,
-	typeof encAttendanceSetting,
-	typeof decAttendanceSetting
+	AllowanceRange,
+	AllowanceRangeDecType,
+	typeof encAllowanceRange,
+	typeof decAllowanceRange
 > {}
