@@ -279,24 +279,18 @@ export default function ParameterToolbarFunctionsProvider({
 		api.incomeTaxSetting.createIncomeTaxSetting.useMutation({
 			onSuccess: () => {
 				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
-				// ctx.parameters.getAllIncomeTaxSetting.invalidate();
-				// ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
 			},
 		});
 	const updateIncomeTaxSetting =
 		api.incomeTaxSetting.updateIncomeTaxSetting.useMutation({
 			onSuccess: () => {
 				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
-				// ctx.parameters.getAllIncomeTaxSetting.invalidate();
-				// ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
 			},
 		});
 	const deleteIncomeTaxSetting =
 		api.incomeTaxSetting.deleteIncomeTaxSetting.useMutation({
 			onSuccess: () => {
 				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
-				// ctx.parameters.getAllIncomeTaxSetting.invalidate();
-				// ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
 			},
 		});
 
@@ -364,7 +358,10 @@ export default function ParameterToolbarFunctionsProvider({
 			createFunction: createIncomeTaxSetting,
 			deleteFunction: deleteIncomeTaxSetting,
 			batchCreateFunction: undefined,
-		}
+		}, 
+    TableAllowanceRange: {
+      queryFutureFunction: () => {},
+    }
 	};
 
 	// Return the provider with the functions

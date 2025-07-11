@@ -31,6 +31,7 @@ import { TrustMoneyTable } from "./tables/trust_money_table";
 import { SalaryIncomeTaxTable } from "./tables/salary_income_tax_table";
 import { IncomeTaxSettingTable } from "./tables/income_tax_setting_table";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { AllowanceRangeTable } from "./tables/allowance_range_table";
 
 export type TableComponentProps = {
 	period_id: number;
@@ -86,6 +87,11 @@ function getTableComponent(
 				component: IncomeTaxSettingTable,
 				icon: Table,
 			}
+    case "TableAllowanceRange":
+      return {
+        component: AllowanceRangeTable,
+        icon: Table,
+      }
 		default:
 			throw new Error(`Invalid table`);
 	}

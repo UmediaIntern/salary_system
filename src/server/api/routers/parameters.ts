@@ -57,6 +57,8 @@ import {
 } from "../types/salary_income_tax";
 import { IncomeTaxSettingService } from "~/server/service/income_tax_setting_service";
 import { createIncomeTaxSettingAPI } from "../types/income_tax_setting_type";
+import { allowanceRangeFE } from "../types/allowance_range_type";
+import { AllowanceRangeService } from "~/server/service/allowance_range_service";
 
 export const parametersRouter = createTRPCRouter({
 	createBankSetting: publicProcedure
@@ -864,15 +866,11 @@ export const parametersRouter = createTRPCRouter({
 		return salaryIncomeTax;
 	}),
 
-
-
 	// & MARK: Table[薪資所得稅設定]
 	getCurrentIncomeTaxSetting: publicProcedure
 		.input(z.object({ period_id: z.number() }))
 		.query(async ({ input }) => {
-			const incomeTaxService = container.resolve(
-				IncomeTaxSettingService
-			);
+			const incomeTaxService = container.resolve(IncomeTaxSettingService);
 			const incomeTaxSetting =
 				await incomeTaxService.getCurrentIncomeTaxSetting(
 					input.period_id
@@ -886,29 +884,57 @@ export const parametersRouter = createTRPCRouter({
 			const incomeTaxSettingFE = {
 				...roundProperties(incomeTaxSetting, 4),
 				start_date: new Date(incomeTaxSetting.start_date),
-				end_date: incomeTaxSetting.end_date ? new Date(incomeTaxSetting.end_date) : null,
+				end_date: incomeTaxSetting.end_date
+					? new Date(incomeTaxSetting.end_date)
+					: null,
 				functions: {
 					creatable: true,
-					updatable: new Date(incomeTaxSetting.start_date) > new Date(),
-					deletable: new Date(incomeTaxSetting.start_date) > new Date(),
+					updatable:
+						new Date(incomeTaxSetting.start_date) > new Date(),
+					deletable:
+						new Date(incomeTaxSetting.start_date) > new Date(),
 				},
 			};
 			return incomeTaxSettingFE;
 		}),
-	
+
 	createIncomeTaxSetting: publicProcedure
 		.input(createIncomeTaxSettingAPI)
 		.mutation(async ({ input }) => {
-			const incomeTaxService = container.resolve(
-				IncomeTaxSettingService
-			);
-			const newdata =
-				await incomeTaxService.createIncomeTaxSetting({
-					...input,
-					end_date: null,
-				});
+			const incomeTaxService = container.resolve(IncomeTaxSettingService);
+			const newdata = await incomeTaxService.createIncomeTaxSetting({
+				...input,
+				end_date: null,
+			});
 			await incomeTaxService.rescheduleIncomeTaxSetting();
 			return newdata;
 		}),
 
+	getCurrentAllowanceRange: publicProcedure
+		.input(z.object({ period_id: z.number() }))
+		.output(allowanceRangeFE.array().nullable())
+		.query(async ({ input }) => {
+			const alllowanceRangeService = container.resolve(
+				AllowanceRangeService
+			);
+			const allowanceRange =
+				await alllowanceRangeService.getCurrentAllowanceRange(
+					input.period_id
+				);
+
+			if (allowanceRange == null) {
+				return null;
+			}
+
+			const allowanceRangeFE = allowanceRange.map((a) => ({
+				...a,
+				functions: {
+					creatable: true,
+					updatable: a.start_date > new Date(),
+					deletable: a.start_date > new Date(),
+				},
+			}));
+
+			return allowanceRangeFE;
+		}),
 });
