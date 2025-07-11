@@ -33,7 +33,7 @@ const dbEmp = z.object({
 	REGISTRATION_DATE: z.date(),
 	QUIT_DATE: z.date().nullable(),
 	LICENS_ID: z.string(),
-	NBANKNUMBER: z.string(),
+	NBANKNUMBER: z.string().nullable(), // TODO
 });
 
 export class Emp {
@@ -143,7 +143,7 @@ export class Emp {
 			FORMAT_REGISTRATION_DATE,
 			FORMAT_QUIT_DATE,
 			data.LICENS_ID,
-			data.NBANKNUMBER,
+			data.NBANKNUMBER != null ? data.NBANKNUMBER : "NA", // TODO
 			false
 		);
 	}
