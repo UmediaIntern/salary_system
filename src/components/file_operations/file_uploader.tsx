@@ -121,8 +121,8 @@ export function FileUploader(props: FileUploaderProps) {
         return;
       }
 
-			onUpload?.(acceptedFiles).catch(() => {
-				toast.error("Failed to upload file");
+			onUpload?.(acceptedFiles).catch((error) => {
+				toast.error("Failed to upload file. Error: " + error);
 			});
 		},
 		[multiple, maxFileCount, onUpload]
