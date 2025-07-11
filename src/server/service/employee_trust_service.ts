@@ -22,9 +22,10 @@ import {
 	stringToDate,
 } from "../api/types/z_utils";
 import { EmployeeDataService } from "./employee_data_service";
-import { isSameDay, subDays } from "date-fns";
+import { addDays, isSameDay, subDays } from "date-fns";
 import { type Period } from "../database/entity/UMEDIA/period";
 import { Transaction } from "../database/entity/SALARY/transaction";
+import { addHookAliases } from "next/dist/server/require-hook";
 
 type EmployeeTrustMapperType = EmployeeTrustMapper;
 
@@ -34,7 +35,7 @@ export class EmployeeTrustService {
 		@inject(delay(() => EmployeeTrustMapper))
 		private readonly employeeTrustMapper: EmployeeTrustMapperType,
 		private readonly ehrService: EHRService,
-		private readonly employeeDataService: EmployeeDataService,
+		private readonly employeeDataService: EmployeeDataService
 	) {}
 
 	async createEmployeeTrust(
@@ -66,12 +67,23 @@ export class EmployeeTrustService {
 	async insertEmployeeTrust(d: z.input<typeof employeeTrustCreateService>) {
 		const data = employeeTrustCreateService.parse(d);
 		const inputDate = dateToStringNullable.parse(data.start_date);
+		const inputEndDate = dateToStringNullable.parse(data.end_date);
+
 		if (!data.start_date || !inputDate) {
 			throw new Error("start_date is required");
 		}
 
-		if (data.end_date) {
-			throw new Error("Currently, end_date is not allowed");
+		if (inputEndDate) {
+      // Delete everything after end_date
+      await EmployeeTrust.destroy({
+        where: {
+          emp_no: data.emp_no,
+          start_date: {
+            [Op.gt]: inputEndDate,
+          },
+          disabled: false,
+        },
+      });
 		}
 
 		const latestTrust = await EmployeeTrust.findOne({
@@ -112,18 +124,30 @@ export class EmployeeTrustService {
 			isSameAfter = isEqualEmployeeTrust(dClosestFutureTrust, data);
 		}
 
+		const prev_end = dLatestTrust?.end_date ?? null;
+		if (prev_end !== null && prev_end < data.start_date) {
+			throw new Error(
+				"Previous end data found, meaning employee already quit. Can not insert new trust."
+			);
+		}
 		// console.log("input date", inputDate);
 		// console.log("latestPayment", latestPayment?.dataValues);
 		// console.log("closestFuturePayment", closestFuturePayment?.dataValues);
 
 		if (isSameBefore) {
 			console.log("Same as latest trust");
+      // Must respect the end data
+      if (inputEndDate) {
+        await latestTrust?.update({ end_date: inputEndDate });
+        const nextStart = dateToString.parse(addDays(inputEndDate, 1));
+        await closestFutureTrust?.update({ start_date: nextStart});
+      }
 			return;
 		}
 
 		if (isSameAfter) {
 			console.log("Same as trust after, update start date");
-			await closestFutureTrust?.update({ start_date: inputDate });
+			await closestFutureTrust?.update({ start_date: inputDate, end_date: inputEndDate });
 			return;
 		}
 
@@ -138,7 +162,7 @@ export class EmployeeTrustService {
 				console.log("Different from trust after, create new trust");
 				await this.createEmployeeTrust({
 					...data,
-					end_date: subDays(dClosestFutureTrust.start_date, 1),
+					end_date: data.end_date ?? subDays(dClosestFutureTrust.start_date, 1),
 				});
 				return;
 			}
@@ -161,7 +185,7 @@ export class EmployeeTrustService {
 				await latestTrust?.update({ end_date: inputDate });
 				await this.createEmployeeTrust({
 					...data,
-					end_date: dLatestTrust.end_date,
+					end_date: data.end_date ?? dLatestTrust.end_date,
 				});
 				return;
 			} else {
@@ -621,9 +645,8 @@ export class EmployeeTrustService {
 		return accumulated_trust_list;
 	}
 	async dropEmployeeTrustPeriod(period_id: number): Promise<number> {
-		const start_date = (await this.ehrService.getPeriodById(
-			period_id
-		)).start_date;
+		const start_date = (await this.ehrService.getPeriodById(period_id))
+			.start_date;
 		const deletedRows = await EmployeeTrust.destroy({
 			where: { start_date: dateToString.parse(start_date) },
 		});
