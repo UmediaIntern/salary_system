@@ -13,6 +13,7 @@ import { EHRService } from "./ehr_service";
 import { deleteTransactionAndEmpDatas } from "../api/types/import_api_type";
 import { z } from "zod";
 import { TransactionService } from "./transaction_service";
+import { Round } from "./helper_function";
 
 @injectable()
 export class ImportService {
@@ -87,7 +88,7 @@ export class ImportService {
 			position_type: data.position_type,
 			group_insurance_type: data.group_insurance_type,
 			department: data.department,
-			cost_category: CostCategoryEnum.Values.成本直接,
+			cost_category: data.cost_category,
 			work_type: data.work_type,
 			work_status: data.work_status,
 			disabilty_level: data.disabilty_level,
@@ -111,12 +112,12 @@ export class ImportService {
 
 		await this.employeePaymentService.insertEmployeePayment({
 			emp_no: data.emp_no,
-			base_salary: data.base_salary,
-			food_allowance: data.food_allowance,
-			supervisor_allowance: data.supervisor_allowance,
-			occupational_allowance: data.occupational_allowance,
-			subsidy_allowance: data.subsidy_allowance,
-			long_service_allowance: data.long_service_allowance,
+			base_salary: Round(data.base_salary / data.work_day * 30, -1),
+			food_allowance: Round(data.food_allowance / data.work_day * 30, -1),
+			supervisor_allowance: Round(data.supervisor_allowance / data.work_day * 30, -1),
+			occupational_allowance: Round(data.occupational_allowance / data.work_day * 30, -1),
+			subsidy_allowance: Round(data.subsidy_allowance / data.work_day * 30, -1),
+			long_service_allowance: Round(data.long_service_allowance / data.work_day * 30, -1),
 			long_service_allowance_type: LongServiceEnum.Values.month_allowance,
 			l_r_self_ratio:
 				data.l_r_self === 0

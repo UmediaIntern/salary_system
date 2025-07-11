@@ -2,8 +2,8 @@ import { injectable } from "tsyringe";
 import {
 	type AllowanceRange,
 	type AllowanceRangeDecType,
-	type decAllowanceRange,
-	type encAllowanceRange,
+	decAllowanceRange,
+	encAllowanceRange,
 } from "../entity/SALARY/allowance_range";
 import { BaseMapper } from "./base_mapper";
 
@@ -13,4 +13,8 @@ export class AllowanceRangeMapper extends BaseMapper<
 	AllowanceRangeDecType,
 	typeof encAllowanceRange,
 	typeof decAllowanceRange
-> {}
+> {
+	constructor() {
+		super("Allowance Rnage Mapper", encAllowanceRange, decAllowanceRange);
+	}
+}
