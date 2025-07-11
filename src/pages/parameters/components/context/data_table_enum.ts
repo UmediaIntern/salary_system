@@ -8,6 +8,7 @@ export const TableEnumValues = [
 	"TableBasicInfo",
 	"TableSalaryIncomeTax",
 	"TableIncomeTaxSetting",
+  "TableAllowanceRange",
 ] as const;
 
 export type TableEnum = (typeof TableEnumValues)[number];
@@ -32,6 +33,8 @@ function getTableName(table: TableEnum) {
 			return "salaryIncomeTax";
 		case "TableIncomeTaxSetting":
 			return "incomeTaxSetting";
+    case "TableAllowanceRange":
+      return "allowanceRange";
 	}
 }
 

@@ -1,5 +1,4 @@
 import { RootLayout } from "~/components/layout/root_layout";
-
 import { type NextPageWithLayout } from "../_app";
 import { useEffect, useState, type ReactElement } from "react";
 import { Header } from "~/components/header";

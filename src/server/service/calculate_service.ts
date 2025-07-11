@@ -57,7 +57,7 @@ export class CalculateService {
 		private readonly ehrService: EHRService,
 		private readonly employeeBonusService: EmployeeBonusService,
 		private readonly employeeTrustService: EmployeeTrustService
-	) { }
+	) {}
 
 	// MARK: 平日加班費
 	// 合理情況是只有平日的134 167，但這邊照舊系統邏輯會全部都算在平日加班費，待決定怎麼修正
@@ -115,17 +115,17 @@ export class CalculateService {
 			return Round(
 				// hourly_fee * t1 +
 				hourly_fee * t2 * 1.34 +
-				hourly_fee * t3 * 1.67 +
-				hourly_fee * t4 * 2 +
-				hourly_fee * t5 * 2.67
+					hourly_fee * t3 * 1.67 +
+					hourly_fee * t4 * 2 +
+					hourly_fee * t5 * 2.67
 			);
 		} else
 			return Round(
 				// hourly_fee * t1 +
 				hourly_fee * t2 * 1.34 +
-				hourly_fee * t3 * 1.67 +
-				hourly_fee * t4 * 2 +
-				hourly_fee * t5 * 2.67
+					hourly_fee * t3 * 1.67 +
+					hourly_fee * t4 * 2 +
+					hourly_fee * t5 * 2.67
 			);
 	}
 	//MARK: 假日加班費
@@ -256,16 +256,16 @@ export class CalculateService {
 			hourly_fee = Floor(insurance_rate_setting.min_wage / 240, 2);
 			return Round(
 				hourly_fee * t1 * 1.34 +
-				hourly_fee * t2 * 1.67 +
-				hourly_fee * t3 * 2 +
-				hourly_fee * t4 * 2.67
+					hourly_fee * t2 * 1.67 +
+					hourly_fee * t3 * 2 +
+					hourly_fee * t4 * 2.67
 			);
 		} else
 			return Round(
 				hourly_fee * t1 * 1.34 +
-				hourly_fee * t2 * 1.67 +
-				hourly_fee * t3 * 2 +
-				hourly_fee * t4 * 2.67
+					hourly_fee * t2 * 1.67 +
+					hourly_fee * t3 * 2 +
+					hourly_fee * t4 * 2.67
 			);
 	}
 	//MARK: 應發底薪
@@ -305,7 +305,7 @@ export class CalculateService {
 				(employee_payment_dec.occupational_allowance ?? 0) +
 				(employee_payment_dec.subsidy_allowance ?? 0) +
 				(employee_payment_dec.long_service_allowance_type ==
-					LongServiceEnum.enum.month_allowance
+				LongServiceEnum.enum.month_allowance
 					? employee_payment_dec.long_service_allowance
 					: 0);
 			return gross_salary;
@@ -358,27 +358,23 @@ export class CalculateService {
 		if (received_elderly_benefits) return 0; // 'Jerry 100426 已領老年給付者,員工免付勞保
 
 		if (kind1 === FOREIGN || kind2 === WorkStatusEnum.enum.ForeignWorker)
-			return (
+			return Round(
 				Round(
-					Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30 * hinder_rate)
+					((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) *
+						hinder_rate
 				)
 			); // 'Jerry 2023/04/06 由工作天數改為加勞保天數計算
 		if (kind2 === WorkStatusEnum.Enum.Consultant) return 0;
 		if (kind2 === WorkStatusEnum.Enum.Boss)
-			return (
-				Round(
-					Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) * hinder_rate
-				)
+			return Round(
+				Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) *
+					hinder_rate
 			); //   'Jerry 10/04/26 由工作天數改為加勞保天數計算
 		if (kind2 === WorkStatusEnum.Enum.DailyWage)
-			return (
-				Round(
-					(
-						Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
-						Round((Tax * wci_ji * 0.200001 * PartTimeDay) / 30)
-					)
-					* hinder_rate
-				)
+			return Round(
+				(Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
+					Round((Tax * wci_ji * 0.200001 * PartTimeDay) / 30)) *
+					hinder_rate
 			);
 		if (
 			kind2 === WorkStatusEnum.Enum.NewEmployee ||
@@ -387,24 +383,16 @@ export class CalculateService {
 			kind2 === WorkStatusEnum.Enum.Intern ||
 			kind2 == WorkStatusEnum.Enum.ContractEmployee
 		)
-			return (
-				Round(
-					(
-						Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
-						Round((Tax * wci_ji * 0.200001 * PartTimeDay) / 30)
-					)
-					* hinder_rate
-				)
+			return Round(
+				(Round((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) +
+					Round((Tax * wci_ji * 0.200001 * PartTimeDay) / 30)) *
+					hinder_rate
 			); // 'Jerry 07/07/19 由工作天數改為加勞保天數計算
 
-		return (
-			Round(
-				(
-					Round(Tax * wci_normal * 0.200001) +
-					Round(Tax * wci_ji * 0.200001)
-				)
-				* hinder_rate
-			)
+		return Round(
+			(Round(Tax * wci_normal * 0.200001) +
+				Round(Tax * wci_ji * 0.200001)) *
+				hinder_rate
 		);
 	}
 	//MARK: 健保扣除額(要多考慮本人障礙 眷屬正常)
@@ -435,32 +423,26 @@ export class CalculateService {
 			if (kind === LEAVE_MAN || kind === PROFESSOR || kind === WILL_LEAVE)
 				return 0;
 			if (kind === BOSS)
-				return (
-					(Round(Round(Tax * nhi_rate) * (Peop + 1)) +
-						Round(Round(Tax * nhi_rate) * exePep)) *
-					hinder_rate *
-					2
+				return Round(
+					Round(Tax * nhi_rate) *
+						(Peop + exePep + 1 * hinder_rate) *
+						2
 				);
-			return (
-				(Round(Round(Tax * nhi_rate * 0.3) * (Peop + 1)) +
-					Round(Round(Tax * nhi_rate * 0.3) * exePep)) *
-				hinder_rate *
-				2
+			return Round(
+				Round(Tax * nhi_rate * 0.3) *
+					(Peop + exePep + 1 * hinder_rate) *
+					2
 			);
 		} else {
 			// HelAdd_YN = False	=> 		不追加健保
 			if (kind === LEAVE_MAN || kind === PROFESSOR || kind === WILL_LEAVE)
 				return 0;
 			if (kind === BOSS)
-				return (
-					(Round(Round(Tax * nhi_rate) * (Peop + 1)) +
-						Round(Round(Tax * nhi_rate) * exePep)) *
-					hinder_rate
+				return Round(
+					Round(Tax * nhi_rate) * (Peop + exePep + 1 * hinder_rate)
 				);
-			return (
-				(Round(Tax * nhi_rate * 0.3) * (Peop + 1) +
-					Round(Tax * nhi_rate * 0.3) * exePep) *
-				hinder_rate
+			return Round(
+				Round(Tax * nhi_rate * 0.3) * (Peop + exePep + 1 * hinder_rate)
 			);
 		}
 
@@ -687,7 +669,7 @@ export class CalculateService {
 
 	// MARK: 職務績效獎金
 	async getOccupationalPerformanceBonus(): // TODO
-		Promise<number> {
+	Promise<number> {
 		// TODO
 		return 0;
 	}
@@ -730,7 +712,7 @@ export class CalculateService {
 			(discounted_employee_payment_dec.occupational_allowance ?? 0) +
 			operational_performance_bonus +
 			(discounted_employee_payment_dec.long_service_allowance_type ==
-				LongServiceEnum.enum.month_allowance
+			LongServiceEnum.enum.month_allowance
 				? discounted_employee_payment_dec.long_service_allowance
 				: 0) +
 			reissue_salary +
@@ -823,11 +805,11 @@ export class CalculateService {
 		const Day = rd("工作天數");			// no use in prev salary system code
 		*/
 
-		const START_WORK_DAY = new Date(employee_data.registration_date); // ! 要改入境日
+		const ENTRY_DATE = new Date(employee_data.registration_date!); //TODO: 要改入境日 employee_data.residence_permit_start_date
 		const PAY_DATE = new Date(issue_date);
 
 		const differenceInMilliseconds =
-			START_WORK_DAY.getTime() - PAY_DATE.getTime();
+			ENTRY_DATE.getTime() - PAY_DATE.getTime();
 		const differenceInDays = Math.floor(
 			differenceInMilliseconds / (1000 * 60 * 60 * 24)
 		);
@@ -861,7 +843,7 @@ export class CalculateService {
 					Tax <
 					(insurance_rate_setting.min_wage -
 						income_tax_setting.deduction) *
-					income_tax_setting.multiplier
+						income_tax_setting.multiplier
 				)
 					return Round(Tax * income_tax_setting.tax_ratio_1 * 0.01);
 				else return Round(Tax * income_tax_setting.tax_ratio_2 * 0.01);
@@ -982,7 +964,7 @@ export class CalculateService {
 				(professional_cert_allowance ?? 0) +
 				(discounted_employee_payment_dec.occupational_allowance ?? 0) +
 				(discounted_employee_payment_dec.long_service_allowance_type ==
-					LongServiceEnum.Enum.month_allowance
+				LongServiceEnum.Enum.month_allowance
 					? discounted_employee_payment_dec.long_service_allowance
 					: 0) +
 				operational_performance_bonus + //在bonus裡 id=2
@@ -1100,7 +1082,16 @@ export class CalculateService {
 	): Promise<number> {
 		const expenseList = expense_list.filter((e) => e.kind === 2);
 		let other_deduction_ids = expense_class_list
-			.filter((ec) => ec.other_less === 1 && !["勞保保費追繳", "健保保費追繳", "定存扣款", "法院薪資扣押款"].includes(ec.name))
+			.filter(
+				(ec) =>
+					ec.other_less === 1 &&
+					![
+						"勞保保費追繳",
+						"健保保費追繳",
+						"定存扣款",
+						"法院薪資扣押款",
+					].includes(ec.name)
+			)
 			.map((ec) => ec.id);
 		let other_deduction = 0;
 		for (const expense of expenseList) {
@@ -1115,7 +1106,16 @@ export class CalculateService {
 		expense_class_list: ExpenseClass[]
 	): Promise<ExpenseWithType[] | null> {
 		let other_deduction_ids = expense_class_list
-			.filter((ec) => ec.other_less === 1 && !["勞保保費追繳", "健保保費追繳", "定存扣款", "法院薪資扣押款"].includes(ec.name))
+			.filter(
+				(ec) =>
+					ec.other_less === 1 &&
+					![
+						"勞保保費追繳",
+						"健保保費追繳",
+						"定存扣款",
+						"法院薪資扣押款",
+					].includes(ec.name)
+			)
 			.map((ec) => ec.id);
 		const other_deduction_list = expense_with_type_list.filter(
 			(e) => other_deduction_ids.includes(e.id) && e.kind === 2
@@ -1163,7 +1163,11 @@ export class CalculateService {
 	): Promise<number> {
 		const expenseList = expense_list.filter((e) => e.kind === 1);
 		let other_addition_ids = allowance_type_list
-			.filter((at) => at.other_add === 1 && !["勞保費差額補給", "健保保費退款"].includes(at.name))
+			.filter(
+				(at) =>
+					at.other_add === 1 &&
+					!["勞保費差額補給", "健保保費退款"].includes(at.name)
+			)
 			.map((at) => at.id);
 		let other_addition = 0;
 		for (const expense of expenseList) {
@@ -1178,7 +1182,11 @@ export class CalculateService {
 		allowance_type_list: AllowanceType[]
 	): Promise<ExpenseWithType[] | null> {
 		let other_addition_ids = allowance_type_list
-			.filter((at) => at.other_add === 1 && !["勞保費差額補給", "健保保費退款"].includes(at.name))
+			.filter(
+				(at) =>
+					at.other_add === 1 &&
+					!["勞保費差額補給", "健保保費退款"].includes(at.name)
+			)
 			.map((at) => at.id);
 		const other_addition_list = expense_with_type_list.filter(
 			(a) => other_addition_ids.includes(a.id) && a.kind === 1
@@ -1350,7 +1358,11 @@ export class CalculateService {
 				other_addition_tax;
 			return addition_subtotal;
 		} else if (pay_type === PayTypeEnum.Enum.foreign_15_bonus) {
-			const addition_subtotal = l_i_addition_previous + h_i_addition_previous + other_addition + other_addition_tax;
+			const addition_subtotal =
+				l_i_addition_previous +
+				h_i_addition_previous +
+				other_addition +
+				other_addition_tax;
 			return addition_subtotal;
 		}
 		return -1;
@@ -1496,25 +1508,25 @@ export class CalculateService {
 			) {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-					Round((occupational_injury * wci_oi * l_i_day) / 30)
+						Round((occupational_injury * wci_oi * l_i_day) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-					Round(
-						(occupational_injury * wci_oi * additional_l_i) / 30
-					)
+						Round(
+							(occupational_injury * wci_oi * additional_l_i) / 30
+						)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			} else if (employee_data.work_status === WorkStatusEnum.Enum.Boss) {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-					Round((occupational_injury * wci_oi * l_i_day) / 30)
+						Round((occupational_injury * wci_oi * l_i_day) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-					Round(
-						(occupational_injury * wci_oi * additional_l_i) / 30
-					)
+						Round(
+							(occupational_injury * wci_oi * additional_l_i) / 30
+						)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			} else if (
@@ -1526,29 +1538,29 @@ export class CalculateService {
 			) {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-					Round((l_i * 0.700001 * wci_ji * l_i_day) / 30) +
-					Round((occupational_injury * wci_oi * l_i_day) / 30)
+						Round((l_i * 0.700001 * wci_ji * l_i_day) / 30) +
+						Round((occupational_injury * wci_oi * l_i_day) / 30)
 				); //'Jerry 20220823工資墊償基金分開計算
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-					Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
-					Round(
-						(occupational_injury * wci_oi * additional_l_i) / 30
-					)
+						Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
+						Round(
+							(occupational_injury * wci_oi * additional_l_i) / 30
+						)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			} else {
 				const x1 = Round(
 					Round((l_i * wci_normal * 0.700001 * l_i_day) / 30) +
-					Round((l_i * wci_ji * 0.700001 * l_i_day) / 30) +
-					Round((occupational_injury * wci_oi * l_i_day) / 30)
+						Round((l_i * wci_ji * 0.700001 * l_i_day) / 30) +
+						Round((occupational_injury * wci_oi * l_i_day) / 30)
 				);
 				const x2 = Round(
 					Round((l_i * wci_normal * 0.700001 * additional_l_i) / 30) +
-					Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
-					Round(
-						(occupational_injury * wci_oi * additional_l_i) / 30
-					)
+						Round((l_i * wci_ji * 0.700001 * additional_l_i) / 30) +
+						Round(
+							(occupational_injury * wci_oi * additional_l_i) / 30
+						)
 				); //'Jerry 20220823工資墊償基金分開計算
 				return x1 + x2;
 			}
@@ -1761,7 +1773,7 @@ export class CalculateService {
 			(discounted_employee_payment_dec.occupational_allowance ?? 0) +
 			(discounted_employee_payment_dec.subsidy_allowance ?? 0) +
 			(discounted_employee_payment_dec.long_service_allowance_type ==
-				LongServiceEnum.enum.month_allowance
+			LongServiceEnum.enum.month_allowance
 				? discounted_employee_payment_dec.long_service_allowance
 				: 0) +
 			full_attendance_bonus +
@@ -2238,7 +2250,7 @@ export class CalculateService {
 			30;
 		new_employee_payment_dec.long_service_allowance =
 			((employee_payment_dec.long_service_allowance_type ==
-				LongServiceEnum.Enum.month_allowance
+			LongServiceEnum.Enum.month_allowance
 				? employee_payment_dec.long_service_allowance
 				: 0) *
 				(payset ? payset.work_day! : 30)) /
@@ -2266,11 +2278,11 @@ if (!健保追加)
 			.end_date;
 		const seniority = Round(
 			(cur_date.getTime() - registration_date.getTime()) /
-			1000 /
-			60 /
-			60 /
-			24 /
-			365,
+				1000 /
+				60 /
+				60 /
+				24 /
+				365,
 			2
 		);
 		return seniority;

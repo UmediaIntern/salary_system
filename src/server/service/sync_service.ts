@@ -208,7 +208,8 @@ export class SyncService {
 	}
 
 	// Stage 1
-	async getCandPaidEmployees(
+	// 參考salary及ehr的員工數據，回傳理論上需發新的員工數據即有無明顯bug(工作型態與離職日期對不起來)
+	async getCandPaidEmployees( 
 		func: FunctionsEnumType, // 要執行的功能
 		period_id: number // 期間
 	): Promise<PaidEmployee[]> {
@@ -397,6 +398,7 @@ export class SyncService {
 	}
 
 	// Stage 2
+	// 比較salary和ehr的基本資料
 	async checkEmployeeData(
 		func: FunctionsEnumType,
 		period_id: number
@@ -619,13 +621,13 @@ export class SyncService {
 	}
 
 	// Stage 3
-	// 獲取需支付員工的函數
+	// 獲取本期需發薪員工的函數
 	async getPaidEmps(
 		func: FunctionsEnumType,
 		period_id: number
 	): Promise<EmployeeDataDecType[]> {
 		if (func == FunctionsEnum.Enum.month_salary) {
-			// 定義需支付的員工狀態列表
+			// 定義需發薪的員工狀態列表
 			// TODO
 			const paid_status: WorkStatusEnumType[] = [
 				WorkStatusEnum.Values.RegularEmployee,
