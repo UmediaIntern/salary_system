@@ -57,7 +57,7 @@ import {
 } from "../types/salary_income_tax";
 import { IncomeTaxSettingService } from "~/server/service/income_tax_setting_service";
 import { createIncomeTaxSettingAPI } from "../types/income_tax_setting_type";
-import { allowanceRangeFE } from "../types/allowance_range_type";
+import { allowanceRangeFE, createAllowanceRangeAPI } from "../types/allowance_range_type";
 import { AllowanceRangeService } from "~/server/service/allowance_range_service";
 
 export const parametersRouter = createTRPCRouter({
@@ -936,5 +936,15 @@ export const parametersRouter = createTRPCRouter({
 			}));
 
 			return allowanceRangeFE;
+		}),
+	// MARK: Table[津貼範圍設定]
+
+	createAllowanceRange: publicProcedure
+		.input(createAllowanceRangeAPI)
+		.mutation(async ({ input }) => {
+			const allowanceRangeService = container.resolve(
+				AllowanceRangeService
+			);
+			return await allowanceRangeService.createAllowanceRange({...input,end_date: null});
 		}),
 });

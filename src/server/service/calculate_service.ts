@@ -776,7 +776,7 @@ export class CalculateService {
 		}
 		return -1;
 	}
-	//MARK: 薪資所得稅 (缺表)
+	//MARK: 薪資所得稅 
 	async getSalaryIncomeTax(
 		employee_data: EmployeeDataDecType,
 		issue_date: string,
