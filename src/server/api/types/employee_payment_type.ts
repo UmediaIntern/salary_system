@@ -78,12 +78,21 @@ export const employeePaymentFE = employeePaymentBase
 	.merge(empData)
 	.merge(dateMetaFE)
 	.merge(func);
+const RangeStatus: z.ZodType<{ isInRange: boolean; isModified: boolean }> = z.object({
+	isInRange: z.boolean(),
+	isModified: z.boolean(),
+});
 
 export const employeePaymentWithInfoFE = employeePaymentFE.merge(
 	z.object({
 		info: z.object({
 			isPositionModified: z.boolean(),
 			isPositionTypeModified: z.boolean(),
+			supervisor: RangeStatus,
+			occupational:RangeStatus,
+			longService:RangeStatus,
+			subsidy:RangeStatus,
+			food:RangeStatus,
 		}),
 	})
 );

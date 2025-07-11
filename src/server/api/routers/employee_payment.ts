@@ -25,6 +25,9 @@ import { EmployeeDataService } from "~/server/service/employee_data_service";
 import { SyncService } from "~/server/service/sync_service";
 import { FunctionsEnum } from "../types/functions_enum";
 import { EHRService } from "~/server/service/ehr_service";
+import { allowanceTypeEnum } from "../types/allowance_type_enum";
+import { Allowance } from "~/server/database/entity/UMEDIA/allowance";
+import { AllowanceRangeService } from "~/server/service/allowance_range_service";
 
 export const employeePaymentRouter = createTRPCRouter({
 	getCurrentEmployeePayment: userProcedure
@@ -72,6 +75,13 @@ export const employeePaymentRouter = createTRPCRouter({
 			const previous_period_id = await ehrService.getPreviousPeriodId(
 				period_id
 			);
+			const allowance_range_service = container.resolve(
+				AllowanceRangeService
+			);
+			const cur_allowance_range =
+				await allowance_range_service.getCurrentAllowanceRange(
+					period_id
+				);
 
 			const employeePaymentService = container.resolve(
 				EmployeePaymentService
@@ -80,7 +90,10 @@ export const employeePaymentRouter = createTRPCRouter({
 				await employeePaymentService.getCurrentEmployeePayment(
 					period_id
 				);
-
+			const previousEmployeePaymentFE: EmployeePaymentFEType[] =
+				await employeePaymentService.getCurrentEmployeePayment(
+					previous_period_id
+				);
 			const employeeDataService = container.resolve(EmployeeDataService);
 			const employeeData =
 				await employeeDataService.getAllEmployeeDataByPeriod(
@@ -104,6 +117,9 @@ export const employeePaymentRouter = createTRPCRouter({
 			const employeePaymentWithInfos: EmployeePaymentWithInfoFEType[] =
 				[];
 			for (const employeePayment of employeePaymentFE) {
+				const emp_data = employeeData.find(
+					(emp) => emp.emp_no == employeePayment.emp_no
+				)!;
 				const emp_diff = differences.find(
 					(diff) =>
 						diff.emp_no.salary_value == employeePayment.emp_no ||
@@ -122,12 +138,103 @@ export const employeePaymentRouter = createTRPCRouter({
 							(cmp) => cmp.key == "position_type"
 						)?.is_different ?? false;
 				}
+				// Compare with previous period's payment to determine isModified
+				let isSupervisorInRange =
+					await allowance_range_service.checkAllowanceInRange(
+						cur_allowance_range,
+						emp_data,
+						allowanceTypeEnum.Enum.supervisor_allowance,
+						employeePayment.supervisor_allowance
+					);
+				let isOccupationalInRange =
+					await allowance_range_service.checkAllowanceInRange(
+						cur_allowance_range,
+						emp_data,
+						allowanceTypeEnum.Enum.occupational_allowance,
+						employeePayment.occupational_allowance
+					);
+				let isLongServiceInRange =
+					await allowance_range_service.checkAllowanceInRange(
+						cur_allowance_range,
+						emp_data,
+						allowanceTypeEnum.Enum.long_service_allowance,
+						employeePayment.long_service_allowance
+					);
+				let isSubsidyInRange =
+					await allowance_range_service.checkAllowanceInRange(
+						cur_allowance_range,
+						emp_data,
+						allowanceTypeEnum.Enum.subsidy_allowance,
+						employeePayment.subsidy_allowance
+					);
+				let isFoodInRange =
+					await allowance_range_service.checkAllowanceInRange(
+						cur_allowance_range,
+						emp_data,
+						allowanceTypeEnum.Enum.food_allowance,
+						employeePayment.food_allowance
+					);
 
+				let isSupervisorModified = false;
+				let isOccupationalModified = false;
+				let isLongServiceModified = false;
+				let isSubsidyModified = false;
+				let isFoodModified = false;
+
+				const previousEmployeePayment = previousEmployeePaymentFE.find(
+					(prevEmp) => prevEmp.emp_no == employeePayment.emp_no
+				);
+				if (previousEmployeePayment) {
+					isSupervisorModified =
+						employeePayment.supervisor_allowance !=
+						previousEmployeePayment.supervisor_allowance;
+					isOccupationalModified =
+						employeePayment.occupational_allowance !=
+						previousEmployeePayment.occupational_allowance;
+					isLongServiceModified =
+						employeePayment.long_service_allowance !=
+						previousEmployeePayment.long_service_allowance;
+					isSubsidyModified =
+						employeePayment.subsidy_allowance !=
+						previousEmployeePayment.subsidy_allowance;
+					isFoodModified =
+						employeePayment.food_allowance !=
+						previousEmployeePayment.food_allowance;
+				} else {
+					isSupervisorModified =
+						employeePayment.supervisor_allowance != 0;
+					isOccupationalModified =
+						employeePayment.occupational_allowance != 0;
+					isLongServiceModified =
+						employeePayment.long_service_allowance != 0;
+					isSubsidyModified = employeePayment.subsidy_allowance != 0;
+					isFoodModified = employeePayment.food_allowance != 0;
+				}
 				employeePaymentWithInfos.push({
 					...employeePayment,
 					info: {
 						isPositionModified,
 						isPositionTypeModified,
+						supervisor: {
+							isInRange: isSupervisorInRange,
+							isModified: isSupervisorModified,
+						},
+						occupational: {
+							isInRange: isOccupationalInRange,
+							isModified: isOccupationalModified,
+						},
+						longService: {
+							isInRange: isLongServiceInRange,
+							isModified: isLongServiceModified,
+						},
+						subsidy: {
+							isInRange: isSubsidyInRange,
+							isModified: isSubsidyModified,
+						},
+						food: {
+							isInRange: isFoodInRange,
+							isModified: isFoodModified,
+						},
 					},
 				});
 			}

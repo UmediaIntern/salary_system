@@ -1,7 +1,7 @@
 import { container, injectable } from "tsyringe";
 import { AllowanceRangeMapper } from "../database/mapper/allowance_range_mapper";
 import { createAllowanceRangeService } from "../api/types/allowance_range_type";
-import { AllowanceRange } from "../database/entity/SALARY/allowance_range";
+import { AllowanceRange, AllowanceRangeDecType } from "../database/entity/SALARY/allowance_range";
 import { z } from "zod";
 import { AllowanceTypeEnumType } from "../api/types/allowance_type_enum";
 import { EmployeeDataDecType } from "../database/entity/SALARY/employee_data";
@@ -34,7 +34,7 @@ export class AllowanceRangeService {
 			db_newData,
 		)
 	}
-	async getCurrentAllowanceRange(period_id: number) {
+	async getCurrentAllowanceRange(period_id: number): Promise<AllowanceRangeDecType[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
 		const current_date_string = dateToString.parse(period.end_date);
 		const allowance_range = await AllowanceRange.findAll({
@@ -52,7 +52,8 @@ export class AllowanceRangeService {
 			},
 			raw: true,
 		});
-		return await this.allowanceRangeMapper.decodeList(allowance_range);
+		const allowance_range_list = await this.allowanceRangeMapper.decodeList(allowance_range);
+		return allowance_range_list;
 	}
 	// async getMatchedAllowance(period_id: number,employee_data: EmployeeDataDecType,allowance_type:AllowanceTypeEnumType) {
 	// 	const period = await this.ehrService.getPeriodById(period_id);
@@ -76,14 +77,14 @@ export class AllowanceRangeService {
 	// 	});
 	// 	return await this.allowanceRangeMapper.decode(allowance_range);
 	// }
-	// async checkAllowanceInRange(period_id: number,employee_data: EmployeeDataDecType,allowance_type:AllowanceTypeEnumType,amount:number) {
-	// 	const allowance_range = await this.getMatchedAllowance(period_id,employee_data,allowance_type);
-	// 	if (allowance_range == null) {
-	// 		return false;
-	// 	}
-	// 	if (allowance_range.allowance_start <= amount && allowance_range.allowance_end >= amount) {
-	// 		return true;
-	// 	}
-	// 	return false;
-	// }
+	async checkAllowanceInRange(cur_allowance_range: AllowanceRangeDecType[],employee_data: EmployeeDataDecType,allowance_type:AllowanceTypeEnumType,amount:number) {
+		const allowance_range = cur_allowance_range.find((v) => v.allowance_type === allowance_type && v.position === employee_data.position && v.position_type === employee_data.position_type);
+		if (allowance_range == undefined) {
+			return false;
+		}
+		if (allowance_range.allowance_start <= amount && allowance_range.allowance_end >= amount) {
+			return true;
+		}
+		return false;
+	}
 }

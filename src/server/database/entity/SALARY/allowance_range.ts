@@ -19,10 +19,11 @@ import {
 	stringToDate,
 	stringToDateNullable,
 } from "~/server/api/types/z_utils";
-import { allowanceTypeEnum } from "~/server/api/types/allowance_type_enum";
+import { AllowanceTypeEnumType, allowanceTypeEnum } from "~/server/api/types/allowance_type_enum";
 
 const dbAllowanceRange = z.object({
-  position: z.number(),
+	//TODO:可能需要加上職稱
+	position: z.number(),
 	position_type: z.string(),
 	allowance_type: allowanceTypeEnum,
 	allowance_start: z.number(),
@@ -67,7 +68,7 @@ export class AllowanceRange extends Model<
 	declare id: CreationOptional<number>;
 	declare position: number;
 	declare position_type: string;
-	declare allowance_type: string;
+	declare allowance_type: AllowanceTypeEnumType;
 	declare allowance_start: number;
 	declare allowance_end: number;
 	declare start_date: string;
@@ -91,7 +92,7 @@ export function initAllowanceRange(sequelize: Sequelize) {
 				autoIncrement: true,
 				primaryKey: true,
 			},
-      position: {
+			position: {
 				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 			},
