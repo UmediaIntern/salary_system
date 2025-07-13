@@ -19,7 +19,6 @@ import {
 import { Button } from "~/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
-import { getSchema } from "../../schemas/get_schemas";
 import { modeDescription } from "~/lib/utils/helper_function";
 import { ParameterExcelDownloader } from "../excel_download/parameter_excel_downloader";
 import { ParameterExcelUpload } from "../excel_upload/parameter_excel_uplaod";
@@ -27,6 +26,7 @@ import { ParameterForm } from "./parameter_form";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
 import { useDataTableContext } from "../context/data_table_context_provider";
+import { getSchema } from "../../schemas/get_schemas";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;

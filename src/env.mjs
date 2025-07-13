@@ -23,12 +23,13 @@ export const env = createEnv({
 		ORACLE_LIB_RELATIVE: z.preprocess((str) => str === "true", z.boolean()),
 		ORACLE_LIB_PATH: z
 			.string()
+			.optional()
 			.transform((str) =>
-				process.env.ORACLE_LIB_RELATIVE && process.env.HOME
+				process.env.ORACLE_LIB_RELATIVE && process.env.HOME && str
 					? process.env.HOME + str
 					: str
 			)
-			.pipe(z.string()),
+			.pipe(z.string().optional()),
 	},
 
 	/**

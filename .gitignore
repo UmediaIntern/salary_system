@@ -43,3 +43,5 @@ yarn-error.log*
 
 /docs
 .qodo
+
+/instantclient_12_1

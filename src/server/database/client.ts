@@ -43,7 +43,7 @@ const ehrDatabaseConfig: DatabaseConfig = {
 @singleton()
 export class Database {
 	constructor() {
-		initOracleClient({libDir: env.ORACLE_LIB_PATH});
+		initOracleClient(env.ORACLE_LIB_PATH ? {libDir: env.ORACLE_LIB_PATH} : {});
 		this.connection = this.initDatabaseConnection(remoteDatabaseConfig);
 		this.ehr_connection = this.initDatabaseConnection(ehrDatabaseConfig);
 	}
