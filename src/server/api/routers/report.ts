@@ -101,4 +101,43 @@ export const reportRouter = createTRPCRouter({
             }
             return [{ name: "HIDetailsOut", data: HIDetailsOut.map(e => roundProperties(e, 2)) }];
         }),
+    getOIInsurance: publicProcedure
+        .input(z.object({ period_id: z.number(), pay_type: PayTypeEnum }))
+        .query(async ({ input }) => {
+            const reportService = container.resolve(ReportService);
+            const OIInsurance = await reportService.getOccupationalInjuryInsurance(
+                input.period_id,
+                input.pay_type
+            );
+            if (OIInsurance == null) {
+                throw new BaseResponseError("Transactions does not exist");
+            }
+            return [{ name: "OIInsurance", data: OIInsurance.map(e => roundProperties(e, 2)) }];
+        }),
+    getTotal: publicProcedure
+        .input(z.object({ period_id: z.number(), pay_type: PayTypeEnum }))
+        .query(async ({ input }) => {
+            const reportService = container.resolve(ReportService);
+            const total = await reportService.getTotal(
+                input.period_id,
+                input.pay_type
+            );
+            if (total == null) {
+                throw new BaseResponseError("Transactions does not exist");
+            }
+            return [{ name: "work_type", data: total.map(e => roundProperties(e, 2)) }];
+        }),
+    getDepartmentTotal: publicProcedure
+        .input(z.object({ period_id: z.number(), pay_type: PayTypeEnum }))
+        .query(async ({ input }) => {
+            const reportService = container.resolve(ReportService);
+            const department_total = await reportService.getDepartmentTotal(
+                input.period_id,
+                input.pay_type
+            );
+            if (department_total == null) {
+                throw new BaseResponseError("Transactions does not exist");
+            }
+            return [{ name: "department+work_type", data: department_total.map(e => roundProperties(e, 2)) }];
+        })
 });

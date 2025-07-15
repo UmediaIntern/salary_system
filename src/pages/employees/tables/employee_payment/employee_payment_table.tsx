@@ -42,6 +42,32 @@ const columnNames: PaymentRowItemKey[] = [
 	"end_date",
 ];
 
+function WrappedColumnCellComponent({
+	error_flag,
+	warning_flag,
+	data
+}: {
+	error_flag: boolean;
+	warning_flag: boolean;
+	data: string | number;
+}) {
+	return (
+		<ColumnCellComponent
+			className={cn(
+				"flex justify-center",
+				error_flag ? "text-destructive" : warning_flag ? "text-yellow-400" : ""
+			)}
+			>
+			<div className="flex justify-center items-center gap-2">
+				{error_flag && <OctagonX />}
+				{warning_flag && <OctagonAlert />}
+				{data} {/* {row.original.supervisor_allowance} */}
+				&nbsp;&nbsp;&nbsp;
+			</div>
+		</ColumnCellComponent>
+	);
+}
+
 export const employee_payment_columns = ({
 	t,
 }: {
@@ -126,23 +152,8 @@ export const employee_payment_columns = ({
 			positionOrTypeChange &&
 				row.original.info.supervisor.isInRange &&
 				!row.original.info.supervisor.isModified;
-			return (
-				<ColumnCellComponent
-					className={cn(
-						error_flag
-							? "text-destructive"
-							: warning_flag
-							? "text-yellow-400"
-							: ""
-					)}
-				>
-					<div className="flex items-center gap-2">
-						{error_flag && <OctagonX />}
-						{warning_flag && <OctagonAlert />}
-						{row.original.supervisor_allowance}
-					</div>
-				</ColumnCellComponent>
-			);
+			const data = row.original.supervisor_allowance
+			return WrappedColumnCellComponent({ error_flag, warning_flag, data });
 		},
 	}),
 	columnHelper.accessor("food_allowance", {
@@ -156,30 +167,15 @@ export const employee_payment_columns = ({
 		cell: ({ row }) => {
 			const positionOrTypeChange = row.original.info.isPositionModified || row.original.info.isPositionTypeModified
 			const error_flag =
-			positionOrTypeChange &&
-				!row.original.info.supervisor.isInRange &&
-				!row.original.info.supervisor.isModified;
-			const warning_flag =
-			positionOrTypeChange &&
-				row.original.info.supervisor.isInRange &&
-				!row.original.info.supervisor.isModified;
-			return (
-				<ColumnCellComponent
-					className={cn(
-						error_flag
-							? "text-destructive"
-							: warning_flag
-							? "text-yellow-400"
-							: ""
-					)}
-				>
-					<div className="flex items-center gap-2">
-						{error_flag && <OctagonX />}
-						{warning_flag && <OctagonAlert />}
-						{row.original.food_allowance}
-					</div>
-				</ColumnCellComponent>
-			);
+				positionOrTypeChange &&
+					!row.original.info.supervisor.isInRange &&
+					!row.original.info.supervisor.isModified;
+			const warning_flag = 
+				positionOrTypeChange &&
+					row.original.info.supervisor.isInRange &&
+					!row.original.info.supervisor.isModified;
+			const data = row.original.food_allowance
+			return WrappedColumnCellComponent({ error_flag, warning_flag, data });
 		},
 	}),
 	columnHelper.accessor("occupational_allowance", {
@@ -193,30 +189,15 @@ export const employee_payment_columns = ({
 		cell: ({ row }) => {
 			const positionOrTypeChange = row.original.info.isPositionModified || row.original.info.isPositionTypeModified
 			const error_flag =
-			positionOrTypeChange &&
-				!row.original.info.supervisor.isInRange &&
-				!row.original.info.supervisor.isModified;
+				positionOrTypeChange &&
+					!row.original.info.supervisor.isInRange &&
+					!row.original.info.supervisor.isModified;
 			const warning_flag =
-			positionOrTypeChange &&
-				row.original.info.supervisor.isInRange &&
-				!row.original.info.supervisor.isModified;
-			return (
-				<ColumnCellComponent
-					className={cn(
-						error_flag
-							? "text-destructive"
-							: warning_flag
-							? "text-yellow-400"
-							: ""
-					)}
-				>
-					<div className="flex items-center gap-2">
-						{error_flag && <OctagonX />}
-						{warning_flag && <OctagonAlert />}
-						{row.original.occupational_allowance}
-					</div>
-				</ColumnCellComponent>
-			);
+				positionOrTypeChange &&
+					row.original.info.supervisor.isInRange &&
+					!row.original.info.supervisor.isModified;
+			const data = row.original.occupational_allowance
+			return WrappedColumnCellComponent({ error_flag, warning_flag, data });
 		},
 	}),
 	columnHelper.accessor("subsidy_allowance", {
@@ -237,23 +218,8 @@ export const employee_payment_columns = ({
 			positionOrTypeChange &&
 				row.original.info.supervisor.isInRange &&
 				!row.original.info.supervisor.isModified;
-			return (
-				<ColumnCellComponent
-					className={cn(
-						error_flag
-							? "text-destructive"
-							: warning_flag
-							? "text-yellow-400"
-							: ""
-					)}
-				>
-					<div className="flex items-center gap-2">
-						{error_flag && <OctagonX />}
-						{warning_flag && <OctagonAlert />}
-						{row.original.subsidy_allowance}
-					</div>
-				</ColumnCellComponent>
-			);
+			const data = row.original.subsidy_allowance
+			return WrappedColumnCellComponent({ error_flag, warning_flag, data });
 		},
 	}),
 	columnHelper.accessor("long_service_allowance", {
@@ -274,23 +240,8 @@ export const employee_payment_columns = ({
 			positionOrTypeChange &&
 				row.original.info.supervisor.isInRange &&
 				!row.original.info.supervisor.isModified;
-			return (
-				<ColumnCellComponent
-					className={cn(
-						error_flag
-							? "text-destructive"
-							: warning_flag
-							? "text-yellow-400"
-							: ""
-					)}
-				>
-					<div className="flex items-center gap-2">
-						{error_flag && <OctagonX />}
-						{warning_flag && <OctagonAlert />}
-						{row.original.long_service_allowance}
-					</div>
-				</ColumnCellComponent>
-			);
+			const data = row.original.long_service_allowance
+			return WrappedColumnCellComponent({ error_flag, warning_flag, data });
 		},
 	}),
 	...columnNames.map((key) =>

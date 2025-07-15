@@ -12,6 +12,7 @@
   "settings": "設定",
 	"roles": "身份",
 	"report": "報表",
+  "data_export": "資料匯出",
   "calendar": "日曆",
   "import": "匯入"
 }

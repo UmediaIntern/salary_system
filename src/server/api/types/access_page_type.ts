@@ -22,6 +22,7 @@ export const accessiblePages = z.object({
 	settings: z.boolean().default(true),
 	roles: z.boolean().default(false),
 	report: z.boolean().default(false),
+	data_export: z.boolean().default(false),
 });
 export type AccessiblePages = z.infer<typeof accessiblePages>;
 
