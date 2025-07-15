@@ -8,6 +8,7 @@ import "~/styles/globals.css";
 import { RootLayout } from "~/components/layout/root_layout";
 import { appWithTranslation } from 'next-i18next'
 import nextI18nConfig from '../../next-i18next.config.mjs';
+import '@xyflow/react/dist/style.css';
 
 export type NextPageWithLayout<P = Record<string, never>, IP = P> = NextPage<
 	P,
