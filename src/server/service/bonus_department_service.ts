@@ -67,17 +67,22 @@ export class BonusDepartmentService {
 			},
 		});
 		if (list.length == 0) return 1;
-		const correct_department = department.split("\r")[0]?.split("\n")[0];
-		const multiplier = (
-			await BonusDepartment.findOne({
-				where: {
-					period_id: period_id,
-					bonus_type: bonus_type,
-					department: correct_department,
-					disabled: false,
-				},
-			})
-		)?.multiplier;
+		const correct_department = department.split("\r")[0]?.split("\n")[0]!;
+		const dict = list.reduce((acc:{[key:string]:number}, item) => {
+			acc[item.department] = item.multiplier;
+			return acc;
+		},{})
+		const multiplier = dict[correct_department];
+		// const multiplier = (
+		// 	await BonusDepartment.findOne({
+		// 		where: {
+		// 			period_id: period_id,
+		// 			bonus_type: bonus_type,
+		// 			department: correct_department,
+		// 			disabled: false,
+		// 		},
+		// 	})
+		// )?.multiplier;
 		return multiplier ?? 0;
 	}
 

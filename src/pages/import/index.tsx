@@ -114,19 +114,20 @@ export function ImportCarousel() {
       });
 
       // TODO: temporary
-      const result = importFields.safeParse(obj);
-      if (!result.success) {
-        console.log(result.error.message);
-        console.log(row, i, obj);
-        i += 1;
-        return;
-      }
-      if (!result.data) {
-        console.log("No data");
-        i += 1;
-        return;
-      }
-      transactionRows.push(result.data);
+      // const result = importFields.safeParse(obj);
+      // if (!result.success) {
+      //   console.log(result.error.message);
+      //   console.log(row, i, obj);
+      //   i += 1;
+      //   return;
+      // }
+      // if (!result.data) {
+      //   console.log("No data");
+      //   i += 1;
+      //   return;
+      // }
+      // transactionRows.push(result.data);
+      transactionRows.push(obj);
     }
     setExcelData(transactionRows);
     console.log("trans", transactionRows);

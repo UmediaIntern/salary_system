@@ -18,11 +18,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-	ChevronDown,
-	ChevronLeft,
-	ChevronRight,
-	ChevronsLeft,
-	ChevronsRight,
 	CircleCheck,
 	EllipsisVertical,
 	GripVertical,
@@ -59,13 +54,6 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "~/components/ui/select";
-import {
 	Table,
 	TableBody,
 	TableCell,
@@ -85,6 +73,11 @@ import { DataTablePagination } from "~/components/data_table/data_table_paginati
 import { createColumnHelper } from "@tanstack/react-table";
 import { I18nType } from "~/lib/utils/i18n_type";
 import { useTranslation } from "react-i18next";
+import {
+	Drawer,
+	DrawerTrigger
+} from "~/components/ui/drawer";
+import { ExcelOutputGraph } from "./excel_output_graph";
 
 const schema = importFields;
 
@@ -300,7 +293,7 @@ export function ImportPreview() {
 		[data]
 	);
 
-  const columns = useMemo(() => columnsCreater(t), [t]);
+	const columns = useMemo(() => columnsCreater(t), [t]);
 
 	const table = useReactTable({
 		data,
@@ -340,70 +333,76 @@ export function ImportPreview() {
 
 	return (
 		<div className="flex h-full w-full flex-col px-1">
-			<div className="flex items-center justify-end px-4 py-1 lg:px-6">
-				<DataTableViewOptions table={table} />
-			</div>
-			<div className="h-0 w-full flex-grow overflow-y-scroll rounded-lg border">
-				<DndContext
-					collisionDetection={closestCenter}
-					modifiers={[restrictToVerticalAxis]}
-					onDragEnd={handleDragEnd}
-					sensors={sensors}
-					id={sortableId}
-				>
-					<Table>
-						<TableHeader className="sticky top-0 z-10 w-full bg-muted p-1">
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow
-									key={headerGroup.id}
-									className="w-full"
-								>
-									{headerGroup.headers.map((header) => {
-										return (
-											<TableHead
-												key={header.id}
-												colSpan={header.colSpan}
-												className="h-10"
-											>
-												{header.isPlaceholder
-													? null
-													: flexRender(
+			<Drawer handleOnly>
+				<div className="flex items-center justify-end gap-2 py-1">
+					<DataTableViewOptions table={table} />
+					<DrawerTrigger asChild>
+						<Button className="h-8"> Open </Button>
+					</DrawerTrigger>
+				</div>
+				<div className="h-0 w-full flex-grow overflow-y-scroll rounded-lg border">
+					<DndContext
+						collisionDetection={closestCenter}
+						modifiers={[restrictToVerticalAxis]}
+						onDragEnd={handleDragEnd}
+						sensors={sensors}
+						id={sortableId}
+					>
+						<Table>
+							<TableHeader className="sticky top-0 z-10 w-full bg-muted p-1">
+								{table.getHeaderGroups().map((headerGroup) => (
+									<TableRow
+										key={headerGroup.id}
+										className="w-full"
+									>
+										{headerGroup.headers.map((header) => {
+											return (
+												<TableHead
+													key={header.id}
+													colSpan={header.colSpan}
+													className="h-10"
+												>
+													{header.isPlaceholder
+														? null
+														: flexRender(
 															header.column
 																.columnDef
 																.header,
 															header.getContext()
-													  )}
-											</TableHead>
-										);
-									})}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody className="**:data-[slot=table-cell]:first:w-8">
-							{table.getRowModel().rows?.length ? (
-								<SortableContext
-									items={dataIds}
-									strategy={verticalListSortingStrategy}
-								>
-									{table.getRowModel().rows.map((row) => (
-										<DraggableRow key={row.id} row={row} />
-									))}
-								</SortableContext>
-							) : (
-								<TableRow>
-									<TableCell
-										colSpan={columnsCreater.length}
-										className="h-24 text-center"
+														)}
+												</TableHead>
+											);
+										})}
+									</TableRow>
+								))}
+							</TableHeader>
+							<TableBody className="**:data-[slot=table-cell]:first:w-8">
+								{table.getRowModel().rows?.length ? (
+									<SortableContext
+										items={dataIds}
+										strategy={verticalListSortingStrategy}
 									>
-										No results.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</DndContext>
-			</div>
-			<DataTablePagination table={table} className="py-1" />
+										{table.getRowModel().rows.map((row) => (
+											<DraggableRow key={row.id} row={row} />
+										))}
+									</SortableContext>
+								) : (
+									<TableRow>
+										<TableCell
+											colSpan={columnsCreater.length}
+											className="h-24 text-center"
+										>
+											No results.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</DndContext>
+				</div>
+				<DataTablePagination table={table} className="py-1" />
+				<ExcelOutputGraph />
+			</Drawer>
 		</div>
 	);
 }

@@ -34,6 +34,7 @@ import { WorkStatusEnum } from "../api/types/work_status_enum";
 import { EmployeeTrustService } from "./employee_trust_service";
 import { EmployeeTrustFEType } from "../api/types/employee_trust_type";
 import { stringToDate } from "../api/types/z_utils";
+import { EmployeeBonusDecType } from "../database/entity/SALARY/employee_bonus";
 
 const FOREIGN = "外籍勞工";
 const PROFESSOR = "顧問";
@@ -776,7 +777,7 @@ export class CalculateService {
 		}
 		return -1;
 	}
-	//MARK: 薪資所得稅 
+	//MARK: 薪資所得稅
 	async getSalaryIncomeTax(
 		employee_data: EmployeeDataDecType,
 		issue_date: string,
@@ -1897,22 +1898,25 @@ export class CalculateService {
 		insurance_rate_setting: InsuranceRateSettingDecType,
 		employee_payment: EmployeePaymentFEType,
 		accumulated_bonus: number,
-		accumulated_trust: number
+		accumulated_trust: number,
+		emp_trust_reserve: number,
+		org_trust_reserve: number,
+		employee_bonus_list: EmployeeBonusDecType[]
 	): Promise<number> {
-		const employee_trust =
-			await this.employeeTrustService.getCurrentEmployeeTrustFEByEmpNo(
-				emp_no,
-				period_id
-			);
-		const employee_bonus_list =
-			await this.employeeBonusService.getEmployeeBonusByEmpNo(
-				period_id,
-				emp_no
-			);
+		// const employee_trust =
+		// 	await this.employeeTrustService.getCurrentEmployeeTrustFEByEmpNo(
+		// 		emp_no,
+		// 		period_id
+		// 	);
+		// const employee_bonus_list =
+		// 	await this.employeeBonusService.getEmployeeBonusByEmpNo(
+		// 		period_id,
+		// 		emp_no
+		// 	);
 		if (pay_type === PayTypeEnum.Enum.month_salary) {
 			const new_all =
-				employee_trust.org_trust_reserve +
-				employee_trust.org_special_trust_incent +
+				org_trust_reserve +
+				emp_trust_reserve +
 				(employee_bonus_list.filter(
 					(e) => e.bonus_type === bonusTypeEnum.Enum.project_bonus
 				)[0]?.app_amount ?? 0);
@@ -1947,8 +1951,8 @@ export class CalculateService {
 			const accumulated_all =
 				accumulated_bonus +
 				accumulated_trust +
-				employee_trust.org_trust_reserve +
-				employee_trust.org_special_trust_incent;
+				org_trust_reserve +
+				emp_trust_reserve;
 			const v2_h_i_rate = insurance_rate_setting.v2_h_i_supp_pay_rate;
 			const v2_h_i_multiplier = insurance_rate_setting.v2_h_i_multiplier;
 			const h_i = employee_payment?.h_i ?? 0;
