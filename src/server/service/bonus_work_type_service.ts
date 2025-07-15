@@ -88,18 +88,11 @@ export class BonusWorkTypeService {
 			},
 		});
 		if (list.length == 0) return 1;
-		const multiplier = (
-			await BonusWorkType.findOne(
-				{
-					where: {
-						period_id: period_id,
-						bonus_type: bonus_type,
-						work_type: work_type,
-						disabled: false,
-					},
-				}
-			)
-		)?.multiplier;
+		const dict = list.reduce((acc:{[key:string]:number}, item) => {
+			acc[item.work_type] = item.multiplier;
+			return acc;
+		  }, {});
+		const multiplier = dict[work_type];
 		return multiplier ?? 0;
 	}
 	async getAllBonusWorkType(): Promise<BonusWorkType[] | null> {

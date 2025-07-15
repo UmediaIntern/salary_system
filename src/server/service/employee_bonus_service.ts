@@ -54,40 +54,41 @@ export class EmployeeBonusService {
 		bonus_type: BonusTypeEnumType,
 		emp_no_list: string[]
 	) {
-		const employeeBonus = await this.getAllEmployeeBonusByPeriodIdByBonusType(
-			period_id,
-			bonus_type
+		console.log("//called createEmployeeBonusByEmpNoList//");
+		const existingBonuses = new Set(
+			(await this.getAllEmployeeBonusByPeriodIdByBonusType(period_id, bonus_type))
+				.map((e) => e.emp_no)
 		);
-		console.log("\n\n\nCalled Create By List\n\n\n");
-		console.log(emp_no_list);
-		const promises = emp_no_list.map(async (emp_no) => {
-			if (employeeBonus.find((e) => e.emp_no === emp_no)) {
-				return;
-			}
-			console.log(`\n\n\n\ncreate${emp_no}`);
-			await this.createEmployeeBonus({
-				period_id: period_id,
-				bonus_type: bonus_type,
-				emp_no: emp_no,
-				special_multiplier: 0,
-				multiplier: 0,
-				fixed_amount: 0,
-				bud_effective_salary: 0,
-				bud_amount: 0,
-				sup_performance_level: null,
-				sup_effective_salary: null,
-				sup_amount: null,
-				app_performance_level: null,
-				app_effective_salary: null,
-				app_amount: null,
-				currency_foreign: null,
-				exchange_rate: null,
-				currency_amount_foreign: null,
-				currency_amount_taiwan: null,
-			});
-		});
-
-		await Promise.all(promises);
+		console.log(existingBonuses);
+		console.log(emp_no_list
+			.filter((emp_no) => !existingBonuses.has(emp_no)));
+		await Promise.all(
+			emp_no_list
+				.filter((emp_no) => !existingBonuses.has(emp_no))
+				.map((emp_no) =>
+					this.createEmployeeBonus({
+						period_id,
+						bonus_type,
+						emp_no,
+						special_multiplier: 0,
+						multiplier: 0,
+						fixed_amount: 0,
+						bud_effective_salary: 0,
+						bud_amount: 0,
+						sup_performance_level: null,
+						sup_effective_salary: null,
+						sup_amount: null,
+						app_performance_level: null,
+						app_effective_salary: null,
+						app_amount: null,
+						currency_foreign: null,
+						exchange_rate: null,
+						currency_amount_foreign: null,
+						currency_amount_taiwan: null,
+					})
+				)
+		);
+		console.log("//end createEmployeeBonusByEmpNoList//");
 	}
 
 	async getEmployeeBonusById(id: number) {
@@ -244,6 +245,7 @@ export class EmployeeBonusService {
 		period_id: number,
 		bonus_type: BonusTypeEnumType
 	) {
+		console.log("\\n\n\ncalled initCandidateEmployeeBonus\n\n\n");
 		const all_emp_bonus_list = await this.getAllEmployeeBonusByPeriodIdByBonusType(
 			period_id,
 			bonus_type
@@ -310,7 +312,6 @@ export class EmployeeBonusService {
 				});
 			}
 		});
-
 		await Promise.all(promises);
 	}
 
