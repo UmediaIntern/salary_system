@@ -36,4 +36,17 @@ export default defineNextConfig({
 	 * @see https://github.com/vercel/next.js/issues/41980
 	 */
 	i18n: config.i18n,
+
+	// ✅ 加入 Webpack loader 處理字型
+	webpack(config) {
+		config.module.rules.push({
+			test: /\.(ttf|otf|woff2?|eot)$/,
+			type: 'asset/resource',
+			generator: {
+				filename: 'static/fonts/[name][ext]',
+			},
+		});
+		return config;
+	},
 });
+
