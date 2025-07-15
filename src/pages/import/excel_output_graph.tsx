@@ -1,5 +1,5 @@
-import { ReactFlow, Background, Controls, addEdge, ReactFlowProvider, useNodesState, useEdgesState, useReactFlow } from '@xyflow/react';
-import { useCallback, useRef } from 'react';
+import { ReactFlow, Background, Controls, addEdge, ReactFlowProvider, useNodesState, useEdgesState, useReactFlow, Edge, Node } from '@xyflow/react';
+import { DragEventHandler, useCallback, useRef } from 'react';
 import { Button } from '~/components/ui/button';
 
 import {
@@ -62,22 +62,22 @@ const getId = () => `dndnode_${id++}`;
 
 function GrpahViewport() {
 	const reactFlowWrapper = useRef(null);
-	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+	const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
+	const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 	const { screenToFlowPosition } = useReactFlow();
-	const [type] = useDnD();
+	const { type } = useDnD();
 
 	const onConnect = useCallback(
 		(params: any) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
 		[],
 	);
 
-	const onDragOver = useCallback((event) => {
+	const onDragOver: DragEventHandler = useCallback((event) => {
 		event.preventDefault();
 		event.dataTransfer.dropEffect = 'move';
 	}, []);
 
-	const onDrop = useCallback(
+	const onDrop: DragEventHandler = useCallback(
 		(event) => {
 			event.preventDefault();
 
@@ -102,14 +102,9 @@ function GrpahViewport() {
 		[screenToFlowPosition, type],
 	);
 
-	const onDragStart = (event, nodeType) => {
-		setType(nodeType);
-		event.dataTransfer.setData('text/plain', nodeType);
-		event.dataTransfer.effectAllowed = 'move';
-	};
-
 	return (
 		<div className="w-full h-full flex flex-row">
+			<GraphSidebar />
 			<div ref={reactFlowWrapper} className='h-full grow'>
 				<ReactFlow
 					nodes={nodes}
@@ -118,7 +113,6 @@ function GrpahViewport() {
 					onEdgesChange={onEdgesChange}
 					onConnect={onConnect}
 					onDrop={onDrop}
-					onDragStart={onDragStart}
 					onDragOver={onDragOver}
 					fitView
 				>
@@ -126,7 +120,6 @@ function GrpahViewport() {
 					<Controls />
 				</ReactFlow>
 			</div>
-			<GraphSidebar />
 		</div>
 
 	)

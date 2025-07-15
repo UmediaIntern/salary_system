@@ -1,10 +1,10 @@
-import React from 'react';
+import { DragEvent } from 'react';
 import { useDnD } from './graph_sidebar_drag_context'
 
 export function GraphSidebar() {
-  const [_, setType] = useDnD();
+  const {type, setType} = useDnD();
 
-  const onDragStart = (event, nodeType) => {
+  const onDragStart = (event: DragEvent, nodeType: string) => {
     setType(nodeType);
     event.dataTransfer.effectAllowed = 'move';
   };

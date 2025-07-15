@@ -1,19 +1,28 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useState } from 'react';
 
-const DnDContext = createContext([null, (_) => {}]);
+interface DnDContextType {
+  type: string | null;
+  setType: (type: string | null) => void;
+}
 
-export const DnDProvider = ({ children }) => {
-  const [type, setType] = useState(null);
+const dndContext = createContext<DnDContextType | null>(null);
+
+export function DnDProvider({ children }: PropsWithChildren) {
+  const [type, setType] = useState<string | null>(null);
 
   return (
-    <DnDContext.Provider value={[type, setType]}>
+    <dndContext.Provider value={{ type, setType }}>
       {children}
-    </DnDContext.Provider>
+    </dndContext.Provider>
   );
 }
 
-export default DnDContext;
-
 export const useDnD = () => {
-  return useContext(DnDContext);
+  const context = useContext(dndContext);
+  if (context === null) {
+    throw new Error(
+      "useDnD must be used within a DnDProvider context"
+    );
+  }
+  return context;
 }
