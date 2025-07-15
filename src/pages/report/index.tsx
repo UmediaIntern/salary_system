@@ -49,6 +49,8 @@ import { Viewer } from "./components/viewer";
 import { ErrorComponent } from "./components/error";
 import { DownloadComponent } from "./components/download";
 import { ColumnsSelector } from "./components/columns_selector";
+import { displayData } from "~/components/synchronize/utils/display";
+import { formatDate } from "~/lib/utils/format_date";
 
 
 interface Data {key: string; value: string;}
@@ -59,6 +61,7 @@ const MyDocument = ({
 	datas: datas,
 	groupByKeys: groupByKeys,
 	check: check,
+	period_name: period_name,
 	t: t
 }: {
 	title: string
@@ -66,8 +69,12 @@ const MyDocument = ({
 	datas: Array<Array<Data>>
 	groupByKeys?: Array<string>
 	check?: boolean,
-	t: (t: string | string[]) => string
+	period_name: string,
+	t: TFunction<[string], undefined>
 }) => {
+
+	// TODO: Date, period
+
 
 	const [columnStyle, setColumnStyle] = useState(styles.column2);
 	const [PDFdata, setPDFdata] = useState(datas);
@@ -86,6 +93,10 @@ const MyDocument = ({
 		{datas.map((data) => <Page style={styles.page}>
 			<View>
                 {/* TITLE */}
+				<View style={styles.box}>
+					<Text style={styles.period}>{t("others.period")}:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{period_name}</Text>
+					<Text style={styles.printDate}>{t("TODO.print_date")}:&nbsp;{formatDate("day", new Date())}</Text>
+				</View>
 				<View style={styles.titleContainer}>
 					<Text style={styles.title}>{title}</Text>
 					{groupByKeys?.map(gk => Translate(gk)).map(k => {
@@ -196,15 +207,15 @@ const ReportHomePage: NextPageWithLayout = () => {
 	const isFetched = total_data.isFetched && department_total_data.isFetched && all_total_data.isFetched;
 
 	const TotalDocument 			= () => isFetched ? 
-		<MyDocument title={"合計"} columns={columns} groupByKeys={splitGroupByKeys(total_data!.data![0]!.name)} datas={convertDatas(total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
+		<MyDocument period_name={selectedPeriod?.period_name ?? ""} title={"合計"} columns={columns} groupByKeys={splitGroupByKeys(total_data!.data![0]!.name)} datas={convertDatas(total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
 
 	const DepartmentTotalDocument 	= () => isFetched ? 
-		<MyDocument title={"部門合計"} 	columns={columns} groupByKeys={splitGroupByKeys(department_total_data!.data![0]!.name)} datas={convertDatas(department_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
+		<MyDocument period_name={selectedPeriod?.period_name ?? ""} title={"部門合計"} 	columns={columns} groupByKeys={splitGroupByKeys(department_total_data!.data![0]!.name)} datas={convertDatas(department_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
 
 	const AllTotalDocument          = () => isFetched ?
-		<MyDocument title={"總合計"} 	columns={columns} datas={convertDatas(all_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
+		<MyDocument period_name={selectedPeriod?.period_name ?? ""} title={"總合計"} 	columns={columns} datas={convertDatas(all_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
 
 	return (

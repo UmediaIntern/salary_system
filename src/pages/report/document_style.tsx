@@ -18,6 +18,35 @@ export const styles = StyleSheet.create({
         page: {
             padding: 15,
         },
+        // box container (border)
+        box: {
+            position: 'absolute',   // 絕對定位，對 Page 做定位
+            top: 0,                 // 離上邊距 0
+            left: 0,                // 離左邊距 0
+            borderWidth: 1,
+            borderColor: 'black',
+            padding: 5,
+            width: 130,            // 寬度自訂 (單位為 pt，72pt = 1 inch)
+            height: 35,            // 高度自訂
+            fontSize: 10,
+            // color: "gray",
+        },
+        period: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            fontSize: 10,
+            padding: 2,
+            fontFamily: "light",
+        },
+        printDate: {
+            position: 'absolute',
+            top: 15,
+            left: 0,
+            fontSize: 10,
+            padding: 2,
+            fontFamily: "light",
+        },
         titleContainer: {
             flexDirection: 'row',
             left: "35%",
