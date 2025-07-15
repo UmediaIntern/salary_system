@@ -579,6 +579,7 @@
     "excessive_overtime_pay": "超時加班費",
     "l_i_h_i_pay": "勞健保費",
     "exceed_overtime": "超時加班",
-    "Reports": "報表"
+    "Reports": "報表",
+    "print_date": "列印日期"
   }
 }
