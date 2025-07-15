@@ -24,20 +24,20 @@ export const transactionRouter = createTRPCRouter({
 					input.pay_type,
 					input.emp_no_list
 				);
-
+			await transactionService.dropTransactionPeriod(input.period_id);
 			const promises = input.emp_no_list.map(async (emp_no) => {
 				// if (emp_no != "U093051") return;		// ~ Pony's Test
-				const exist_transaction =
-					await transactionService.getUniqueTransaction(
-						input.period_id,
-						emp_no,
-						input.pay_type
-					);
-				if (exist_transaction != null) {
-					await transactionService.deleteTransaction(
-						exist_transaction.id
-					);
-				}
+				// const exist_transaction =
+				// 	await transactionService.getUniqueTransaction(
+				// 		input.period_id,
+				// 		emp_no,
+				// 		input.pay_type
+				// 	);
+				// if (exist_transaction != null) {
+				// 	await transactionService.deleteTransaction(
+				// 		exist_transaction.id
+				// 	);
+				// }
 
 				const start = Date.now();
 				await transactionService.createTransaction(

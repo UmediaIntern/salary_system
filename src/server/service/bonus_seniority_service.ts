@@ -70,16 +70,21 @@ export class BonusSeniorityService {
 			},
 		});
 		if (list.length == 0) return 1;
-		const multiplier = (
-			await BonusSeniority.findOne({
-				where: {
-					period_id: period_id,
-					bonus_type: bonus_type,
-					seniority: seniority,
-					disabled: false,
-				},
-			})
-		)?.multiplier;
+		const dict = list.reduce((acc:{[key:number]:number}, item) => {
+			acc[item.seniority] = item.multiplier;
+			return acc;
+		  }, {});
+		const multiplier = dict[seniority];
+		// const multiplier = (
+		// 	await BonusSeniority.findOne({
+		// 		where: {
+		// 			period_id: period_id,
+		// 			bonus_type: bonus_type,
+		// 			seniority: seniority,
+		// 			disabled: false,
+		// 		},
+		// 	})
+		// )?.multiplier;
 		return multiplier ?? 0;
 	}
 	async getBonusSeniorityByBonusType(
