@@ -16,6 +16,8 @@
             yarn
             nodePackages.typescript
             nodePackages.typescript-language-server
+            nodePackages.prettier
+            tailwindcss-language-server
             libaio
             libnsl
             lazysql
