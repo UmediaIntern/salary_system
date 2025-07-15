@@ -1,6 +1,5 @@
-import { ReactFlow, Background, Controls, applyNodeChanges, applyEdgeChanges, Edge, Node, NodeChange, EdgeChange, addEdge } from '@xyflow/react';
-import { useCallback, useState } from 'react';
-import { Drawer } from 'vaul';
+import { ReactFlow, Background, Controls, addEdge, ReactFlowProvider, useNodesState, useEdgesState, useReactFlow } from '@xyflow/react';
+import { useCallback, useRef } from 'react';
 import { Button } from '~/components/ui/button';
 
 import {
@@ -11,6 +10,8 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "~/components/ui/drawer";
+import { DnDProvider, useDnD } from './graph_sidebar_drag_context';
+import { GraphSidebar } from './graph_sidebar';
 
 export function ExcelOutputGraph() {
 	return (
@@ -47,34 +48,86 @@ const initialNodes = [
 ];
 
 function GraphView() {
-	const [nodes, setNodes] = useState<Node[]>(initialNodes);
-	const [edges, setEdges] = useState<Edge[]>([]);
+	return (
+		<ReactFlowProvider>
+			<DnDProvider>
+				<GrpahViewport />
+			</DnDProvider>
+		</ReactFlowProvider>
+	)
+}
 
-	const onNodesChange = useCallback(
-		(changes: NodeChange<Node>[]) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
-		[],
-	);
-	const onEdgesChange = useCallback(
-		(changes: EdgeChange<Edge>[]) => setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
-		[],
-	);
+let id = 0;
+const getId = () => `dndnode_${id++}`;
+
+function GrpahViewport() {
+	const reactFlowWrapper = useRef(null);
+	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+	const { screenToFlowPosition } = useReactFlow();
+	const [type] = useDnD();
 
 	const onConnect = useCallback(
 		(params: any) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
 		[],
 	);
 
+	const onDragOver = useCallback((event) => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'move';
+	}, []);
+
+	const onDrop = useCallback(
+		(event) => {
+			event.preventDefault();
+
+			// check if the dropped element is valid
+			if (!type) {
+				return;
+			}
+
+			const position = screenToFlowPosition({
+				x: event.clientX,
+				y: event.clientY,
+			});
+			const newNode = {
+				id: getId(),
+				type,
+				position,
+				data: { label: `${type} node` },
+			};
+
+			setNodes((nds) => nds.concat(newNode));
+		},
+		[screenToFlowPosition, type],
+	);
+
+	const onDragStart = (event, nodeType) => {
+		setType(nodeType);
+		event.dataTransfer.setData('text/plain', nodeType);
+		event.dataTransfer.effectAllowed = 'move';
+	};
+
 	return (
-		<ReactFlow
-			nodes={nodes}
-			edges={edges}
-			onNodesChange={onNodesChange}
-			onEdgesChange={onEdgesChange}
-			onConnect={onConnect}
-			fitView
-		>
-			<Background />
-			<Controls />
-		</ReactFlow>
+		<div className="w-full h-full flex flex-row">
+			<div ref={reactFlowWrapper} className='h-full grow'>
+				<ReactFlow
+					nodes={nodes}
+					edges={edges}
+					onNodesChange={onNodesChange}
+					onEdgesChange={onEdgesChange}
+					onConnect={onConnect}
+					onDrop={onDrop}
+					onDragStart={onDragStart}
+					onDragOver={onDragOver}
+					fitView
+				>
+					<Background />
+					<Controls />
+				</ReactFlow>
+			</div>
+			<GraphSidebar />
+		</div>
+
 	)
 }
