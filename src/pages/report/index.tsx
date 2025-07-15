@@ -90,12 +90,12 @@ const MyDocument = ({
 					<Text style={styles.title}>{title}</Text>
 					{groupByKeys?.map(gk => Translate(gk)).map(k => {
 						const keyData = data.find(d => d.key === k);
-						return <Text style={styles.groupKey}>{keyData!.key}-{keyData!.value}</Text>
+						return <Text style={styles.groupKey}>{keyData!.key}-<Text style={ {textDecoration: 'underline'} }>{keyData!.value}</Text></Text>
 					})}
 				</View>
 				<View style={styles.container}>
                     {/* Column 1 */}
-					{(groupByKeys ? data.filter((d) => !groupByKeys.map(gk => Translate(gk)).includes(d.key)) : data.slice(1)).map((d) => {
+					{(groupByKeys ? data.filter((d) => !groupByKeys.map(gk => Translate(gk)).includes(d.key)) : data).map((d) => {
 						
 						// const usedColumnStyle = (columns == 4 && d.key.length <= 5) ? columnStyle : styles.column4_2;
 						const usedColumnStyle = columnStyle;
@@ -186,10 +186,14 @@ const ReportHomePage: NextPageWithLayout = () => {
 		period_id: selectedPeriod?.period_id ?? 0,
 		pay_type: "month_salary",
 	})
+	const all_total_data = api.report.getAllTotal.useQuery({
+		period_id: selectedPeriod?.period_id ?? 0,
+		pay_type: "month_salary",
+	})
 
-	const isLoading = total_data.isLoading || department_total_data.isLoading;
-	const isError 	= total_data.isError   || department_total_data.isError;
-	const isFetched = total_data.isFetched && department_total_data.isFetched;
+	// const isLoading = total_data.isLoading || department_total_data.isLoading || all_total_data.isLoading;
+	// const isError 	= total_data.isError   || department_total_data.isError   || all_total_data.isError;
+	const isFetched = total_data.isFetched && department_total_data.isFetched && all_total_data.isFetched;
 
 	const TotalDocument 			= () => isFetched ? 
 		<MyDocument title={"合計"} columns={columns} groupByKeys={splitGroupByKeys(total_data!.data![0]!.name)} datas={convertDatas(total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
@@ -199,10 +203,14 @@ const ReportHomePage: NextPageWithLayout = () => {
 		<MyDocument title={"部門合計"} 	columns={columns} groupByKeys={splitGroupByKeys(department_total_data!.data![0]!.name)} datas={convertDatas(department_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
 
+	const AllTotalDocument          = () => isFetched ?
+		<MyDocument title={"總合計"} 	columns={columns} datas={convertDatas(all_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
+		: <></>
+
 	return (
 		<>
-			{isLoading && <LoadingSpinner />}
-			{isError   && <ErrorComponent />}
+			{/* {isLoading && <LoadingSpinner />}
+			{isError   && <ErrorComponent />} */}
 			{isFetched && <>
 				<Header
 					title={t("report", { ns: "nav" })}
@@ -222,11 +230,13 @@ const ReportHomePage: NextPageWithLayout = () => {
 					<div className="flex mr-4">
 						{reportName === "合計" 		&& <DownloadComponent Document={TotalDocument} 	filename={"合計"} t={t}/>}
 						{reportName === "部門合計" 	&& <DownloadComponent Document={DepartmentTotalDocument} filename={"部門合計"} t={t}/>}
+						{reportName === "總合計" 	&& <DownloadComponent Document={AllTotalDocument} filename={"總合計"} t={t}/>}
 					</div>
 				</div>
 				<div className="m-4">
-					{reportName === "合計" 		&& <Viewer Document={TotalDocument} />}
-					{reportName === "部門合計"	&& <Viewer Document={DepartmentTotalDocument} />}
+					{reportName === "合計" 		&& <Viewer Document={TotalDocument} columns={columns}/>}
+					{reportName === "部門合計"	&& <Viewer Document={DepartmentTotalDocument} columns={columns}/>}
+					{reportName === "總合計" 	&& <Viewer Document={AllTotalDocument} columns={columns}/>}
 				</div>
 			</>}
 		</>

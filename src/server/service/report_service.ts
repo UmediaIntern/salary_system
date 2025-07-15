@@ -16,6 +16,7 @@ import { OIInsurance, OIInsuranceType } from "../api/types/report_o_i_insurance_
 import { Round } from "./helper_function";
 import { ReportTotal, ReportTotalType } from "../api/types/report_total_type";
 import { ReportDepartmentTotal, ReportDepartmentTotalType } from "../api/types/report_department_total_type";
+import { ReportAllTotal, ReportAllTotalType } from "../api/types/report_all_total_type";
 
 @injectable()
 export class ReportService {
@@ -496,5 +497,71 @@ export class ReportService {
             }, {} as ReportDepartmentTotalType);
             return data;
         })
+    }
+
+
+    async getAllTotal(
+        period_id: number,
+        pay_type: PayTypeEnumType,
+    ): Promise<ReportAllTotalType[]> {
+        const keyOfReportAllTotal = ReportAllTotal.keyof().options;
+        const deadbeaf = -9487;
+        const transactions = await this.transactionService.getTransaction(period_id, pay_type);
+        
+        const getSum = (transactions: Transaction[], key: keyof Transaction) => 
+            transactions.map(tx => tx[key]).reduce((a, b) => (a as number) + (b as number), 0) as number;
+
+        const acc = {
+            'professional_cert_allowance':  getSum(transactions, 'professional_cert_allowance'),
+            'supervisor_allowance':         getSum(transactions, 'supervisor_allowance'),
+            'base_salary':                  getSum(transactions, 'base_salary'),
+            'long_service_allowance':       getSum(transactions, 'long_service_allowance'),
+            'food_allowance':               getSum(transactions, 'food_allowance'),
+            'l_i_deduction':                getSum(transactions, 'l_i_deduction'),
+            'h_i_deduction':                getSum(transactions, 'h_i_deduction'),
+            'welfare_contribution':         getSum(transactions, 'welfare_contribution'),
+            'subsidy_allowance':            getSum(transactions, 'subsidy_allowance'),
+            'weekday_overtime_pay':         getSum(transactions, 'weekday_overtime_pay'),
+            'vehicle_loan':                 getSum(transactions, 'vehicle_loan'),
+            'fixed_deposit_amount':         deadbeaf,     // getSum(transactions, 'fixed_deposit_amount'),
+            'full_attendance_bonus':        getSum(transactions, 'full_attendance_bonus'),
+            'stock_loan':                   deadbeaf,     // getSum(transactions, 'stock_loan'),
+            'holiday_overtime_pay':         deadbeaf,     // getSum(transactions, 'holiday_overtime_pay'),
+            'night_fee':                    deadbeaf,     // getSum(transactions, 'night_fee'),
+            'leave_deduction':              getSum(transactions, 'leave_deduction'),
+            'exceed_overtime':              deadbeaf,     // getSum(transactions, 'exceed_overtime'),
+            'income_tax':                   getSum(transactions, 'income_tax'),
+            'bonus_tax':                    getSum(transactions, 'bonus_tax'),
+            'occupational_allowance':       getSum(transactions, 'occupational_allowance'),
+            'shift_allowance':              getSum(transactions, 'shift_allowance'),
+            'non_leave_compensation':       getSum(transactions, 'non_leave_compensation'),
+            'l_i_pay':                      getSum(transactions, 'l_i_pay'),
+            'h_i_pay':                      getSum(transactions, 'h_i_pay'),
+            'net_salary':                   getSum(transactions, 'net_salary'),
+            'performance_bonus':            deadbeaf,     // getSum(transactions, 'performance_bonus'),
+            'operational_performance_bonus':getSum(transactions, 'operational_performance_bonus'),
+            'year_end_bonus':               deadbeaf,     // getSum(transactions, 'year_end_bonus'),
+            'other_deduction':              getSum(transactions, 'other_deduction'),
+            'other_addition':               getSum(transactions, 'other_addition'),
+            'meal_deduction':               deadbeaf,     // getSum(transactions, 'meal_deduction'),
+            'other_addition_tax':           getSum(transactions, 'other_addition_tax'),
+            'other_deduction_tax':          getSum(transactions, 'other_deduction_tax'),
+            'reissue_salary':               getSum(transactions, 'reissue_salary'),
+            'group_insurance_deduction':    getSum(transactions, 'group_insurance_deduction'),
+            'g_i_deduction_promotion':      getSum(transactions, 'g_i_deduction_promotion'),    
+            'income_tax_deduction':         getSum(transactions, 'income_tax_deduction'),
+            'l_r_self':                     getSum(transactions, 'l_r_self'),   
+            'parking_fee':                  getSum(transactions, 'parking_fee'),
+            'brokerage_fee':                getSum(transactions, 'brokerage_fee'),
+            'salary_income_deduction':      getSum(transactions, 'salary_income_deduction'),
+            'retirement_income':            getSum(transactions, 'retirement_income'),
+            'v_2_h_i':                      getSum(transactions, 'v_2_h_i'),
+            'l_i_reduction':                deadbeaf,     // getSum(transactions, 'l_i_reduction'),
+            'h_i_subsidy':                  deadbeaf,     // getSum(transactions, 'h_i_subsidy'),
+            'emp_trust_reserve_limit':      deadbeaf,     // getSum(transactions, 'emp_trust_reserve_limit'),
+            'emp_special_trust_incent':     getSum(transactions, 'emp_special_trust_incent'),
+        };
+
+        return [acc]
     }
 }

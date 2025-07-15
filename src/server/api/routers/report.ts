@@ -139,5 +139,18 @@ export const reportRouter = createTRPCRouter({
                 throw new BaseResponseError("Transactions does not exist");
             }
             return [{ name: "department+work_type", data: department_total.map(e => roundProperties(e, 2)) }];
+        }),
+    getAllTotal: publicProcedure
+        .input(z.object({ period_id: z.number(), pay_type: PayTypeEnum }))
+        .query(async ({ input }) => {
+            const reportService = container.resolve(ReportService);
+            const all_total = await reportService.getAllTotal(
+                input.period_id,
+                input.pay_type
+            );
+            if (all_total == null) {
+                throw new BaseResponseError("Transactions does not exist");
+            }
+            return [{ name: "all_total", data: all_total.map(e => roundProperties(e, 2)) }];
         })
 });
