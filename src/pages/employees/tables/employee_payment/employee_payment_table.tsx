@@ -107,6 +107,7 @@ export const employee_payment_columns = ({
 			);
 		},
 	}),
+	
 	columnHelper.accessor("supervisor_allowance", {
 		header: ({ column }) => {
 			return (
@@ -116,10 +117,13 @@ export const employee_payment_columns = ({
 			);
 		},
 		cell: ({ row }) => {
+			const positionOrTypeChange = row.original.info.isPositionModified || row.original.info.isPositionTypeModified
 			const error_flag =
+			positionOrTypeChange &&
 				!row.original.info.supervisor.isInRange &&
 				!row.original.info.supervisor.isModified;
 			const warning_flag =
+			positionOrTypeChange &&
 				row.original.info.supervisor.isInRange &&
 				!row.original.info.supervisor.isModified;
 			return (
@@ -150,12 +154,15 @@ export const employee_payment_columns = ({
 			);
 		},
 		cell: ({ row }) => {
+			const positionOrTypeChange = row.original.info.isPositionModified || row.original.info.isPositionTypeModified
 			const error_flag =
-				!row.original.info.food.isInRange &&
-				!row.original.info.food.isModified;
+			positionOrTypeChange &&
+				!row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			const warning_flag =
-				row.original.info.food.isInRange &&
-				!row.original.info.food.isModified;
+			positionOrTypeChange &&
+				row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			return (
 				<ColumnCellComponent
 					className={cn(
@@ -184,12 +191,15 @@ export const employee_payment_columns = ({
 			);
 		},
 		cell: ({ row }) => {
+			const positionOrTypeChange = row.original.info.isPositionModified || row.original.info.isPositionTypeModified
 			const error_flag =
-				!row.original.info.occupational.isInRange &&
-				!row.original.info.occupational.isModified;
+			positionOrTypeChange &&
+				!row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			const warning_flag =
-				row.original.info.occupational.isInRange &&
-				!row.original.info.occupational.isModified;
+			positionOrTypeChange &&
+				row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			return (
 				<ColumnCellComponent
 					className={cn(
@@ -218,12 +228,15 @@ export const employee_payment_columns = ({
 			);
 		},
 		cell: ({ row }) => {
+			const positionOrTypeChange = row.original.info.isPositionModified || row.original.info.isPositionTypeModified
 			const error_flag =
-				!row.original.info.subsidy.isInRange &&
-				!row.original.info.subsidy.isModified;
+			positionOrTypeChange &&
+				!row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			const warning_flag =
-				row.original.info.subsidy.isInRange &&
-				!row.original.info.subsidy.isModified;
+			positionOrTypeChange &&
+				row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			return (
 				<ColumnCellComponent
 					className={cn(
@@ -252,12 +265,15 @@ export const employee_payment_columns = ({
 			);
 		},
 		cell: ({ row }) => {
+			const positionOrTypeChange = row.original.info.isPositionModified || row.original.info.isPositionTypeModified
 			const error_flag =
-				!row.original.info.longService.isInRange &&
-				!row.original.info.longService.isModified;
+			positionOrTypeChange &&
+				!row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			const warning_flag =
-				row.original.info.longService.isInRange &&
-				!row.original.info.longService.isModified;
+			positionOrTypeChange &&
+				row.original.info.supervisor.isInRange &&
+				!row.original.info.supervisor.isModified;
 			return (
 				<ColumnCellComponent
 					className={cn(
