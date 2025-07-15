@@ -11,8 +11,8 @@ import { i18n, locales } from "~/components/lang_config";
 
 // Hooks
 import { usePeriodContext } from "~/components/context/period_context_provider";
-import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 // PDF
 import {
@@ -27,6 +27,7 @@ import {
 } from "@react-pdf/renderer";
 import lightFont from "./fonts/LXGWWenKaiMonoTC-Light.ttf";
 import boldFont from "./fonts/LXGWWenKaiMonoTC-Regular.ttf";
+import { styles } from "./document_style";
 
 // UI
 import { Header } from "~/components/header";
@@ -34,104 +35,46 @@ import { Dialog } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { PeriodSelector } from "~/components/period_selector";
 import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectValue } from "~/components/ui/select";
-
+import { LoadingSpinner } from "~/components/loading";
 
 // API
 import { api } from "~/utils/api";
-import { isDate } from "util/types";
-import { displayData } from "~/components/synchronize/utils/display";
-import { TFunction } from "i18next";
-import { LoadingSpinner } from "~/components/loading";
+import { convertDatas, splitGroupByKeys } from "./utils";
+
+
+// ! TEST
+import { TESTComponent } from "./components/test";
+// High Level Components
+import { Viewer } from "./components/viewer";
+import { ErrorComponent } from "./components/error";
+import { DownloadComponent } from "./components/download";
+import { ColumnsSelector } from "./components/columns_selector";
+
 
 interface Data {key: string; value: string;}
-Font.register({family: "bold", src: boldFont,});
-Font.register({family: "light",src: lightFont,});
 
 const MyDocument = ({
 	title: title,
 	columns: columns,
 	datas: datas,
+	groupByKeys: groupByKeys,
 	check: check,
 	t: t
 }: {
 	title: string
 	columns: number
 	datas: Array<Array<Data>>
+	groupByKeys?: Array<string>
 	check?: boolean,
 	t: (t: string | string[]) => string
 }) => {
-	const styles = StyleSheet.create({
-		page: {
-			padding: 20,
-		},
-		titleContainer: {
-			flexDirection: 'row',
-			left: "30%",
-			justifyContent: 'flex-start',
-		},
-		title: {
-			fontSize: 30,
-			fontWeight: "bold",
-			textAlign: "left",
-			marginBottom: 20,
-			fontFamily: "bold",
-		},
-		groupKey: {
-			top: 10,
-			fontSize: 15,
-			fontWeight: "bold",
-			marginRight: 20,
-			fontFamily: "bold",
-			left: '10%',
-		},
-		text: {
-			fontSize: 11,
-			textAlign: "left",
-			fontFamily: "light",
-			marginBottom: 10,
-		},
-		container: {
-			flexDirection: "row",
-			flexWrap: "wrap",
-			justifyContent: "space-between",
-		},
-		column2: {
-			padding: 5,
-			width: "48%", 
-		},
-		column3: {
-			padding: 5,
-			width: "33%",
-		},
-		column4: {
-			padding: 3,
-			width: "24%",
-		},
-
-		rightBottomTextContainer: {
-			top: 20,
-			flexDirection: 'row',    // 水平排列
-			left: "50%",
-			justifyContent: 'flex-start', // 左對齊
-		},
-		rightBottomText: {
-			fontFamily: "light",
-			fontSize: 25,
-			// textAlign: 'left',
-			marginBottom: 10,
-			marginRight: 5,         // 增加或減少右側間距以減少兩者之間的距離
-		},
-		rightBottomSign: {
-			fontFamily: "light",
-			fontSize: 25,
-			// textAlign: 'left',
-			textDecoration: 'underline',  // 下劃線
-		},
-	});
-
 
 	const [columnStyle, setColumnStyle] = useState(styles.column2);
 	const [PDFdata, setPDFdata] = useState(datas);
+
+	function Translate(key: string) {
+		return t([`TODO.${key}`, `table.${key}`, `others.${key}`]);
+	};
 
 	useEffect(() => {
 		if (columns === 4) 			setColumnStyle(styles.column4);
@@ -139,33 +82,34 @@ const MyDocument = ({
 		else 						setColumnStyle(styles.column2);
 	}, [columns]);
 
-	// ~ PAD DATAS
-	useEffect(() => {
-		
-	}, [datas])
-
-
 	return <Document title="TEST">
 		{datas.map((data) => <Page style={styles.page}>
 			<View>
                 {/* TITLE */}
 				<View style={styles.titleContainer}>
 					<Text style={styles.title}>{title}</Text>
-					{data[0] && <Text style={styles.groupKey}>{data[0]!.key}-{data[0]!.value}</Text>}
+					{groupByKeys?.map(gk => Translate(gk)).map(k => {
+						const keyData = data.find(d => d.key === k);
+						return <Text style={styles.groupKey}>{keyData!.key}-{keyData!.value}</Text>
+					})}
 				</View>
 				<View style={styles.container}>
                     {/* Column 1 */}
-					{data.slice(1).map((d) => {
-					return (
-						<View style={columnStyle} key={d.key}>
-							{d.key !== "" && (
-								<Text style={styles.text}>
-									{d.key}: <Text style={[styles.text, { textDecoration: 'underline' }]}>{d.value}</Text>
-								</Text>
-							)}
-						</View>
-					);
-				})}
+					{(groupByKeys ? data.filter((d) => !groupByKeys.map(gk => Translate(gk)).includes(d.key)) : data.slice(1)).map((d) => {
+						
+						// const usedColumnStyle = (columns == 4 && d.key.length <= 5) ? columnStyle : styles.column4_2;
+						const usedColumnStyle = columnStyle;
+
+						return (
+							<View style={usedColumnStyle} key={d.key}>
+								{d.key !== "" && (
+									<Text style={styles.text}>
+										{d.key}: <Text style={[styles.text, { textDecoration: 'underline' }]}>{d.value}</Text>
+									</Text>
+								)}
+							</View>
+						);
+					})}
 				</View>
 				<View style={styles.rightBottomTextContainer}>
 					<Text style={[styles.rightBottomText]}>{t(["TODO.Review"])}: </Text>
@@ -181,85 +125,8 @@ const MyDocument = ({
 	</Document>
 };
 
-const Viewer = ({
-	Document: Document
-}: {
-	Document: () => JSX.Element
-}) => (
-	<PDFViewer width="100%" height="600">
-		<Document />
-	</PDFViewer>
-);
 
-const ErrorComponent = () => <div>Error</div>;
 
-const DownloadComponent = ({
-	Document: Document,
-	t,
-}: {
-	Document: () => JSX.Element,
-	t: TFunction<[string], undefined>
-}) => {
-	const [loading, setLoading] = useState(false);
-	return <>
-		<Button variant={"outline"} disabled={loading}>
-			<PDFDownloadLink document={<Document />} fileName="test.pdf">
-				{/* t([`table.${cell.content}`, `others.${cell.content}`, `TODO.${cell.content}`]) */}
-				{({ loading }) => {
-					setLoading(loading);
-					return t([`TODO.${(loading ? "generating_PDF" : "download_PDF")}`])
-				}}
-			</PDFDownloadLink>
-		</Button>
-	</>
-}
-
-const ColumnsSelector = ({
-	columns: columns,
-	setColumns: setColumns,
-	t: t
-}: {
-	columns: number,
-	setColumns: (columns: number) => void,
-	t: (t: string | string[]) => string
-}) => {
-	const availableColumns = [2, 3, 4];
-
-	const [selectedColumns, setSelectedColumns] = useState(columns.toString());
-
-	return <>
-		<div>
-			<Select
-				value={columns.toString()}
-				onValueChange={(value) => {
-					setColumns(parseInt(value));
-					setSelectedColumns(value);
-				}}
-			>
-				<SelectTrigger className="w-[180px]">
-					<SelectValue placeholder="Select a sheet" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectGroup>
-						<SelectLabel>{t("TODO.Columns")}</SelectLabel>
-						{availableColumns.map(
-							(column) => {
-								return (
-									<SelectItem
-										key={column}
-										value={column.toString()}
-									>
-										{column} {t(["TODO.columns"])}
-									</SelectItem>
-								);
-							}
-						)}
-					</SelectGroup>
-				</SelectContent>
-			</Select>
-		</div>
-	</>
-}
 
 const ReportSelector = ({
 	reportName: reportName,
@@ -302,43 +169,6 @@ const ReportSelector = ({
 	</>
 }
 
-const convert2string = (data: any, t: TFunction<[string], undefined>) => {
-	return displayData(data, t);
-}
-
-const convertData = (data: any, t: TFunction<[string], undefined>) => {
-	return Object.keys(data).map((key) => {
-		return {
-			key: t([`others.${key}`, `button.${key}`, `TODO.${key}`, `table.${key}`]),
-			value: convert2string(data[key], t) as string
-		}
-});}
-
-const convertDatas = (datas: any[], t: TFunction<[string], undefined>, columns: number) => {
-	return datas.map((data) => {
-		const tmpData = convertData(data, t);
-		for (let i = 0; i < columns - tmpData.length%columns; i++) {
-			tmpData.push({ key: "", value: "" });
-		}
-		return tmpData;
-	});
-}
-
-const testDatas = [[
-	{ key: "test", value: "test" },
-	{ key: "test2", value: "test2" },
-	{ key: "test3", value: "test3" },
-	{ key: "test4", value: "test4" },
-	{ key: "test5", value: "test5" },
-	{ key: "test6", value: "test6" },
-],
-[
-	{ key: "test", value: "test" },
-	{ key: "test2", value: "test2" },
-	{ key: "test3", value: "test3" },
-	{ key: "test4", value: "test4" },
-]]
-
 
 const ReportHomePage: NextPageWithLayout = () => {
 	const { t } 						= useTranslation(["common", "nav"]);
@@ -362,11 +192,11 @@ const ReportHomePage: NextPageWithLayout = () => {
 	const isFetched = total_data.isFetched && department_total_data.isFetched;
 
 	const TotalDocument 			= () => isFetched ? 
-		<MyDocument title={"合計"} columns={columns} datas={convertDatas(total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
+		<MyDocument title={"合計"} columns={columns} groupByKeys={splitGroupByKeys(total_data!.data![0]!.name)} datas={convertDatas(total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
 
 	const DepartmentTotalDocument 	= () => isFetched ? 
-		<MyDocument title={"部門合計"} 	columns={columns} datas={convertDatas(department_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
+		<MyDocument title={"部門合計"} 	columns={columns} groupByKeys={splitGroupByKeys(department_total_data!.data![0]!.name)} datas={convertDatas(department_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
 
 	return (
@@ -387,10 +217,11 @@ const ReportHomePage: NextPageWithLayout = () => {
 					<div className="flex space-x-4 ml-4">
 						<ReportSelector reportName={reportName} setReportName={setReportName} t={t}/>
 						<ColumnsSelector columns={columns} setColumns={setColumns} t={t}/>
+						<TESTComponent data={total_data.data} display={false}/>
 					</div>
 					<div className="flex mr-4">
-						{reportName === "合計" 		&& <DownloadComponent Document={TotalDocument} t={t}/>}
-						{reportName === "部門合計" 	&& <DownloadComponent Document={DepartmentTotalDocument} t={t}/>}
+						{reportName === "合計" 		&& <DownloadComponent Document={TotalDocument} 	filename={"合計"} t={t}/>}
+						{reportName === "部門合計" 	&& <DownloadComponent Document={DepartmentTotalDocument} filename={"部門合計"} t={t}/>}
 					</div>
 				</div>
 				<div className="m-4">

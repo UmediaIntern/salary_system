@@ -100,11 +100,11 @@ const columns = (t: I18nType) => {
 				}
 				return <ColumnCellComponent>
 					{ 
-						(row.original.difference.includes(key)) ? 
-						<div className="text-red-500">
-							{/* {console.log("RED")} */}
-							{content}
-						</div> :
+						// (row.original.difference.includes(key)) ? 
+						// <div className="text-red-500">
+						// 	{/* {console.log("RED")} */}
+						// 	{content}
+						// </div> :
 						<>{content}</>
 					}
 				</ColumnCellComponent>;

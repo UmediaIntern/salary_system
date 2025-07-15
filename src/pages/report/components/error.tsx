@@ -1,0 +1,1 @@
+export const ErrorComponent = () => <div>Error</div>;
