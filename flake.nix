@@ -18,6 +18,8 @@
             nodePackages.typescript-language-server
             libaio
             libnsl
+            lazysql
+            dblab
           ];
 
           shellHook = ''

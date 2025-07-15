@@ -1,0 +1,19 @@
+database:
+  - name: "umedia"
+    host: "10.4.3.224"
+    port: 1521
+    db: "testplm"
+    password: "salary"
+    user: "SALARY"
+    driver: "oracle"
+    ssl: "disable"
+  - name: "ehr"
+    host: "10.4.3.11"
+    port: 1521
+    db: "flow_utf8"
+    password: "salary"
+    user: "SALARY"
+    driver: "oracle"
+    ssl: "disable"
+keybindings:
+  run-query: 'Ctrl-R'
