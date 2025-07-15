@@ -364,6 +364,7 @@ const ReportHomePage: NextPageWithLayout = () => {
 	const TotalDocument 			= () => isFetched ? 
 		<MyDocument title={"合計"} columns={columns} datas={convertDatas(total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
+
 	const DepartmentTotalDocument 	= () => isFetched ? 
 		<MyDocument title={"部門合計"} 	columns={columns} datas={convertDatas(department_total_data!.data![0]!.data ?? [], t, columns)} check={check} t={t}/> 
 		: <></>
