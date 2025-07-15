@@ -319,7 +319,7 @@ export function ExcelViewer({
 										}}
 									>
 										{/* {t(`table.${cell.content}`)} */}
-										{t([`table.${cell.content}`, `others.${cell.content}`])}
+										{t([`table.${cell.content}`, `others.${cell.content}`, `TODO.${cell.content}`])}
 									</div>
 								</th>
 							))}

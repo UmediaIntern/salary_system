@@ -48,6 +48,7 @@ import { HILevelRangeType } from "~/server/api/types/report_h_i_level_range_type
 import { LILevelRangeType } from "~/server/api/types/report_l_i_level_range_type";
 import { LRLevelRangeType } from "~/server/api/types/report_l_r_level_range_type";
 import { HIDetailsOutType } from "~/server/api/types/report_h_i_details_out_range_type";
+import { OIInsuranceType } from "~/server/api/types/report_o_i_insurance_type";
 
 const Salary: NextPageWithLayout = () => {
 	const { t } = useTranslation("common");
@@ -136,6 +137,7 @@ function ExportPage() {
 		l_i_level_range?: 			ReturnType<typeof api.report.getLILevelRange.useQuery>;
 		l_r_level_range?: 			ReturnType<typeof api.report.getLRLevelRange.useQuery>;
 		h_i_details_out?: 			ReturnType<typeof api.report.getHIDetailsOut.useQuery>;
+		o_i_insurance?:				ReturnType<typeof api.report.getOIInsurance.useQuery>;
 		test?: 						ReturnType<typeof api.report.getTransactionIndividual.useQuery>;	
 	} = {};
 
@@ -151,6 +153,7 @@ function ExportPage() {
 		l_i_level_range?: 			(LILevelRangeType | null)[];
 		l_r_level_range?: 			(LRLevelRangeType | null)[];
 		h_i_details_out?: 			(HIDetailsOutType | null)[];
+		o_i_insurance?:				(OIInsuranceType | null)[];
 		test?: 						(any | null)[];
 	} = {};
 
@@ -163,6 +166,7 @@ function ExportPage() {
 		'l_i_level_range',
 		'l_r_level_range',
 		'h_i_details_out',
+		'o_i_insurance',
 		'salary_out',
 		'test',
 	]
@@ -216,6 +220,12 @@ function ExportPage() {
 	all_data_isPending['h_i_details_out'] = HIDetailsOutIsPending;
 	all_data_content['h_i_details_out'] = HIDetailsOutContent;
 	all_data['h_i_details_out'] = HIDetailsOutData as (HIDetailsOutType | null)[];
+
+	all_data_api['o_i_insurance'] = api.report.getOIInsurance.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	const { isPending: OIInsuranceIsPending, content: OIInsuranceContent, data: OIInsuranceData } = useQueryHandle(all_data_api['o_i_insurance']);
+	all_data_isPending['o_i_insurance'] = OIInsuranceIsPending;
+	all_data_content['o_i_insurance'] = OIInsuranceContent;
+	all_data['o_i_insurance'] = OIInsuranceData as (OIInsuranceType | null)[];
 
 	function createSchema() {
 		const selectedExcel = excel_order[selectedExcelIndex]!;

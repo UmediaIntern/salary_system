@@ -10,6 +10,7 @@ import {
 	CalendarRange,
 	Contact,
 	CircleDollarSign,
+	ArrowDownToLine,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,6 +24,7 @@ import { SidebarPeriodSelector } from "./sidebar_period_selector";
 import { SidebarGroupLinks, type NavLinkEntry } from "./sidebar_group_links";
 import { type AccessFEType } from "~/server/api/types/access_page_type";
 import { useAccessContext } from "../context/access_context_provider";
+
 
 function navLinks(
 	data: AccessFEType
@@ -86,6 +88,14 @@ function navLinks(
 				url: "/roles",
 				collapsed: false,
 				accessible: data.roles,
+			},
+			{
+				title: "data_export",
+				icon: ArrowDownToLine,
+				url: "/data_export",
+				collapsed: false,
+				// accessible: data.data_export,
+				accessible: true,
 			},
 			{
 				title: "report",

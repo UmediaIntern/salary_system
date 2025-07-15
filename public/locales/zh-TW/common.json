@@ -507,6 +507,7 @@
     "l_i_level_range": "勞保級距",
     "l_r_level_range": "勞退級距",
     "h_i_details_out": "健保明細匯出",
+    "o_i_insurance": "職災保險",
     "salary_out": "薪轉匯出",
     "test": "這是一筆贊助測試",
     "new_data_start_date": "新資料開始日期",
@@ -562,7 +563,22 @@
     "performance_bonus": "績效獎金",
     "h_i_total": "健保費之總合計",
     "stock_loan": "股票貸款",
-    "holiday_hours": "假日加班時數"
-
+    "holiday_hours": "假日加班時數",
+    "people_number": "人數",
+    "insured_total_salary": "投保總薪資",
+    "g_i_o_i_in_range": "團保職災_職災級距內",
+    "g_i_o_i_out_range": "團保職災_職災級距外",
+    "generating_PDF": "生成 PDF 中 ...",
+    "download_PDF": "下載 PDF",
+    "columns": "欄",
+    "Columns": "欄數",
+    "Review": "審核",
+    "Approve": "核准",
+    "fixed_deposit_amount": "定存金額",
+    "holiday_overtime_pay": "假日加班費",
+    "excessive_overtime_pay": "超時加班費",
+    "l_i_h_i_pay": "勞健保費",
+    "exceed_overtime": "超時加班",
+    "Reports": "報表"
   }
 }
