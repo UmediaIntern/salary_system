@@ -213,7 +213,7 @@ export const bonusRouter = createTRPCRouter({
 			const result = await empBonusService.deleteEmployeeBonus(input.id);
 			return result;
 		}),
-	autoCalculateEmployeeBonus: publicProcedure
+	calculateBudgetEmployeeBonus: publicProcedure
 		.input(
 			z.object({
 				period_id: z.number(),
@@ -223,7 +223,7 @@ export const bonusRouter = createTRPCRouter({
 		)
 		.mutation(async ({ input }) => {
 			const empBonusService = container.resolve(EmployeeBonusService);
-			const result = await empBonusService.autoCalculateEmployeeBonus(
+			const result = await empBonusService.calculateBudgetEmployeeBonus(
 				input.period_id,
 				input.bonus_type,
 				input.total_budgets

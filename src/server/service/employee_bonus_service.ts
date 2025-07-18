@@ -535,7 +535,7 @@ export class EmployeeBonusService {
 		return error ? emp_no : null;
 	}
 
-	async autoCalculateEmployeeBonus(
+	async calculateBudgetEmployeeBonus(
 		period_id: number,
 		bonus_type: BonusTypeEnumType,
 		total_budgets: number

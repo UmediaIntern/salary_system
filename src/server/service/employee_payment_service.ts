@@ -486,7 +486,7 @@ export class EmployeePaymentService {
 		}
 	}
 
-	async autoCalculateEmployeePayment(start_date: Date): Promise<void> {
+	async adjustLevelEmployeePayment(start_date: Date): Promise<void> {
 		const emp_list = await this.getCurrentEmployeePaymentByDate(start_date);
 
 		const promises = emp_list.map(

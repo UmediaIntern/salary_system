@@ -400,15 +400,15 @@ export const employeePaymentRouter = createTRPCRouter({
 			await employeePaymentService.rescheduleEmployeePayment();
 		}),
 
-	autoCalculateEmployeePayment: publicProcedure
+	adjustLevelEmployeePayment: publicProcedure
 		.input(z.object({ start_date: z.date() }))
 		.mutation(async ({ input }) => {
 			const employeePaymentService = container.resolve(
 				EmployeePaymentService,
 			);
 
-			await employeePaymentService.autoCalculateEmployeePayment(
-				input.start_date,
+			await employeePaymentService.adjustLevelEmployeePayment(
+				input.start_date
 			);
 			await employeePaymentService.rescheduleEmployeePayment();
 		}),
