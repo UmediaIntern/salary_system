@@ -1,14 +1,15 @@
 import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import { nodeTypesEnum } from './nodes/node_type';
 
 interface DnDContextType {
-  type: string | null;
-  setType: (type: string | null) => void;
+  type: nodeTypesEnum | null;
+  setType: (type: nodeTypesEnum | null) => void;
 }
 
 const dndContext = createContext<DnDContextType | null>(null);
 
 export function DnDProvider({ children }: PropsWithChildren) {
-  const [type, setType] = useState<string | null>(null);
+  const [type, setType] = useState<nodeTypesEnum | null>(null);
 
   return (
     <dndContext.Provider value={{ type, setType }}>

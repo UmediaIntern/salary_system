@@ -83,7 +83,7 @@ function GrpahViewport() {
 			event.preventDefault();
 
 			// check if the dropped element is valid
-				console.log(type)
+			console.log(type)
 			if (!type) {
 				console.log("no type")
 				return;
