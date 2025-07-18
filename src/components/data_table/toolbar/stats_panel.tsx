@@ -9,7 +9,8 @@ import { Separator } from "~/components/ui/separator";
 import { TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/lib/utils/format_date";
-import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkStatusKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkTypeKey, WorkTypeEnumType } from "~/server/api/types/work_type_enum";
 
 interface StatsPanelProps<TData> {
     table: Table<TData>;
@@ -118,17 +119,20 @@ function ColumnComponent<TData>({ column }: { column: Column<TData, unknown> }) 
     const uniqueValues = Array.from(column.getFacetedUniqueValues().entries());
     const displayValue = uniqueValues.reduce<[string | number, number][]>((acc, [key, value]) => {
         if (
-            column.id === "start_date" 
-            || column.id === "end_date" 
-            || column.id === "residence_permit_start_date" 
+            column.id === "start_date"
+            || column.id === "end_date"
+            || column.id === "residence_permit_start_date"
             || column.id === "residence_permit_end_date"
-            || column.id === "registration_date" 
-            || column.id === "quit_date" 
+            || column.id === "registration_date"
+            || column.id === "quit_date"
         ) {
             key = formatDate("day", key) ?? "";
         }
         if (column.id === "work_status") {
-            key = t(`work_status.${convertToKey(key as WorkStatusEnumType)}`);
+            key = t(`work_status.${convertToWorkStatusKey(key as WorkStatusEnumType)}`);
+        }
+        if (column.id === "work_type") {
+            key = t(`work_type.${convertToWorkTypeKey(key as WorkTypeEnumType)}`);
         }
         if (column.id === "long_service_allowance_type") {
             key = t(`long_service_allowance_type.${key}`);
