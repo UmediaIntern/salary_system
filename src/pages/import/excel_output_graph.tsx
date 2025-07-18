@@ -12,6 +12,7 @@ import {
 } from "~/components/ui/drawer";
 import { DnDProvider, useDnD } from './graph_sidebar_drag_context';
 import { GraphSidebar } from './graph_sidebar';
+import { nodeTypes } from './nodes/node_type';
 
 export function ExcelOutputGraph() {
 	return (
@@ -82,7 +83,9 @@ function GrpahViewport() {
 			event.preventDefault();
 
 			// check if the dropped element is valid
+			console.log(type)
 			if (!type) {
+				console.log("no type")
 				return;
 			}
 
@@ -92,7 +95,7 @@ function GrpahViewport() {
 			});
 			const newNode = {
 				id: getId(),
-				type,
+				type: type,
 				position,
 				data: { label: `${type} node` },
 			};
@@ -107,6 +110,7 @@ function GrpahViewport() {
 			<GraphSidebar />
 			<div ref={reactFlowWrapper} className='h-full grow'>
 				<ReactFlow
+					nodeTypes={nodeTypes}
 					nodes={nodes}
 					edges={edges}
 					onNodesChange={onNodesChange}
