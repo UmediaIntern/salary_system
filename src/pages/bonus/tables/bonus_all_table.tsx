@@ -24,7 +24,7 @@ import dataTableContext, {
 import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
 
 // Bonus Table Component
-import { DataTable as DataTableWithFunctions } from "../components/data_table_single";
+import { DataTable as DataTableWithFunctions } from "../components/regular/data_table";
 import { BonusForm } from "../components/function_sheet/bonus_form";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 
@@ -53,43 +53,43 @@ export const bonus_all_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-	...columnNames.map((key) =>
-		columnHelper.accessor(key, {
-			header: ({ column }) => {
+		...columnNames.map((key) =>
+			columnHelper.accessor(key, {
+				header: ({ column }) => {
+					return (
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
+					);
+				},
+				cell: ({ row }) => {
+					switch (key) {
+						default:
+							return (
+								<ColumnCellComponent>
+									{(
+										row.original[key] as string | number
+									).toString() ?? ""}
+								</ColumnCellComponent>
+							);
+					}
+				},
+			})
+		),
+		columnHelper.accessor("functions", {
+			header: () => {
 				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
+					<ColumnHeaderBaseComponent>
+						{t(`others.functions`)}
+					</ColumnHeaderBaseComponent>
 				);
 			},
 			cell: ({ row }) => {
-				switch (key) {
-					default:
-						return (
-							<ColumnCellComponent>
-								{(
-									row.original[key] as string | number
-								).toString() ?? ""}
-							</ColumnCellComponent>
-						);
-				}
+				// TODO: Should use data with Frontend Type instead of data in table?
+				return <BonusAllFunctionComponent data={row.original} />;
 			},
-		})
-	),
-	columnHelper.accessor("functions", {
-		header: () => {
-			return (
-				<ColumnHeaderBaseComponent>
-					{t(`others.functions`)}
-				</ColumnHeaderBaseComponent>
-			);
-		},
-		cell: ({ row }) => {
-			// TODO: Should use data with Frontend Type instead of data in table?
-			return <BonusAllFunctionComponent data={row.original} />;
-		},
-	}),
-];
+		}),
+	];
 
 function BonusAllFunctionComponent({ data }: { data: RowItem }) {
 	const { setOpenSheet, setOpenDialog, setMode, setData } = useBonusFunctionContext();
@@ -109,7 +109,7 @@ export function bonusAllMapper(bonusAllData: BonusAllFEType): RowItem | undefine
 		id: bonusAllData?.id,
 		parameters: "倍率",
 		value: bonusAllData?.multiplier,
-		functions:bonusAllData?.functions,
+		functions: bonusAllData?.functions,
 	} : undefined;
 }
 

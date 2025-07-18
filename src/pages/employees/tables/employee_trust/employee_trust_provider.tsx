@@ -15,7 +15,7 @@ export type TrustFunctionModes =
 	| "excel_download"
 	| "excel_upload"
 	// | "initialize"
-	| "auto_calculate";
+	| "adjust_level";
 
 const employeeTrustFunctionContext = createTableFunctionContext<
 	TrustFunctionModes,

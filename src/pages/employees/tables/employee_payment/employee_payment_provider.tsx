@@ -23,7 +23,7 @@ export type PaymentFunctionModes =
 	| "excel_download"
 	| "excel_upload"
 	// | "initialize"
-	| "auto_calculate"
+	| "adjust_level"
 	| "adjust_base_salary"
 	| "none";
 

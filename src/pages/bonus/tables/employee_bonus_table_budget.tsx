@@ -1,5 +1,5 @@
 import { api } from "~/utils/api";
-import { DataTable as DataTableWithFunctions } from "../components/data_table";
+import { DataTable as DataTableWithFunctions } from "../components/budget/data_table";
 import { DataTable as DataTableWithoutFunctions } from "~/pages/functions/components/data_table";
 import { LoadingSpinner } from "~/components/loading";
 import { type TableComponentProps } from "../pre_calculate_bonus/bonus_filter";

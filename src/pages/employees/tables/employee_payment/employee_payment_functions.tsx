@@ -52,10 +52,10 @@ export function EmployeePaymentFunctionMenu() {
 				disabled={!enableAccess}
 				onClick={() => setMode("initialize")}
 			/> */}
-			<FunctionMenuOption.AutoCalculate
+			<FunctionMenuOption.AdjustLevel
 				disabled={!enableAccess}
 				onClick={() => {
-					setMode("auto_calculate");
+					setMode("adjust_level");
 					setOpenDialog(true);
 				}}
 			/>
@@ -100,8 +100,8 @@ export function EmployeePaymentFunctions() {
 				void ctx.employeePayment.invalidate();
 			},
 		});
-	const autoCalculateEmployeePayment =
-		api.employeePayment.autoCalculateEmployeePayment.useMutation({
+	const adjustLevelEmployeePayment =
+		api.employeePayment.adjustLevelEmployeePayment.useMutation({
 			onSuccess: () => {
 				void ctx.employeePayment.invalidate();
 			},
@@ -177,11 +177,11 @@ export function EmployeePaymentFunctions() {
 					/>
 				)}
 
-				{/* Auto calculate */}
-				{mode === "auto_calculate" && (
+				{/* Adjust Level */}
+				{mode === "adjust_level" && (
 					<DateDialog
 						onSubmit={(date) => {
-							autoCalculateEmployeePayment.mutate({
+							adjustLevelEmployeePayment.mutate({
 								start_date: date,
 							});
 							setOpenDialog(false);

@@ -8,8 +8,8 @@ export function modeDescription(t: I18nType, mode: string) {
             return t("others.update_msg");
         case "delete":
             return t("others.delete_msg");
-        case "auto_calculate":
-            return t("others.auto_calculate_msg");
+        case "adjust_level":
+            return t("others.adjust_level_msg");
         default:
             return "";
     }

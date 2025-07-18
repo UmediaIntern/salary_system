@@ -22,7 +22,7 @@ import { type FunctionsItem } from "../components/context/data_table_context";
 import BonusToolbarFunctionsProvider from "../components/function_sheet/bonus_functions_context";
 
 // Bonus Table Component
-import { DataTable as DataTableWithFunctions } from "../components/data_table";
+import { DataTable as DataTableWithFunctions } from "../components/regular/data_table";
 import { BonusForm } from "../components/function_sheet/bonus_form";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 
