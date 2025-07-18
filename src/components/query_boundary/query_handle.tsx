@@ -18,7 +18,7 @@ interface QueryHandleWait {
 }
 
 export function useQueryHandle<TData, TError extends InferrableClientTypes>(
-	query: UseQueryResult<TData, TRPCClientErrorLike<TError>>
+	query: Pick<UseQueryResult<TData, TRPCClientErrorLike<TError>>, "data" | "isPending" | "isError" | "error" >
 ): QueryHandleDone<TData> | QueryHandleWait {
 	const { data, isPending, isError, error } = query;
 

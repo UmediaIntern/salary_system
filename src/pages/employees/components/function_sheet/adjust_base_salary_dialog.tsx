@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { api } from "~/utils/api";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const adjustBaseSalarySchema = z.object({
 	insurance_rate_setting_id: z.string(),
@@ -40,8 +41,21 @@ interface AdjustBaseSalaryDialogPorps {
 	setOpenDialog: (open: boolean) => void;
 }
 
-export function AdjustBaseSalaryDialog({ setOpenDialog }: AdjustBaseSalaryDialogPorps) {
-	const q = api.parameters.getAllInsuranceRateSetting.useQuery();
+export function AdjustBaseSalaryDialog({
+	setOpenDialog,
+}: AdjustBaseSalaryDialogPorps) {
+	const q = api.useQueries((t) => [
+		t.parameters.getAllInsuranceRateSetting(),
+	], {
+		combine: (results) => {
+			return {
+				data: results.map((result) => result.data)[0],
+				isPending: results.some((result) => result.isPending),
+				isError: results.some((result) => result.isError),
+				error: results.find((result) => result.isError)?.error ?? null
+			};
+		},
+	});
 	const { data, isPending, content } = useQueryHandle(q);
 
 	const form = useForm<z.infer<typeof adjustBaseSalarySchema>>({
@@ -59,10 +73,11 @@ export function AdjustBaseSalaryDialog({ setOpenDialog }: AdjustBaseSalaryDialog
 
 	const onSubmit = (form_data: z.infer<typeof adjustBaseSalarySchema>) => {
 		const selectedSetting = data.find(
-			(d) => d?.[0]?.id?.toString() == form_data.insurance_rate_setting_id
+			(d) =>
+				d?.[0]?.id?.toString() == form_data.insurance_rate_setting_id,
 		)?.[0];
 		if (!selectedSetting) {
-			// Show something here
+			toast("Something went wrong! Can't find the selected setting.");
 			return;
 		}
 		employeePaymentAdjustBaseSalary.mutate({
@@ -134,7 +149,7 @@ function BaseSalarySelect({ onChange, options }: BaseSalarySelectProps) {
 					<SelectTrigger>
 						<SelectValue
 							placeholder={t(
-								"form.adjust_base_salary.placeholder"
+								"form.adjust_base_salary.placeholder",
 							)}
 						/>
 					</SelectTrigger>
