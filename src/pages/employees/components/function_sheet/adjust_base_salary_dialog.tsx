@@ -44,18 +44,24 @@ interface AdjustBaseSalaryDialogPorps {
 export function AdjustBaseSalaryDialog({
 	setOpenDialog,
 }: AdjustBaseSalaryDialogPorps) {
-	const q = api.useQueries((t) => [
-		t.parameters.getAllInsuranceRateSetting(),
-	], {
-		combine: (results) => {
-			return {
-				data: results.map((result) => result.data)[0],
-				isPending: results.some((result) => result.isPending),
-				isError: results.some((result) => result.isError),
-				error: results.find((result) => result.isError)?.error ?? null
-			};
+	const q = api.useQueries(
+		(t) => [
+			t.parameters.getAllInsuranceRateSetting(),
+			t.employeePayment.getFullAttendenceBonusLimit(),
+		],
+		{
+			combine: (results) => {
+				const combinedData = {allInsuranceRateSetting: results[0], fullAttendenceBonus: results[1]};
+				return {
+					data: combinedData,
+					isPending: results.some((result) => result.isPending),
+					isError: results.some((result) => result.isError),
+					error:
+						results.find((result) => result.isError)?.error ?? null,
+				};
+			},
 		},
-	});
+	);
 	const { data, isPending, content } = useQueryHandle(q);
 
 	const form = useForm<z.infer<typeof adjustBaseSalarySchema>>({
@@ -71,8 +77,10 @@ export function AdjustBaseSalaryDialog({
 		return content;
 	}
 
+	const insuranceRateSettings = data.allInsuranceRateSetting.data ?? []
+
 	const onSubmit = (form_data: z.infer<typeof adjustBaseSalarySchema>) => {
-		const selectedSetting = data.find(
+		const selectedSetting = insuranceRateSettings.find(
 			(d) =>
 				d?.[0]?.id?.toString() == form_data.insurance_rate_setting_id,
 		)?.[0];
@@ -88,7 +96,7 @@ export function AdjustBaseSalaryDialog({
 	};
 
 	const options: BaseSalaryOption[] = [];
-	data.forEach((d) => {
+	insuranceRateSettings.forEach((d) => {
 		if (d?.[0]) {
 			options.push({
 				value: d[0].id,
@@ -102,7 +110,7 @@ export function AdjustBaseSalaryDialog({
 			<DialogHeader>
 				<DialogTitle>{t("form.adjust_base_salary.title")}</DialogTitle>
 				<DialogDescription>
-					{t("form.adjust_base_salary.description")}
+					{t("form.adjust_base_salary.description")} (Minus: {data.fullAttendenceBonus.data?.full_attendence_bonus_limit})
 				</DialogDescription>
 			</DialogHeader>
 			<Form {...form}>

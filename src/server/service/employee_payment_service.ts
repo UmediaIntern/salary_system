@@ -668,7 +668,7 @@ export class EmployeePaymentService {
 				const hasFullAttendenceBonus =
 					this.hasFullAttendenceBonus(before);
 				const fullAttendenceBonus = hasFullAttendenceBonus
-					? await this.ehrService.getFullAttendenceBonusUpperLimit()
+					? await this.ehrService.getFullAttendenceBonusLimit()
 					: 0;
 				const matchedLevelEmployeePayment =
 					await this.getMatchedLevelEmployeePayment(

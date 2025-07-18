@@ -554,7 +554,7 @@ export class EHRService {
 		return amount;
 	}
 
-	async getFullAttendenceBonusUpperLimit(): Promise<number> {
+	async getFullAttendenceBonusLimit(): Promise<number> {
 		return 2000;
 	}
 	// async initEmployeeData(period_id: number) {
