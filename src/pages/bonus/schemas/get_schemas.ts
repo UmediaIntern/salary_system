@@ -25,8 +25,8 @@ export function getSchema(table: TableEnum) {
 		// 	return bonusPositionTypeSchema;
 		case "TableBonusSeniority":
 			return bonusSenioritySchema;
-		// case "TableEmployeeBonus":
-		// 	return employeeBonusSchema;
+		case "TableEmployeeBonus":
+			return employeeBonusSchema;
 		// level
 		// case "TablePerformanceLevel":
 		// 	return performanceLevelSchema;
@@ -35,6 +35,7 @@ export function getSchema(table: TableEnum) {
 
 
 		default:
-			throw Error("Table not found");
+			// console.log(`Table ${table} not found`);	
+			throw Error(`Table ${table} not found`);
 	}
 }

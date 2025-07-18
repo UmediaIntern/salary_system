@@ -15,7 +15,11 @@ import {
 	WorkStatusEnum,
 } from "~/server/api/types/work_status_enum";
 import {
+	DBWorkTypeEnum,
+	DBWorkTypeEnumType,
 	WorkTypeEnum,
+	convertFromDBWorkTypeEnum,
+	convertToDBWorkTypeEnum,
 	type WorkTypeEnumType,
 } from "~/server/api/types/work_type_enum";
 import { dateCreateF, systemF, systemKeys } from "../../mapper/mapper_utils";
@@ -30,7 +34,7 @@ const dbEmployeeData = z.object({
 	group_insurance_type: z.string(), //團保類別
 	department: z.string(), //部門
 	cost_category: CostCategoryEnum, //成本分類
-	work_type: WorkTypeEnum, //工作類別
+	// work_type: WorkTypeEnum, //工作類別
 	disabilty_level: z.string().nullable(), //殘障等級
 	sex_type: z.string(), //性別
 	dependents: z.number().nullable(), //扶養人數
@@ -48,10 +52,12 @@ const dbEmployeeData = z.object({
 
 const decFields = z.object({
 	id: z.number(),
+	work_type: WorkTypeEnum,
 	work_status: WorkStatusEnum,
 });
 
 const encFields = z.object({
+	work_type: DBWorkTypeEnum,
 	work_status: DBWorkStatusEnum,
 });
 
@@ -65,6 +71,7 @@ export const decEmployeeData = encF
 		return {
 			...v,
 			id: v.id,
+			work_type: convertFromDBWorkTypeEnum(v.work_type),
 			work_status: convertFromDBWorkStatusEnum(v.work_status),
 		};
 	})
@@ -74,6 +81,7 @@ export const encEmployeeData = decF
 	.omit(systemKeys)
 	.transform((v) => ({
 		...v,
+		work_type: convertToDBWorkTypeEnum(v.work_type),
 		work_status: convertToDBWorkStatusEnum(v.work_status),
 	}))
 	.pipe(encF);
@@ -92,7 +100,7 @@ export class EmployeeData extends Model<
 	declare group_insurance_type: string; // 團保類別
 	declare department: string; // 部門
 	declare cost_category: CostCategoryEnumType; // 成本分類
-	declare work_type: WorkTypeEnumType; // 工作類別
+	declare work_type: DBWorkTypeEnumType; // 工作類別
 	declare work_status: DBWorkStatusEnumType; // 工作型態
 	declare disabilty_level: string | null; // 殘障等級
 	declare sex_type: string; // 性別
