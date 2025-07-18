@@ -1970,9 +1970,9 @@ export class CalculateService {
 				)[0]?.app_amount ?? 0;
 			const accumulated_all =
 				accumulated_bonus +
-				accumulated_trust +
-				org_trust_reserve +
-				emp_trust_reserve;
+				accumulated_trust //+
+				// org_trust_reserve +
+				// emp_trust_reserve;
 			const v2_h_i_rate = insurance_rate_setting.v2_h_i_supp_pay_rate;
 			const v2_h_i_multiplier = insurance_rate_setting.v2_h_i_multiplier;
 			const h_i = employee_payment?.h_i ?? 0;

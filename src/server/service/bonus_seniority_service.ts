@@ -69,7 +69,6 @@ export class BonusSeniorityService {
 				disabled: false,
 			},
 		});
-		if (list.length == 0) return 1;
 		const dict = list.reduce((acc:{[key:number]:number}, item) => {
 			acc[item.seniority] = item.multiplier;
 			return acc;
@@ -85,7 +84,7 @@ export class BonusSeniorityService {
 		// 		},
 		// 	})
 		// )?.multiplier;
-		return multiplier ?? 0;
+		return multiplier ?? 1;
 	}
 	async getBonusSeniorityByBonusType(
 		period_id: number,

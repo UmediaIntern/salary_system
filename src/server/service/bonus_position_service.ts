@@ -90,7 +90,7 @@ export class BonusPositionService {
 				disabled: false,
 			},
 		});
-		if (list.length == 0) return 1;
+		// if (list.length == 0) return 1;
 		const position_multiplier = (
 			await BonusPosition.findOne({
 				where: {
@@ -113,10 +113,7 @@ export class BonusPositionService {
 				},
 			})
 		)?.position_type_multiplier;
-		if (position_multiplier == undefined || position_type_multiplier == undefined) {
-			return 0;
-		}
-		return position_multiplier * position_type_multiplier;
+		return (position_multiplier || 1) * (position_type_multiplier || 1);
 	}
 	async getAllBonusPosition(): Promise<BonusPosition[] | null> {
 		const bonusPosition = await BonusPosition.findAll(
