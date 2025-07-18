@@ -36,44 +36,6 @@ export const incomeTaxSettingRouter = createTRPCRouter({
             return incomeTaxSettingFE;
         }),
 
-    // getAllInsuranceRateSetting: publicProcedure
-    //     .output(insuranceRateSettingFE.array().array())
-    //     .query(async () => {
-    //         const insuranceRateService = container.resolve(
-    //             InsuranceRateSettingService
-    //         );
-    //         const insuranceRateSetting =
-    //             await insuranceRateService.getAllInsuranceRateSetting();
-    //         if (insuranceRateSetting.length == 0) {
-    //             // throw new BaseResponseError("InsuranceRateSetting does not exist");
-    //         }
-    //         const insuranceRateSettingFE = insuranceRateSetting.map(
-    //             (insurance_rate_setting_list) => {
-    //                 const list = insurance_rate_setting_list.map((a) => {
-    //                     return {
-    //                         ...roundProperties(a, 4),
-    //                         functions: {
-    //                             creatable: true,
-    //                             updatable: a.start_date > new Date(),
-    //                             deletable: a.start_date > new Date(),
-    //                         },
-    //                     };
-    //                 });
-    //                 return list;
-    //             }
-    //         );
-    //         return insuranceRateSettingFE;
-    //     }),
-
-    // getAllFutureInsuranceRateSetting: publicProcedure.query(async () => {
-    //     const insuranceRateService = container.resolve(
-    //         InsuranceRateSettingService
-    //     );
-    //     const insuranceRateSetting =
-    //         await insuranceRateService.getAllFutureInsuranceRateSetting();
-    //     return insuranceRateSetting.map((e) => roundProperties(e, 4));
-    // }),
-
     createIncomeTaxSetting: publicProcedure
         .input(createIncomeTaxSettingAPI)
         .mutation(async ({ input }) => {

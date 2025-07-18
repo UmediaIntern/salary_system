@@ -1,4 +1,4 @@
-import { container, injectable } from "tsyringe";
+import { injectable } from "tsyringe";
 import {
 	EmployeeData,
 	EmployeeDataDecType,
@@ -17,11 +17,9 @@ import {
 	type DataComparison,
 	type PaidEmployee,
 	QuitDateEnum,
-	type QuitDateEnumType,
 	SyncData,
 	type SyncInputType,
 } from "../api/types/sync_type";
-import { type Period } from "../database/entity/UMEDIA/period";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { createEmployeeDataService } from "../api/types/employee_data_type";
 import { Op } from "sequelize";
@@ -548,15 +546,12 @@ export class SyncService {
 		// Update fields
 		const updatedDatas: EmployeeDataDecType[] = [];
 		for (const changeEmp of change_emp_list) {
-			// TODO: the data type is incorrect, lacking type check (period_id is missing)
-			// TODO: append period_id
 			const ehr_emp_data: z.infer<typeof createEmployeeDataService> =
 				this.empToEmployee(ehrDict.get(changeEmp.emp_no)!, period_id);
 
 			let salary_emp_data: EmployeeDataDecType | undefined =
 				salary_datas.find((emp) => emp.emp_no == changeEmp.emp_no);
 			// Create default employee if not exist
-			// TODO: Refactor this
 			if (!salary_emp_data) {
 				salary_emp_data =
 					await this.employeeDataService.createEmployeeData(

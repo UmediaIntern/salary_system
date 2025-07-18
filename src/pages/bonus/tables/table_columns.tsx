@@ -26,17 +26,17 @@ export function getTableColumn(
 ): ColumnDef<any, any>[] {
 	switch (selectedTableType) {
 		case "TableBonusAll":
-			return bonus_all_columns;
+			return bonus_all_columns({ t });
 		case "TableBonusWorkType":
-			return bonus_work_type_columns;
+			return bonus_work_type_columns({ t });
 		case "TableBonusDepartment":
-			return bonus_department_columns;
+			return bonus_department_columns({ t });
 		case "TableBonusPosition":
-			return bonus_position_columns;
+			return bonus_position_columns({ t });
 		// case "TableBonusPositionType":
 		// 	return bonus_position_type_columns;
 		case "TableBonusSeniority":
-			return bonus_seniority_columns;
+			return bonus_seniority_columns({ t });
 		// case "TableBonusSetting":
 		// 	return bonus_columns;
 		// case "TablePerformanceLevel":
