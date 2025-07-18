@@ -18,9 +18,6 @@ export const incomeTaxSettingRouter = createTRPCRouter({
                     input.period_id
                 );
             if (incomeTaxSetting == null) {
-                // throw new BaseResponseError(
-                // 	"InsuranceRateSetting does not exist"
-                // );
                 return null;
             }
             const incomeTaxSettingFE = {

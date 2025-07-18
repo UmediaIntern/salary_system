@@ -103,17 +103,14 @@
     "allowance_id": "津貼編號",
     "bonus_id": "獎金編號",
     "l_r": "勞退",
-  
     "emp_trust_reserve": "員工信託提存金",
     "org_trust_reserve": "公司信託提存金",
     "emp_special_trust_incent": "特別信託獎勵金員工",
     "org_special_trust_incent": "特別信託獎勵金公司",
-    
     "org_trust_reserve_limit": "公司信託提存金",
     "emp_trust_reserve_limit": "員工信託提存金",
     "org_special_trust_incent_limit": "特別信託獎勵金公司",
     "emp_special_trust_incent_limit": "特別信託獎勵金員工",
-
     "occupational_injury": "職災",
     "l_r_self": "勞退金自提",
     "professional_cert_allowance": "專業證照津貼",
@@ -316,32 +313,30 @@
     "h_i_addition_previous": "健保加項",
     "fixed_deposit_deduction": "定存扣款",
     "court_salary_garnishment": "法院薪資扣押款",
-
     "insured_amount": "投保金額",
     "self": "本人",
     "family": "眷屬",
     "self_total": "個人總計",
     "unit_total": "單位應計",
-
     "insured_salary": "投保薪資",
     "billing_population": "計費人數",
-
     "l_r_level_range": "勞退級距",
     "l_r_headcount": "勞退人數",
-
     "l_r_insured_amount": "勞退投保金額",
     "occupational_injury_insured_amount": "職災投保金額",
-
     "l_i_reduction": "勞保減免",
-
     "h_i_insured_amount": "健保投保金額",
-    "l_i_insured_amount": "勞保投保金額"
-
+    "l_i_insured_amount": "勞保投保金額",
+    "allowance_type": "工作津貼類別",
+    "allowance_start": "工作津貼下限",
+    "allowance_end": "工作津貼上限"
   },
   "table_name": {
     "attendanceSetting": "請假加班",
+    "allowance": "工作津貼",
+    "allowanceRange": "工作津貼範圍",
     "bankSetting": "銀行",
-    "insuranceRateSetting": "勞健保費率",
+    "basicInfo": "基本資訊",
     "bonusSetting": "獎金",
     "bonus": "獎金",
     "bonusAll": "獎金全部",
@@ -349,24 +344,23 @@
     "bonusDepartment": "獎金部門",
     "bonusPosition": "獎金職等",
     "bonusPositionType": "獎金職級",
+    "bonusPositionAndPositionType": "獎金職等與職級",
     "bonusSeniority": "獎金年資",
-    "level": "級距",
-    "levelRange": "級距類別範圍",
-    "performanceLevel": "績效等級比例",
-    "trustMoney": "信託金",
-    "basicInfo": "基本資訊",
     "employeeData": "基本資料",
     "employeePayment": "薪資檔案",
     "employeeTrust": "持股信託",
     "employeeBonus": "員工獎金",
-    "allowance": "工作津貼",
     "holiday": "請假",
+    "incomeTaxSetting": "薪資所得稅設定",
+    "insuranceRateSetting": "勞健保費率",
+    "level": "級距",
+    "levelRange": "級距類別範圍",
     "overtime": "加班",
     "other": "其他",
     "payset": "工作天數",
+    "performanceLevel": "績效等級比例",
     "salaryIncomeTax": "薪資所得稅",
-    "bonusPositionAndPositionType": "獎金職等與職級",
-    "incomeTaxSetting": "薪資所得稅設定"
+    "trustMoney": "信託金"
   },
   "button": {
     "next_step": "下一步",
