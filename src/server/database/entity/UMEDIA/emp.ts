@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { CostCategoryEnum, CostCategoryEnumType } from "~/server/api/types/cost_category_type";
+import {
+	CostCategoryEnum,
+	CostCategoryEnumType,
+} from "~/server/api/types/cost_category_type";
 import {
 	convertFromDBWorkStatusEnum,
 	DBWorkStatusEnum,
@@ -9,6 +12,8 @@ import {
 import {
 	WorkTypeEnumType,
 	WorkTypeEnum,
+	convertFromDBWorkTypeEnum,
+	DBWorkTypeEnum,
 } from "~/server/api/types/work_type_enum";
 import { stringToEnum } from "~/server/api/types/z_utils";
 import { get_date_string } from "~/server/service/helper_function";
@@ -21,7 +26,10 @@ const dbEmp = z.object({
 	POSITION_TYPE: z.string(),
 	GINSURANCE_TYPE: z.string(),
 	U_DEP: z.string(),
-	WORK_TYPE: stringToEnum.pipe(WorkTypeEnum),
+	WORK_TYPE: stringToEnum
+		.pipe(DBWorkTypeEnum)
+		.transform(convertFromDBWorkTypeEnum)
+		.pipe(WorkTypeEnum),
 	WORK_STATUS: stringToEnum
 		.pipe(DBWorkStatusEnum)
 		.transform(convertFromDBWorkStatusEnum)

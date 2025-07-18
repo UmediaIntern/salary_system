@@ -16,6 +16,7 @@ import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 import { InternalServerError } from "../errors/internal_server_error";
 import { convertToDBWorkStatusEnum } from "../api/types/work_status_enum";
 import { ParserError } from "../errors/parser_error";
+import { convertToDBWorkTypeEnum } from "../api/types/work_type_enum";
 
 @injectable()
 export class EmployeeDataService {
@@ -178,6 +179,9 @@ export class EmployeeDataService {
 				period_id: select_value(data.period_id, employeeData.period_id),
 				...updateEmployeeData,
 				// TODO
+				work_type: updateEmployeeData.work_type
+					? convertToDBWorkTypeEnum(updateEmployeeData.work_type)
+					: undefined,
 				work_status: updateEmployeeData.work_status
 					? convertToDBWorkStatusEnum(updateEmployeeData.work_status)
 					: undefined,
@@ -215,6 +219,9 @@ export class EmployeeDataService {
 			{
 				...updateEmployeeData,
 				// TODO
+				work_type: updateEmployeeData.work_type
+					? convertToDBWorkTypeEnum(updateEmployeeData.work_type)
+					: undefined,
 				work_status: updateEmployeeData.work_status
 					? convertToDBWorkStatusEnum(updateEmployeeData.work_status)
 					: undefined,

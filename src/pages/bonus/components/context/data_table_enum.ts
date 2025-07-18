@@ -4,6 +4,7 @@ export const TableEnumValues = [
 	"TableBonusDepartment",
 	"TableBonusPosition",
 	"TableBonusSeniority",
+	"TableEmployeeBonus",
 ] as const;
 
 export type TableEnum = (typeof TableEnumValues)[number];
@@ -20,6 +21,8 @@ function getTableName(table: TableEnum) {
 			return "bonusPosition";
 		case "TableBonusSeniority":
 			return "bonusSeniority";
+		case "TableEmployeeBonus":
+			return "employeeBonus";
 	}
 }
 

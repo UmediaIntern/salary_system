@@ -160,6 +160,26 @@ export default function BonusToolbarFunctionsProvider({
 	});
 	//#endregion
 
+	//#region <EmployeeBonus>
+	const getEmployeeBonus = () =>
+		api.bonus.getEmployeeBonus.useQuery({ period_id, bonus_type });
+	const updateEmployeeBonus = api.bonus.updateEmployeeBonus.useMutation({
+		onSuccess: () => {
+			void ctx.bonus.getEmployeeBonus.invalidate();
+		},
+	});
+	const createEmployeeBonus = api.bonus.createEmployeeBonus.useMutation({
+		onSuccess: () => {
+			void ctx.bonus.getEmployeeBonus.invalidate();
+		},
+	});
+	const deleteEmployeeBonus = api.bonus.deleteEmployeeBonus.useMutation({
+		onSuccess: () => {
+			void ctx.bonus.getEmployeeBonus.invalidate();
+		},
+	});
+	//#endregion
+
 	const functionsDictionary: Record<TableEnum, FunctionsApi> = {
 		TableBonusAll: {
 			queryFunction: getBonusAll,
@@ -195,6 +215,13 @@ export default function BonusToolbarFunctionsProvider({
 			createFunction: createBonusSeniority,
 			batchCreateFunction: batchCreateBonusSeniority,
 			deleteFunction: deleteBonusSeniority,
+		},
+		TableEmployeeBonus: {
+			queryFunction: getEmployeeBonus,
+			updateFunction: updateEmployeeBonus,
+			createFunction: createEmployeeBonus,
+			batchCreateFunction: undefined,
+			deleteFunction: deleteEmployeeBonus,
 		},
 	};
 
