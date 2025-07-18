@@ -9,6 +9,8 @@ import {
 } from "./common_type";
 import { LongServiceEnum } from "./long_service_enum";
 import { optionalNumDefaultZero } from "./z_utils";
+import { encEmployeeData } from "~/server/database/entity/SALARY/employee_data";
+import { employeeData } from "./employee_data_type";
 
 const employeePaymentBase = z.object({
 	emp_no: z.string(),
@@ -76,9 +78,11 @@ export const updateEmployeePaymentService = employeePaymentUpdate
 export const employeePaymentFE = employeePaymentBase
 	.merge(Id)
 	.merge(empData)
+	.merge(employeeData.pick({"work_type": true}))
 	.merge(dateMetaFE)
 	.merge(func);
-const RangeStatus: z.ZodType<{ isInRange: boolean; isModified: boolean }> = z.object({
+
+const rangeStatus = z.object({
 	isInRange: z.boolean(),
 	isModified: z.boolean(),
 });
@@ -88,11 +92,11 @@ export const employeePaymentWithInfoFE = employeePaymentFE.merge(
 		info: z.object({
 			isPositionModified: z.boolean(),
 			isPositionTypeModified: z.boolean(),
-			supervisor: RangeStatus,
-			occupational:RangeStatus,
-			longService:RangeStatus,
-			subsidy:RangeStatus,
-			food:RangeStatus,
+			supervisor: rangeStatus,
+			occupational:rangeStatus,
+			longService:rangeStatus,
+			subsidy:rangeStatus,
+			food:rangeStatus,
 		}),
 	})
 );

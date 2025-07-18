@@ -10,6 +10,7 @@ import {
 } from "../entity/SALARY/employee_data";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
 import { BaseMapper } from "./base_mapper";
+import { EmployeePaymentFEType } from "~/server/api/types/employee_payment_type";
 
 @injectable()
 export class EmployeePaymentMapper extends BaseMapper<
@@ -34,14 +35,15 @@ export class EmployeePaymentMapper extends BaseMapper<
 		]);
 	}
 
-	async getEmployeePaymentFE(dec: EmployeePaymentDecType[]) {
+	async getEmployeePaymentFE(dec: EmployeePaymentDecType[]): Promise<EmployeePaymentFEType[]> {
 		const list = await this.includeEmployee(dec, [
 			"department",
 			"emp_name",
 			"position",
 			"position_type",
+			"work_type",
 		]);
-		const EmployeePaymentFE = await Promise.all(
+		const employeePaymentFE = await Promise.all(
 			list.map(async (e) => {
 				return {
 					...e,
@@ -53,7 +55,7 @@ export class EmployeePaymentMapper extends BaseMapper<
 				};
 			})
 		);
-		return EmployeePaymentFE;
+		return employeePaymentFE;
 	}
 
 	private async includeEmployee<

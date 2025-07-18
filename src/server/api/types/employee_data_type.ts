@@ -5,8 +5,7 @@ import { WorkTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
 import { CostCategoryEnum } from "./cost_category_type";
 
-//MARK:employee_data
-const employeeData = z.object({
+export const employeeData = z.object({
 	period_id: z.number(),
 	emp_no: z.string(),
 	emp_name: z.string(),
