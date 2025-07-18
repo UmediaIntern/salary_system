@@ -38,6 +38,7 @@ import { reqNodeEmpNo } from "./excel_requirement";
 import { convertFromDBWorkStatusEnum } from "~/server/api/types/work_status_enum";
 import { MB } from "~/lib/utils/define";
 import { dateToStringNullable } from "~/server/api/types/z_utils";
+import { convertFromDBWorkTypeEnum } from "~/server/api/types/work_type_enum";
 
 const excelParser = new ExcelParser();
 // const excelValidator = new ExcelValidator([]);
@@ -56,81 +57,83 @@ export function ImportCarousel() {
 
 		const data = await extractData(file);
 		console.log("extracted data", data);
-    if (!data) {
-      return
-    }
+		if (!data) {
+			return
+		}
 
-    let excel: ExcelSheetData;
-    try {
-      excel = excelParser.parseSingleSheet(data);
-    } catch (error) {
-      console.log(error);
-      return
-    }
+		let excel: ExcelSheetData;
+		try {
+			excel = excelParser.parseSingleSheet(data);
+		} catch (error) {
+			console.log(error);
+			return
+		}
 
-    // const result = excelValidator.validate(excel);
-    // if (!result.success) {
-    //   for (const error of result.errors) {
-    //     console.log(error.toString());
-    //   }
-    //   return
-    // }
+		// const result = excelValidator.validate(excel);
+		// if (!result.success) {
+		//   for (const error of result.errors) {
+		//     console.log(error.toString());
+		//   }
+		//   return
+		// }
 
-    const indices: number[] = [];
-    importFieldsKeys.options.forEach((key) => {
-      const excelFieldName = excelFieldMapping[key];
-      const idx = excel.raw_header.indexOf(excelFieldName);
-      if (idx === -1) {
-        console.log(`${excelFieldName} not found in excel`);
-      }
-      indices.push(idx);
-      console.log(excelFieldName);
-    });
+		const indices: number[] = [];
+		importFieldsKeys.options.forEach((key) => {
+			const excelFieldName = excelFieldMapping[key];
+			const idx = excel.raw_header.indexOf(excelFieldName);
+			if (idx === -1) {
+				console.log(`${excelFieldName} not found in excel`);
+			}
+			indices.push(idx);
+			console.log(excelFieldName);
+		});
 
-    // Processing rows
-    const transactionRows: ImportFieldsType[] = [];
-    const excelRows = excel.raw_data;
-    let i = 0;
-    for (const row of excelRows) {
-      // console.log(row);
-      const obj: Record<string, unknown> = {};
-      importFieldsKeys.options.forEach((key, idx) => {
-        const dataIdx = indices[idx];
-        if (
-          dataIdx != undefined &&
-          dataIdx >= 0 &&
-          row[dataIdx] !== undefined
-        ) {
-          if (key === "work_status") {
-            obj[key] = convertFromDBWorkStatusEnum(row[dataIdx]);
-          } else {
-            obj[key] = row[dataIdx];
-          }
-        } else {
-          console.log(
-            `${key} not found in excel idx=${idx} dataIdx=${dataIdx}`
-          );
-        }
-      });
+		// Processing rows
+		const transactionRows: ImportFieldsType[] = [];
+		const excelRows = excel.raw_data;
+		let i = 0;
+		for (const row of excelRows) {
+			// console.log(row);
+			const obj: Record<string, unknown> = {};
+			importFieldsKeys.options.forEach((key, idx) => {
+				const dataIdx = indices[idx];
+				if (
+					dataIdx != undefined &&
+					dataIdx >= 0 &&
+					row[dataIdx] !== undefined
+				) {
+					if (key === "work_status") {
+						obj[key] = convertFromDBWorkStatusEnum(row[dataIdx]);
+					} else if (key === "work_type") {
+						obj[key] = convertFromDBWorkTypeEnum(row[dataIdx]);
+					} else {
+						obj[key] = row[dataIdx];
+					}
+				} else {
+					console.log(
+						`${key} not found in excel idx=${idx} dataIdx=${dataIdx}`
+					);
+				}
+			});
 
-      // TODO: temporary
-      // const result = importFields.safeParse(obj);
-      // if (!result.success) {
-      //   console.log(result.error.message);
-      //   console.log(row, i, obj);
-      //   i += 1;
-      //   return;
-      // }
-      // if (!result.data) {
-      //   console.log("No data");
-      //   i += 1;
-      //   return;
-      // }
-      // transactionRows.push(result.data);
-      transactionRows.push(obj);
-    }
-    setExcelData(transactionRows);
-    console.log("trans", transactionRows);
+			// TODO: temporary
+			// const result = importFields.safeParse(obj);
+			// if (!result.success) {
+			//   console.log(result.error.message);
+			//   console.log(row, i, obj);
+			//   i += 1;
+			//   return;
+			// }
+			// if (!result.data) {
+			//   console.log("No data");
+			//   i += 1;
+			//   return;
+			// }
+			// transactionRows.push(result.data);
+			transactionRows.push(obj);
+		}
+		setExcelData(transactionRows);
+		console.log("trans", transactionRows);
 
 		carouselApi?.scrollNext();
 	}
@@ -163,7 +166,7 @@ export function ImportCarousel() {
 					<Card className="h-full">
 						<CardContent className="flex h-full grow items-center justify-center p-6">
 							<span className="text-4xl font-semibold">
-								<FileUploader onUpload={handleFileUpload} maxSize={MB(5)}/>
+								<FileUploader onUpload={handleFileUpload} maxSize={MB(5)} />
 							</span>
 						</CardContent>
 					</Card>

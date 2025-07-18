@@ -24,3 +24,9 @@ export function convertFromDBWorkTypeEnum(workType: DBWorkTypeEnumType): WorkTyp
 	}
 	throw new Error(`Unknown work type: ${workType}`);
 }
+
+export function convertToKey(status: WorkTypeEnumType): string {
+    return status
+        .replace(/([a-z])([A-Z])/g, "$1_$2") // Insert underscore between lowercase and uppercase
+        .toLowerCase(); // Convert the whole string to lowercase
+}

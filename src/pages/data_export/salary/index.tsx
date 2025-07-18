@@ -42,7 +42,8 @@ import { getExcelData, getDefaults } from "./utils";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { Transaction } from "~/server/database/entity/SALARY/transaction";
-import { convertToKey } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkStatusKey } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkTypeKey } from "~/server/api/types/work_type_enum";
 import { SalaryOutType } from "~/server/api/types/report_salary_out_type";
 import { HILevelRangeType } from "~/server/api/types/report_h_i_level_range_type";
 import { LILevelRangeType } from "~/server/api/types/report_l_i_level_range_type";
@@ -94,7 +95,10 @@ function displayMapper(t: any, data: any[]) {
 		Object.keys(row).forEach((key) => {
 			switch (key) {
 				case "work_status":
-					newRow[key] = t(`work_status.${convertToKey(row[key])}`);
+					newRow[key] = t(`work_status.${convertToWorkStatusKey(row[key])}`);
+					break;
+				case "work_type":
+					newRow[key] = t(`work_type.${convertToWorkTypeKey(row[key])}`);
 					break;
 				case "pay_type":
 				case "received_elderly_benefits":
@@ -125,36 +129,36 @@ function ExportPage() {
 		"disabled",
 		// Exclude other from transaction
 	]);
-	const [toDisplayData, setToDisplayData] = useState<any>(null);	
+	const [toDisplayData, setToDisplayData] = useState<any>(null);
 
 
 	// ! Declare All Excel Data
 	const all_data_api: {
-		transaction?: 				ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
-		transaction_department?: 	ReturnType<typeof api.report.getTransactionDepartment.useQuery>;
-		salary_out?: 				ReturnType<typeof api.report.getSalaryOut.useQuery>;
-		h_i_level_range?: 			ReturnType<typeof api.report.getHILevelRange.useQuery>;
-		l_i_level_range?: 			ReturnType<typeof api.report.getLILevelRange.useQuery>;
-		l_r_level_range?: 			ReturnType<typeof api.report.getLRLevelRange.useQuery>;
-		h_i_details_out?: 			ReturnType<typeof api.report.getHIDetailsOut.useQuery>;
-		o_i_insurance?:				ReturnType<typeof api.report.getOIInsurance.useQuery>;
-		test?: 						ReturnType<typeof api.report.getTransactionIndividual.useQuery>;	
+		transaction?: ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
+		transaction_department?: ReturnType<typeof api.report.getTransactionDepartment.useQuery>;
+		salary_out?: ReturnType<typeof api.report.getSalaryOut.useQuery>;
+		h_i_level_range?: ReturnType<typeof api.report.getHILevelRange.useQuery>;
+		l_i_level_range?: ReturnType<typeof api.report.getLILevelRange.useQuery>;
+		l_r_level_range?: ReturnType<typeof api.report.getLRLevelRange.useQuery>;
+		h_i_details_out?: ReturnType<typeof api.report.getHIDetailsOut.useQuery>;
+		o_i_insurance?: ReturnType<typeof api.report.getOIInsurance.useQuery>;
+		test?: ReturnType<typeof api.report.getTransactionIndividual.useQuery>;
 	} = {};
 
 	type AllDataApiKeys = keyof typeof all_data_api;
 
-	const all_data_isPending: 	Partial<Record<AllDataApiKeys, boolean>> = {};
-	const all_data_content: 	Partial<Record<AllDataApiKeys, ReactNode>> = {};
+	const all_data_isPending: Partial<Record<AllDataApiKeys, boolean>> = {};
+	const all_data_content: Partial<Record<AllDataApiKeys, ReactNode>> = {};
 	const all_data: {
-		transaction?: 				(Transaction | null)[];
-		transaction_department?: 	(Transaction | null)[];
-		salary_out?: 				(SalaryOutType | null)[];
-		h_i_level_range?: 			(HILevelRangeType | null)[];
-		l_i_level_range?: 			(LILevelRangeType | null)[];
-		l_r_level_range?: 			(LRLevelRangeType | null)[];
-		h_i_details_out?: 			(HIDetailsOutType | null)[];
-		o_i_insurance?:				(OIInsuranceType | null)[];
-		test?: 						(any | null)[];
+		transaction?: (Transaction | null)[];
+		transaction_department?: (Transaction | null)[];
+		salary_out?: (SalaryOutType | null)[];
+		h_i_level_range?: (HILevelRangeType | null)[];
+		l_i_level_range?: (LILevelRangeType | null)[];
+		l_r_level_range?: (LRLevelRangeType | null)[];
+		h_i_details_out?: (HIDetailsOutType | null)[];
+		o_i_insurance?: (OIInsuranceType | null)[];
+		test?: (any | null)[];
 	} = {};
 
 
@@ -191,37 +195,37 @@ function ExportPage() {
 	all_data_content['transaction_department'] = transactionDepartmentContent;
 	all_data['transaction_department'] = transactionDepartmentData as (Transaction | null)[];
 
-	all_data_api['salary_out'] = api.report.getSalaryOut.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	all_data_api['salary_out'] = api.report.getSalaryOut.useQuery({ period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary", });
 	const { isPending: salaryOutIsPending, content: salaryOutContent, data: salaryOutData } = useQueryHandle(all_data_api['salary_out']);
 	all_data_isPending['salary_out'] = salaryOutIsPending;
 	all_data_content['salary_out'] = salaryOutContent;
 	all_data['salary_out'] = salaryOutData as (SalaryOutType | null)[];
 
-	all_data_api['h_i_level_range'] = api.report.getHILevelRange.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	all_data_api['h_i_level_range'] = api.report.getHILevelRange.useQuery({ period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary", });
 	const { isPending: HILevelRangeIsPending, content: HILevelRangeContent, data: HILevelRangeData } = useQueryHandle(all_data_api['h_i_level_range']);
 	all_data_isPending['h_i_level_range'] = HILevelRangeIsPending;
 	all_data_content['h_i_level_range'] = HILevelRangeContent;
 	all_data['h_i_level_range'] = HILevelRangeData as (HILevelRangeType | null)[];
 
-	all_data_api['l_i_level_range'] = api.report.getLILevelRange.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	all_data_api['l_i_level_range'] = api.report.getLILevelRange.useQuery({ period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary", });
 	const { isPending: LILevelRangeIsPending, content: LILevelRangeContent, data: LILevelRangeData } = useQueryHandle(all_data_api['l_i_level_range']);
 	all_data_isPending['l_i_level_range'] = LILevelRangeIsPending;
 	all_data_content['l_i_level_range'] = LILevelRangeContent;
 	all_data['l_i_level_range'] = LILevelRangeData as (LILevelRangeType | null)[];
 
-	all_data_api['l_r_level_range'] = api.report.getLRLevelRange.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	all_data_api['l_r_level_range'] = api.report.getLRLevelRange.useQuery({ period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary", });
 	const { isPending: LRLevelRangeIsPending, content: LRLevelRangeContent, data: LRLevelRangeData } = useQueryHandle(all_data_api['l_r_level_range']);
 	all_data_isPending['l_r_level_range'] = LRLevelRangeIsPending;
 	all_data_content['l_r_level_range'] = LRLevelRangeContent;
 	all_data['l_r_level_range'] = LRLevelRangeData as (LRLevelRangeType | null)[];
 
-	all_data_api['h_i_details_out'] = api.report.getHIDetailsOut.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	all_data_api['h_i_details_out'] = api.report.getHIDetailsOut.useQuery({ period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary", });
 	const { isPending: HIDetailsOutIsPending, content: HIDetailsOutContent, data: HIDetailsOutData } = useQueryHandle(all_data_api['h_i_details_out']);
 	all_data_isPending['h_i_details_out'] = HIDetailsOutIsPending;
 	all_data_content['h_i_details_out'] = HIDetailsOutContent;
 	all_data['h_i_details_out'] = HIDetailsOutData as (HIDetailsOutType | null)[];
 
-	all_data_api['o_i_insurance'] = api.report.getOIInsurance.useQuery({period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary",});
+	all_data_api['o_i_insurance'] = api.report.getOIInsurance.useQuery({ period_id: selectedPeriod?.period_id ?? 0, pay_type: "month_salary", });
 	const { isPending: OIInsuranceIsPending, content: OIInsuranceContent, data: OIInsuranceData } = useQueryHandle(all_data_api['o_i_insurance']);
 	all_data_isPending['o_i_insurance'] = OIInsuranceIsPending;
 	all_data_content['o_i_insurance'] = OIInsuranceContent;
@@ -295,7 +299,7 @@ function ExportPage() {
 		);
 	}
 
-	function SelectExcelComponent({t}: {
+	function SelectExcelComponent({ t }: {
 		t: any
 	}) {
 		const selectedExcel = excel_order[selectedExcelIndex]!;
