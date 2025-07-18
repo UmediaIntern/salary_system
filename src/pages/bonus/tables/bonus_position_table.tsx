@@ -142,7 +142,6 @@ export function BonusPositionTable({
 		openDialog,
 		setOpenDialog,
 		mode,
-		setData,
 	} = useBonusFunctionContext();
 
 	const getBonusPosition = api.bonus.getBonusPosition.useQuery({
@@ -159,12 +158,6 @@ export function BonusPositionTable({
 	});
 
 	const filterKey: RowItemKey = "position";
-
-	useEffect(() => {
-		if (data) {
-			setData(data);
-		}
-	}, [data, setData, selectedData]);
 
 	if (isPending) {
 		return content;

@@ -133,7 +133,6 @@ export function BonusAllTable({
 		openDialog,
 		setOpenDialog,
 		mode,
-		setData,
 	} = useContext(dataTableContext);
 
 	const getBonusAll = api.bonus.getBonusAll.useQuery({
@@ -225,7 +224,7 @@ export function BonusAllTable({
 							data={
 								bonusAllSchema
 									.omit({ id: true })
-									.safeParse(selectedData).data
+									.safeParse({ multiplier: selectedData.value }).data
 							}
 						/>
 					</Dialog>
