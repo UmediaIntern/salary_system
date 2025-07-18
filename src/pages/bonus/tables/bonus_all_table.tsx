@@ -224,7 +224,7 @@ export function BonusAllTable({
 							data={
 								bonusAllSchema
 									.omit({ id: true })
-									.safeParse({ multiplier: selectedData.value }).data
+									.safeParse({ multiplier: selectedData?.value ?? 0 }).data
 							}
 						/>
 					</Dialog>
