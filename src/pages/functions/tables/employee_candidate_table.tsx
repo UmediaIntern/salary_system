@@ -7,7 +7,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
-import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkStatusKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkTypeKey, WorkTypeEnumType } from "~/server/api/types/work_type_enum";
 import { CostCategoryEnumType } from "~/server/api/types/cost_category_type";
 
 type RowItem = {
@@ -86,7 +87,11 @@ const columns = (t: I18nType) => {
 				switch (key) {
 					case "work_status":
 						const work_status = row.original.work_status as WorkStatusEnumType;
-						content = t(`work_status.${convertToKey(work_status)}`);
+						content = t(`work_status.${convertToWorkStatusKey(work_status)}`);
+						break;
+					case "work_type":
+						const work_type = row.original.work_type as WorkTypeEnumType;
+						content = t(`work_type.${convertToWorkTypeKey(work_type)}`);
 						break;
 					case "residence_permit_start_date":
 						content = formatDate("day", row.original.residence_permit_start_date) ?? "";

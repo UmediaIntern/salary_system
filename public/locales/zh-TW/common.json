@@ -547,6 +547,11 @@
     "daily_wage": "日薪制",
     "boss": "總經理"
   },
+  "work_type": {
+    "direct_employee": "直接人員",
+    "indirect_employee": "間接人員",
+    "foreign_worker": "外籍勞工"
+  },
   "TODO": {
     "year_award_contribution": "年獎提撥",
     "night_fee": "夜點費",

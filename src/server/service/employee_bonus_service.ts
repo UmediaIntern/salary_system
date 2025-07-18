@@ -29,7 +29,7 @@ export class EmployeeBonusService {
 		private readonly ehrService: EHRService,
 		private readonly employeeBonusMapper: EmployeeBonusMapper,
 		private readonly employeePaymentService: EmployeePaymentService
-	) { }
+	) {}
 
 	async createEmployeeBonus(
 		data: z.input<typeof createEmployeeBonusService>
@@ -56,12 +56,17 @@ export class EmployeeBonusService {
 	) {
 		console.log("//called createEmployeeBonusByEmpNoList//");
 		const existingBonuses = new Set(
-			(await this.getAllEmployeeBonusByPeriodIdByBonusType(period_id, bonus_type))
-				.map((e) => e.emp_no)
+			(
+				await this.getAllEmployeeBonusByPeriodIdByBonusType(
+					period_id,
+					bonus_type
+				)
+			).map((e) => e.emp_no)
 		);
 		console.log(existingBonuses);
-		console.log(emp_no_list
-			.filter((emp_no) => !existingBonuses.has(emp_no)));
+		console.log(
+			emp_no_list.filter((emp_no) => !existingBonuses.has(emp_no))
+		);
 		await Promise.all(
 			emp_no_list
 				.filter((emp_no) => !existingBonuses.has(emp_no))
@@ -136,7 +141,9 @@ export class EmployeeBonusService {
 		return await this.employeeBonusMapper.decodeList(result);
 	}
 
-	async getAllEmployeeBonusByPeriodId(period_id: number): Promise<EmployeeBonusDecType[]> {
+	async getAllEmployeeBonusByPeriodId(
+		period_id: number
+	): Promise<EmployeeBonusDecType[]> {
 		const result = await EmployeeBonus.findAll({
 			where: {
 				period_id: period_id,
@@ -246,10 +253,11 @@ export class EmployeeBonusService {
 		bonus_type: BonusTypeEnumType
 	) {
 		console.log("\\n\n\ncalled initCandidateEmployeeBonus\n\n\n");
-		const all_emp_bonus_list = await this.getAllEmployeeBonusByPeriodIdByBonusType(
-			period_id,
-			bonus_type
-		);
+		const all_emp_bonus_list =
+			await this.getAllEmployeeBonusByPeriodIdByBonusType(
+				period_id,
+				bonus_type
+			);
 		const bonus_all_service = container.resolve(BonusAllService);
 		const bonus_work_type_service = container.resolve(BonusWorkTypeService);
 		const bonus_position_service = container.resolve(BonusPositionService);
@@ -266,16 +274,23 @@ export class EmployeeBonusService {
 		const employee_data_service = container.resolve(EmployeeDataService);
 		const issue_date = (await ehr_service.getPeriodById(period_id))
 			.issue_date;
+		const all_emp_data =
+			await employee_data_service.getEmployeeDataByEmpNoListByPeriod(
+				period_id,
+				all_emp_bonus_list.map((emp) => emp.emp_no)
+			);
 
 		const promises = all_emp_bonus_list.map(async (emp) => {
-			const employee_data =
-				await employee_data_service.getEmployeeDataByEmpNoByPeriod(
-					period_id,
-					emp.emp_no
-				);
+			const employee_data = all_emp_data.find(
+				(emp_data) => emp_data.emp_no === emp.emp_no
+			);
 			if (!employee_data) {
 				return;
 			}
+			// TODO: filter unqualified employee
+			// else if (){
+			// 	return
+			// }
 			const special_multiplier =
 				(await bonus_all_service.getMultiplier(period_id, bonus_type)) *
 				(await bonus_work_type_service.getMultiplier(
@@ -297,7 +312,7 @@ export class EmployeeBonusService {
 							new Date(
 								employee_data.registration_date
 							).getTime()) /
-						(1000 * 60 * 60 * 24 * 365)
+							(1000 * 60 * 60 * 24 * 365)
 					)
 				)) *
 				(await bonus_department_service.getMultiplier(
@@ -531,7 +546,10 @@ export class EmployeeBonusService {
 			budget_amount: number;
 		}[] = [];
 		const emp_no_list = (
-			await this.getAllEmployeeBonusByPeriodIdByBonusType(period_id, bonus_type)
+			await this.getAllEmployeeBonusByPeriodIdByBonusType(
+				period_id,
+				bonus_type
+			)
 		).map((e) => e.emp_no);
 		const emp_bonus_list = await this.getEmployeeBonusByEmpNoListByType(
 			period_id,
@@ -568,11 +586,11 @@ export class EmployeeBonusService {
 					employee_payment_dec.occupational_allowance +
 					employee_payment_dec.subsidy_allowance +
 					(employee_payment_dec.long_service_allowance_type ==
-						LongServiceEnum.enum.month_allowance
+					LongServiceEnum.enum.month_allowance
 						? employee_payment_dec.long_service_allowance
 						: 0)) *
-				employee_bonus_fe.special_multiplier *
-				employee_bonus_fe.multiplier +
+					employee_bonus_fe.special_multiplier *
+					employee_bonus_fe.multiplier +
 				employee_bonus_fe.fixed_amount;
 			if (budget_amount <= 0) {
 				budget_amount_list.push({
@@ -585,11 +603,11 @@ export class EmployeeBonusService {
 					emp_no: emp_no,
 					bud_effective_salary: Round(
 						budget_amount /
-						(employee_payment_dec.base_salary +
-							employee_payment_dec.food_allowance +
-							employee_payment_dec.supervisor_allowance +
-							employee_payment_dec.occupational_allowance +
-							employee_payment_dec.subsidy_allowance),
+							(employee_payment_dec.base_salary +
+								employee_payment_dec.food_allowance +
+								employee_payment_dec.supervisor_allowance +
+								employee_payment_dec.occupational_allowance +
+								employee_payment_dec.subsidy_allowance),
 						3
 					),
 					budget_amount: budget_amount,

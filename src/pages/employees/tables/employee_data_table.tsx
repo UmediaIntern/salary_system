@@ -9,7 +9,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 import { type MonthSalaryStatusEnumType } from "~/server/api/types/month_salary_status_enum";
 import { useEmployeeTableContext } from "../components/context/data_table_context_provider";
-import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkStatusKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkTypeKey, WorkTypeEnumType } from "~/server/api/types/work_type_enum";
 import { CostCategoryEnumType } from "~/server/api/types/cost_category_type";
 
 // TODO: move to schema
@@ -80,7 +81,11 @@ const columns = (t: I18nType) => {
 				switch (key) {
 					case "work_status":
 						const work_status = row.original.work_status as WorkStatusEnumType;
-						content = t(`work_status.${convertToKey(work_status)}`);
+						content = t(`work_status.${convertToWorkStatusKey(work_status)}`);
+						break;
+					case "work_type":
+						const work_type = row.original.work_type as WorkTypeEnumType;
+						content = t(`work_type.${convertToWorkTypeKey(work_type)}`);
 						break;
 					case "residence_permit_start_date":
 						content = formatDate("day", row.original.residence_permit_start_date) ?? "";
@@ -99,7 +104,7 @@ const columns = (t: I18nType) => {
 						break;
 				}
 				return <ColumnCellComponent>
-					{ 
+					{
 						// (row.original.difference.includes(key)) ? 
 						// <div className="text-red-500">
 						// 	{/* {console.log("RED")} */}
@@ -141,13 +146,13 @@ export function EmployeeDataTable() {
 
 	return (
 		<>
-		{/* <button onClick={() => console.log(testData)}>TEST</button> */}
-		<DataTable
-			columns={columns(t)}
-			data={testData ? testData : []}
-			// data = {data}
-			initialColumnVisibility={{ month_salary_status: false }}
-		/>
+			{/* <button onClick={() => console.log(testData)}>TEST</button> */}
+			<DataTable
+				columns={columns(t)}
+				data={testData ? testData : []}
+				// data = {data}
+				initialColumnVisibility={{ month_salary_status: false }}
+			/>
 		</>
 	);
 }

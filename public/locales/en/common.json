@@ -457,5 +457,10 @@
     "contract_employee": "Contract Employee",
     "daily_wage": "Daily Wage",
     "boss": "Boss"
+  },
+  "work_type": {
+    "direct_employee": "Direct Employee",
+    "indirect_employee": "Indirect Employee",
+    "foreign_worker": "Foreign Worker"
   }
 }

@@ -33,8 +33,9 @@ import {
 } from "./utils/select_mode";
 import { SelectDepartment } from "./select_department";
 import { type SyncData } from "~/server/api/types/sync_type";
-import { convertToKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
 import { formatDate } from "~/lib/utils/format_date";
+import { convertToKey as convertToWorkStatusKey, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
+import { convertToKey as convertToWorkTypeKey, WorkTypeEnumType } from "~/server/api/types/work_type_enum";
 
 export function SyncPageContent({ data }: { data: SyncData[] }) {
 	const [mode, setMode] = useState<SyncDataDisplayModeEnumType>(
@@ -72,18 +73,22 @@ export function SyncPageContent({ data }: { data: SyncData[] }) {
 						let ehrValue = c.ehr_value;
 						switch (c.key) {
 							case "work_status":
-								salaryValue = salaryValue ? t(`work_status.${convertToKey(c.salary_value as WorkStatusEnumType)}`) : salaryValue;
-								ehrValue = t(`work_status.${convertToKey(c.ehr_value as WorkStatusEnumType)}`);
+								salaryValue = salaryValue ? t(`work_status.${convertToWorkStatusKey(c.salary_value as WorkStatusEnumType)}`) : salaryValue;
+								ehrValue = t(`work_status.${convertToWorkStatusKey(c.ehr_value as WorkStatusEnumType)}`);
+								break;
+							case "work_type":
+								salaryValue = salaryValue ? t(`work_type.${convertToWorkTypeKey(c.salary_value as WorkTypeEnumType)}`) : salaryValue;
+								ehrValue = t(`work_type.${convertToWorkTypeKey(c.ehr_value as WorkTypeEnumType)}`);
 								break;
 							case "residence_permit_start_date":
 							case "residence_permit_end_date":
 							case "registration_date":
 							case "quit_date":
-								salaryValue =  salaryValue ? formatDate("day", c.salary_value) : salaryValue;
+								salaryValue = salaryValue ? formatDate("day", c.salary_value) : salaryValue;
 								ehrValue = ehrValue ? formatDate("day", c.ehr_value) : ehrValue;
 								break;
 							case "received_elderly_benefits":
-								salaryValue = salaryValue ? t(`others.${c.salary_value}`): salaryValue;
+								salaryValue = salaryValue ? t(`others.${c.salary_value}`) : salaryValue;
 								ehrValue = t(`others.${c.ehr_value}`);
 								break;
 						}

@@ -87,13 +87,13 @@ export class BonusWorkTypeService {
 				disabled: false,
 			},
 		});
-		if (list.length == 0) return 1;
+		// if (list.length == 0) return 1;
 		const dict = list.reduce((acc:{[key:string]:number}, item) => {
 			acc[item.work_type] = item.multiplier;
 			return acc;
 		  }, {});
 		const multiplier = dict[work_type];
-		return multiplier ?? 0;
+		return multiplier ?? 1;
 	}
 	async getAllBonusWorkType(): Promise<BonusWorkType[] | null> {
 		const bonusWorkType = await BonusWorkType.findAll(

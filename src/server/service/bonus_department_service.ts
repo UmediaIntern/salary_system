@@ -66,7 +66,7 @@ export class BonusDepartmentService {
 				disabled: false,
 			},
 		});
-		if (list.length == 0) return 1;
+		// if (list.length == 0) return 1;
 		const correct_department = department.split("\r")[0]?.split("\n")[0]!;
 		const dict = list.reduce((acc:{[key:string]:number}, item) => {
 			acc[item.department] = item.multiplier;
@@ -83,7 +83,7 @@ export class BonusDepartmentService {
 		// 		},
 		// 	})
 		// )?.multiplier;
-		return multiplier ?? 0;
+		return multiplier ?? 1;
 	}
 
 	async getBonusDepartmentById(id: number): Promise<BonusDepartment | null> {
