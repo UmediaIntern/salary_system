@@ -6,7 +6,7 @@ import {
 import { type FunctionsItem } from "~/components/table_functions/table_functions_types";
 import { type EmployeePaymentWithInfoFEType } from "~/server/api/types/employee_payment_type";
 
-export type PaymentRowItem = Omit<
+export type PaymentRowItemWithInfo = Omit<
 	EmployeePaymentWithInfoFEType,
 	"start_date" | "end_date" | "long_service_allowance_type"
 > & {
@@ -15,6 +15,8 @@ export type PaymentRowItem = Omit<
 	end_date: Date | null;
 	functions: FunctionsItem;
 };
+export type PaymentRowItem = Omit<PaymentRowItemWithInfo, "info">;
+
 export type PaymentRowItemKey = keyof PaymentRowItem;
 export type PaymentFunctionModes =
 	| "create"
