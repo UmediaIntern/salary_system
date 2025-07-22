@@ -6,6 +6,7 @@ import { currencyForeignEnum } from "./currency_foreign_enum";
 
 const employeeBonusBase = z.object({
 	period_id: z.number(),
+	issue_date: z.string(),
 	bonus_type: bonusTypeEnum,
 	emp_no: z.string(),
 	special_multiplier: z.number(),
@@ -29,6 +30,7 @@ const employeeBonusBase = z.object({
 const employeeBonusUpdate = z
 	.object({
 		period_id: z.number(),
+		issue_date: z.string(),
 		bonus_type: bonusTypeEnum,
 		emp_no: z.string(),
 		special_multiplier: optionalNumDefaultZero,

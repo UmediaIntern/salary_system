@@ -1911,6 +1911,7 @@ export class CalculateService {
 		return 0;
 	}
 	//MARK: 二代健保
+	//TODO: 獎金多維護issue_date 找issue_date決定accumulated_all
 	async getSecondGenerationHealthInsurance(
 		period_id: number,
 		emp_no: string,

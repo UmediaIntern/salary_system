@@ -113,6 +113,7 @@ export const bonusRouter = createTRPCRouter({
 		.input(
 			z.object({
 				period_id: z.number(),
+				issue_date: z.string(),
 				bonus_type: bonusTypeEnum,
 			})
 		)
@@ -131,6 +132,7 @@ export const bonusRouter = createTRPCRouter({
 				.map((emp) => emp.emp_no);
 			await empBonusService.createEmployeeBonusByEmpNoList(
 				input.period_id,
+				input.issue_date,
 				input.bonus_type,
 				all_emp_no_list
 			);

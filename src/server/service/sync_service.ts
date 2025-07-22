@@ -30,6 +30,7 @@ import {
 import { z } from "zod";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 import { IncomeTaxSettingService } from "./income_tax_setting_service";
+import { WorkTypeEnum } from "../api/types/work_type_enum";
 
 @injectable()
 export class SyncService {
@@ -91,10 +92,10 @@ export class SyncService {
 			cost_category: ehr_data.cost_category,
 			work_type: ehr_data.work_type,
 			work_status: ehr_data.work_status,
-			disabilty_level: ehr_data.disabilty_level,
+			disabilty_level: ehr_data.disabilty_level ?? "正常",
 			sex_type: ehr_data.sex_type,
-			dependents: ehr_data.dependents,
-			healthcare_dependents: ehr_data.healthcare_dependents,
+			dependents: ehr_data.dependents ?? 0,
+			healthcare_dependents: ehr_data.healthcare_dependents ?? 0,
 			residence_permit_start_date: ehr_data.residence_permit_start_date,
 			residence_permit_end_date: ehr_data.residence_permit_end_date,
 			registration_date: ehr_data.registration_date,
@@ -207,7 +208,7 @@ export class SyncService {
 
 	// Stage 1
 	// 參考salary及ehr的員工數據，回傳理論上需發新的員工數據即有無明顯bug(工作型態與離職日期對不起來)
-	async getCandPaidEmployees( 
+	async getCandPaidEmployees(
 		func: FunctionsEnumType, // 要執行的功能
 		period_id: number // 期間
 	): Promise<PaidEmployee[]> {
@@ -322,6 +323,14 @@ export class SyncService {
 								msg = `離職人員卻有不合理離職日期(${emp.quit_date})`;
 							}
 							break;
+						case WorkStatusEnum.Values.ForeignWorker:
+							// 檢查不合理的工作類別
+							if (
+								emp.work_type !==
+								WorkTypeEnum.Values.ForeignWorker
+							) {
+								msg = "外勞的工作類別不是外勞";
+							}
 						default:
 							// 檢查不合理的離職日期
 							if (

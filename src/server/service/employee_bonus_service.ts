@@ -51,6 +51,7 @@ export class EmployeeBonusService {
 
 	async createEmployeeBonusByEmpNoList(
 		period_id: number,
+		issue_date: string,
 		bonus_type: BonusTypeEnumType,
 		emp_no_list: string[]
 	) {
@@ -73,6 +74,7 @@ export class EmployeeBonusService {
 				.map((emp_no) =>
 					this.createEmployeeBonus({
 						period_id,
+						issue_date,
 						bonus_type,
 						emp_no,
 						special_multiplier: 0,
@@ -348,6 +350,7 @@ export class EmployeeBonusService {
 	async updateEmployeeBonus({
 		id,
 		period_id,
+		issue_date,
 		bonus_type,
 		emp_no,
 		special_multiplier,
@@ -376,6 +379,7 @@ export class EmployeeBonusService {
 		await this.createEmployeeBonus({
 			emp_no: select_value(emp_no, employeeBonus.emp_no),
 			period_id: select_value(period_id, employeeBonus.period_id),
+			issue_date: select_value(issue_date, employeeBonus.issue_date),
 			bonus_type: select_value(bonus_type, employeeBonus.bonus_type),
 			special_multiplier: select_value(
 				special_multiplier,
