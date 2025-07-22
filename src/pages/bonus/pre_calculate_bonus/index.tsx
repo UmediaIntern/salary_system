@@ -85,7 +85,7 @@ const BonusHomePageContent = () => {
                     <ProgressBar labels={titles} selectedIndex={selectedIndex} />
                 </div>
             </div>
-            <div className="m-4 flex grow">
+            <div className="m-4 flex grow min-h-0">
                 {pageList[selectedIndex]?.page ?? <></>}
             </div>
             <div className="mx-4 mb-4 flex justify-between">
