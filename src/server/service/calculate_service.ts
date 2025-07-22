@@ -12,7 +12,11 @@ import { Overtime } from "../database/entity/UMEDIA/overtime";
 import { Payset } from "../database/entity/UMEDIA/payset";
 import { InsuranceRateSettingDecType } from "../database/entity/SALARY/insurance_rate_setting";
 import { Holiday } from "../database/entity/UMEDIA/holiday";
-import { PayTypeEnum, PayTypeEnumType } from "../api/types/pay_type_enum";
+import {
+	PayTypeEnum,
+	PayTypeEnumType,
+	getMatchedBonusType,
+} from "../api/types/pay_type_enum";
 import { HolidaysType } from "../database/entity/SALARY/holidays_type";
 import { Floor, Round } from "./helper_function";
 import { bonusTypeEnum } from "../api/types/bonus_type_enum";
@@ -30,7 +34,10 @@ import { Bonus } from "../database/entity/UMEDIA/bonus";
 import { BonusType } from "../database/entity/UMEDIA/bonus_type";
 import { SalaryIncomeTaxDecType } from "../database/entity/SALARY/salary_income_tax";
 import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
-import { WorkStatusEnum, WorkStatusEnumType } from "../api/types/work_status_enum";
+import {
+	WorkStatusEnum,
+	WorkStatusEnumType,
+} from "../api/types/work_status_enum";
 import { EmployeeTrustService } from "./employee_trust_service";
 import { EmployeeTrustFEType } from "../api/types/employee_trust_type";
 import { stringToDate } from "../api/types/z_utils";
@@ -359,7 +366,10 @@ export class CalculateService {
 
 		if (received_elderly_benefits) return 0; // 'Jerry 100426 已領老年給付者,員工免付勞保
 
-		if (kind1 === WorkTypeEnum.enum.ForeignWorker || kind2 === WorkStatusEnum.enum.ForeignWorker)
+		if (
+			kind1 === WorkTypeEnum.enum.ForeignWorker ||
+			kind2 === WorkStatusEnum.enum.ForeignWorker
+		)
 			return Round(
 				Round(
 					((Tax * wci_normal * 0.200001 * PartTimeDay) / 30) *
@@ -492,7 +502,10 @@ export class CalculateService {
 		const Effect = operational_performance_bonus ?? 0;
 		const Fulltime = full_attendance_bonus ?? 0;
 
-		if (kind1 === WorkTypeEnum.Enum.ForeignWorker || kind2 === WorkStatusEnum.Enum.ForeignWorker)
+		if (
+			kind1 === WorkTypeEnum.Enum.ForeignWorker ||
+			kind2 === WorkStatusEnum.Enum.ForeignWorker
+		)
 			return Round((money + food + Effect + Fulltime) * 0.005);
 		if (kind2 === WorkStatusEnum.Enum.Consultant) return 0;
 		if (kind2 === WorkStatusEnum.Enum.PartTimeWorker) return 0;
@@ -828,7 +841,10 @@ export class CalculateService {
 		);
 
 		// Jerry 07/01/31 主要區別外籍勞工 同時也是當月離職人員的算法會與間接人員計計算邏輯衝突,因此以工作類別區分外籍勞工
-		if (kind1 === WorkTypeEnum.Enum.ForeignWorker || kind2 === WorkStatusEnum.Enum.ForeignWorker) {
+		if (
+			kind1 === WorkTypeEnum.Enum.ForeignWorker ||
+			kind2 === WorkStatusEnum.Enum.ForeignWorker
+		) {
 			// Jerry 07/09/21  15840 ==> 17280   09/4/28 17280 ==> 25920
 
 			// ! 183, 1.5, 6%, 18% 要拉出去
@@ -1652,7 +1668,10 @@ export class CalculateService {
 		const kind1 = employee_data.work_type;
 		const kind2 = employee_data.work_status;
 		//更新過團保費數值
-		if (kind1 === WorkTypeEnum.Enum.ForeignWorker || kind2 === WorkStatusEnum.Enum.ForeignWorker) {
+		if (
+			kind1 === WorkTypeEnum.Enum.ForeignWorker ||
+			kind2 === WorkStatusEnum.Enum.ForeignWorker
+		) {
 			if (level === "F") return 47;
 		} else {
 			if (level === "A") return 441;
@@ -1913,44 +1932,22 @@ export class CalculateService {
 	//MARK: 二代健保
 	//TODO: 獎金多維護issue_date 找issue_date決定accumulated_all
 	async getSecondGenerationHealthInsurance(
-		period_id: number,
-		emp_no: string,
 		pay_type: PayTypeEnumType,
 		insurance_rate_setting: InsuranceRateSettingDecType,
 		employee_payment: EmployeePaymentFEType,
 		accumulated_bonus: number,
 		accumulated_trust: number,
-		emp_trust_reserve: number,
 		org_trust_reserve: number,
 		employee_bonus_list: EmployeeBonusDecType[]
 	): Promise<number> {
-		// const employee_trust =
-		// 	await this.employeeTrustService.getCurrentEmployeeTrustFEByEmpNo(
-		// 		emp_no,
-		// 		period_id
-		// 	);
-		// const employee_bonus_list =
-		// 	await this.employeeBonusService.getEmployeeBonusByEmpNo(
-		// 		period_id,
-		// 		emp_no
-		// 	);
 		if (pay_type === PayTypeEnum.Enum.month_salary) {
 			const new_all =
 				org_trust_reserve +
-				emp_trust_reserve +
+				// emp_trust_reserve +
 				(employee_bonus_list.filter(
 					(e) => e.bonus_type === bonusTypeEnum.Enum.project_bonus
 				)[0]?.app_amount ?? 0);
-			const other_bonus =
-				employee_bonus_list.filter(
-					(e) => e.bonus_type !== bonusTypeEnum.Enum.project_bonus
-				)[0]?.app_amount ?? 0;
-			const accumulated_all =
-				other_bonus + accumulated_bonus + accumulated_trust;
-			// (await employee_bonus_service.getAccumulatedBonus(
-			// 	period_id,
-			// 	emp_no
-			// )); //同一期別中會先發其他獎金才發專案獎金
+			const accumulated_all = accumulated_bonus + accumulated_trust;
 
 			const v2_h_i_rate = insurance_rate_setting.v2_h_i_supp_pay_rate;
 			const v2_h_i_multiplier = insurance_rate_setting.v2_h_i_multiplier;
@@ -1965,15 +1962,13 @@ export class CalculateService {
 				return v2_h_i;
 			}
 		} else {
+			const bonus_type = getMatchedBonusType(pay_type);
+			if (!bonus_type) return 0;
 			const new_all =
 				employee_bonus_list.filter(
-					(e) => e.bonus_type !== bonusTypeEnum.Enum.project_bonus
+					(e) => e.bonus_type === bonus_type
 				)[0]?.app_amount ?? 0;
-			const accumulated_all =
-				accumulated_bonus +
-				accumulated_trust //+
-				// org_trust_reserve +
-				// emp_trust_reserve;
+			const accumulated_all = accumulated_bonus + accumulated_trust;
 			const v2_h_i_rate = insurance_rate_setting.v2_h_i_supp_pay_rate;
 			const v2_h_i_multiplier = insurance_rate_setting.v2_h_i_multiplier;
 			const h_i = employee_payment?.h_i ?? 0;

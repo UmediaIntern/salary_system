@@ -72,6 +72,7 @@ export class TransactionService {
 
 	async getCommonParameters(
 		period_id: number,
+		issue_date: string,
 		pay_type: PayTypeEnumType,
 		emp_no_list: string[]
 	) {
@@ -127,11 +128,13 @@ export class TransactionService {
 		const accumulated_bonus_list =
 			await this.employeeBonusService.getAccumulatedBonus(
 				period_id,
+				issue_date,
 				emp_no_list
 			);
 		const accumulated_trust_list =
 			await this.employeeTrustService.getAccumulatedTrust(
 				period_id,
+				issue_date,
 				emp_no_list
 			);
 
@@ -739,14 +742,11 @@ export class TransactionService {
 					: 0;
 				const v_2_h_i =
 					await this.calculateService.getSecondGenerationHealthInsurance(
-						period_id,
-						emp_no,
 						pay_type,
 						insurance_rate_setting!,
 						employee_payment!,
 						accumulated_bonus?.sum ?? 0,
 						accumulated_trust?.sum ?? 0,
-						emp_trust_reserve,
 						org_trust_reserve,
 						employee_bonus_list
 					); // TODO

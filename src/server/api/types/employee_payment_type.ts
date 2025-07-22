@@ -9,7 +9,6 @@ import {
 } from "./common_type";
 import { LongServiceEnum } from "./long_service_enum";
 import { optionalNumDefaultZero } from "./z_utils";
-import { encEmployeeData } from "~/server/database/entity/SALARY/employee_data";
 import { employeeData } from "./employee_data_type";
 
 const employeePaymentBase = z.object({
@@ -61,7 +60,7 @@ export const employeePaymentCreateAPI = employeePaymentCreate.omit({
 });
 
 export const employeePaymentBatchCreateAPI = z.array(
-	employeePaymentCreate.omit({ end_date: true })
+	employeePaymentCreate.omit({ end_date: true }),
 );
 
 export const employeePaymentCreateService = employeePaymentCreate;
@@ -78,7 +77,7 @@ export const updateEmployeePaymentService = employeePaymentUpdate
 export const employeePaymentFE = employeePaymentBase
 	.merge(Id)
 	.merge(empData)
-	.merge(employeeData.pick({"work_type": true}))
+	.merge(employeeData.pick({ work_type: true }))
 	.merge(dateMetaFE)
 	.merge(func);
 
@@ -87,18 +86,22 @@ const rangeStatus = z.object({
 	isModified: z.boolean(),
 });
 
+export type EmployeePaymentRangeStatus = z.infer<typeof rangeStatus>;
+
+export const employeePaymentInfo = z.object({
+	isPositionModified: z.boolean(),
+	isPositionTypeModified: z.boolean(),
+	supervisor: rangeStatus,
+	occupational: rangeStatus,
+	longService: rangeStatus,
+	subsidy: rangeStatus,
+	food: rangeStatus,
+});
+
+export type EmployeePaymentInfo = z.infer<typeof employeePaymentInfo>;
+
 export const employeePaymentWithInfoFE = employeePaymentFE.merge(
-	z.object({
-		info: z.object({
-			isPositionModified: z.boolean(),
-			isPositionTypeModified: z.boolean(),
-			supervisor: rangeStatus,
-			occupational:rangeStatus,
-			longService:rangeStatus,
-			subsidy:rangeStatus,
-			food:rangeStatus,
-		}),
-	})
+	z.object({ info: employeePaymentInfo }),
 );
 
 export type EmployeePaymentFEType = z.infer<typeof employeePaymentFE>;
@@ -109,7 +112,7 @@ export type EmployeePaymentWithInfoFEType = z.infer<
 // Types functions
 export function isEqualEmployeePayment(
 	a: z.infer<typeof employeePaymentCreateService>,
-	b: z.infer<typeof employeePaymentCreateService>
+	b: z.infer<typeof employeePaymentCreateService>,
 ): boolean {
 	return (
 		a.emp_no === b.emp_no &&
