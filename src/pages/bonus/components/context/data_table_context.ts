@@ -37,6 +37,8 @@ const dataTableContext = React.createContext<{
 	setSelectedTableType: (table: TableEnum) => void;
 	selectedBonusType: BonusTypeEnumType;
 	setSelectedBonusType: (bonus_type: BonusTypeEnumType) => void;
+	selectedIssueDate: Date | null;
+	setSelectedIssueDate: (issueDate: Date | null) => void;
 	selectedTable: TableObject | null;
 	setSelectedTable: (table: TableObject | null) => void;
 	mode: FunctionMode;
@@ -52,6 +54,8 @@ const dataTableContext = React.createContext<{
 	setSelectedTableType: (_: TableEnum) => undefined,
 	selectedBonusType: Object.values(bonusTypeEnum.Enum)[0]!,
 	setSelectedBonusType: (_: BonusTypeEnumType) => undefined,
+	selectedIssueDate: null,
+	setSelectedIssueDate: (_: Date | null) => undefined,
 	selectedTable: null,
 	setSelectedTable: (_: TableObject | null) => undefined,
 	mode: "none",

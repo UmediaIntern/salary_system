@@ -6,15 +6,17 @@ import { ReactElement, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import { i18n, locales } from '~/components/lang_config'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "~/components/ui/select";
-import { bonusTypeEnum, BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import dataTableContext from "../components/context/data_table_context";
 import DataTableContextProvider from "../components/context/data_table_context_provider";
 import { ProgressBar } from "~/components/functions/progress_bar";
 import { Button } from "~/components/ui/button";
 import BonusFilter from "./bonus_filter";
 import BonusBudget from "./bonus_budget";
 import BonusExcelExport from "./bonus_excel_export";
+import { Dialog, DialogTrigger } from "~/components/ui/dialog";
+import { BonusTypeSelector } from "../components/bonus_type_selector";
+import dataTableContext from "../components/context/data_table_context";
+import { formatDate } from "~/lib/utils/format_date";
+import { Calendar } from "lucide-react";
 
 
 type BonusStepPage = {
@@ -24,7 +26,7 @@ type BonusStepPage = {
 
 const BonusHomePageContent = () => {
     const { t } = useTranslation(['common', 'nav']);
-    const { selectedBonusType, setSelectedBonusType } = useContext(dataTableContext);
+    const { selectedBonusType, selectedIssueDate } = useContext(dataTableContext);
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const pageList: BonusStepPage[] = [
@@ -52,34 +54,21 @@ const BonusHomePageContent = () => {
     return (
         <div className="flex h-full flex-col">
             <Header title={t("bonus", { ns: "nav" })} showOptions className="mb-4" />
-            <div className="flex flex-row items-start">
+            <div className="flex flex-row items-center">
                 <div className="ml-4 h-full min-w-[140px]">
-                    <Select
-                        defaultValue={selectedBonusType}
-                        onValueChange={(chosen) => {
-                            setSelectedBonusType(chosen as BonusTypeEnumType);
-                            setSelectedIndex(0);
-                        }}
-                    >
-                        <SelectTrigger className="h-full w-full">
-                            <SelectValue placeholder={t("others.select_period")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectLabel>{t('others.period')}</SelectLabel>
-                                {Object.values(bonusTypeEnum.Enum).map((bonus_type) => {
-                                    return (
-                                        <SelectItem
-                                            key={bonus_type}
-                                            value={bonus_type}
-                                        >
-                                            {t(`table.${bonus_type}`)}
-                                        </SelectItem>
-                                    );
-                                })}
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className="h-full w-full flex-col">
+                                <div className="flex-1">{t(`table.${selectedBonusType}`)}</div>
+                                <div className="flex-1 text-xs">
+                                    {selectedIssueDate
+                                        ? formatDate("day", selectedIssueDate)
+                                        : t("others.not_set", { ns: "common" })}
+                                </div>
+                            </Button>
+                        </DialogTrigger>
+                        <BonusTypeSelector setSelectedIndex={setSelectedIndex} />
+                    </Dialog>
                 </div>
                 <div className="grow mx-4">
                     <ProgressBar labels={titles} selectedIndex={selectedIndex} />

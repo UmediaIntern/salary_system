@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { DatePicker } from "./ui/date-picker";
 import { usePeriodContext } from "./context/period_context_provider";
 import { useQueryHandle } from "./query_boundary/query_handle";
+import { formatDate } from "~/lib/utils/format_date";
 
 export function PeriodSelector() {
 	const { t } = useTranslation("common");
@@ -68,6 +69,7 @@ export function PeriodSelector() {
 												item.period_name === chosen
 										)!;
 										setTmpPeriod(targetPeriod);
+										setTmpPayDate(new Date(targetPeriod.issue_date));
 									}}
 								>
 									<SelectTrigger className="w-full font-mono">
@@ -109,12 +111,7 @@ export function PeriodSelector() {
 								{t("table.issue_date")}
 							</div>
 							<div className="flex-1">
-								<DatePicker
-									date={tmpPayDate ?? undefined}
-									setDate={(date: Date | undefined) => {
-										setTmpPayDate(date ?? null);
-									}}
-								/>
+								{formatDate("day", tmpPayDate)}
 							</div>
 						</div>
 					</div>
