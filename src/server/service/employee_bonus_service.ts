@@ -51,6 +51,7 @@ export class EmployeeBonusService {
 
 	async createEmployeeBonusByEmpNoList(
 		period_id: number,
+		issue_date: string,
 		bonus_type: BonusTypeEnumType,
 		emp_no_list: string[]
 	) {
@@ -73,6 +74,7 @@ export class EmployeeBonusService {
 				.map((emp_no) =>
 					this.createEmployeeBonus({
 						period_id,
+						issue_date,
 						bonus_type,
 						emp_no,
 						special_multiplier: 0,
@@ -184,8 +186,8 @@ export class EmployeeBonusService {
 		return await this.employeeBonusMapper.decodeList(result);
 	}
 
-	async getAccumulatedBonus(period_id: number, emp_no_list: string[]) {
-		// return accumulated bonus until previous period
+	async getAccumulatedBonus(period_id: number,issue_date: string, emp_no_list: string[]) {
+		// return accumulated bonus before issue_date
 		const period_name = await this.ehrService
 			.getPeriodById(period_id)
 			.then((period) => period.period_name);
@@ -201,9 +203,10 @@ export class EmployeeBonusService {
 			).period_id;
 		}
 
-		const end_period_id = await this.ehrService.getPreviousPeriodId(
-			period_id
-		);
+		// const end_period_id = await this.ehrService.getPreviousPeriodId(
+			// period_id
+		// );
+		const end_period_id = period_id;
 		const result = await EmployeeBonus.findAll({
 			where: {
 				period_id: {
@@ -217,7 +220,9 @@ export class EmployeeBonusService {
 			},
 			order: [["emp_no", "ASC"]],
 		});
-		const empBonusList = await this.employeeBonusMapper.decodeList(result);
+		const empBonusList = (await this.employeeBonusMapper.decodeList(result)).filter(
+			(e) => new Date(e.issue_date) < new Date(issue_date) 
+		);
 		const groupedEmpBonusList = empBonusList.reduce(
 			(
 				acc: Record<string, EmployeeBonusDecType[]>,
@@ -348,6 +353,7 @@ export class EmployeeBonusService {
 	async updateEmployeeBonus({
 		id,
 		period_id,
+		issue_date,
 		bonus_type,
 		emp_no,
 		special_multiplier,
@@ -376,6 +382,7 @@ export class EmployeeBonusService {
 		await this.createEmployeeBonus({
 			emp_no: select_value(emp_no, employeeBonus.emp_no),
 			period_id: select_value(period_id, employeeBonus.period_id),
+			issue_date: select_value(issue_date, employeeBonus.issue_date),
 			bonus_type: select_value(bonus_type, employeeBonus.bonus_type),
 			special_multiplier: select_value(
 				special_multiplier,

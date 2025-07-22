@@ -62,6 +62,7 @@ export class EmployeeBonusMapper extends BaseMapper<
 		const employeeBonusFE: EmployeeBonusFEType = {
 			id: employee_bonus_id,
 			period_id: employee_bonus.period_id,
+			issue_date: employee_bonus.issue_date,
 			bonus_type: employee_bonus.bonus_type,
 			department: employee.department,
 			emp_no: employee_bonus.emp_no,

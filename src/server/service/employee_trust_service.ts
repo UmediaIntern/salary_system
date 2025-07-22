@@ -74,16 +74,16 @@ export class EmployeeTrustService {
 		}
 
 		if (inputEndDate) {
-      // Delete everything after end_date
-      await EmployeeTrust.destroy({
-        where: {
-          emp_no: data.emp_no,
-          start_date: {
-            [Op.gt]: inputEndDate,
-          },
-          disabled: false,
-        },
-      });
+			// Delete everything after end_date
+			await EmployeeTrust.destroy({
+				where: {
+					emp_no: data.emp_no,
+					start_date: {
+						[Op.gt]: inputEndDate,
+					},
+					disabled: false,
+				},
+			});
 		}
 
 		const latestTrust = await EmployeeTrust.findOne({
@@ -136,18 +136,21 @@ export class EmployeeTrustService {
 
 		if (isSameBefore) {
 			console.log("Same as latest trust");
-      // Must respect the end data
-      if (inputEndDate) {
-        await latestTrust?.update({ end_date: inputEndDate });
-        const nextStart = dateToString.parse(addDays(inputEndDate, 1));
-        await closestFutureTrust?.update({ start_date: nextStart});
-      }
+			// Must respect the end data
+			if (inputEndDate) {
+				await latestTrust?.update({ end_date: inputEndDate });
+				const nextStart = dateToString.parse(addDays(inputEndDate, 1));
+				await closestFutureTrust?.update({ start_date: nextStart });
+			}
 			return;
 		}
 
 		if (isSameAfter) {
 			console.log("Same as trust after, update start date");
-			await closestFutureTrust?.update({ start_date: inputDate, end_date: inputEndDate });
+			await closestFutureTrust?.update({
+				start_date: inputDate,
+				end_date: inputEndDate,
+			});
 			return;
 		}
 
@@ -162,7 +165,9 @@ export class EmployeeTrustService {
 				console.log("Different from trust after, create new trust");
 				await this.createEmployeeTrust({
 					...data,
-					end_date: data.end_date ?? subDays(dClosestFutureTrust.start_date, 1),
+					end_date:
+						data.end_date ??
+						subDays(dClosestFutureTrust.start_date, 1),
 				});
 				return;
 			}
@@ -586,7 +591,11 @@ export class EmployeeTrustService {
 			})
 		);
 	}
-	async getAccumulatedTrust(period_id: number, emp_no_list: string[]) {
+	async getAccumulatedTrust(
+		period_id: number,
+		issue_date: string,
+		emp_no_list: string[]
+	) {
 		const period_name = await this.ehrService
 			.getPeriodById(period_id)
 			.then((period) => period.period_name);
@@ -597,9 +606,10 @@ export class EmployeeTrustService {
 			const year = String(parseInt(period_name.split("-")[1]!) - 1);
 			start_period = await this.ehrService.getPeriodByName("DEC-" + year);
 		}
-		const end_period_id = await this.ehrService.getPreviousPeriodId(
-			period_id
-		);
+		// const end_period_id = await this.ehrService.getPreviousPeriodId(
+		// 	period_id
+		// );
+		const end_period_id = period_id;
 		const result = await Transaction.findAll({
 			where: {
 				period_id: {
@@ -630,18 +640,22 @@ export class EmployeeTrustService {
 				],
 			],
 		});
-		const accumulated_trust_list = result.map((e) => {
-			const total_org_trust_reserve = e.get(
-				"total_org_trust_reserve"
-			) as number;
-			const total_org_special_trust_incent = e.get(
-				"total_org_special_trust_incent"
-			) as number;
-			return {
-				emp_no: e.emp_no,
-				sum: total_org_trust_reserve + total_org_special_trust_incent,
-			};
-		});
+		const accumulated_trust_list = result
+			.filter((e) => new Date(e.issue_date) < new Date(issue_date))
+			.map((e) => {
+				const total_org_trust_reserve = e.get(
+					"total_org_trust_reserve"
+				) as number;
+				const total_org_special_trust_incent = e.get(
+					"total_org_special_trust_incent"
+				) as number;
+				return {
+					emp_no: e.emp_no,
+					sum:
+						total_org_trust_reserve +
+						total_org_special_trust_incent,
+				};
+			});
 		return accumulated_trust_list;
 	}
 	async dropEmployeeTrustPeriod(period_id: number): Promise<number> {

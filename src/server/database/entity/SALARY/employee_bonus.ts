@@ -23,6 +23,7 @@ import { CurrencyForeignEnumType, currencyForeignEnum } from "~/server/api/types
 
 const dbEmployeeBonus = z.object({
 	period_id: z.number(),
+	issue_date: z.string(),
 	bonus_type: bonusTypeEnum,
 	emp_no: z.string(),
 	create_by: z.string(),
@@ -128,6 +129,7 @@ export class EmployeeBonus extends Model<
 	// id can be undefined during creation when using `autoIncrement`
 	declare id: CreationOptional<number>;
 	declare period_id: number;
+	declare issue_date: string;
 	declare bonus_type: BonusTypeEnumType;
 	declare emp_no: string;
 	declare special_multiplier_enc: string;
@@ -166,6 +168,10 @@ export function initEmployeeBonus(sequelize: Sequelize) {
 			},
 			period_id: {
 				type: DataTypes.INTEGER.UNSIGNED,
+				allowNull: false,
+			},
+			issue_date: {
+				type: DataTypes.STRING(128),
 				allowNull: false,
 			},
 			bonus_type: {
