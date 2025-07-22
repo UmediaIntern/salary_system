@@ -22,7 +22,7 @@ export default function CurrentView<TData>({
 		columns: columns,
 		data,
 		props: {},
-		original_columns,
+		originalColumns: original_columns,
 		WrappedComponent: CurrentViewContent,
 		onUpdate: (table) => {
 			setSelectedTable({ table: table });

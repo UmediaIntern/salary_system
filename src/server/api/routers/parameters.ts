@@ -470,6 +470,7 @@ export const parametersRouter = createTRPCRouter({
 	batchCreateLevel: publicProcedure
 		.input(batchCreateLevelAPI)
 		.mutation(async ({ input }) => {
+			console.log("called batchCreateLevelAPI");
 			const levelService = container.resolve(LevelService);
 			const new_input = input.map((e) => ({ ...e, end_date: null }));
 			const newdata = await levelService.batchCreateLevel(new_input);

@@ -262,7 +262,8 @@
     "filename": "Filename",
     "allowance_type": "Allowance Type",
     "allowance_start": "Allowance Lower limit",
-    "allowance_end": "Allowance Upper limit"
+    "allowance_end": "Allowance Upper limit",
+    "functions": "Functions"
   },
   "table_name": {
     "attendanceSetting": "Attendance Setting",

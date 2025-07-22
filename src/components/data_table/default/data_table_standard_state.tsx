@@ -24,9 +24,10 @@ declare module "@tanstack/table-core" {
 type WithTableProps<TableT, P> = { table: TableT } & P;
 
 interface DataTableStandardStateProps<TData> {
-	columns: ColumnDef<TData, any>[];
+	columns: ColumnDef<TData, unknown>[];
 	data: TData[];
-	original_columns?: Array<string>;
+	defaultColumn?: Partial<ColumnDef<TData, unknown>>;
+	originalColumns?: Array<string>;
 	initialColumnVisibility?: VisibilityState;
 }
 
@@ -39,7 +40,8 @@ interface WithDataTableStandardStateProps<TData, P> extends DataTableStandardSta
 export function useDataTableStandardState<TData>({
 	columns,
 	data,
-	original_columns,
+	originalColumns,
+	defaultColumn,
 	initialColumnVisibility = {},
 }: DataTableStandardStateProps<TData>) {
 	const [rowSelection, setRowSelection] = useState({});
@@ -52,6 +54,7 @@ export function useDataTableStandardState<TData>({
 	const table = useReactTable({
 		data,
 		columns,
+		defaultColumn,
 		state: {
 			sorting,
 			columnVisibility,
@@ -71,7 +74,7 @@ export function useDataTableStandardState<TData>({
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 
 		meta: {
-			original_columns: original_columns,
+			original_columns: originalColumns,
 		},
 	});
 
@@ -84,7 +87,7 @@ export function WithDataTableStandardState<TData, P>({
 	WrappedComponent,
 	onUpdate,
 	props,
-	original_columns,
+	originalColumns: original_columns,
 	initialColumnVisibility = {},
 }: WithDataTableStandardStateProps<TData, P>) {
 	const [rowSelection, setRowSelection] = useState({});

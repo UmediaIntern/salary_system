@@ -186,7 +186,11 @@ export class EmployeeBonusService {
 		return await this.employeeBonusMapper.decodeList(result);
 	}
 
-	async getAccumulatedBonus(period_id: number,issue_date: string, emp_no_list: string[]) {
+	async getAccumulatedBonus(
+		period_id: number,
+		issue_date: string,
+		emp_no_list: string[]
+	) {
 		// return accumulated bonus before issue_date
 		const period_name = await this.ehrService
 			.getPeriodById(period_id)
@@ -204,7 +208,7 @@ export class EmployeeBonusService {
 		}
 
 		// const end_period_id = await this.ehrService.getPreviousPeriodId(
-			// period_id
+		// period_id
 		// );
 		const end_period_id = period_id;
 		const result = await EmployeeBonus.findAll({
@@ -220,9 +224,9 @@ export class EmployeeBonusService {
 			},
 			order: [["emp_no", "ASC"]],
 		});
-		const empBonusList = (await this.employeeBonusMapper.decodeList(result)).filter(
-			(e) => new Date(e.issue_date) < new Date(issue_date) 
-		);
+		const empBonusList = (
+			await this.employeeBonusMapper.decodeList(result)
+		).filter((e) => new Date(e.issue_date) < new Date(issue_date));
 		const groupedEmpBonusList = empBonusList.reduce(
 			(
 				acc: Record<string, EmployeeBonusDecType[]>,
@@ -676,5 +680,27 @@ export class EmployeeBonusService {
 		await Promise.all(promises2);
 
 		return promises2;
+	}
+	async updateEmployeeBonusIssueDate(
+		period_id: number,
+		issue_date: string,
+		bonus_type: BonusTypeEnumType
+	) {
+		const bonus_list = await this.getAllEmployeeBonusByPeriodIdByBonusType(
+			period_id,
+			bonus_type
+		);
+		if (bonus_list.length === 0) {
+			return;
+		} else if (bonus_list[0]!.issue_date !== issue_date) {
+			await Promise.all(
+				bonus_list.map(async (e) => {
+					await this.updateEmployeeBonus({
+						id: e.id,
+						issue_date: issue_date,
+					});
+				})
+			);
+		}
 	}
 }

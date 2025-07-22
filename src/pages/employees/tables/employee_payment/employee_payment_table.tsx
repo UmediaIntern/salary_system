@@ -6,7 +6,6 @@ import {
 import { FunctionsComponent } from "~/components/data_table/functions_component";
 import {
 	ColumnHeaderBaseComponent,
-	ColumnHeaderComponent,
 } from "~/components/data_table/column_header_component";
 import { formatDate } from "~/lib/utils/format_date";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
@@ -57,13 +56,6 @@ const columnNames: PaymentRowItemKey[] = [
 
 const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 	columnHelper.accessor("position", {
-		header: ({ column }) => {
-			return (
-				<ColumnHeaderComponent column={column}>
-					{t(`table.position`)}
-				</ColumnHeaderComponent>
-			);
-		},
 		cell: ({ row }) => {
 			return (
 				<ColumnCellComponent
@@ -78,13 +70,6 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 		},
 	}),
 	columnHelper.accessor("position_type", {
-		header: ({ column }) => {
-			return (
-				<ColumnHeaderComponent column={column}>
-					{t(`table.position_type`)}
-				</ColumnHeaderComponent>
-			);
-		},
 		cell: ({ row }) => {
 			return (
 				<ColumnCellComponent
@@ -99,13 +84,6 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 		},
 	}),
 	columnHelper.accessor("supervisor_allowance", {
-		header: ({ column }) => {
-			return (
-				<ColumnHeaderComponent column={column}>
-					{t(`table.supervisor_allowance`)}
-				</ColumnHeaderComponent>
-			);
-		},
 		cell: ({ row }) => {
 			const data = row.original.supervisor_allowance;
 			return (
@@ -118,13 +96,6 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 		},
 	}),
 	columnHelper.accessor("food_allowance", {
-		header: ({ column }) => {
-			return (
-				<ColumnHeaderComponent column={column}>
-					{t(`table.food_allowance`)}
-				</ColumnHeaderComponent>
-			);
-		},
 		cell: ({ row }) => {
 			const data = row.original.food_allowance;
 			return (
@@ -137,13 +108,6 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 		},
 	}),
 	columnHelper.accessor("occupational_allowance", {
-		header: ({ column }) => {
-			return (
-				<ColumnHeaderComponent column={column}>
-					{t(`table.occupational_allowance`)}
-				</ColumnHeaderComponent>
-			);
-		},
 		cell: ({ row }) => {
 			const data = row.original.occupational_allowance;
 			return (
@@ -156,13 +120,6 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 		},
 	}),
 	columnHelper.accessor("subsidy_allowance", {
-		header: ({ column }) => {
-			return (
-				<ColumnHeaderComponent column={column}>
-					{t(`table.subsidy_allowance`)}
-				</ColumnHeaderComponent>
-			);
-		},
 		cell: ({ row }) => {
 			const data = row.original.subsidy_allowance;
 			return (
@@ -175,13 +132,6 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 		},
 	}),
 	columnHelper.accessor("long_service_allowance", {
-		header: ({ column }) => {
-			return (
-				<ColumnHeaderComponent column={column}>
-					{t(`table.long_service_allowance`)}
-				</ColumnHeaderComponent>
-			);
-		},
 		cell: ({ row }) => {
 			const data = row.original.long_service_allowance;
 			return (
@@ -198,13 +148,6 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 export const employee_payment_columns = ({ t }: { t: I18nType }) => [
 	...firstThreeColumns.map((key) =>
 		columnHelper.accessor(key, {
-			header: ({ column }) => {
-				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
-				);
-			},
 			cell: ({ row }) => {
 				return (
 					<ColumnCellComponent>
@@ -217,13 +160,6 @@ export const employee_payment_columns = ({ t }: { t: I18nType }) => [
 	...employee_payment_columns_with_info({t}),
 	...columnNames.map((key) =>
 		columnHelper.accessor(key, {
-			header: ({ column }) => {
-				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
-				);
-			},
 			cell: ({ row }) => {
 				let content = row.original[key]?.toString() ?? "";
 				switch (key) {
@@ -248,13 +184,6 @@ export const employee_payment_columns = ({ t }: { t: I18nType }) => [
 		}),
 	),
 	columnHelper.accessor("functions", {
-		header: () => {
-			return (
-				<ColumnHeaderBaseComponent>
-					{t(`others.functions`)}
-				</ColumnHeaderBaseComponent>
-			);
-		},
 		cell: ({ row }) => {
 			return <PaymentFunctionComponent data={row.original} />;
 		},
@@ -264,13 +193,6 @@ export const employee_payment_columns = ({ t }: { t: I18nType }) => [
 export const employee_payment_history_columns = ({ t }: { t: I18nType }) => [
 	...[...firstThreeColumns, ...allowanceColumns].map((key) =>
 		historyColumnHelper.accessor(key, {
-			header: ({ column }) => {
-				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
-				);
-			},
 			cell: ({ row }) => {
 				return (
 					<ColumnCellComponent>
@@ -282,13 +204,6 @@ export const employee_payment_history_columns = ({ t }: { t: I18nType }) => [
 	),
 	...columnNames.map((key) =>
 		historyColumnHelper.accessor(key, {
-			header: ({ column }) => {
-				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
-				);
-			},
 			cell: ({ row }) => {
 				let content = row.original[key]?.toString() ?? "";
 				switch (key) {

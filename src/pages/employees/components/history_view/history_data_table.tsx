@@ -6,16 +6,18 @@ import { DataTableStandardBody } from "~/components/data_table/default/data_tabl
 import { useEmployeeTableContext } from "../context/data_table_context_provider";
 
 interface DataTableProps<TData> {
-	columns: ColumnDef<TData, any>[];
+	columns: ColumnDef<TData, unknown>[];
 	data: TData[];
+	defaultColumn?: Partial<ColumnDef<TData, unknown>>;
 }
 
-export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
+export function DataTable<TData>({ columns, data, defaultColumn }: DataTableProps<TData>) {
 	const { setSelectedTable } = useEmployeeTableContext();
 
 	const table = useDataTableStandardState({
-		columns: columns,
+		columns,
 		data,
+		defaultColumn,
 	});
 
 	useEffect(() => {
