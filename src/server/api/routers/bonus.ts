@@ -27,6 +27,7 @@ import {
 import { BonusAllService } from "~/server/service/bonus_all_service";
 import { EmployeeDataService } from "~/server/service/employee_data_service";
 import { WorkStatusEnum } from "../types/work_status_enum";
+import { dateToString } from "../types/z_utils";
 
 // 改Enum
 export const bonusRouter = createTRPCRouter({
@@ -114,11 +115,12 @@ export const bonusRouter = createTRPCRouter({
 		.input(
 			z.object({
 				period_id: z.number(),
-				issue_date: z.string(),
+				issue_date: z.date(),
 				bonus_type: bonusTypeEnum,
 			})
 		)
 		.mutation(async ({ input }) => {
+			
 			console.log("\\n\n\ncalled initCandidateEmployeeBonus\n\n\n");
 			const empBonusService = container.resolve(EmployeeBonusService);
 			const empDataService = container.resolve(EmployeeDataService);
@@ -133,7 +135,7 @@ export const bonusRouter = createTRPCRouter({
 				.map((emp) => emp.emp_no);
 			await empBonusService.createEmployeeBonusByEmpNoList(
 				input.period_id,
-				input.issue_date,
+				dateToString.parse(input.issue_date),
 				input.bonus_type,
 				all_emp_no_list
 			);
@@ -159,7 +161,7 @@ export const bonusRouter = createTRPCRouter({
 		.input(
 			z.object({
 				period_id: z.number(),
-				issue_date: z.string(),
+				issue_date: z.date(),
 				bonus_type: bonusTypeEnum,
 			})
 		)
@@ -167,7 +169,7 @@ export const bonusRouter = createTRPCRouter({
 			const empBonusService = container.resolve(EmployeeBonusService);
 			await empBonusService.updateEmployeeBonusIssueDate(
 				input.period_id,
-				input.issue_date,
+				dateToString.parse(input.issue_date),
 				input.bonus_type
 			);
 		}),
