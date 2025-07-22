@@ -4,12 +4,12 @@ import { Tabs, TabsContent } from "~/components/ui/tabs";
 import { DataTableToolbarUpdate } from "./data_table_toolbar_update";
 import { EmpTabsEnum } from "./context/employee_tabs_enum";
 import { type HistoryDataType } from "~/components/data_table/history_data_type";
-import { type EmployeeHistoryViewCommonEmpInfo } from "./history_view/history_view";
 import { useEmployeeTableContext } from "./context/data_table_context_provider";
 import { CurrentViewSelector } from "./current_view/current_view_selector";
 import { HistoryViewSelector } from "./history_view/history_view_selector";
+import { type HistoryViewEmployeeCommonEmpInfo } from "~/components/data_table/history_view/types";
 
-type DataRow = EmployeeHistoryViewCommonEmpInfo & HistoryDataType;
+type DataRow = HistoryViewEmployeeCommonEmpInfo & HistoryDataType;
 
 interface DataTableProps<TData extends DataRow> {
 	filterColumnKey?: keyof TData;

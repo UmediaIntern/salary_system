@@ -6,26 +6,23 @@ import { useTranslation } from "react-i18next";
 import { employee_payment_columns } from "./employee_payment_table";
 import { useMemo } from "react";
 import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export function EmployeePaymentCurrentTable() {
 	const { period_id } = useEmployeeTableContext();
 	const { t } = useTranslation(["common"]);
 
-	const { isPending, isError, data, error } =
-		api.employeePayment.getCurrentEmployeePaymentWithInfo.useQuery({
-			period_id,
-		});
+	const q = api.employeePayment.getCurrentEmployeePaymentWithInfo.useQuery({
+		period_id,
+	});
+	const { isPending, content, data } = useQueryHandle(q);
 
 	const columns = useMemo(() => {
 		return employee_payment_columns({ t });
 	}, [t]);
 
 	if (isPending) {
-		return <LoadingSpinner />; // TODO: Loading element with toast
-	}
-
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
+		return content;
 	}
 
 	return (

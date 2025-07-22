@@ -16,12 +16,6 @@ import { useHistoryState } from "~/components/data_table/history_view/use_histor
 import { type HistoryViewEmployeeCommonEmpInfo } from "~/components/data_table/history_view/types";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 
-// TODO: delete this type and use HistoryViewEmployeeCommonEmpInfo instead
-export interface EmployeeHistoryViewCommonEmpInfo {
-	emp_name?: string;
-	emp_no: string;
-}
-
 type DataRow = HistoryViewEmployeeCommonEmpInfo & HistoryDataType;
 
 interface DataTableProps<TData extends DataRow> {
