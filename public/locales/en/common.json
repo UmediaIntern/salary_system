@@ -308,8 +308,9 @@
     "initialize": "Initialize",
     "excel_upload": "Excel Upload",
     "excel_download": "Excel Download",
-    "auto_calculate": "Auto Calculate",
+    "adjust_level": "Adjust Level",
     "adjust_base_salary": "Adjust Base Salary",
+    "calculate_budget": "Calculate Budget",
     "form": "Form",
     "save": "Save",
     "ignore": "Ignore",
@@ -436,9 +437,14 @@
       "placeholder": "Select a minimum wage",
       "footer_desc": "You can manage the minimum wage in the insurance rate-setting table on the parameters page."
     },
-    "auto_calculate": {
-      "title": "Confirm auto calculate",
+    "adjust_level": {
+      "title": "Confirm Adjust Level",
       "description": "Please select a date for the LI, HI, LR, and Occupational Injury to be updated."
+    },
+    "calculate_budget": {
+      "title": "Calculate Budget",
+      "description": "Please enter the budget amount. The system will calculate the corresponding suggested amount.",
+      "placeholder": "Enter budget amount"
     }
   },
   "work_status": {

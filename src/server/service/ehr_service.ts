@@ -554,6 +554,9 @@ export class EHRService {
 		return amount;
 	}
 
+	async getFullAttendenceBonusLimit(): Promise<number> {
+		return 2000;
+	}
 	// async initEmployeeData(period_id: number) {
 
 	// 	const dbConnection = container.resolve(Database).ehr_connection;

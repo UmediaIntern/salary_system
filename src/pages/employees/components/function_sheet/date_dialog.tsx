@@ -39,9 +39,9 @@ export function DateDialog({ onSubmit: submit }: DateDialogProps) {
 	return (
 		<DialogContent>
 			<DialogHeader>
-				<DialogTitle>{t("form.auto_calculate.title")}</DialogTitle>
+				<DialogTitle>{t("form.adjust_level.title")}</DialogTitle>
 				<DialogDescription>
-					{t("form.auto_calculate.description")}
+					{t("form.adjust_level.description")}
 				</DialogDescription>
 			</DialogHeader>
 			<Form {...form}>

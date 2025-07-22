@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { api } from "~/utils/api";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const adjustBaseSalarySchema = z.object({
 	insurance_rate_setting_id: z.string(),
@@ -40,8 +41,27 @@ interface AdjustBaseSalaryDialogPorps {
 	setOpenDialog: (open: boolean) => void;
 }
 
-export function AdjustBaseSalaryDialog({ setOpenDialog }: AdjustBaseSalaryDialogPorps) {
-	const q = api.parameters.getAllInsuranceRateSetting.useQuery();
+export function AdjustBaseSalaryDialog({
+	setOpenDialog,
+}: AdjustBaseSalaryDialogPorps) {
+	const q = api.useQueries(
+		(t) => [
+			t.parameters.getAllInsuranceRateSetting(),
+			t.employeePayment.getFullAttendenceBonusLimit(),
+		],
+		{
+			combine: (results) => {
+				const combinedData = {allInsuranceRateSetting: results[0], fullAttendenceBonus: results[1]};
+				return {
+					data: combinedData,
+					isPending: results.some((result) => result.isPending),
+					isError: results.some((result) => result.isError),
+					error:
+						results.find((result) => result.isError)?.error ?? null,
+				};
+			},
+		},
+	);
 	const { data, isPending, content } = useQueryHandle(q);
 
 	const form = useForm<z.infer<typeof adjustBaseSalarySchema>>({
@@ -57,12 +77,15 @@ export function AdjustBaseSalaryDialog({ setOpenDialog }: AdjustBaseSalaryDialog
 		return content;
 	}
 
+	const insuranceRateSettings = data.allInsuranceRateSetting.data ?? []
+
 	const onSubmit = (form_data: z.infer<typeof adjustBaseSalarySchema>) => {
-		const selectedSetting = data.find(
-			(d) => d?.[0]?.id?.toString() == form_data.insurance_rate_setting_id
+		const selectedSetting = insuranceRateSettings.find(
+			(d) =>
+				d?.[0]?.id?.toString() == form_data.insurance_rate_setting_id,
 		)?.[0];
 		if (!selectedSetting) {
-			// Show something here
+			toast("Something went wrong! Can't find the selected setting.");
 			return;
 		}
 		employeePaymentAdjustBaseSalary.mutate({
@@ -73,7 +96,7 @@ export function AdjustBaseSalaryDialog({ setOpenDialog }: AdjustBaseSalaryDialog
 	};
 
 	const options: BaseSalaryOption[] = [];
-	data.forEach((d) => {
+	insuranceRateSettings.forEach((d) => {
 		if (d?.[0]) {
 			options.push({
 				value: d[0].id,
@@ -87,7 +110,7 @@ export function AdjustBaseSalaryDialog({ setOpenDialog }: AdjustBaseSalaryDialog
 			<DialogHeader>
 				<DialogTitle>{t("form.adjust_base_salary.title")}</DialogTitle>
 				<DialogDescription>
-					{t("form.adjust_base_salary.description")}
+					{t("form.adjust_base_salary.description")} (Minus: {data.fullAttendenceBonus.data?.full_attendence_bonus_limit})
 				</DialogDescription>
 			</DialogHeader>
 			<Form {...form}>
@@ -134,7 +157,7 @@ function BaseSalarySelect({ onChange, options }: BaseSalarySelectProps) {
 					<SelectTrigger>
 						<SelectValue
 							placeholder={t(
-								"form.adjust_base_salary.placeholder"
+								"form.adjust_base_salary.placeholder",
 							)}
 						/>
 					</SelectTrigger>

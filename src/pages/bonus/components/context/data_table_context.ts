@@ -15,9 +15,10 @@ export type FunctionMode =
 	| "update"
 	| "batch_update"
 	| "delete"
-	| "auto_calculate"
 	| "excel_download"
 	| "excel_upload"
+	| "adjust_level"
+	| "calculate_budget"
 	// | "initialize"
 	| "none";
 

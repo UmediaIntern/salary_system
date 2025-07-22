@@ -380,8 +380,9 @@
     "excel_upload": "Excel上傳",
     "excel_download": "Excel下載",
     "excel_preview": "Excel預覽",
-    "auto_calculate": "自動計算",
+    "adjust_level": "調整勞健保級距",
     "adjust_base_salary": "調整底薪",
+    "calculate_budget": "計算預算",
     "form": "表單",
     "save": "儲存",
     "ignore": "忽略",
@@ -525,9 +526,14 @@
       "placeholder": "選擇最低工資",
       "footer_desc": "您可以在參數頁面的保險費率表中管理最低工資。"
     },
-    "auto_calculate": {
-      "title": "自動計算確認",
+    "adjust_level": {
+      "title": "調整勞健保級距確認",
       "description": "請選擇需一個日期。系統將在該日期生效時更新勞保、健保、勞退和職災。"
+    },
+    "calculate_budget": {
+      "title": "計算預算",
+      "description": "請輸入預算金額。系統將計算對應的建議金額。",
+      "placeholder": "輸入預算金額"
     }
   },
   "work_status": {

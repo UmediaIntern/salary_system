@@ -3,20 +3,19 @@ import { type Table, type ColumnDef } from "@tanstack/react-table";
 
 import { Separator } from "~/components/ui/separator";
 
-import { DataTableToolbar } from "./data_table_toolbar_single";
+import { DataTableToolbar } from "./data_table_toolbar";
 import { DataTablePagination } from "~/components/data_table/data_table_pagination";
 import { DataTableStandardBody } from "~/components/data_table/default/data_table_standard_body";
 import { WithDataTableStandardState } from "~/components/data_table/default/data_table_standard_state";
 import { BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import dataTableContext from "./context/data_table_context";
-
-import { useContext } from "react";
+import dataTableContext from "../context/data_table_context";
 
 interface DataTableProps<TData> {
 	columns: ColumnDef<TData, any>[];
 	data: TData[];
 	bonusType: BonusTypeEnumType;
 	filterColumnKey?: keyof TData;
+	original_columns?: Array<string>;
 }
 
 export function DataTable<TData>({
@@ -24,14 +23,16 @@ export function DataTable<TData>({
 	data,
 	bonusType,
 	filterColumnKey,
+	original_columns,
 }: DataTableProps<TData>) {
-	const { setSelectedTable } = useContext(dataTableContext);
+	const { setSelectedTable } = React.useContext(dataTableContext);
 	return WithDataTableStandardState({
 		columns: columns,
 		data,
 		props: { bonusType, filterColumnKey },
+		original_columns,
 		WrappedComponent: DataTableContent,
-		
+
 		onUpdate: (table) => {
 			setSelectedTable({ table: table });
 		},
@@ -64,4 +65,3 @@ function DataTableContent<TData>({
 		</div>
 	);
 }
-

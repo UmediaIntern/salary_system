@@ -19,12 +19,10 @@ import {
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { Button } from "~/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { BonusForm } from "./bonus_form";
 import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { getSchema } from "../../schemas/get_schemas";
 import { modeDescription } from "~/lib/utils/helper_function";
 import { type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import { bonusToolbarFunctionsContext } from "./bonus_functions_context";
 import { type FunctionMode } from "../context/data_table_context";
 import { BonusExcelDownloader } from "../excel_download/bonus_excel_downloader";
 import { BonusExcelUpload } from "../excel_upload/bonus_excel_upload";
@@ -33,6 +31,8 @@ import {
 	FunctionMenuOptionBase,
 } from "~/components/table_functions/function_menu/function_menu_option";
 import { ZodObject } from "zod";
+import { BonusForm } from "../function_sheet/bonus_form";
+import { CalculateBudgetDialog } from "./calculate_budget_dialog";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -83,13 +83,11 @@ export function DataTableFunctions({
 								setOpen(true);
 							}}
 						/>
-						<FunctionMenuOptionBase
+						<FunctionMenuOption.CalculateBudget
 							onClick={() => {
-								setMode("create");
+								setMode("calculate_budget");
 								setOpen(true);
 							}}
-							itemName={t("button.create_with_blank")}
-							icon={CirclePlus}
 						/>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -107,36 +105,33 @@ export function DataTableFunctions({
 					/>
 				)}
 
-				{mode != "excel_download" && mode != "excel_upload" && (
+				{mode == "calculate_budget" && (
+					<CalculateBudgetDialog
+						onSubmit={(budget) => {
+							// console.log("Submitted budget:", budget);
+							setOpen(false);
+						}}
+					/>
+				)}
+
+				{!["excel_download", "excel_upload", "calculate_budget"].includes(mode) && (
 					<DialogContent className="w-[60%]">
 						<DialogHeader>
 							<DialogTitle>
-								{`${t(`button.${mode}`)!}${t(
-									"button.form"
-								)} (${t(getTableNameKey(tableType))})`}
+								{`${t(`button.${mode}`)!}${t("button.form")} (${t(getTableNameKey(tableType))})`}
 							</DialogTitle>
 							<DialogDescription>
 								{modeDescription(t, mode)}
 							</DialogDescription>
 						</DialogHeader>
-						{(mode == "create" || mode == "update") && (
+						{["create", "update"].includes(mode) && (
 							<ScrollArea className="h-full w-full">
-								{mode == "create" && <BonusForm
-									formSchema={baseSchema.omit({ id: true as const})}
-									// formConfig={[
-									// 	{ key: "id", config: { hidden: true } },
-									// ]}
+								<BonusForm
+									formSchema={mode === "create" ? baseSchema.omit({ id: true as const }) : schema}
+									formConfig={mode === "update" ? [{ key: "id", config: { hidden: true } }] : undefined}
 									mode={mode}
 									closeSheet={() => setOpen(false)}
-								/>}
-								{mode == "update" && <BonusForm
-									formSchema={schema}
-									formConfig={[
-										{ key: "id", config: { hidden: true } },
-									]}
-									mode={mode}
-									closeSheet={() => setOpen(false)}
-								/>}
+								/>
 								<ScrollBar orientation="horizontal" />
 							</ScrollArea>
 						)}
@@ -146,59 +141,3 @@ export function DataTableFunctions({
 		</div>
 	);
 }
-
-// function BatchCreateForm({
-// 	tableType,
-// 	bonusType,
-// 	schema,
-// 	setOpen,
-// }: {
-// 	tableType: TableEnum;
-// 	bonusType: BonusTypeEnumType;
-// 	schema: any;
-// 	setOpen: (open: boolean) => void;
-// }) {
-// 	const mode = "batch_create";
-// 	if (tableType == "TableBonusWorkType")
-// 		return (
-// 			<BonusWorkTypeBatchCreateForm
-// 				bonusType={bonusType}
-// 				formSchema={z.object({ content: z.array(schema) })}
-// 				mode={mode}
-// 				closeSheet={() => setOpen(false)}
-// 			/>
-// 		);
-// 	if (tableType == "TableBonusDepartment")
-// 		return (
-// 			<BonusDepartmentBatchCreateForm
-// 				bonusType={bonusType}
-// 				formSchema={z.object({ content: z.array(schema) })}
-// 				mode={mode}
-// 				closeSheet={() => setOpen(false)}
-// 			/>
-// 		);
-// 	if (tableType == "TableBonusPosition")
-// 		return (
-// 			<BonusPositionBatchCreateForm
-// 				bonusType={bonusType}
-// 				formSchema={z.object({ content: z.array(schema) })}
-// 				mode={mode}
-// 				closeSheet={() => setOpen(false)}
-// 			/>
-// 		);
-// if (tableType == "TableBonusPositionType") return <BonusPositionTypeBatchCreateForm
-// 		bonusType={bonusType}
-// 		formSchema={z.object({ content: z.array(schema) })}
-// 		mode={mode}
-// 	c	loseSheet={() => setOpen(false)}
-// />;
-// 	if (tableType == "TableBonusSeniority")
-// 		return (
-// 			<BonusSeniorityBatchCreateForm
-// 				bonusType={bonusType}
-// 				formSchema={z.object({ content: z.array(schema) })}
-// 				mode={mode}
-// 				closeSheet={() => setOpen(false)}
-// 			/>
-// 		);
-// }

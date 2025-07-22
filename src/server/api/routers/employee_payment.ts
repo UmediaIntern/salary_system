@@ -43,11 +43,11 @@ export const employeePaymentRouter = createTRPCRouter({
 
 			// Logic
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			const employeePaymentFE: EmployeePaymentFEType[] =
 				await employeePaymentService.getCurrentEmployeePayment(
-					input.period_id
+					input.period_id,
 				);
 
 			// Filter by access level
@@ -72,45 +72,44 @@ export const employeePaymentRouter = createTRPCRouter({
 
 			const period_id = input.period_id;
 			const ehrService = container.resolve(EHRService);
-			const previous_period_id = await ehrService.getPreviousPeriodId(
-				period_id
-			);
+			const previous_period_id =
+				await ehrService.getPreviousPeriodId(period_id);
 			const allowance_range_service = container.resolve(
-				AllowanceRangeService
+				AllowanceRangeService,
 			);
 			const cur_allowance_range =
 				await allowance_range_service.getCurrentAllowanceRange(
-					period_id
+					period_id,
 				);
 
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			const employeePaymentFE: EmployeePaymentFEType[] =
 				await employeePaymentService.getCurrentEmployeePayment(
-					period_id
+					period_id,
 				);
 			const previousEmployeePaymentFE: EmployeePaymentFEType[] =
 				await employeePaymentService.getCurrentEmployeePayment(
-					previous_period_id
+					previous_period_id,
 				);
 			const employeeDataService = container.resolve(EmployeeDataService);
 			const employeeData =
 				await employeeDataService.getAllEmployeeDataByPeriod(
-					previous_period_id
+					previous_period_id,
 				);
 
 			const syncService = container.resolve(SyncService);
 			const cand_paid_emps = await syncService.getCandPaidEmployees(
 				FunctionsEnum.Values.month_salary,
-				period_id
+				period_id,
 			); // 獲取候選需支付員工數據
 			const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
 			const differences =
 				await syncService.compareEhrWithSalaryEmployeeData(
 					period_id,
 					employeeData,
-					cand_emp_no_list
+					cand_emp_no_list,
 				);
 
 			console.log(differences);
@@ -118,12 +117,12 @@ export const employeePaymentRouter = createTRPCRouter({
 				[];
 			for (const employeePayment of employeePaymentFE) {
 				const emp_data = employeeData.find(
-					(emp) => emp.emp_no == employeePayment.emp_no
+					(emp) => emp.emp_no == employeePayment.emp_no,
 				)!;
 				const emp_diff = differences.find(
 					(diff) =>
 						diff.emp_no.salary_value == employeePayment.emp_no ||
-						diff.emp_no.ehr_value == employeePayment.emp_no
+						diff.emp_no.ehr_value == employeePayment.emp_no,
 				);
 
 				let isPositionModified = false;
@@ -131,11 +130,11 @@ export const employeePaymentRouter = createTRPCRouter({
 				if (emp_diff) {
 					isPositionModified =
 						emp_diff.comparisons.find(
-							(cmp) => cmp.key == "position"
+							(cmp) => cmp.key == "position",
 						)?.is_different ?? false;
 					isPositionTypeModified =
 						emp_diff.comparisons.find(
-							(cmp) => cmp.key == "position_type"
+							(cmp) => cmp.key == "position_type",
 						)?.is_different ?? false;
 				}
 				// Compare with previous period's payment to determine isModified
@@ -144,35 +143,35 @@ export const employeePaymentRouter = createTRPCRouter({
 						cur_allowance_range,
 						emp_data,
 						allowanceTypeEnum.Enum.supervisor_allowance,
-						employeePayment.supervisor_allowance
+						employeePayment.supervisor_allowance,
 					);
 				let isOccupationalInRange =
 					await allowance_range_service.checkAllowanceInRange(
 						cur_allowance_range,
 						emp_data,
 						allowanceTypeEnum.Enum.occupational_allowance,
-						employeePayment.occupational_allowance
+						employeePayment.occupational_allowance,
 					);
 				let isLongServiceInRange =
 					await allowance_range_service.checkAllowanceInRange(
 						cur_allowance_range,
 						emp_data,
 						allowanceTypeEnum.Enum.long_service_allowance,
-						employeePayment.long_service_allowance
+						employeePayment.long_service_allowance,
 					);
 				let isSubsidyInRange =
 					await allowance_range_service.checkAllowanceInRange(
 						cur_allowance_range,
 						emp_data,
 						allowanceTypeEnum.Enum.subsidy_allowance,
-						employeePayment.subsidy_allowance
+						employeePayment.subsidy_allowance,
 					);
 				let isFoodInRange =
 					await allowance_range_service.checkAllowanceInRange(
 						cur_allowance_range,
 						emp_data,
 						allowanceTypeEnum.Enum.food_allowance,
-						employeePayment.food_allowance
+						employeePayment.food_allowance,
 					);
 
 				let isSupervisorModified = false;
@@ -182,7 +181,7 @@ export const employeePaymentRouter = createTRPCRouter({
 				let isFoodModified = false;
 
 				const previousEmployeePayment = previousEmployeePaymentFE.find(
-					(prevEmp) => prevEmp.emp_no == employeePayment.emp_no
+					(prevEmp) => prevEmp.emp_no == employeePayment.emp_no,
 				);
 				if (previousEmployeePayment) {
 					isSupervisorModified =
@@ -254,7 +253,7 @@ export const employeePaymentRouter = createTRPCRouter({
 		.output(z.array(z.array(employeePaymentFE)))
 		.query(async () => {
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			const employeePayment =
 				await employeePaymentService.getAllEmployeePayment();
@@ -269,21 +268,21 @@ export const employeePaymentRouter = createTRPCRouter({
 		.input(employeePaymentCreateAPI)
 		.mutation(async ({ input }) => {
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			const employeePaymentMapper = container.resolve(
-				EmployeePaymentMapper
+				EmployeePaymentMapper,
 			);
 			const validateService = container.resolve(ValidateService);
 
 			const previousEmployeePaymentFE =
 				await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
 					input.emp_no,
-					input.start_date ?? new Date()
+					input.start_date ?? new Date(),
 				);
 			if (!previousEmployeePaymentFE) {
 				throw new BaseResponseError(
-					`EmployeePayment for emp_no: ${input.emp_no} not exists yet`
+					`EmployeePayment for emp_no: ${input.emp_no} not exists yet`,
 				);
 			}
 
@@ -311,10 +310,10 @@ export const employeePaymentRouter = createTRPCRouter({
 		.input(employeePaymentBatchCreateAPI)
 		.mutation(async ({ input }) => {
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			const employeePaymentMapper = container.resolve(
-				EmployeePaymentMapper
+				EmployeePaymentMapper,
 			);
 			const validateService = container.resolve(ValidateService);
 
@@ -322,11 +321,11 @@ export const employeePaymentRouter = createTRPCRouter({
 				const previousEmployeePaymentFE =
 					await employeePaymentService.getCurrentEmployeePaymentByEmpNoByDate(
 						i.emp_no,
-						i.start_date ?? new Date()
+						i.start_date ?? new Date(),
 					);
 				if (!previousEmployeePaymentFE) {
 					throw new BaseResponseError(
-						`EmployeePayment for emp_no: ${i.emp_no} not exists yet`
+						`EmployeePayment for emp_no: ${i.emp_no} not exists yet`,
 					);
 				}
 
@@ -355,7 +354,7 @@ export const employeePaymentRouter = createTRPCRouter({
 		.input(updateEmployeePaymentAPI)
 		.mutation(async ({ input }) => {
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			const validateService = container.resolve(ValidateService);
 
@@ -373,7 +372,7 @@ export const employeePaymentRouter = createTRPCRouter({
 			// });
 
 			await employeePaymentService.updateEmployeePaymentAndMatchLevel(
-				employeePayment
+				employeePayment,
 			);
 			await employeePaymentService.rescheduleEmployeePayment();
 		}),
@@ -382,7 +381,7 @@ export const employeePaymentRouter = createTRPCRouter({
 		.input(z.object({ id: z.number() }))
 		.mutation(async ({ input }) => {
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			const validateService = container.resolve(ValidateService);
 
@@ -401,28 +400,39 @@ export const employeePaymentRouter = createTRPCRouter({
 			await employeePaymentService.rescheduleEmployeePayment();
 		}),
 
-	autoCalculateEmployeePayment: publicProcedure
+	adjustLevelEmployeePayment: publicProcedure
 		.input(z.object({ start_date: z.date() }))
 		.mutation(async ({ input }) => {
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 
-			await employeePaymentService.autoCalculateEmployeePayment(
+			await employeePaymentService.adjustLevelEmployeePayment(
 				input.start_date
 			);
 			await employeePaymentService.rescheduleEmployeePayment();
+		}),
+
+	getFullAttendenceBonusLimit: publicProcedure
+		.output(z.object({ full_attendence_bonus_limit: z.number() }))
+		.query(async () => {
+			const ehrService = container.resolve(EHRService);
+
+			return {
+				full_attendence_bonus_limit:
+					await ehrService.getFullAttendenceBonusLimit(),
+			};
 		}),
 
 	adjustBaseSalary: publicProcedure
 		.input(z.object({ base_salary: z.number(), start_date: z.date() }))
 		.mutation(async ({ input }) => {
 			const employeePaymentService = container.resolve(
-				EmployeePaymentService
+				EmployeePaymentService,
 			);
 			await employeePaymentService.adjustBaseSalary(
 				input.base_salary,
-				input.start_date
+				input.start_date,
 			);
 		}),
 });

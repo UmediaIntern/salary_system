@@ -21,10 +21,7 @@ import { EmployeeDataService } from "./employee_data_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { WorkTypeEnum } from "../api/types/work_type_enum";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
-import {
-	dateToStringNullable,
-	dateToString,
-} from "../api/types/z_utils";
+import { dateToStringNullable, dateToString } from "../api/types/z_utils";
 import { isSameDay, subDays } from "date-fns";
 
 @injectable()
@@ -35,11 +32,11 @@ export class EmployeePaymentService {
 		@inject(delay(() => LevelService))
 		private readonly levelService: LevelService,
 		private readonly levelRangeService: LevelRangeService,
-		private readonly employeeDataService: EmployeeDataService
-	) { }
+		private readonly employeeDataService: EmployeeDataService,
+	) {}
 
 	async createEmployeePayment(
-		data: z.input<typeof employeePaymentCreateService>
+		data: z.input<typeof employeePaymentCreateService>,
 	): Promise<EmployeePayment> {
 		const d = employeePaymentCreateService.parse(data);
 
@@ -58,7 +55,7 @@ export class EmployeePaymentService {
 	}
 
 	async insertEmployeePayment(
-		data: z.input<typeof employeePaymentCreateService>
+		data: z.input<typeof employeePaymentCreateService>,
 	) {
 		const inputDate = dateToStringNullable.parse(data.start_date);
 		if (!data.start_date || !inputDate) {
@@ -83,9 +80,8 @@ export class EmployeePaymentService {
 		let dLatestPayment = null;
 		let isSameBefore = false;
 		if (latestPayment != null) {
-			dLatestPayment = await this.employeePaymentMapper.decode(
-				latestPayment
-			);
+			dLatestPayment =
+				await this.employeePaymentMapper.decode(latestPayment);
 			isSameBefore = isEqualEmployeePayment(dLatestPayment, data);
 		}
 
@@ -103,9 +99,8 @@ export class EmployeePaymentService {
 		let dClosestFuturePayment = null;
 		let isSameAfter = false;
 		if (closestFuturePayment != null) {
-			dClosestFuturePayment = await this.employeePaymentMapper.decode(
-				closestFuturePayment
-			);
+			dClosestFuturePayment =
+				await this.employeePaymentMapper.decode(closestFuturePayment);
 			isSameAfter = isEqualEmployeePayment(dClosestFuturePayment, data);
 		}
 
@@ -130,8 +125,8 @@ export class EmployeePaymentService {
 				console.log("creating new employee payment");
 				await this.createEmployeePayment(data);
 				return;
-			}
-			else { // Inserting an earlier payment
+			} else {
+				// Inserting an earlier payment
 				console.log("Different from payment after, create new payment");
 				await this.createEmployeePayment({
 					...data,
@@ -139,19 +134,19 @@ export class EmployeePaymentService {
 				});
 				return;
 			}
-		}
-		else { // latestPayment != null
+		} else {
+			// latestPayment != null
 			if (dClosestFuturePayment != null) {
 				// Just to check
 				if (
 					!dLatestPayment.end_date ||
 					!isSameDay(
 						dLatestPayment.end_date,
-						subDays(dClosestFuturePayment.start_date, 1)
+						subDays(dClosestFuturePayment.start_date, 1),
 					)
 				) {
 					throw new Error(
-						"Bad existing employee payment, latest payment end date is less than future payment start date"
+						"Bad existing employee payment, latest payment end date is less than future payment start date",
 					);
 				}
 				console.log("creating new employee payment. end date set");
@@ -171,7 +166,7 @@ export class EmployeePaymentService {
 	}
 
 	async getEmployeePaymentById(
-		id: number
+		id: number,
 	): Promise<EmployeePaymentDecType | null> {
 		const employeePayment = await EmployeePayment.findOne({
 			where: {
@@ -187,7 +182,7 @@ export class EmployeePaymentService {
 	}
 
 	async getEmployeePaymentByEmpNo(
-		emp_no: string
+		emp_no: string,
 	): Promise<EmployeePaymentDecType> {
 		const employeePayment = await EmployeePayment.findOne({
 			where: {
@@ -198,7 +193,7 @@ export class EmployeePaymentService {
 
 		if (employeePayment == null) {
 			throw new Error(
-				`Employee payment does not exist,emp_no: ${emp_no}`
+				`Employee payment does not exist,emp_no: ${emp_no}`,
 			);
 		}
 
@@ -206,7 +201,7 @@ export class EmployeePaymentService {
 	}
 
 	async getCurrentEmployeePayment(
-		period_id: number
+		period_id: number,
 	): Promise<EmployeePaymentFEType[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
 		const current_date_string = dateToString.parse(period.end_date);
@@ -229,18 +224,18 @@ export class EmployeePaymentService {
 
 		const employeePaymentList = await Promise.all(
 			employeePayment.map(
-				async (e) => await this.employeePaymentMapper.decode(e)
-			)
+				async (e) => await this.employeePaymentMapper.decode(e),
+			),
 		);
 
 		return this.employeePaymentMapper.getEmployeePaymentFE(
-			employeePaymentList
+			employeePaymentList,
 		);
 	}
 
 	async getCurrentEmployeePaymentById(
 		id: number,
-		period_id: number
+		period_id: number,
 	): Promise<EmployeePaymentDecType[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
 		const current_date_string = dateToString.parse(period.end_date);
@@ -263,8 +258,8 @@ export class EmployeePaymentService {
 
 		const employeePaymentList = await Promise.all(
 			employeePayment.map(
-				async (e) => await this.employeePaymentMapper.decode(e)
-			)
+				async (e) => await this.employeePaymentMapper.decode(e),
+			),
 		);
 
 		return employeePaymentList;
@@ -272,7 +267,7 @@ export class EmployeePaymentService {
 
 	async getCurrentEmployeePaymentByEmpNo(
 		emp_no: string,
-		period_id: number
+		period_id: number,
 	): Promise<EmployeePaymentDecType | null> {
 		const period = await this.ehrService.getPeriodById(period_id);
 		const current_date_string = dateToString.parse(period.end_date);
@@ -301,7 +296,7 @@ export class EmployeePaymentService {
 
 	async getCurrentEmployeePaymentByEmpNoList(
 		emp_no_list: string[],
-		period_id: number
+		period_id: number,
 	): Promise<EmployeePaymentDecType[]> {
 		const period = await this.ehrService.getPeriodById(period_id);
 		const current_date_string = dateToString.parse(period.end_date);
@@ -327,7 +322,7 @@ export class EmployeePaymentService {
 	}
 
 	async getCurrentEmployeePaymentByDate(
-		date: Date
+		date: Date,
 	): Promise<EmployeePaymentDecType[]> {
 		const date_string = get_date_string(date);
 		const employeePayment = await EmployeePayment.findAll({
@@ -346,8 +341,8 @@ export class EmployeePaymentService {
 
 		const employeePaymentList = await Promise.all(
 			employeePayment.map(
-				async (e) => await this.employeePaymentMapper.decode(e)
-			)
+				async (e) => await this.employeePaymentMapper.decode(e),
+			),
 		);
 
 		return employeePaymentList;
@@ -355,7 +350,7 @@ export class EmployeePaymentService {
 
 	async getCurrentEmployeePaymentByEmpNoByDate(
 		emp_no: string,
-		date: Date
+		date: Date,
 	): Promise<EmployeePaymentDecType | null> {
 		const date_string = get_date_string(date);
 		const employeePayment = await EmployeePayment.findOne({
@@ -379,7 +374,6 @@ export class EmployeePaymentService {
 		return await this.employeePaymentMapper.decode(employeePayment);
 	}
 
-	// TODO: change the return type of this function
 	async getAllEmployeePayment(): Promise<EmployeePaymentFEType[][]> {
 		const allEmployeePayment = await EmployeePayment.findAll({
 			where: {
@@ -397,7 +391,7 @@ export class EmployeePaymentService {
 
 		const employeePaymentList =
 			await this.employeePaymentMapper.getEmployeePaymentFE(
-				decodedEmployeePayments
+				decodedEmployeePayments,
 			);
 
 		// 将记录按工号分组
@@ -437,7 +431,7 @@ export class EmployeePaymentService {
 
 		const employeePaymentList =
 			await this.employeePaymentMapper.getEmployeePaymentFE(
-				decodedEmployeePayments
+				decodedEmployeePayments,
 			);
 
 		// 将记录按工号分组
@@ -457,7 +451,7 @@ export class EmployeePaymentService {
 	}
 
 	async updateEmployeePayment(
-		data: z.input<typeof updateEmployeePaymentService>
+		data: z.input<typeof updateEmployeePaymentService>,
 	): Promise<void> {
 		const transData = await this.getEmployeePaymentAfterSelectValue(data);
 		await this.createEmployeePayment(transData);
@@ -465,12 +459,12 @@ export class EmployeePaymentService {
 	}
 
 	async updateEmployeePaymentAndMatchLevel(
-		data: z.input<typeof updateEmployeePaymentService>
+		data: z.input<typeof updateEmployeePaymentService>,
 	): Promise<void> {
 		const transData = await this.getEmployeePaymentAfterSelectValue(data);
 		const matchedLevelData = await this.getMatchedLevelEmployeePayment(
 			transData,
-			transData.start_date!
+			transData.start_date!,
 		);
 
 		await this.createEmployeePayment(matchedLevelData);
@@ -485,14 +479,14 @@ export class EmployeePaymentService {
 			},
 			{
 				where: { id: id },
-			}
+			},
 		);
 		if (destroyedRows[0] == 0) {
 			throw new BaseResponseError("Delete error");
 		}
 	}
 
-	async autoCalculateEmployeePayment(start_date: Date): Promise<void> {
+	async adjustLevelEmployeePayment(start_date: Date): Promise<void> {
 		const emp_list = await this.getCurrentEmployeePaymentByDate(start_date);
 
 		const promises = emp_list.map(
@@ -500,7 +494,7 @@ export class EmployeePaymentService {
 				// TODO: this is bad. (or not?) figure out a systematic way to handle relation between tables
 				const quit_date = (
 					await this.employeeDataService.getLatestEmployeeDataByEmpNo(
-						empPayment.emp_no
+						empPayment.emp_no,
 					)
 				).quit_date;
 
@@ -511,14 +505,14 @@ export class EmployeePaymentService {
 				const updatedEmployeePayment =
 					await this.getMatchedLevelEmployeePayment(
 						empPayment,
-						start_date
+						start_date,
 					);
 				if (
 					empPayment.l_i != updatedEmployeePayment.l_i ||
 					empPayment.h_i != updatedEmployeePayment.h_i ||
 					empPayment.l_r != updatedEmployeePayment.l_r ||
 					empPayment.occupational_injury !=
-					updatedEmployeePayment.occupational_injury
+						updatedEmployeePayment.occupational_injury
 				) {
 					await this.createEmployeePayment({
 						...updatedEmployeePayment,
@@ -526,7 +520,7 @@ export class EmployeePaymentService {
 						end_date: null,
 					});
 				}
-			}
+			},
 		);
 
 		await Promise.all(promises);
@@ -546,13 +540,17 @@ export class EmployeePaymentService {
 			const end_date_string = employeePaymentList[i]!.end_date
 				? employeePaymentList[i]!.end_date!
 				: null;
-			const next_start_date = new Date(employeePaymentList[i + 1]!.start_date);
+			const next_start_date = new Date(
+				employeePaymentList[i + 1]!.start_date,
+			);
 			const new_end_date_string = dateToString.parse(
-				new Date(next_start_date.setDate(next_start_date.getDate() - 1))
+				new Date(
+					next_start_date.setDate(next_start_date.getDate() - 1),
+				),
 			);
 			const quit_date = (
 				await this.employeeDataService.getLatestEmployeeDataByEmpNo(
-					employeePaymentList[i]!.emp_no
+					employeePaymentList[i]!.emp_no,
 				)
 			).quit_date;
 			if (quit_date != null) {
@@ -567,7 +565,7 @@ export class EmployeePaymentService {
 						new_end_date_string < employeePaymentList[i]!.start_date
 					) {
 						await this.deleteEmployeePayment(
-							employeePaymentList[i]!.id
+							employeePaymentList[i]!.id,
 						);
 					} else {
 						await this.updateEmployeePayment({
@@ -596,11 +594,12 @@ export class EmployeePaymentService {
 		}
 	}
 
-	async rescheduleEmployeePaymentByQuitDate(
-		emp_no: string,
-	): Promise<void> {
-		const employee_data = await this.employeeDataService.getLatestEmployeeDataByEmpNo(emp_no);
-		const period_id = await this.ehrService.getPeriodIdByDate(new Date(employee_data.quit_date!));
+	async rescheduleEmployeePaymentByQuitDate(emp_no: string): Promise<void> {
+		const employee_data =
+			await this.employeeDataService.getLatestEmployeeDataByEmpNo(emp_no);
+		const period_id = await this.ehrService.getPeriodIdByDate(
+			new Date(employee_data.quit_date!),
+		);
 		const period = await this.ehrService.getPeriodById(period_id);
 		const quit_date = dateToString.parse(period.end_date);
 		// TODO: why not use the getAll function
@@ -614,7 +613,7 @@ export class EmployeePaymentService {
 
 		for (const empPayment of employeePaymentList) {
 			const start_date_string = get_date_string(
-				new Date(empPayment.start_date)
+				new Date(empPayment.start_date),
 			);
 			const end_date_string = empPayment.end_date
 				? get_date_string(new Date(empPayment.end_date))
@@ -630,6 +629,20 @@ export class EmployeePaymentService {
 		}
 	}
 
+	hasFullAttendenceBonus(
+		emp: Pick<
+			EmployeePaymentFEType,
+			"position" | "position_type" | "work_type"
+		>,
+	): boolean {
+		if (emp.work_type !== "ForeignWorker") {
+			if (emp.position === 2 || emp.position === 3) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	async adjustBaseSalary(base_salary: number, start_date: Date) {
 		const employeePaymentList = await this.getAllEmployeePayment();
 
@@ -637,7 +650,7 @@ export class EmployeePaymentService {
 		for (const empPayment of employeePaymentList) {
 			const [before, after] = this.findSurroundingItems(
 				empPayment,
-				start_date
+				start_date,
 			);
 
 			if (
@@ -652,15 +665,26 @@ export class EmployeePaymentService {
 					id: before?.id,
 					end_date: subDays(start_date, 1),
 				});
-				const matchedLevelEmployeePayment = await this.getMatchedLevelEmployeePayment(
-					{
-						...before,
-						base_salary: base_salary - before.food_allowance,
-						start_date: start_date,
-						end_date: after?.start_date ? subDays(after.start_date, 1) : null,
-					},
-					start_date
-				);
+				const hasFullAttendenceBonus =
+					this.hasFullAttendenceBonus(before);
+				const fullAttendenceBonus = hasFullAttendenceBonus
+					? await this.ehrService.getFullAttendenceBonusLimit()
+					: 0;
+				const matchedLevelEmployeePayment =
+					await this.getMatchedLevelEmployeePayment(
+						{
+							...before,
+							base_salary:
+								base_salary -
+								before.food_allowance -
+								fullAttendenceBonus,
+							start_date: start_date,
+							end_date: after?.start_date
+								? subDays(after.start_date, 1)
+								: null,
+						},
+						start_date,
+					);
 				await this.createEmployeePayment(matchedLevelEmployeePayment);
 			});
 		}
@@ -671,11 +695,11 @@ export class EmployeePaymentService {
 	// TODO: should not be here
 	private findSurroundingItems<T extends { start_date: Date }>(
 		items: T[],
-		targetDate: Date
+		targetDate: Date,
 	): [T | null, T | null] {
 		// Sort the items by start_date
 		const sortedItems = items.sort(
-			(a, b) => a.start_date.getTime() - b.start_date.getTime()
+			(a, b) => a.start_date.getTime() - b.start_date.getTime(),
 		);
 
 		let beforeItem: T | null = null;
@@ -725,42 +749,42 @@ export class EmployeePaymentService {
 			base_salary: select_value(base_salary, employeePayment.base_salary),
 			food_allowance: select_value(
 				food_allowance,
-				employeePayment.food_allowance
+				employeePayment.food_allowance,
 			),
 			supervisor_allowance: select_value(
 				supervisor_allowance,
-				employeePayment.supervisor_allowance
+				employeePayment.supervisor_allowance,
 			),
 			occupational_allowance: select_value(
 				occupational_allowance,
-				employeePayment.occupational_allowance
+				employeePayment.occupational_allowance,
 			),
 			subsidy_allowance: select_value(
 				subsidy_allowance,
-				employeePayment.subsidy_allowance
+				employeePayment.subsidy_allowance,
 			),
 			long_service_allowance: select_value(
 				long_service_allowance,
-				employeePayment.long_service_allowance
+				employeePayment.long_service_allowance,
 			),
 			long_service_allowance_type: select_value(
 				long_service_allowance_type,
-				employeePayment.long_service_allowance_type
+				employeePayment.long_service_allowance_type,
 			),
 			l_r_self_ratio: select_value(
 				l_r_self_ratio,
-				employeePayment.l_r_self_ratio
+				employeePayment.l_r_self_ratio,
 			),
 			l_i: select_value(l_i, employeePayment.l_i),
 			h_i: select_value(h_i, employeePayment.h_i),
 			l_r: select_value(l_r, employeePayment.l_r),
 			occupational_injury: select_value(
 				occupational_injury,
-				employeePayment.occupational_injury
+				employeePayment.occupational_injury,
 			),
 			bank_account_foreign: select_value(
 				bank_account_foreign,
-				employeePayment.bank_account_foreign
+				employeePayment.bank_account_foreign,
 			),
 			start_date: select_value(start_date, employeePayment.start_date),
 			end_date: select_value(end_date, employeePayment.end_date),
@@ -769,7 +793,7 @@ export class EmployeePaymentService {
 
 	private async getMatchedLevelEmployeePayment(
 		employeePayment: z.infer<typeof employeePaymentCreateService>,
-		date: Date
+		date: Date,
 	): Promise<z.infer<typeof employeePaymentCreateService>> {
 		const period_id = await this.ehrService.getPeriodIdByDate(date);
 		let employeeData = (
@@ -778,11 +802,11 @@ export class EmployeePaymentService {
 		if (employeeData == null) {
 			employeeData =
 				await this.employeeDataService.getLatestEmployeeDataByEmpNo(
-					employeePayment.emp_no
+					employeePayment.emp_no,
 				);
 			if (employeeData == null) {
 				throw new BaseResponseError(
-					"Employee Data does not exist for this employee"
+					"Employee Data does not exist for this employee",
 				);
 			}
 		}
@@ -794,12 +818,12 @@ export class EmployeePaymentService {
 			employeePayment.occupational_allowance +
 			employeePayment.subsidy_allowance +
 			(employeePayment.long_service_allowance_type ==
-				LongServiceEnum.Enum.month_allowance
+			LongServiceEnum.Enum.month_allowance
 				? employeePayment.long_service_allowance
 				: 0) +
 			(employeeData.position >= 2 &&
-				employeeData.position <= 3 &&
-				employeeData.work_type == WorkTypeEnum.Enum.直接人員
+			employeeData.position <= 3 &&
+			employeeData.work_type == WorkTypeEnum.Values.DirectEmployee
 				? 2000
 				: 0);
 
@@ -811,7 +835,7 @@ export class EmployeePaymentService {
 				date,
 				salary,
 				levelRange.level_start_id,
-				levelRange.level_end_id
+				levelRange.level_end_id,
 			);
 			result.push({
 				type: levelRange.type,
@@ -824,9 +848,9 @@ export class EmployeePaymentService {
 			l_i: result.find((r) => r.type === "勞保")?.level ?? 0,
 			h_i: result.find((r) => r.type === "健保")?.level ?? 0,
 			l_r:
-				employeeData.work_type != "外籍勞工" &&
-					employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
-					? result.find((r) => r.type === "勞退")?.level ?? 0
+				employeeData.work_type != WorkTypeEnum.Values.ForeignWorker &&
+				employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
+					? (result.find((r) => r.type === "勞退")?.level ?? 0)
 					: 0,
 			occupational_injury:
 				result.find((r) => r.type === "職災")?.level ?? 0,
@@ -835,9 +859,8 @@ export class EmployeePaymentService {
 		return updatedEmployeePayment;
 	}
 	async dropEmployeePaymentPeriod(period_id: number): Promise<number> {
-		const start_date = (await this.ehrService.getPeriodById(
-			period_id
-		)).start_date;
+		const start_date = (await this.ehrService.getPeriodById(period_id))
+			.start_date;
 		const deletedRows = await EmployeePayment.destroy({
 			where: { start_date: dateToString.parse(start_date) },
 		});

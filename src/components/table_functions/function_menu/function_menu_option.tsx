@@ -71,9 +71,10 @@ export const FunctionMenuOption = {
 	ExcelDownload: createOptionComponent("excel_download", Download),
 	ExcelUpload: createOptionComponent("excel_upload", PenSquare),
 	// Initialize: createOptionComponent("initialize", RefreshCcw),
-	AutoCalculate: createOptionComponent("auto_calculate", Calculator),
+	AdjustLevel: createOptionComponent("adjust_level", Calculator),
 	AdjustBaseSalary: createOptionComponent(
 		"adjust_base_salary",
 		ArrowUpFromLine
 	),
+	CalculateBudget: createOptionComponent("calculate_budget", Calculator),
 };
