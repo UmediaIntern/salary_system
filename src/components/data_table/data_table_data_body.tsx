@@ -91,50 +91,6 @@ export function DataTableDataBody<TData>({
 	);
 
 	function RowDialog() {
-
-		const { t } = useTranslation(["common"]);
-
-		// const amount_list = (selectedDetailData ?? []).map((item: any) => item.amount)
-		// const total = amount_list.reduce((a: number, b: number) => a + b, 0);
-
-		// const backup = <SimpleTable>
-		// 	{/* <TableCaption>A list of your recent invoices.</TableCaption> */}
-		// 	<TableHeader>
-		// 		<TableRow>
-
-		// 			{selectedDetailData && selectedDetailData.length > 0 && Object.keys((selectedDetailData[0])).map((key: string) => (
-		// 				<TableHead key={`header_${key}`}>{t(`table.${key}`)}</TableHead>
-		// 			))}
-		// 		</TableRow>
-		// 	</TableHeader>
-		// 	<TableBody>
-		// 		{selectedDetailData && selectedDetailData.length > 0 ? (
-		// 			selectedDetailData.map((item: any, index: number) => (
-		// 				<TableRow key={index}>
-		// 					{Object.keys(item).map((key: any) => (
-		// 						<TableCell key={`row_${index}_${key}`}>{item[key]}</TableCell>
-		// 					))}
-		// 				</TableRow>
-		// 			))
-		// 		) : (
-		// 			<></>
-		// 		)}
-		// 	</TableBody>
-
-		// 		{
-		// 			// selectedDetailData && selectedDetailData.length > 0 && <>
-		// 			<>
-		// 			<TableFooter>
-		// 			<TableRow>
-		// 			<TableCell colSpan={3}>Total</TableCell>
-		// 			<TableCell className="">{total}</TableCell>
-		// 			</TableRow>
-		// 			</TableFooter>
-		// 			</>
-		// 		}
-		// </SimpleTable>
-
-
 		return (
 			<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 				<DialogContent className="sm:max-w-[50%]">

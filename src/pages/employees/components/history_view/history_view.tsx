@@ -5,9 +5,7 @@ import {
 	ResizablePanelGroup,
 } from "~/components/ui/resizable";
 import { DataTable } from "./history_data_table";
-import {
-	type HistoryDataType,
-} from "~/components/data_table/history_data_type";
+import { type HistoryDataType } from "~/components/data_table/history_data_type";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Separator } from "~/components/ui/separator";
 import { EmployeePopoverSelector } from "~/components/popover_selector";
@@ -29,11 +27,13 @@ type DataRow = HistoryViewEmployeeCommonEmpInfo & HistoryDataType;
 interface DataTableProps<TData extends DataRow> {
 	columns: ColumnDef<TData, any>[];
 	data: TData[][];
+	defaultColumn?: Partial<ColumnDef<TData, unknown>>;
 }
 
 export function HistoryView<TData extends DataRow>({
 	data,
 	columns,
+	defaultColumn
 }: DataTableProps<TData>) {
 	const { selectedPeriod } = usePeriodContext();
 
@@ -52,7 +52,7 @@ export function HistoryView<TData extends DataRow>({
 
 	useEffect(() => {
 		const newList = data?.find(
-			(empDataList) => empDataList[0]?.emp_no === selectedEmpNo
+			(empDataList) => empDataList[0]?.emp_no === selectedEmpNo,
 		);
 		if (newList) {
 			setSelectedDataList(newList);
@@ -86,16 +86,13 @@ export function HistoryView<TData extends DataRow>({
 			<ResizableHandle />
 			<ResizablePanel defaultSize={75}>
 				{selectedData ? (
-					<>
-						<DataTable
-							columns={columns}
-							data={selectedData ? [selectedData] : []}
-						/>
-					</>
+					<DataTable
+						columns={columns}
+						data={selectedData ? [selectedData] : []}
+						defaultColumn={defaultColumn}
+					/>
 				) : (
-					<>
-						<p>No find selected</p>
-					</>
+					<p>No find selected</p>
 				)}
 			</ResizablePanel>
 		</ResizablePanelGroup>

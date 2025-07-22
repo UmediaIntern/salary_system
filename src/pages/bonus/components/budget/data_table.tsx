@@ -30,7 +30,7 @@ export function DataTable<TData>({
 		columns: columns,
 		data,
 		props: { bonusType, filterColumnKey },
-		original_columns,
+		originalColumns: original_columns,
 		WrappedComponent: DataTableContent,
 
 		onUpdate: (table) => {

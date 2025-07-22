@@ -7,14 +7,20 @@ import { useEffect } from "react";
 interface DataTableProps<TData> {
 	columns: ColumnDef<TData, any>[];
 	data: TData[];
+	defaultColumn?: Partial<ColumnDef<TData, unknown>>;
 }
 
-export function CurrentView<TData>({ columns, data }: DataTableProps<TData>) {
+export function CurrentView<TData>({
+	columns,
+	data,
+	defaultColumn,
+}: DataTableProps<TData>) {
 	const { setSelectedTable } = useEmployeeTableContext();
 
 	const table = useDataTableStandardState({
-		columns: columns,
+		columns,
 		data,
+		defaultColumn,
 	});
 
 	useEffect(() => {

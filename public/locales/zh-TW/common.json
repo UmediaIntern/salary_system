@@ -329,7 +329,8 @@
     "l_i_insured_amount": "勞保投保金額",
     "allowance_type": "工作津貼類別",
     "allowance_start": "工作津貼下限",
-    "allowance_end": "工作津貼上限"
+    "allowance_end": "工作津貼上限",
+    "functions": "功能"
   },
   "table_name": {
     "attendanceSetting": "請假加班",

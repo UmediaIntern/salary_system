@@ -3,10 +3,9 @@ import { api } from "~/utils/api";
 import { useEmployeeTableContext } from "../../components/context/data_table_context_provider";
 import { CurrentView } from "../../components/current_view/current_view";
 import { useTranslation } from "react-i18next";
-import {
-	employee_payment_columns,
-} from "./employee_payment_table";
+import { employee_payment_columns } from "./employee_payment_table";
 import { useMemo } from "react";
+import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
 
 export function EmployeePaymentCurrentTable() {
 	const { period_id } = useEmployeeTableContext();
@@ -29,5 +28,19 @@ export function EmployeePaymentCurrentTable() {
 		return <span>Error: {error.message}</span>; // TODO: Error element with toast
 	}
 
-	return <CurrentView columns={columns} data={data} />;
+	return (
+		<CurrentView
+			columns={columns}
+			data={data}
+			defaultColumn={{
+				header: ({ column }) => {
+					return (
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${column.id}`)}
+						</ColumnHeaderComponent>
+					);
+				},
+			}}
+		/>
+	);
 }
