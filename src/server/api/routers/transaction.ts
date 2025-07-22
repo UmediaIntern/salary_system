@@ -21,6 +21,7 @@ export const transactionRouter = createTRPCRouter({
 			const commonParameters =
 				await transactionService.getCommonParameters(
 					input.period_id,
+					dateToString.parse(input.issue_date),
 					input.pay_type,
 					input.emp_no_list
 				);
