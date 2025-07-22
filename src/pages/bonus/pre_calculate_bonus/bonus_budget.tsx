@@ -13,7 +13,11 @@ export default function BonusBudget() {
         return <p>{t("others.select_period")}</p>;
     }
 
+    if (!selectedIssueDate) {
+        return <p>{t("others.select_bonus_type_and_issue_date")}</p>;
+    }
+
     return (
-        <EmployeeBonusTable period_id={selectedPeriod.period_id} bonus_type={selectedBonusType} issue_date={selectedIssueDate!} />
+        <EmployeeBonusTable period_id={selectedPeriod.period_id} bonus_type={selectedBonusType} issue_date={selectedIssueDate} />
     );
 }
