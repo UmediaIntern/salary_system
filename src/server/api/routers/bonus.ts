@@ -62,10 +62,11 @@ export const bonusRouter = createTRPCRouter({
 		.query(async ({ input }) => {
 			const bonusService = container.resolve(EmployeeBonusService);
 			const bonusMapper = container.resolve(EmployeeBonusMapper);
-			const bonusData = await bonusService.getAllEmployeeBonusByPeriodIdByBonusType(
-				input.period_id,
-				input.bonus_type
-			);
+			const bonusData =
+				await bonusService.getAllEmployeeBonusByPeriodIdByBonusType(
+					input.period_id,
+					input.bonus_type
+				);
 
 			const employeeBonusFE = await Promise.all(
 				bonusData.map(
@@ -153,6 +154,22 @@ export const bonusRouter = createTRPCRouter({
 				...result,
 			});
 			return roundProperties(employeeBonusFE, 2);
+		}),
+	updateEmployeeBonusIssueDate: publicProcedure
+		.input(
+			z.object({
+				period_id: z.number(),
+				issue_date: z.string(),
+				bonus_type: bonusTypeEnum,
+			})
+		)
+		.mutation(async ({ input }) => {
+			const empBonusService = container.resolve(EmployeeBonusService);
+			await empBonusService.updateEmployeeBonusIssueDate(
+				input.period_id,
+				input.issue_date,
+				input.bonus_type
+			);
 		}),
 	updateEmployeeBonus: publicProcedure
 		.input(updateEmployeeBonusAPI)
