@@ -33,6 +33,8 @@ import {
 import { ZodObject } from "zod";
 import { BonusForm } from "../function_sheet/bonus_form";
 import { CalculateBudgetDialog } from "./calculate_budget_dialog";
+import { api } from "~/utils/api";
+import { usePeriodContext } from "~/components/context/period_context_provider";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -47,6 +49,15 @@ export function DataTableFunctions({
 	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
 	const { t } = useTranslation(["common", "nav"]);
+	const { selectedPeriod } = usePeriodContext()
+
+	const ctx = api.useUtils();
+	const calculateBudgetEmployeeBonus =
+		api.bonus.calculateBudgetEmployeeBonus.useMutation({
+			onSuccess: () => {
+				void ctx.bonus.invalidate()
+			}
+		})
 
 	// ========================= Additional Condition for Schema =====================================
 	const schema = getSchema(tableType);
@@ -108,7 +119,11 @@ export function DataTableFunctions({
 				{mode == "calculate_budget" && (
 					<CalculateBudgetDialog
 						onSubmit={(budget) => {
-							// console.log("Submitted budget:", budget);
+							calculateBudgetEmployeeBonus.mutate({
+								period_id: selectedPeriod!.period_id,
+								bonus_type: bonusType,
+								total_budgets: budget,
+							})
 							setOpen(false);
 						}}
 					/>

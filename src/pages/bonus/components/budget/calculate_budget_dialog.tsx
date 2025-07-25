@@ -1,9 +1,9 @@
 import {
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { z } from "zod";
@@ -18,17 +18,14 @@ interface CalculateBudgetDialogProps {
 }
 
 const calculateBudgetDialogSchema = z.object({
-    budget: z.number().min(0),
+    budget: z.coerce.number().min(0),
 });
 
 export function CalculateBudgetDialog({ onSubmit: submit }: CalculateBudgetDialogProps) {
     const { t } = useTranslation(["common"]);
 
     const form = useForm<z.infer<typeof calculateBudgetDialogSchema>>({
-        resolver: zodResolver(calculateBudgetDialogSchema),
-        defaultValues: {
-            budget: 0,
-        },
+        resolver: zodResolver(calculateBudgetDialogSchema)
     });
 
     const onSubmit = (data: z.infer<typeof calculateBudgetDialogSchema>) => {
@@ -44,11 +41,7 @@ export function CalculateBudgetDialog({ onSubmit: submit }: CalculateBudgetDialo
                 </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-                <form
-                    onSubmit={(event) =>
-                        void form.handleSubmit(onSubmit)(event)
-                    }
-                >
+                <form onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
                         name="budget"

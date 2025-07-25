@@ -44,7 +44,7 @@ export function getMatchedBonusType(
 		case PayTypeEnum.Enum.Q34_performance:
 			return bonusTypeEnum.Enum.q3_q4_bonus;
 		case PayTypeEnum.Enum.DS_pay:
-			return bonusTypeEnum.Enum.employee_dividends_bonus;
+			return bonusTypeEnum.Enum.DS_bonus;
 		case PayTypeEnum.Enum.foreign_15_bonus:
 			return null;
 	}

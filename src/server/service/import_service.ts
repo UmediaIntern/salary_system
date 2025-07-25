@@ -159,6 +159,7 @@ export class ImportService {
 			exchange_rate: null,
 			currency_amount_foreign: null,
 			currency_amount_taiwan: null,
+			issue_date: dateToString.parse((await this.ehrService.getPeriodById(data.period_id)).issue_date),
 		});
 
 		await this.createTransaction(data);

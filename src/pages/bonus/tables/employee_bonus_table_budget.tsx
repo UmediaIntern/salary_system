@@ -105,6 +105,7 @@ export function employeeBonusMapper(
 interface EmployeeBonusTableProps extends TableComponentProps {
 	period_id: number;
 	bonus_type: BonusTypeEnumType;
+	issue_date: Date;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }
@@ -112,6 +113,7 @@ interface EmployeeBonusTableProps extends TableComponentProps {
 export function EmployeeBonusTable({
 	period_id,
 	bonus_type,
+	issue_date,
 	viewOnly,
 }: EmployeeBonusTableProps) {
 	const { t } = useTranslation(["common"]);
@@ -137,7 +139,7 @@ export function EmployeeBonusTable({
 
 	useEffect(() => {
 		setSelectedTableType("TableEmployeeBonus");
-		initFunction.mutate({ period_id, bonus_type });
+		initFunction.mutate({ period_id, bonus_type, issue_date });
 	}, []);
 
 	const deleteEmployeeBonus = api.bonus.deleteEmployeeBonus.useMutation({

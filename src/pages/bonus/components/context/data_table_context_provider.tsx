@@ -21,6 +21,7 @@ export default function DataTableContextProvider({
 	const [selectedBonusType, setSelectedBonusType] = useState<BonusTypeEnumType>(
 		Object.values(bonusTypeEnum.Enum)[0]!
 	);
+	const [selectedIssueDate, setSelectedIssueDate] = useState<Date | null>(null);
 	const [selectedTable, setSelectedTable] = useState<TableObject | null>(
 		null
 	);
@@ -36,6 +37,8 @@ export default function DataTableContextProvider({
 				setSelectedTableType,
 				selectedBonusType,
 				setSelectedBonusType,
+				selectedIssueDate,
+				setSelectedIssueDate,
 				selectedTable,
 				setSelectedTable,
 				mode,

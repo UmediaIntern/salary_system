@@ -6,6 +6,7 @@ export const bonusTypeEnum = z.enum([
 	"q2_bonus",
 	"q3_q4_bonus",
 	"employee_dividends_bonus",
+	"DS_bonus"
 ]);
 
 export type BonusTypeEnumType = z.infer<typeof bonusTypeEnum>;
@@ -21,6 +22,8 @@ export function bonusTypeLabel(bonus_type: BonusTypeEnumType): string {
 			return "Q3-Q4獎金";
 		case "employee_dividends_bonus":
 			return "員工分紅獎金";
+		case "DS_bonus":
+			return "董監事酬勞";
 	}
 }
 

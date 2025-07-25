@@ -104,22 +104,22 @@ export default function BonusExcelImport() {
 	}
 
 	return (
-		<div className="grow flex-col">
+		<div className="grow flex-col w-full">
 			<Tabs
 				className="h-full w-full flex flex-col"
 				value={view}
 				onValueChange={(v) => setView(v)}
 			>
-				<TabsList className="grid w-full grid-cols-2">
+				<TabsList className="grid w-full grid-cols-2 mb-2">
 					<TabsTrigger value="upload">Upload</TabsTrigger>
 					<TabsTrigger value="preview" disabled={files.length == 0}>
 						Preview
 					</TabsTrigger>
 				</TabsList>
-				<TabsContent value="upload" className="my-2 grow w-ful">
+				<TabsContent value="upload" className="my-2 grow w-full">
 					<FileUploader onUpload={handleFileUpload} className="h-full"/>
 				</TabsContent>
-				<TabsContent value="preview">
+				<TabsContent value="preview" className="flex flex-col grow min-h-0">
 					<div className="mb-2 flex w-full items-center justify-between">
 						<Select
 							value={selectedFile}

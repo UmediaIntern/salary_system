@@ -8,6 +8,7 @@ import {
 import { PeriodSelector } from "../period_selector";
 import { usePeriodContext } from "../context/period_context_provider";
 import { useTranslation } from "react-i18next";
+import { formatDate } from "~/lib/utils/format_date";
 
 export function SidebarPeriodSelector() {
 	const { displayPeriodName, selectedPeriod, selectedPayDate } = usePeriodContext();
@@ -31,8 +32,8 @@ export function SidebarPeriodSelector() {
 								</span>
 								<span className="truncate text-xs">
 									{selectedPeriod?.period_name &&
-									selectedPayDate
-										? selectedPayDate.toLocaleDateString()
+										selectedPayDate
+										? formatDate("day", selectedPayDate)
 										: t("others.not_set", { ns: "common" })}
 								</span>
 							</div>

@@ -6,14 +6,18 @@ import { usePeriodContext } from "~/components/context/period_context_provider";
 
 export default function BonusBudget() {
     const { selectedPeriod } = usePeriodContext()
-    const { selectedBonusType } = useContext(dataTableContext);
+    const { selectedBonusType, selectedIssueDate } = useContext(dataTableContext);
     const { t } = useTranslation(["common"]);
 
     if (!selectedPeriod) {
         return <p>{t("others.select_period")}</p>;
     }
 
+    if (!selectedIssueDate) {
+        return <p>{t("others.select_bonus_type_and_issue_date")}</p>;
+    }
+
     return (
-        <EmployeeBonusTable period_id={selectedPeriod.period_id} bonus_type={selectedBonusType} />
+        <EmployeeBonusTable period_id={selectedPeriod.period_id} bonus_type={selectedBonusType} issue_date={selectedIssueDate} />
     );
 }

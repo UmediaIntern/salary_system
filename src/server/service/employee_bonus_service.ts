@@ -29,7 +29,7 @@ export class EmployeeBonusService {
 		private readonly ehrService: EHRService,
 		private readonly employeeBonusMapper: EmployeeBonusMapper,
 		private readonly employeePaymentService: EmployeePaymentService
-	) {}
+	) { }
 
 	async createEmployeeBonus(
 		data: z.input<typeof createEmployeeBonusService>
@@ -186,7 +186,11 @@ export class EmployeeBonusService {
 		return await this.employeeBonusMapper.decodeList(result);
 	}
 
-	async getAccumulatedBonus(period_id: number,issue_date: string, emp_no_list: string[]) {
+	async getAccumulatedBonus(
+		period_id: number,
+		issue_date: string,
+		emp_no_list: string[]
+	) {
 		// return accumulated bonus before issue_date
 		const period_name = await this.ehrService
 			.getPeriodById(period_id)
@@ -204,7 +208,7 @@ export class EmployeeBonusService {
 		}
 
 		// const end_period_id = await this.ehrService.getPreviousPeriodId(
-			// period_id
+		// period_id
 		// );
 		const end_period_id = period_id;
 		const result = await EmployeeBonus.findAll({
@@ -220,9 +224,9 @@ export class EmployeeBonusService {
 			},
 			order: [["emp_no", "ASC"]],
 		});
-		const empBonusList = (await this.employeeBonusMapper.decodeList(result)).filter(
-			(e) => new Date(e.issue_date) < new Date(issue_date) 
-		);
+		const empBonusList = (
+			await this.employeeBonusMapper.decodeList(result)
+		).filter((e) => new Date(e.issue_date) < new Date(issue_date));
 		const groupedEmpBonusList = empBonusList.reduce(
 			(
 				acc: Record<string, EmployeeBonusDecType[]>,
@@ -317,7 +321,7 @@ export class EmployeeBonusService {
 							new Date(
 								employee_data.registration_date
 							).getTime()) /
-							(1000 * 60 * 60 * 24 * 365)
+						(1000 * 60 * 60 * 24 * 365)
 					)
 				)) *
 				(await bonus_department_service.getMultiplier(
@@ -547,11 +551,17 @@ export class EmployeeBonusService {
 		bonus_type: BonusTypeEnumType,
 		total_budgets: number
 	) {
-		const budget_amount_list: {
+		const budget_amount_multiplier_list: {
 			emp_no: string;
 			bud_effective_salary: number;
 			budget_amount: number;
 		}[] = [];
+
+		const budget_amount_fixed_list: {
+			emp_no: string;
+			budget_amount: number;
+		}[] = [];
+
 		const emp_no_list = (
 			await this.getAllEmployeeBonusByPeriodIdByBonusType(
 				period_id,
@@ -586,50 +596,63 @@ export class EmployeeBonusService {
 					employee_bonus
 				);
 
-			const budget_amount =
+			const budget_amount_multiplier =
 				(employee_payment_dec.base_salary +
 					employee_payment_dec.food_allowance +
 					employee_payment_dec.supervisor_allowance +
 					employee_payment_dec.occupational_allowance +
 					employee_payment_dec.subsidy_allowance +
 					(employee_payment_dec.long_service_allowance_type ==
-					LongServiceEnum.enum.month_allowance
+						LongServiceEnum.enum.month_allowance
 						? employee_payment_dec.long_service_allowance
 						: 0)) *
-					employee_bonus_fe.special_multiplier *
-					employee_bonus_fe.multiplier +
-				employee_bonus_fe.fixed_amount;
-			if (budget_amount <= 0) {
-				budget_amount_list.push({
+				employee_bonus_fe.special_multiplier *
+				employee_bonus_fe.multiplier
+
+			if (budget_amount_multiplier + employee_bonus_fe.fixed_amount <= 0) {
+				budget_amount_multiplier_list.push({
 					emp_no: emp_no,
 					bud_effective_salary: 0,
 					budget_amount: 0,
 				});
+				budget_amount_fixed_list.push({
+					emp_no: emp_no,
+					budget_amount: employee_bonus_fe.fixed_amount,
+				});
 			} else {
-				budget_amount_list.push({
+				budget_amount_multiplier_list.push({
 					emp_no: emp_no,
 					bud_effective_salary: Round(
-						budget_amount /
-							(employee_payment_dec.base_salary +
-								employee_payment_dec.food_allowance +
-								employee_payment_dec.supervisor_allowance +
-								employee_payment_dec.occupational_allowance +
-								employee_payment_dec.subsidy_allowance),
+						budget_amount_multiplier /
+						(employee_payment_dec.base_salary +
+							employee_payment_dec.food_allowance +
+							employee_payment_dec.supervisor_allowance +
+							employee_payment_dec.occupational_allowance +
+							employee_payment_dec.subsidy_allowance),
 						3
 					),
-					budget_amount: budget_amount,
+					budget_amount: budget_amount_multiplier,
+				});
+				budget_amount_fixed_list.push({
+					emp_no: emp_no,
+					budget_amount: employee_bonus_fe.fixed_amount,
 				});
 			}
 		});
 
 		await Promise.all(promises);
 
-		const total_budget_amount = budget_amount_list
+		const total_budget_multiplier_amount = budget_amount_multiplier_list
 			.map((e) => e.budget_amount)
 			.reduce((a, b) => a + b, 0);
-		if (total_budget_amount > 0) {
-			const ratio = total_budgets / total_budget_amount;
-			budget_amount_list.forEach((e) => {
+
+		const total_budget_fixed_amount = budget_amount_fixed_list
+			.map((e) => e.budget_amount)
+			.reduce((a, b) => a + b, 0);
+
+		if (total_budget_multiplier_amount + total_budget_fixed_amount > 0) {
+			const ratio = (total_budgets - total_budget_fixed_amount) / total_budget_multiplier_amount;
+			budget_amount_multiplier_list.forEach((e) => {
 				e.budget_amount = Round(e.budget_amount * ratio, 1);
 				e.bud_effective_salary = Round(
 					e.bud_effective_salary * ratio,
@@ -638,10 +661,11 @@ export class EmployeeBonusService {
 			});
 		}
 
-		const promises2 = budget_amount_list.map(async (e) => {
+		const promises2 = budget_amount_multiplier_list.map(async (e, i) => {
 			const employee_bonus = emp_bonus_list.find(
 				(b) => b.emp_no === e.emp_no
 			);
+
 			if (!employee_bonus) {
 				return;
 			}
@@ -649,12 +673,34 @@ export class EmployeeBonusService {
 			await this.updateEmployeeBonus({
 				id: employee_bonus.id,
 				bud_effective_salary: e.bud_effective_salary,
-				bud_amount: e.budget_amount,
+				bud_amount: e.budget_amount + budget_amount_fixed_list[i]!.budget_amount,
 			});
 		});
 
 		await Promise.all(promises2);
 
-		return budget_amount_list;
+		return promises2;
+	}
+	async updateEmployeeBonusIssueDate(
+		period_id: number,
+		issue_date: string,
+		bonus_type: BonusTypeEnumType
+	) {
+		const bonus_list = await this.getAllEmployeeBonusByPeriodIdByBonusType(
+			period_id,
+			bonus_type
+		);
+		if (bonus_list.length === 0) {
+			return;
+		} else if (bonus_list[0]!.issue_date !== issue_date) {
+			await Promise.all(
+				bonus_list.map(async (e) => {
+					await this.updateEmployeeBonus({
+						id: e.id,
+						issue_date: issue_date,
+					});
+				})
+			);
+		}
 	}
 }
