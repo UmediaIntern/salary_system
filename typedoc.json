@@ -1,7 +1,12 @@
 {
-    "$schema": "https://typedoc.org/schema.json",
-    "entryPointStrategy": "expand",
-    "entryPoints": ["./src"],
-    "skipErrorChecking": true,
-    "out": "./docs"
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPointStrategy": "expand",
+  "entryPoints": [
+    "./src"
+  ],
+  "skipErrorChecking": true,
+  "out": "./docs",
+  "projectDocuments": [
+    "documents/*.md"
+  ]
 }
