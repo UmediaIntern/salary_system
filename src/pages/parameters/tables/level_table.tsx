@@ -9,7 +9,6 @@ import { formatDate } from "~/lib/utils/format_date";
 import { type LevelFEType } from "~/server/api/types/level_type";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
 import { type TFunction } from "i18next";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { levelSchema } from "../schemas/configurations/level_schema";
 import { useTranslation } from "react-i18next";
 import { Sheet } from "~/components/ui/sheet";
@@ -21,6 +20,7 @@ import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 export type RowItem = {
 	level: number;
@@ -153,12 +153,7 @@ export function LevelTable({ period_id, viewOnly }: LevelTableProps) {
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<ParameterForm
-						formSchema={levelSchema}
-						formConfig={[{ key: "id", config: { hidden: true } }]}
-						mode={mode}
-						closeSheet={() => setOpenSheet(false)}
-					/>
+					<AutoParameterForm />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

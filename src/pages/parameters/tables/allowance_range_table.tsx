@@ -7,10 +7,8 @@ import { useTranslation } from "react-i18next";
 import { formatDate } from "~/lib/utils/format_date";
 import { type TFunction } from "i18next";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { Sheet } from "~/components/ui/sheet";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
-import { SelectLevelField } from "../components/function_sheet/form_fields/select_level_field";
 import { type FunctionsItem } from "../components/context/data_table_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
@@ -21,6 +19,7 @@ import { ColumnCellComponent } from "~/components/data_table/column_cell_compone
 import { AllowanceTypeEnumType } from "~/server/api/types/allowance_type_enum";
 import { AllowanceRangeFEType } from "~/server/api/types/allowance_range_type";
 import { allowanceRangeSchema } from "../schemas/configurations/allowance_range_schema";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 export type RowItem = {
 	position: number;
@@ -163,14 +162,7 @@ export function AllowanceRangeTable({
 					data={allowanceRangeMapper(data ?? [])}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<ParameterForm
-						formSchema={allowanceRangeSchema}
-						formConfig={[
-							{ key: "id", config: { hidden: true } },
-						]}
-						mode={mode}
-						closeSheet={() => setOpenSheet(false)}
-					/>
+					<AutoParameterForm />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

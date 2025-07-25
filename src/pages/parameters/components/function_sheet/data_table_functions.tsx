@@ -22,11 +22,10 @@ import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { modeDescription } from "~/lib/utils/helper_function";
 import { ParameterExcelDownloader } from "../excel_download/parameter_excel_downloader";
 import { ParameterExcelUpload } from "../excel_upload/parameter_excel_uplaod";
-import { ParameterForm } from "./parameter_form";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
 import { useDataTableContext } from "../context/data_table_context_provider";
-import { getSchema } from "../../schemas/get_schemas";
+import { AutoParameterForm } from "../../schemas/auto_parameter_form";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -39,7 +38,6 @@ type FunctionMode =
 	| "delete"
 	| "excel_download"
 	| "excel_upload"
-	// | "initialize"
 	| "none";
 
 export function DataTableFunctions({
@@ -47,16 +45,14 @@ export function DataTableFunctions({
 	className,
 }: DataTableFunctionsProps) {
 	const { t } = useTranslation(["common", "nav"]);
-	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
-	const { enableFunctions } = useDataTableContext();
+	const { enableFunctions, setData, openDialog, setOpenDialog } = useDataTableContext();
 
 	// ========================= Additional Condition for Schema =====================================
-	const schema = getSchema(tableType);
 
 	return (
 		<div className={cn(className, "flex h-full items-center")}>
-			<Dialog open={open} onOpenChange={setOpen}>
+			<Dialog open={openDialog} onOpenChange={setOpenDialog}>
 				{/* Dropdown */}
 				<DropdownMenu modal={false}>
 					<DropdownMenuTrigger asChild>
@@ -77,21 +73,22 @@ export function DataTableFunctions({
 							disabled={!enableFunctions}
 							onClick={() => {
 								setMode("excel_download");
-								setOpen(true);
+								setOpenDialog(true);
 							}}
 						/>
 						<FunctionMenuOption.ExcelUpload
 							disabled={!enableFunctions}
 							onClick={() => {
 								setMode("excel_upload");
-								setOpen(true);
+								setOpenDialog(true);
 							}}
 						/>
 						<FunctionMenuOption.Create
 							disabled={!enableFunctions}
 							onClick={() => {
+								setData(null);
 								setMode("create");
-								setOpen(true);
+								setOpenDialog(true);
 							}}
 						/>
 					</DropdownMenuContent>
@@ -103,7 +100,7 @@ export function DataTableFunctions({
 				{mode == "excel_upload" && (
 					<ParameterExcelUpload
 						tableType={tableType}
-						closeDialog={() => setOpen(false)}
+						closeDialog={() => setOpenDialog(false)}
 					/>
 				)}
 				{mode == "create" && (
@@ -119,11 +116,7 @@ export function DataTableFunctions({
 									{modeDescription(t, mode)}
 								</DialogDescription>
 							</DialogHeader>
-							<ParameterForm
-								formSchema={schema}
-								mode={"create"}
-								closeSheet={() => setOpen(false)}
-							/>
+							<AutoParameterForm />
 						</ScrollArea>
 					</DialogContent>
 				)}

@@ -12,13 +12,13 @@ import { type InsuranceRateSettingFEType } from "~/server/api/types/insurance_ra
 import { type TFunction } from "i18next";
 import { useEffect } from "react";
 import { Sheet } from "~/components/ui/sheet";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { insuranceSchema } from "../schemas/configurations/insurance_schema";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 export type RowItem = {
 	parameters: string;
@@ -33,47 +33,55 @@ export const insurance_rate_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-		...["parameters", "value"].map((key: string) =>
-			columnHelper.accessor(key as RowItemKey, {
-				header: ({ column }) => {
-					return (
-						<div className="flex justify-center">
-							<div className="text-center font-medium">
-								<Button
-									variant="ghost"
-									onClick={() =>
-										column.toggleSorting(
-											column.getIsSorted() === "asc"
-										)
-									}
-								>
-									{t(`table.${key}`)}
-									<ArrowUpDown className="ml-2 h-4 w-4" />
-								</Button>
-							</div>
+	...["parameters", "value"].map((key: string) =>
+		columnHelper.accessor(key as RowItemKey, {
+			header: ({ column }) => {
+				return (
+					<div className="flex justify-center">
+						<div className="text-center font-medium">
+							<Button
+								variant="ghost"
+								onClick={() =>
+									column.toggleSorting(
+										column.getIsSorted() === "asc",
+									)
+								}
+							>
+								{t(`table.${key}`)}
+								<ArrowUpDown className="ml-2 h-4 w-4" />
+							</Button>
 						</div>
-					);
-				},
-				cell: ({ row }) => {
-					if (key === "value") {
-						if (row.original.parameters === c_StartDateStr || row.original.parameters === c_EndDateStr) {
-							return (
-								<div className="text-center font-medium">{formatDate("day", row.original.value as Date | null) ?? ""}</div>
-							);
-						}
+					</div>
+				);
+			},
+			cell: ({ row }) => {
+				if (key === "value") {
+					if (
+						row.original.parameters === c_StartDateStr ||
+						row.original.parameters === c_EndDateStr
+					) {
+						return (
+							<div className="text-center font-medium">
+								{formatDate(
+									"day",
+									row.original.value as Date | null,
+								) ?? ""}
+							</div>
+						);
 					}
-					return (
-						<div className="text-center font-medium">{`${row.original[
-							key as RowItemKey
-						]!.toString()}`}</div>
-					);
-				},
-			})
-		),
-	];
+				}
+				return (
+					<div className="text-center font-medium">{`${row.original[
+						key as RowItemKey
+					]!.toString()}`}</div>
+				);
+			},
+		}),
+	),
+];
 
 export function insuranceRateMapper(
-	insuranceRateData: InsuranceRateSettingFEType[]
+	insuranceRateData: InsuranceRateSettingFEType[],
 ): RowItem[] {
 	const data = insuranceRateData[0]!;
 	return [
@@ -138,12 +146,20 @@ export function InsuranceRateTable({
 	viewOnly,
 }: InsuranceRateTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { selectedTab, openSheet, setOpenSheet, openDialog, setOpenDialog, mode, setData } =
-		useDataTableContext();
+	const {
+		selectedTab,
+		openSheet,
+		setOpenSheet,
+		openDialog,
+		setOpenDialog,
+		mode,
+		setData,
+	} = useDataTableContext();
 
-	const getInsurance =
-		api.parameters.getCurrentInsuranceRateSetting.useQuery({ period_id });
-  const { isPending, content, data } = useQueryHandle(getInsurance);
+	const getInsurance = api.parameters.getCurrentInsuranceRateSetting.useQuery(
+		{ period_id },
+	);
+	const { isPending, content, data } = useQueryHandle(getInsurance);
 	const filterKey: RowItemKey = "parameters";
 
 	useEffect(() => {
@@ -153,7 +169,7 @@ export function InsuranceRateTable({
 	}, [data, selectedTab, setData]);
 
 	if (isPending) {
-		return content; 
+		return content;
 	}
 
 	return (
@@ -163,24 +179,24 @@ export function InsuranceRateTable({
 					selectedTableType={"TableInsurance"}
 					period_id={period_id}
 				>
-					<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
+					<Sheet
+						open={openSheet && mode !== "delete"}
+						onOpenChange={setOpenSheet}
+					>
 						<DataTableWithFunctions
 							columns={insurance_rate_columns({ t })}
 							data={data ? insuranceRateMapper([data]) : []}
 							filterColumnKey={filterKey}
 						/>
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<ParameterForm
-								formSchema={insuranceSchema}
-								formConfig={[{ key: "id", config: { hidden: true } }]}
-								mode={mode}
-								closeSheet={() => {
-									setOpenSheet(false);
-								}}
-							/>
+							<AutoParameterForm />
 						</FunctionsSheetContent>
 					</Sheet>
-					<ConfirmDialog open={openDialog && mode === "delete"} onOpenChange={setOpenDialog} schema={insuranceSchema} />
+					<ConfirmDialog
+						open={openDialog && mode === "delete"}
+						onOpenChange={setOpenDialog}
+						schema={insuranceSchema}
+					/>
 				</ParameterToolbarFunctionsProvider>
 			) : (
 				<DataTableWithoutFunctions

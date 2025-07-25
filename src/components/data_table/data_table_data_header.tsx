@@ -26,10 +26,10 @@ export function DataTableDataHeader<TData>({
 								<TableHead
 									key={header.id}
 									className={cn(
-										"text-center z-10",
-										header.id == "department" ? "sticky left-[0px] bg-secondary" :
-											header.id == "emp_no" ? "sticky left-[116px] bg-secondary" :
-												header.id == "emp_name" ? "sticky left-[260px] bg-secondary" :
+										"text-center z-10 px-2",
+										header.id == "department" ? "sticky left-0 bg-secondary" :
+											header.id == "emp_no" ? "sticky left-[108px] bg-secondary" :
+												header.id == "emp_name" ? "sticky left-[244px] bg-secondary" :
 													""
 									)}
 									colSpan={header.colSpan}

@@ -10,7 +10,6 @@ import { type TFunction } from "i18next";
 import { type AttendanceSettingFEType } from "~/server/api/types/attendance_setting_type";
 import { Sheet } from "~/components/ui/sheet";
 import { useEffect } from "react";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { attendanceSchema } from "../schemas/configurations/attendance_schema";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
@@ -18,6 +17,7 @@ import ParameterToolbarFunctionsProvider from "../components/function_sheet/para
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 type RowItem = {
 	parameters: string;
@@ -168,16 +168,7 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 							filterColumnKey={filterKey}
 						/>
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<ParameterForm
-								formSchema={attendanceSchema}
-								formConfig={[
-									{ key: "id", config: { hidden: true } },
-								]}
-								mode={mode}
-								closeSheet={() => {
-									setOpenSheet(false);
-								}}
-							/>
+							<AutoParameterForm />
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog
