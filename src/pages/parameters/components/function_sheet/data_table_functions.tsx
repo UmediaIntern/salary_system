@@ -45,15 +45,14 @@ export function DataTableFunctions({
 	className,
 }: DataTableFunctionsProps) {
 	const { t } = useTranslation(["common", "nav"]);
-	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
-	const { enableFunctions, setData } = useDataTableContext();
+	const { enableFunctions, setData, openDialog, setOpenDialog } = useDataTableContext();
 
 	// ========================= Additional Condition for Schema =====================================
 
 	return (
 		<div className={cn(className, "flex h-full items-center")}>
-			<Dialog open={open} onOpenChange={setOpen}>
+			<Dialog open={openDialog} onOpenChange={setOpenDialog}>
 				{/* Dropdown */}
 				<DropdownMenu modal={false}>
 					<DropdownMenuTrigger asChild>
@@ -74,14 +73,14 @@ export function DataTableFunctions({
 							disabled={!enableFunctions}
 							onClick={() => {
 								setMode("excel_download");
-								setOpen(true);
+								setOpenDialog(true);
 							}}
 						/>
 						<FunctionMenuOption.ExcelUpload
 							disabled={!enableFunctions}
 							onClick={() => {
 								setMode("excel_upload");
-								setOpen(true);
+								setOpenDialog(true);
 							}}
 						/>
 						<FunctionMenuOption.Create
@@ -89,7 +88,7 @@ export function DataTableFunctions({
 							onClick={() => {
 								setData(null);
 								setMode("create");
-								setOpen(true);
+								setOpenDialog(true);
 							}}
 						/>
 					</DropdownMenuContent>
@@ -101,7 +100,7 @@ export function DataTableFunctions({
 				{mode == "excel_upload" && (
 					<ParameterExcelUpload
 						tableType={tableType}
-						closeDialog={() => setOpen(false)}
+						closeDialog={() => setOpenDialog(false)}
 					/>
 				)}
 				{mode == "create" && (

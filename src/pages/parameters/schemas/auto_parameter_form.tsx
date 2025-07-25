@@ -19,14 +19,17 @@ function DefaultModeAndCloseForm<SchemaType extends z.AnyZodObject>({
 	formSchema,
 	formConfig,
 }: FormSchemaConfig<SchemaType>) {
-	const { mode, setOpenSheet } = useDataTableContext();
+	const { mode, setOpenSheet, setOpenDialog } = useDataTableContext();
 
 	return (
 		<ParameterForm
 			formSchema={formSchema}
 			formConfig={formConfig}
 			mode={mode}
-			closeSheet={() => setOpenSheet(false)}
+			closeSheet={() => {
+				setOpenSheet(false);
+				setOpenDialog(false);
+			}}
 		/>
 	);
 }
