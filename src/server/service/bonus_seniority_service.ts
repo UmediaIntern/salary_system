@@ -111,6 +111,7 @@ export class BonusSeniorityService {
 				bonus_type: bonus_type,
 				disabled: false,
 			},
+			order: [["seniority", "ASC"]],
 		});
 		return bonusSeniority;
 	}

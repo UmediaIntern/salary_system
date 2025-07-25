@@ -91,6 +91,7 @@ export class BonusPositionService {
 				bonus_type: bonus_type,
 				disabled: false,
 			},
+			order: [["position", "ASC"], ["position_type", "ASC"]],
 		});
 		return bonusPosition;
 	}

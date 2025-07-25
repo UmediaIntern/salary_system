@@ -85,6 +85,7 @@ export class BonusWorkTypeService {
 					bonus_type: bonus_type,
 					disabled: false,
 				},
+				order: [["work_type", "ASC"]],
 			}
 		);
 		return bonusWorkType;

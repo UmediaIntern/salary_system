@@ -118,6 +118,7 @@ export class BonusDepartmentService {
 				bonus_type: bonus_type,
 				disabled: false,
 			},
+			order: [["department", "ASC"]],
 		});
 		return bonusDepartment;
 	}
