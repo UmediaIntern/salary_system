@@ -8,11 +8,9 @@ import { type LevelRangeFEType } from "~/server/api/types/level_range_type";
 import { formatDate } from "~/lib/utils/format_date";
 import { type TFunction } from "i18next";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { levelRangeSchema } from "../schemas/configurations/level_range_schema";
 import { Sheet } from "~/components/ui/sheet";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
-import { SelectLevelField } from "../components/function_sheet/form_fields/select_level_field";
 import { type FunctionsItem } from "../components/context/data_table_context";
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
@@ -20,6 +18,7 @@ import { useDataTableContext } from "../components/context/data_table_context_pr
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 export type RowItem = {
 	type: string;
@@ -135,7 +134,6 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 		setOpenSheet,
 		openDialog,
 		setOpenDialog,
-		data: dd,
 	} = useDataTableContext();
 	const getLevelRange = api.parameters.getCurrentLevelRange.useQuery({
 		period_id,
@@ -167,26 +165,7 @@ export function LevelRangeTable({ period_id, viewOnly }: LevelRangeTableProps) {
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<ParameterForm
-						formSchema={levelRangeSchema}
-						formConfig={[
-							{ key: "id", config: { hidden: true } },
-							{
-								key: "level_start",
-								config: {
-									render: SelectLevelField,
-								},
-							},
-							{
-								key: "level_end",
-								config: {
-									render: SelectLevelField,
-								},
-							},
-						]}
-						mode={mode}
-						closeSheet={() => setOpenSheet(false)}
-					/>
+					<AutoParameterForm />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

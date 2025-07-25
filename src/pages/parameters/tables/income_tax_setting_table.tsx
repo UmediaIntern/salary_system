@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
 import { useEffect } from "react";
 import { Sheet } from "~/components/ui/sheet";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { incomeTaxSchema } from "../schemas/configurations/income_tax_schema";
 import { FunctionsSheetContent } from "../components/function_sheet/functions_sheet_content";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
@@ -19,6 +18,7 @@ import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import { type IncomeTaxSettingFEType } from "~/server/api/types/income_tax_setting_type";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 const formula = "If (發薪日 - 入境日期) > [外勞入境天數門檻] then\n\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\nElse\n\tIf 薪資所得稅扣繳總額 < (最低基本工資-免稅額)*[最低工資倍率] then \n\t\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\n\tElse\n\t\tTax=薪資扣繳總額*[薪資所得扣繳總額比率2]\n\tEnd_If\nEnd_If";
 
@@ -161,14 +161,7 @@ export function IncomeTaxSettingTable({
 							filterColumnKey={filterKey}
 						/>
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<ParameterForm
-								formSchema={incomeTaxSchema}
-								formConfig={[{ key: "id", config: { hidden: true } }]}
-								mode={mode}
-								closeSheet={() => {
-									setOpenSheet(false);
-								}}
-							/>
+							<AutoParameterForm />
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog open={openDialog && mode === "delete"} onOpenChange={setOpenDialog} schema={incomeTaxSchema} />

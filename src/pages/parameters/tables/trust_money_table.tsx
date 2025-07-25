@@ -10,7 +10,6 @@ import { type TFunction } from "i18next";
 import { formatDate } from "~/lib/utils/format_date";
 import { type TrustMoneyFEType } from "~/server/api/types/trust_money_type";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { trustMoneySchema } from "../schemas/configurations/trust_money_schema";
 import { Sheet } from "~/components/ui/sheet";
 import { type FunctionsItem } from "../components/context/data_table_context";
@@ -19,6 +18,7 @@ import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import ParameterToolbarFunctionsProvider from "../components/function_sheet/parameter_functions_context";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 export type RowItem = {
 	position: number;
@@ -57,7 +57,7 @@ export const trust_money_columns = ({
 								variant="ghost"
 								onClick={() =>
 									column.toggleSorting(
-										column.getIsSorted() === "asc"
+										column.getIsSorted() === "asc",
 									)
 								}
 							>
@@ -90,7 +90,7 @@ export const trust_money_columns = ({
 						);
 				}
 			},
-		})
+		}),
 	),
 	columnHelper.accessor("functions", {
 		header: () => {
@@ -125,7 +125,7 @@ function TrustMoneyFunctionComponent({ data }: { data: RowItem }) {
 }
 
 export function trustMoneyMapper(
-	TrustMoneyData: TrustMoneyFEType[]
+	TrustMoneyData: TrustMoneyFEType[],
 ): RowItem[] {
 	return TrustMoneyData.map((d) => ({
 		id: d.id,
@@ -151,7 +151,8 @@ interface TrustMoneyTableProps extends TableComponentProps {
 
 export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, openSheet, setOpenSheet, openDialog, setOpenDialog } = useDataTableContext();
+	const { mode, openSheet, setOpenSheet, openDialog, setOpenDialog } =
+		useDataTableContext();
 
 	const getTrustMoney = api.parameters.getCurrentTrustMoney.useQuery({
 		period_id,
@@ -168,7 +169,10 @@ export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 			selectedTableType={"TableTrustMoney"}
 			period_id={period_id}
 		>
-			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
+			<Sheet
+				open={openSheet && mode !== "delete"}
+				onOpenChange={setOpenSheet}
+			>
 				<DataTableWithFunctions
 					columns={trust_money_columns({
 						t,
@@ -177,14 +181,7 @@ export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<ParameterForm
-						formSchema={trustMoneySchema}
-						formConfig={[{ key: "id", config: { hidden: true } }]}
-						mode={mode}
-						closeSheet={() => {
-							setOpenSheet(false);
-						}}
-					/>
+					<AutoParameterForm />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

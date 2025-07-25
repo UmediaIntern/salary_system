@@ -9,9 +9,12 @@ import { StandardForm } from "~/components/form/default/form_standard";
 import { useDataTableContext } from "../context/data_table_context_provider";
 import { useTranslation } from "react-i18next";
 
-interface ParameterFormProps<SchemaType extends z.AnyZodObject> {
+export interface FormSchemaConfig<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
 	formConfig?: FormConfig<SchemaType>;
+}
+
+interface ParameterFormProps<SchemaType extends z.AnyZodObject> extends FormSchemaConfig<SchemaType> {
 	formSubmit?: (data: z.infer<SchemaType>) => void;
 	mode: FunctionModeEnumType;
 	closeSheet: () => void;

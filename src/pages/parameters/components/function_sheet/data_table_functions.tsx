@@ -27,6 +27,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
 import { useDataTableContext } from "../context/data_table_context_provider";
 import { getSchema } from "../../schemas/get_schemas";
+import { AutoParameterForm } from "../../schemas/auto_parameter_form";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
@@ -39,7 +40,6 @@ type FunctionMode =
 	| "delete"
 	| "excel_download"
 	| "excel_upload"
-	// | "initialize"
 	| "none";
 
 export function DataTableFunctions({
@@ -119,11 +119,7 @@ export function DataTableFunctions({
 									{modeDescription(t, mode)}
 								</DialogDescription>
 							</DialogHeader>
-							<ParameterForm
-								formSchema={schema}
-								mode={"create"}
-								closeSheet={() => setOpen(false)}
-							/>
+							<AutoParameterForm />
 						</ScrollArea>
 					</DialogContent>
 				)}

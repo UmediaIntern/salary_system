@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next";
 import { type SalaryIncomeTaxFEType } from "~/server/api/types/salary_income_tax";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
 import { type TFunction } from "i18next";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { salaryIncomeTaxSchema } from "../schemas/configurations/salary_income_tax_schema";
 import { Sheet } from "~/components/ui/sheet";
 import { type FunctionsItem } from "../components/context/data_table_context";
@@ -19,6 +18,7 @@ import ParameterToolbarFunctionsProvider from "../components/function_sheet/para
 import { ConfirmDialog } from "../components/function_sheet/confirm_dialog";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 export type RowItem = {
 	salary_start: number;
@@ -46,64 +46,66 @@ export const salary_income_tax_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-		...f.map((key: RowItemKey) =>
-			columnHelper.accessor(key, {
-				header: ({ column }) => {
-					return (
-						<div className="flex justify-center">
-							<div className="text-center font-medium">
-								<Button
-									variant="ghost"
-									onClick={() =>
-										column.toggleSorting(
-											column.getIsSorted() === "asc"
-										)
-									}
-								>
-									{t(`table.${key}`)}
-									<ArrowUpDown className="ml-2 h-4 w-4" />
-								</Button>
-							</div>
-						</div>
-					);
-				},
-				cell: ({ row }) => {
-					switch (key) {
-						case "start_date":
-							return (
-								<div className="text-center font-medium">{`${formatDate("day", row.original.start_date) ?? ""
-									}`}</div>
-							);
-						case "end_date":
-							return (
-								<div className="text-center font-medium">{`${formatDate("day", row.original.end_date) ?? ""
-									}`}</div>
-							);
-						default:
-							return (
-								<div className="text-center font-medium">{`${row.original[
-									key as RowItemKey
-								]?.toString()}`}</div>
-							);
-					}
-				},
-			})
-		),
-		columnHelper.accessor("functions", {
-			header: () => {
+	...f.map((key: RowItemKey) =>
+		columnHelper.accessor(key, {
+			header: ({ column }) => {
 				return (
 					<div className="flex justify-center">
 						<div className="text-center font-medium">
-							{t(`others.functions`)}
+							<Button
+								variant="ghost"
+								onClick={() =>
+									column.toggleSorting(
+										column.getIsSorted() === "asc",
+									)
+								}
+							>
+								{t(`table.${key}`)}
+								<ArrowUpDown className="ml-2 h-4 w-4" />
+							</Button>
 						</div>
 					</div>
 				);
 			},
 			cell: ({ row }) => {
-				return <SalaryIncomeTaxFunctionComponent data={row.original} />;
+				switch (key) {
+					case "start_date":
+						return (
+							<div className="text-center font-medium">{`${
+								formatDate("day", row.original.start_date) ?? ""
+							}`}</div>
+						);
+					case "end_date":
+						return (
+							<div className="text-center font-medium">{`${
+								formatDate("day", row.original.end_date) ?? ""
+							}`}</div>
+						);
+					default:
+						return (
+							<div className="text-center font-medium">{`${row.original[
+								key as RowItemKey
+							]?.toString()}`}</div>
+						);
+				}
 			},
 		}),
-	];
+	),
+	columnHelper.accessor("functions", {
+		header: () => {
+			return (
+				<div className="flex justify-center">
+					<div className="text-center font-medium">
+						{t(`others.functions`)}
+					</div>
+				</div>
+			);
+		},
+		cell: ({ row }) => {
+			return <SalaryIncomeTaxFunctionComponent data={row.original} />;
+		},
+	}),
+];
 
 function SalaryIncomeTaxFunctionComponent({ data }: { data: RowItem }) {
 	const { setOpenSheet, setOpenDialog, setMode, setData, enableFunctions } =
@@ -122,7 +124,7 @@ function SalaryIncomeTaxFunctionComponent({ data }: { data: RowItem }) {
 }
 
 export function salaryIncomeTaxMapper(
-	salaryIncomeTaxData: SalaryIncomeTaxFEType[]
+	salaryIncomeTaxData: SalaryIncomeTaxFEType[],
 ): RowItem[] {
 	return salaryIncomeTaxData.map((d) => {
 		return {
@@ -149,7 +151,8 @@ export function SalaryIncomeTaxTable({
 	period_id,
 }: SalaryIncomeTaxTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { mode, openSheet, setOpenSheet, openDialog, setOpenDialog } = useDataTableContext();
+	const { mode, openSheet, setOpenSheet, openDialog, setOpenDialog } =
+		useDataTableContext();
 
 	const getSalaryIncomeTax =
 		api.parameters.getCurrentSalaryIncomeTax.useQuery({ period_id });
@@ -164,7 +167,10 @@ export function SalaryIncomeTaxTable({
 			selectedTableType={"TableSalaryIncomeTax"}
 			period_id={period_id}
 		>
-			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
+			<Sheet
+				open={openSheet && mode !== "delete"}
+				onOpenChange={setOpenSheet}
+			>
 				<DataTableWithFunctions
 					columns={salary_income_tax_columns({
 						t,
@@ -173,14 +179,7 @@ export function SalaryIncomeTaxTable({
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<ParameterForm
-						formSchema={salaryIncomeTaxSchema}
-						formConfig={[{ key: "id", config: { hidden: true } }]}
-						mode={mode}
-						closeSheet={() => {
-							setOpenSheet(false);
-						}}
-					/>
+					<AutoParameterForm />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

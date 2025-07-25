@@ -7,7 +7,6 @@ import { formatDate } from "~/lib/utils/format_date";
 import { useTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
 import { type BankSettingFEType } from "~/server/api/types/bank_setting_type";
-import { ParameterForm } from "../components/function_sheet/parameter_form";
 import { bankSchema } from "../schemas/configurations/bank_schema";
 import { FunctionsComponent } from "~/components/data_table/functions_component";
 import { Sheet } from "~/components/ui/sheet";
@@ -22,6 +21,7 @@ import {
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { AutoParameterForm } from "../schemas/auto_parameter_form";
 
 export type RowItem = {
 	bank_name: string;
@@ -57,17 +57,19 @@ export const bank_columns = ({ t }: { t: TFunction<[string], undefined> }) => [
 						content = `(${row.original.org_code})${row.original.org_name}`;
 						break;
 					case "start_date":
-						content = `${formatDate("day", row.original.start_date) ?? ""
-							}`;
+						content = `${
+							formatDate("day", row.original.start_date) ?? ""
+						}`;
 						break;
 					case "end_date":
-						content = `${formatDate("day", row.original.end_date) ?? ""
-							}`;
+						content = `${
+							formatDate("day", row.original.end_date) ?? ""
+						}`;
 						break;
 				}
 				return <ColumnCellComponent>{content}</ColumnCellComponent>;
 			},
-		})
+		}),
 	),
 	columnHelper.accessor("functions", {
 		header: () => {
@@ -100,7 +102,7 @@ function BankSettingFunctionComponent({ data }: { data: RowItem }) {
 }
 
 export function bankSettingMapper(
-	bankSettingData: BankSettingFEType[]
+	bankSettingData: BankSettingFEType[],
 ): RowItem[] {
 	return bankSettingData.map((d) => {
 		return {
@@ -127,7 +129,8 @@ interface BankTableProps extends TableComponentProps {
 
 export function BankTable({ period_id, viewOnly }: BankTableProps) {
 	const { t } = useTranslation(["common"]);
-	const { openSheet, setOpenSheet, openDialog, setOpenDialog, mode } = useDataTableContext();
+	const { openSheet, setOpenSheet, openDialog, setOpenDialog, mode } =
+		useDataTableContext();
 
 	const getBankSetting = api.parameters.getCurrentBankSetting.useQuery({
 		period_id,
@@ -144,7 +147,10 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 			selectedTableType={"TableBankSetting"}
 			period_id={period_id}
 		>
-			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
+			<Sheet
+				open={openSheet && mode !== "delete"}
+				onOpenChange={setOpenSheet}
+			>
 				<DataTableWithFunctions
 					columns={bank_columns({ t })}
 					data={bankSettingMapper(data)}
@@ -159,14 +165,7 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 					]}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<ParameterForm
-						formSchema={bankSchema}
-						formConfig={[{ key: "id", config: { hidden: true } }]}
-						mode={mode}
-						closeSheet={() => {
-							setOpenSheet(false);
-						}}
-					/>
+					<AutoParameterForm />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog
