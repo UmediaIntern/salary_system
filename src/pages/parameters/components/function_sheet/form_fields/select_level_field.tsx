@@ -33,20 +33,20 @@ export function SelectLevelField({
 	// NOTE: Only for debug
 	useEffect(() => {
 		const subscription = watch((value, { name, type }) =>
-			console.log("debug", value, name, type)
+			console.log("debug", value, name, type),
 		);
 		return () => subscription.unsubscribe();
 	}, [watch]);
 
-
-	const parseValue = z
-		.number()
-		.or(z.string())
-		.pipe(z.coerce.string())
-		.safeParse(value);
+	const parseValue = z.union([
+		z.number().transform((val) => val.toString()),
+		z.string(),
+		z.null().transform(() => undefined),
+		z.undefined(),
+	]).safeParse(value);
 
 	if (!parseValue.success) {
-		toast.error(`Select value is ${value}. Error: ${parseValue.error}`)
+		toast.error(`Select value is ${value}. Error: ${parseValue.error}`);
 	}
 	const defaultValueStr = parseValue.data;
 

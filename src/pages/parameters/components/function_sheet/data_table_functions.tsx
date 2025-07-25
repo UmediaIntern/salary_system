@@ -22,11 +22,9 @@ import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { modeDescription } from "~/lib/utils/helper_function";
 import { ParameterExcelDownloader } from "../excel_download/parameter_excel_downloader";
 import { ParameterExcelUpload } from "../excel_upload/parameter_excel_uplaod";
-import { ParameterForm } from "./parameter_form";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
 import { useDataTableContext } from "../context/data_table_context_provider";
-import { getSchema } from "../../schemas/get_schemas";
 import { AutoParameterForm } from "../../schemas/auto_parameter_form";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -49,10 +47,9 @@ export function DataTableFunctions({
 	const { t } = useTranslation(["common", "nav"]);
 	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
-	const { enableFunctions } = useDataTableContext();
+	const { enableFunctions, setData } = useDataTableContext();
 
 	// ========================= Additional Condition for Schema =====================================
-	const schema = getSchema(tableType);
 
 	return (
 		<div className={cn(className, "flex h-full items-center")}>
@@ -90,6 +87,7 @@ export function DataTableFunctions({
 						<FunctionMenuOption.Create
 							disabled={!enableFunctions}
 							onClick={() => {
+								setData(null);
 								setMode("create");
 								setOpen(true);
 							}}
