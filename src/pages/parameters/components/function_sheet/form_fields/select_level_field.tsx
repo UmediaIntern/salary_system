@@ -11,6 +11,7 @@ import {
 import { useEffect } from "react";
 import { z } from "zod";
 import { Input } from "~/components/ui/input";
+import { toast } from "sonner";
 
 export function SelectLevelField({
 	field,
@@ -22,26 +23,32 @@ export function SelectLevelField({
 	const { watch } = useFormContext();
 
 	const startDateInput = watch("start_date");
-	const result = z
+	const parseStartDate = z
 		.string()
 		.or(z.date())
 		.nullable()
 		.pipe(z.coerce.date().nullable())
 		.safeParse(startDateInput);
 
+	// NOTE: Only for debug
 	useEffect(() => {
 		const subscription = watch((value, { name, type }) =>
-			console.log(value, name, type)
+			console.log("debug", value, name, type)
 		);
 		return () => subscription.unsubscribe();
 	}, [watch]);
 
-	// TODO: safe parse, (why is the input sometimes a string?)
-	const valueStr = z
+
+	const parseValue = z
 		.number()
 		.or(z.string())
 		.pipe(z.coerce.string())
-		.parse(value);
+		.safeParse(value);
+
+	if (!parseValue.success) {
+		toast.error(`Select value is ${value}. Error: ${parseValue.error}`)
+	}
+	const defaultValueStr = parseValue.data;
 
 	const { onChange }: { onChange: (event: any) => any } = inputProps;
 
@@ -55,11 +62,11 @@ export function SelectLevelField({
 		onChange?.(event);
 	};
 
-	return result.success && result.data ? (
+	return parseStartDate.success && parseStartDate.data ? (
 		<Select
 			{...inputProps}
 			onValueChange={onValueChange}
-			defaultValue={valueStr}
+			defaultValue={defaultValueStr}
 		>
 			<SelectTrigger
 				id={id}
@@ -67,7 +74,7 @@ export function SelectLevelField({
 			>
 				<SelectValue placeholder="Select an option" />
 			</SelectTrigger>
-			<SelectLevelOptionsComp start_date={result.data} />
+			<SelectLevelOptionsComp start_date={parseStartDate.data} />
 		</Select>
 	) : (
 		<Input disabled placeholder="Set start date first" />
