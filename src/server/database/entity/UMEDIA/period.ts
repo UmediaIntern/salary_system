@@ -3,7 +3,15 @@ import { stringToDate } from "~/server/api/types/z_utils";
 import { PeriodModelErrorScope } from "~/server/errors/error_scope";
 import { ParserError } from "~/server/errors/parser_error";
 
-// TODO: date should be date type not string
+export const zPeriod = z.object({
+	period_id: z.number(),
+	period_name: z.string(),
+	start_date: z.coerce.date(),
+	end_date: z.coerce.date(),
+	status: z.string(),
+	issue_date: z.coerce.date(),
+});
+
 export class Period {
 	declare period_id: number;
 	declare period_name: string;
@@ -18,7 +26,7 @@ export class Period {
 		start_date: Date,
 		end_date: Date,
 		status: string,
-		issue_date: Date
+		issue_date: Date,
 	) {
 		this.period_id = period_id;
 		this.period_name = period_name;
@@ -77,7 +85,7 @@ export class Period {
 			startDate,
 			endDate,
 			STATUS as string,
-			issueDate
+			issueDate,
 		);
 	}
 }

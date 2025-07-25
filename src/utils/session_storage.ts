@@ -1,4 +1,4 @@
-import { type Period } from "~/server/database/entity/UMEDIA/period";
+import { zPeriod, type Period } from "~/server/database/entity/UMEDIA/period";
 
 export class SessionStorage {
 	static getSelectedPayDate(): string | null {
@@ -14,7 +14,7 @@ export class SessionStorage {
 		if (!period) {
 			return null;
 		}
-		return JSON.parse(period) as Period;
+		return zPeriod.parse(JSON.parse(period));
 	}
 
 	static setSelectedPeriod(period: Period) {
