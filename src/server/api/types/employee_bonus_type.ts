@@ -58,6 +58,7 @@ const employeeBonusCreate = employeeBonusBase;
 // Create Types
 export const createEmployeeBonusAPI = employeeBonusCreate;
 export const createEmployeeBonusService = employeeBonusCreate;
+export const batchCreateEmployeeBonusAPI = z.array(createEmployeeBonusAPI);
 
 // Update Types
 export const updateEmployeeBonusAPI = employeeBonusUpdate.partial().merge(Id);

@@ -48,6 +48,7 @@ const columnNames: RowItemKey[] = [
 	"fixed_amount",
 	"bud_effective_salary",
 	"bud_amount",
+	"issue_date",
 ];
 
 const employee_bonus_budget_columns = ({
@@ -55,40 +56,40 @@ const employee_bonus_budget_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-	...columnNames.map((key) =>
-		columnHelper.accessor(key, {
-			header: ({ column }) => {
+		...columnNames.map((key) =>
+			columnHelper.accessor(key, {
+				header: ({ column }) => {
+					return (
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
+					);
+				},
+				cell: ({ row }) => {
+					switch (key) {
+						default:
+							return (
+								<ColumnCellComponent>
+									{row.original[key]?.toString() ?? ""}
+								</ColumnCellComponent>
+							);
+					}
+				},
+			})
+		),
+		columnHelper.accessor("functions", {
+			header: ({ }) => {
 				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
+					<ColumnHeaderBaseComponent>
+						{t(`others.functions`)}
+					</ColumnHeaderBaseComponent>
 				);
 			},
 			cell: ({ row }) => {
-				switch (key) {
-					default:
-						return (
-							<ColumnCellComponent>
-								{row.original[key]?.toString() ?? ""}
-							</ColumnCellComponent>
-						);
-				}
+				return <BonusFunctionComponent data={row.original} />;
 			},
-		})
-	),
-	columnHelper.accessor("functions", {
-		header: ({}) => {
-			return (
-				<ColumnHeaderBaseComponent>
-					{t(`others.functions`)}
-				</ColumnHeaderBaseComponent>
-			);
-		},
-		cell: ({ row }) => {
-			return <BonusFunctionComponent data={row.original} />;
-		},
-	}),
-];
+		}),
+	];
 
 export function employeeBonusMapper(
 	employeeBonusData: EmployeeBonusFEType[]

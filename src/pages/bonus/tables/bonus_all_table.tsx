@@ -167,9 +167,6 @@ export function BonusAllTable({
 						onOpenChange={setOpenSheet}
 					>
 						{(
-							// <button onClick={() => console.log(data, bonusAllMapper(data))}>	
-							// 	TEST
-							// </button>
 							<DataTableWithFunctions
 								columns={bonus_all_columns({ t })}
 								data={bonusAllMapper(data) ? [bonusAllMapper(data) as RowItem] : []}

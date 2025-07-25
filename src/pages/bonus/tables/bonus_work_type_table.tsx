@@ -26,7 +26,7 @@ import { FunctionsSheetContent } from "../components/function_sheet/functions_sh
 import { BonusFunctionComponent } from "./bonus_function_component";
 
 // Bonus WorkType Type & Schema
-import { type WorkTypeEnumType } from "~/server/api/types/work_type_enum";
+import { convertToKey as convertToWorkTypeKey, type WorkTypeEnumType } from "~/server/api/types/work_type_enum";
 import { type BonusWorkTypeFEType } from "~/server/api/types/bonus_work_type_type";
 import { bonusWorkTypeSchema } from "../schemas/configurations/bonus_work_type";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
@@ -51,40 +51,44 @@ export const bonus_work_type_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-	...columnNames.map((key) =>
-		columnHelper.accessor(key, {
-			header: ({ column }) => {
+		...columnNames.map((key) =>
+			columnHelper.accessor(key, {
+				header: ({ column }) => {
+					return (
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
+					);
+				},
+				cell: ({ row }) => {
+					let content = row.original[key].toString();
+					switch (key) {
+						case "work_type":
+							const work_type = row.original.work_type as WorkTypeEnumType;
+							content = t(`work_type.${convertToWorkTypeKey(work_type)}`);
+							break;
+					}
+					return (
+						<ColumnCellComponent>
+							{content}
+						</ColumnCellComponent>
+					);
+				},
+			})
+		),
+		columnHelper.accessor("functions", {
+			header: () => {
 				return (
-					<ColumnHeaderComponent column={column}>
-						{t(`table.${key}`)}
-					</ColumnHeaderComponent>
+					<ColumnHeaderBaseComponent>
+						{t(`others.functions`)}
+					</ColumnHeaderBaseComponent>
 				);
 			},
 			cell: ({ row }) => {
-				switch (key) {
-					default:
-						return (
-							<ColumnCellComponent>
-								{row.original[key].toString()}
-							</ColumnCellComponent>
-						);
-				}
+				return <BonusFunctionComponent data={row.original} />;
 			},
-		})
-	),
-	columnHelper.accessor("functions", {
-		header: () => {
-			return (
-				<ColumnHeaderBaseComponent>
-					{t(`others.functions`)}
-				</ColumnHeaderBaseComponent>
-			);
-		},
-		cell: ({ row }) => {
-			return <BonusFunctionComponent data={row.original} />;
-		},
-	}),
-];
+		}),
+	];
 
 export function bonusWorkTypeMapper(
 	bonusWorkTypeData: BonusWorkTypeFEType[]

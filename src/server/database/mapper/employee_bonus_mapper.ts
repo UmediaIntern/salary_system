@@ -52,12 +52,7 @@ export class EmployeeBonusMapper extends BaseMapper<
 			employeePayment.food_allowance +
 			employeePayment.long_service_allowance;
 
-		const employee_bonus_id = (
-			(await employeeBonusService.getEmployeeBonus(
-				employee_bonus.period_id,
-				employee_bonus.bonus_type
-			)) ?? []
-		).filter((e) => e.emp_no === employee_bonus.emp_no)[0]!.id;
+		const employee_bonus_id = employee_bonus.id;
 
 		const employeeBonusFE: EmployeeBonusFEType = {
 			id: employee_bonus_id,
@@ -100,7 +95,7 @@ export class EmployeeBonusMapper extends BaseMapper<
 			functions: {
 				creatable: false,
 				updatable: true,
-				deletable: false,
+				deletable: true,
 			},
 			create_by: employee_bonus.create_by,
 			update_by: employee_bonus.update_by,

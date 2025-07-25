@@ -1,4 +1,4 @@
-import { injectable } from "tsyringe";
+import { container, injectable } from "tsyringe";
 import { BonusPosition } from "../database/entity/SALARY/bonus_position";
 import { BaseResponseError } from "../errors/base_response_error";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import {
 } from "../api/types/parameters_input_type";
 import { select_value } from "./helper_function";
 import { BonusTypeEnumType } from "../api/types/bonus_type_enum";
+import { Database } from "../database/client";
+import { Op } from "sequelize";
 
 @injectable()
 export class BonusPositionService {
@@ -39,6 +41,7 @@ export class BonusPositionService {
 	async batchCreateBonusPosition(
 		data_array: z.infer<typeof createBonusPositionService>[]
 	) {
+		const t = await container.resolve(Database).connection.transaction();
 		const new_data_array = data_array.map((data) => {
 			return {
 				period_id: data.period_id,
@@ -52,7 +55,22 @@ export class BonusPositionService {
 				update_by: "system",
 			};
 		});
-		await BonusPosition.bulkCreate(new_data_array);
+		for (const data of new_data_array) {
+			await BonusPosition.update(
+				{ disabled: true },
+				{
+					where: {
+						period_id: data.period_id,
+						bonus_type: data.bonus_type,
+						position: data.position,
+						position_type: data.position_type,
+					},
+					transaction: t,
+				}
+			);
+		}
+		await BonusPosition.bulkCreate(new_data_array, { transaction: t });
+		await t.commit();
 	}
 	async getBonusPositionById(id: number): Promise<BonusPosition | null> {
 		const bonusPosition = await BonusPosition.findOne(
@@ -83,36 +101,27 @@ export class BonusPositionService {
 		position_type: string
 	): Promise<number> {
 		//for develop
-		const list = await BonusPosition.findAll({
+		// const list = await BonusPosition.findAll({
+		// 	where: {
+		// 		period_id: period_id,
+		// 		bonus_type: bonus_type,
+		// 		disabled: false,
+		// 	},
+		// });
+		// if (list.length == 0) return 1;
+		const bonus_position = await BonusPosition.findOne({
 			where: {
 				period_id: period_id,
 				bonus_type: bonus_type,
+				position: position,
+				position_type: position_type,
 				disabled: false,
 			},
 		});
-		// if (list.length == 0) return 1;
-		const position_multiplier = (
-			await BonusPosition.findOne({
-				where: {
-					period_id: period_id,
-					bonus_type: bonus_type,
-					position: position,
-					position_type: position_type,
-					disabled: false,
-				},
-			})
-		)?.position_multiplier;
 
-		const position_type_multiplier = (
-			await BonusPosition.findOne({
-				where: {
-					period_id: period_id,
-					bonus_type: bonus_type,
-					position: position,
-					position_type: position_type,
-				},
-			})
-		)?.position_type_multiplier;
+		const position_multiplier = bonus_position?.position_multiplier;
+		const position_type_multiplier = bonus_position?.position_type_multiplier;
+
 		return (position_multiplier || 1) * (position_type_multiplier || 1);
 	}
 	async getAllBonusPosition(): Promise<BonusPosition[] | null> {

@@ -173,6 +173,12 @@ export default function BonusToolbarFunctionsProvider({
 			void ctx.bonus.getEmployeeBonus.invalidate();
 		},
 	});
+	const batchCreateEmployeeBonus =
+		api.bonus.batchCreateEmployeeBonus.useMutation({
+			onSuccess: () => {
+				void ctx.bonus.getEmployeeBonus.invalidate();
+			},
+		});
 	const deleteEmployeeBonus = api.bonus.deleteEmployeeBonus.useMutation({
 		onSuccess: () => {
 			void ctx.bonus.getEmployeeBonus.invalidate();
@@ -220,7 +226,7 @@ export default function BonusToolbarFunctionsProvider({
 			queryFunction: getEmployeeBonus,
 			updateFunction: updateEmployeeBonus,
 			createFunction: createEmployeeBonus,
-			batchCreateFunction: undefined,
+			batchCreateFunction: batchCreateEmployeeBonus,
 			deleteFunction: deleteEmployeeBonus,
 		},
 	};

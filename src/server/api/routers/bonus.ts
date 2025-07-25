@@ -17,10 +17,11 @@ import {
 	batchCreateBonusSeniorityAPI,
 	batchCreateBonusWorkTypeAPI,
 } from "../types/parameters_input_type";
-import { WorkTypeEnum } from "../types/work_type_enum";
+import { convertFromDBWorkTypeEnum, DBWorkTypeEnum, WorkTypeEnum } from "../types/work_type_enum";
 import { roundProperties } from "~/server/database/mapper/helper_function";
 import { EmployeeBonusMapper } from "~/server/database/mapper/employee_bonus_mapper";
 import {
+	batchCreateEmployeeBonusAPI,
 	createEmployeeBonusAPI,
 	updateEmployeeBonusAPI,
 } from "../types/employee_bonus_type";
@@ -120,8 +121,6 @@ export const bonusRouter = createTRPCRouter({
 			})
 		)
 		.mutation(async ({ input }) => {
-			
-			console.log("\\n\n\ncalled initCandidateEmployeeBonus\n\n\n");
 			const empBonusService = container.resolve(EmployeeBonusService);
 			const empDataService = container.resolve(EmployeeDataService);
 			const all_emp_no_list = (
@@ -156,6 +155,22 @@ export const bonusRouter = createTRPCRouter({
 				...result,
 			});
 			return roundProperties(employeeBonusFE, 2);
+		}),
+	batchCreateEmployeeBonus: publicProcedure
+		.input(batchCreateEmployeeBonusAPI)
+		.mutation(async ({ input }) => {
+			const empBonusService = container.resolve(EmployeeBonusService);
+			const empBonusMapper = container.resolve(EmployeeBonusMapper);
+			const result = await empBonusService.batchCreateEmployeeBonus(
+				input
+			);
+			const employeeBonusFE = await Promise.all(
+				result.map(async (_, i) => await empBonusMapper.getEmployeeBonusFE({
+					...input[i]!,
+					...result[i]!,
+				}))
+			);
+			return employeeBonusFE.map((e) => roundProperties(e, 2));
 		}),
 	updateEmployeeBonusIssueDate: publicProcedure
 		.input(
@@ -266,16 +281,16 @@ export const bonusRouter = createTRPCRouter({
 			);
 			return result
 				? roundProperties(
-						{
-							...result.dataValues,
-							functions: {
-								creatable: false,
-								updatable: true,
-								deletable: true,
-							},
+					{
+						...result.dataValues,
+						functions: {
+							creatable: false,
+							updatable: true,
+							deletable: true,
 						},
-						2
-				  )
+					},
+					2
+				)
 				: null;
 		}),
 	getBonusWorkType: publicProcedure
@@ -434,7 +449,7 @@ export const bonusRouter = createTRPCRouter({
 			z.object({
 				period_id: z.number(),
 				bonus_type: bonusTypeEnum,
-				work_type: WorkTypeEnum,
+				work_type: DBWorkTypeEnum,
 				multiplier: z.number(),
 			})
 		)
@@ -442,7 +457,10 @@ export const bonusRouter = createTRPCRouter({
 			const bonusWorkTypeService =
 				container.resolve(BonusWorkTypeService);
 			const result = await bonusWorkTypeService.createBonusWorkType(
-				input
+				{
+					...input,
+					work_type: convertFromDBWorkTypeEnum(input.work_type),
+				}
 			);
 			return result;
 		}),
@@ -528,12 +546,24 @@ export const bonusRouter = createTRPCRouter({
 		}),
 
 	batchCreateBonusWorkType: publicProcedure
-		.input(batchCreateBonusWorkTypeAPI)
+		.input(
+			z.array(
+				z.object({
+					period_id: z.number(),
+					bonus_type: bonusTypeEnum,
+					work_type: DBWorkTypeEnum,
+					multiplier: z.number(),
+				})
+			)
+		)
 		.mutation(async ({ input }) => {
 			const bonusWorkTypeService =
 				container.resolve(BonusWorkTypeService);
 			const result = await bonusWorkTypeService.batchCreateBonusWorkType(
-				input
+				input.map((item) => ({
+					...item,
+					work_type: convertFromDBWorkTypeEnum(item.work_type),
+				})),
 			);
 			return result;
 		}),
@@ -597,7 +627,7 @@ export const bonusRouter = createTRPCRouter({
 		.input(
 			z.object({
 				id: z.number(),
-				work_type: WorkTypeEnum,
+				work_type: DBWorkTypeEnum,
 				multiplier: z.number(),
 			})
 		)
@@ -605,7 +635,10 @@ export const bonusRouter = createTRPCRouter({
 			const bonusWorkTypeService =
 				container.resolve(BonusWorkTypeService);
 			const result = await bonusWorkTypeService.updateBonusWorkType(
-				input
+				{
+					...input,
+					work_type: convertFromDBWorkTypeEnum(input.work_type),
+				}
 			);
 			return result;
 		}),

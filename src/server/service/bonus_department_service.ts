@@ -1,4 +1,4 @@
-import { injectable } from "tsyringe";
+import { container, injectable } from "tsyringe";
 import { BonusDepartment } from "../database/entity/SALARY/bonus_department";
 import { type z } from "zod";
 import {
@@ -9,6 +9,8 @@ import { select_value } from "./helper_function";
 import { type BonusTypeEnumType } from "../api/types/bonus_type_enum";
 import { InternalServerError } from "../errors/internal_server_error";
 import { BonusAllServiceErrorScope } from "../errors/error_scope";
+import { Database } from "../database/client";
+import { Op } from "sequelize";
 
 @injectable()
 export class BonusDepartmentService {
@@ -36,6 +38,7 @@ export class BonusDepartmentService {
 	async batchCreateBonusDepartment(
 		data_array: z.infer<typeof createBonusDepartmentService>[]
 	) {
+		const t = await container.resolve(Database).connection.transaction();
 		const new_data_array = data_array.map((data) => {
 			return {
 				period_id: data.period_id,
@@ -50,7 +53,19 @@ export class BonusDepartmentService {
 				update_by: "system",
 			};
 		});
-		await BonusDepartment.bulkCreate(new_data_array);
+		await BonusDepartment.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: new_data_array[0]!.period_id,
+					bonus_type: new_data_array[0]!.bonus_type,
+					department: { [Op.in]: new_data_array.map((d) => d.department) },
+				},
+				transaction: t,
+			}
+		);
+		await BonusDepartment.bulkCreate(new_data_array, { transaction: t });
+		await t.commit();
 	}
 
 	async getMultiplier(
@@ -68,10 +83,10 @@ export class BonusDepartmentService {
 		});
 		// if (list.length == 0) return 1;
 		const correct_department = department.split("\r")[0]?.split("\n")[0]!;
-		const dict = list.reduce((acc:{[key:string]:number}, item) => {
+		const dict = list.reduce((acc: { [key: string]: number }, item) => {
 			acc[item.department] = item.multiplier;
 			return acc;
-		},{})
+		}, {})
 		const multiplier = dict[correct_department];
 		// const multiplier = (
 		// 	await BonusDepartment.findOne({
