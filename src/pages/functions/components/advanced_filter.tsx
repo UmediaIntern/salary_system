@@ -2,7 +2,7 @@ import { SelectTrigger } from "@radix-ui/react-select";
 import { type Table } from "@tanstack/react-table";
 import { Select, SelectContent, SelectItem, SelectValue } from "~/components/ui/select";
 import { useTranslation } from "react-i18next";
-import { WorkTypeEnum } from "~/server/api/types/work_type_enum";
+import { workTypeEnum } from "~/server/api/types/work_type_enum";
 
 interface DataTableToolbarProps<TData> {
     table: Table<TData>;
@@ -17,9 +17,9 @@ function getFilterFunctionByValue<TData>(table: Table<TData>, value: string) {
         case "all":
             return table.getColumn("work_type")?.setFilterValue("");
         case "foreign_worker":
-            return table.getColumn("work_type")?.setFilterValue([WorkTypeEnum.Enum.外籍勞工]);
+            return table.getColumn("work_type")?.setFilterValue([workTypeEnum.Enum.外籍勞工]);
         case "normal_worker":
-            return table.getColumn("work_type")?.setFilterValue([WorkTypeEnum.Enum.直接人員, WorkTypeEnum.Enum.間接人員]);
+            return table.getColumn("work_type")?.setFilterValue([workTypeEnum.Enum.直接人員, workTypeEnum.Enum.間接人員]);
         default:
             return table.setGlobalFilter("");
     }

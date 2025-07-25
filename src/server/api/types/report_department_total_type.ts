@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { WorkTypeEnum } from "./work_type_enum";
+import { workTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
 import { CostCategoryEnum } from "./cost_category_type";
 
 export const ReportDepartmentTotal = z.object({
 	department: z.string(),						// 部門
-	work_type: WorkTypeEnum,					// 工作類別
+	work_type: workTypeEnum,					// 工作類別
 	cost_category: CostCategoryEnum,			// 成本類別
 	performance_bonus: z.number(),				// 績效獎金
 	operational_performance_bonus: z.number(),	// 營運積效獎金

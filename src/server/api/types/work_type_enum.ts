@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const WorkTypeEnum = z.enum(["DirectEmployee", "IndirectEmployee", "ForeignWorker"])
-export type WorkTypeEnumType = z.infer<typeof WorkTypeEnum>;
+export const workTypeEnum = z.enum(["DirectEmployee", "IndirectEmployee", "ForeignWorker"])
+export type WorkTypeEnumType = z.infer<typeof workTypeEnum>;
 
 export const DBWorkTypeEnum = z.enum(["直接人員", "間接人員", "外籍勞工"]);
 export type DBWorkTypeEnumType = z.infer<typeof DBWorkTypeEnum>;

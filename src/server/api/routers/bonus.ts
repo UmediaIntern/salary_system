@@ -17,7 +17,7 @@ import {
 	batchCreateBonusSeniorityAPI,
 	batchCreateBonusWorkTypeAPI,
 } from "../types/parameters_input_type";
-import { WorkTypeEnum } from "../types/work_type_enum";
+import { workTypeEnum } from "../types/work_type_enum";
 import { roundProperties } from "~/server/database/mapper/helper_function";
 import { EmployeeBonusMapper } from "~/server/database/mapper/employee_bonus_mapper";
 import {
@@ -449,7 +449,7 @@ export const bonusRouter = createTRPCRouter({
 			z.object({
 				period_id: z.number(),
 				bonus_type: bonusTypeEnum,
-				work_type: WorkTypeEnum,
+				work_type: workTypeEnum,
 				multiplier: z.number(),
 			})
 		)
@@ -546,7 +546,7 @@ export const bonusRouter = createTRPCRouter({
 				z.object({
 					period_id: z.number(),
 					bonus_type: bonusTypeEnum,
-					work_type: WorkTypeEnum,
+					work_type: workTypeEnum,
 					multiplier: z.number(),
 				})
 			)
@@ -617,7 +617,7 @@ export const bonusRouter = createTRPCRouter({
 		.input(
 			z.object({
 				id: z.number(),
-				work_type: WorkTypeEnum,
+				work_type: workTypeEnum,
 				multiplier: z.number(),
 			})
 		)

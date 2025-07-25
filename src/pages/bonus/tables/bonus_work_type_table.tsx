@@ -26,7 +26,11 @@ import { FunctionsSheetContent } from "../components/function_sheet/functions_sh
 import { BonusFunctionComponent } from "./bonus_function_component";
 
 // Bonus WorkType Type & Schema
-import { convertToKey as convertToWorkTypeKey, type WorkTypeEnumType } from "~/server/api/types/work_type_enum";
+import {
+	convertToKey as convertToWorkTypeKey,
+	workTypeEnum,
+	type WorkTypeEnumType,
+} from "~/server/api/types/work_type_enum";
 import { type BonusWorkTypeFEType } from "~/server/api/types/bonus_work_type_type";
 import { bonusWorkTypeSchema } from "../schemas/configurations/bonus_work_type";
 import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
@@ -51,47 +55,46 @@ export const bonus_work_type_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-		...columnNames.map((key) =>
-			columnHelper.accessor(key, {
-				header: ({ column }) => {
-					return (
-						<ColumnHeaderComponent column={column}>
-							{t(`table.${key}`)}
-						</ColumnHeaderComponent>
-					);
-				},
-				cell: ({ row }) => {
-					let content = row.original[key].toString();
-					switch (key) {
-						case "work_type":
-							const work_type = row.original.work_type as WorkTypeEnumType;
-							content = t(`work_type.${convertToWorkTypeKey(work_type)}`);
-							break;
-					}
-					return (
-						<ColumnCellComponent>
-							{content}
-						</ColumnCellComponent>
-					);
-				},
-			})
-		),
-		columnHelper.accessor("functions", {
-			header: () => {
+	...columnNames.map((key) =>
+		columnHelper.accessor(key, {
+			header: ({ column }) => {
 				return (
-					<ColumnHeaderBaseComponent>
-						{t(`others.functions`)}
-					</ColumnHeaderBaseComponent>
+					<ColumnHeaderComponent column={column}>
+						{t(`table.${key}`)}
+					</ColumnHeaderComponent>
 				);
 			},
 			cell: ({ row }) => {
-				return <BonusFunctionComponent data={row.original} />;
+				let content = row.original[key].toString();
+				switch (key) {
+					case "work_type":
+						const work_type = row.original
+							.work_type as WorkTypeEnumType;
+						content = t(
+							`work_type.${convertToWorkTypeKey(work_type)}`,
+						);
+						break;
+				}
+				return <ColumnCellComponent>{content}</ColumnCellComponent>;
 			},
 		}),
-	];
+	),
+	columnHelper.accessor("functions", {
+		header: () => {
+			return (
+				<ColumnHeaderBaseComponent>
+					{t(`others.functions`)}
+				</ColumnHeaderBaseComponent>
+			);
+		},
+		cell: ({ row }) => {
+			return <BonusFunctionComponent data={row.original} />;
+		},
+	}),
+];
 
 export function bonusWorkTypeMapper(
-	bonusWorkTypeData: BonusWorkTypeFEType[]
+	bonusWorkTypeData: BonusWorkTypeFEType[],
 ): RowItem[] {
 	return bonusWorkTypeData.map((d) => {
 		return {
@@ -170,7 +173,6 @@ export function BonusWorkTypeTable({
 									formSchema={bonusWorkTypeSchema.omit({
 										id: true,
 									})}
-									formConfig={undefined}
 									mode={mode}
 									defaultValue={{ ...selectedData }}
 									closeSheet={() => setOpenSheet(false)}
@@ -181,6 +183,22 @@ export function BonusWorkTypeTable({
 									formSchema={bonusWorkTypeSchema}
 									formConfig={[
 										{ key: "id", config: { hidden: true } },
+										{
+											key: "work_type",
+											config: {
+												options:
+													workTypeEnum._def.values.map(
+														(e) => [
+															e,
+															t(
+																`work_type.${convertToWorkTypeKey(
+																	e,
+																)}`,
+															),
+														],
+													),
+											},
+										},
 									]}
 									mode={mode}
 									defaultValue={{ ...selectedData }}

@@ -17,6 +17,7 @@ export interface FieldConfig<
 > {
 	render?: React.ComponentType<FormFieldProps>;	
   hidden?: boolean;
+  options? :[string, string][]; // [value, label] for select
   // Determine if any of the following is needed
 	description?: Renderable<AdditionalRenderable>;
 	inputProps?: Record<string, any>;
@@ -46,7 +47,7 @@ export interface FormEntries<AdditionalRenderable = null, FieldTypes = string> {
 export interface CustomFormProps<SchemaType extends ZodObjectOrWrapped>
 	extends PropsWithChildren {
 	formSchema: SchemaType;
-	form: UseFormReturn<z.TypeOf<SchemaType>, any, undefined>;
+	form: UseFormReturn<z.TypeOf<SchemaType>, any, any>;
 	formConfig?: FormConfig<SchemaType>;
 	values?: Partial<z.infer<SchemaType>>;
 	onValuesChange?: (values: Partial<z.infer<SchemaType>>) => void;
@@ -81,7 +82,7 @@ export interface ParsedField<AdditionalRenderable = null, FieldTypes = string> {
 	fieldConfig?: FieldConfig<AdditionalRenderable, FieldTypes>;
 
 	// Field-specific
-	options?: [string, string][]; // [value, label] for enums
+	options?: [string, string][]; // [value, label] for select
 	schema?: ParsedField<AdditionalRenderable, FieldTypes>[]; // For objects and arrays
 }
 

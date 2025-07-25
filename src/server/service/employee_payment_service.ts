@@ -19,7 +19,7 @@ import {
 import { EmployeePaymentMapper } from "../database/mapper/employee_payment_mapper";
 import { EmployeeDataService } from "./employee_data_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
-import { WorkTypeEnum } from "../api/types/work_type_enum";
+import { workTypeEnum } from "../api/types/work_type_enum";
 import { WorkStatusEnum } from "../api/types/work_status_enum";
 import { dateToStringNullable, dateToString } from "../api/types/z_utils";
 import { isSameDay, subDays } from "date-fns";
@@ -823,7 +823,7 @@ export class EmployeePaymentService {
 				: 0) +
 			(employeeData.position >= 2 &&
 			employeeData.position <= 3 &&
-			employeeData.work_type == WorkTypeEnum.Values.DirectEmployee
+			employeeData.work_type == workTypeEnum.Values.DirectEmployee
 				? 2000
 				: 0);
 
@@ -848,7 +848,7 @@ export class EmployeePaymentService {
 			l_i: result.find((r) => r.type === "勞保")?.level ?? 0,
 			h_i: result.find((r) => r.type === "健保")?.level ?? 0,
 			l_r:
-				employeeData.work_type != WorkTypeEnum.Values.ForeignWorker &&
+				employeeData.work_type != workTypeEnum.Values.ForeignWorker &&
 				employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
 					? (result.find((r) => r.type === "勞退")?.level ?? 0)
 					: 0,

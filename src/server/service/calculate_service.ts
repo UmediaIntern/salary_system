@@ -42,7 +42,7 @@ import { EmployeeTrustService } from "./employee_trust_service";
 import { EmployeeTrustFEType } from "../api/types/employee_trust_type";
 import { stringToDate } from "../api/types/z_utils";
 import { EmployeeBonusDecType } from "../database/entity/SALARY/employee_bonus";
-import { WorkTypeEnum, WorkTypeEnumType } from "../api/types/work_type_enum";
+import { workTypeEnum, WorkTypeEnumType } from "../api/types/work_type_enum";
 
 // const FOREIGN = "外籍勞工";
 // const PROFESSOR = "顧問";
@@ -119,7 +119,7 @@ export class CalculateService {
 			}
 		});
 
-		if (employee_data.work_type === WorkTypeEnum.enum.ForeignWorker) {
+		if (employee_data.work_type === workTypeEnum.enum.ForeignWorker) {
 			hourly_fee = Floor(insurance_rate_setting.min_wage / 240, 2);
 			return Round(
 				// hourly_fee * t1 +
@@ -189,7 +189,7 @@ export class CalculateService {
 			}
 		});
 		// rate存哪裡？
-		if (employee_data.work_type === WorkTypeEnum.enum.ForeignWorker) {
+		if (employee_data.work_type === workTypeEnum.enum.ForeignWorker) {
 			hourly_fee = Floor(insurance_rate_setting.min_wage / 240, 2);
 			return Round(
 				hourly_fee * t1 //+
@@ -259,7 +259,7 @@ export class CalculateService {
 		});
 		// rate存哪裡？
 		if (
-			employee_data.work_type === WorkTypeEnum.enum.ForeignWorker ||
+			employee_data.work_type === workTypeEnum.enum.ForeignWorker ||
 			employee_data.work_status === WorkStatusEnum.enum.ForeignWorker
 		) {
 			hourly_fee = Floor(insurance_rate_setting.min_wage / 240, 2);
@@ -290,7 +290,7 @@ export class CalculateService {
 		// F底薪＋伙食津貼＋營運績效獎金＋全勤獎金
 		// U底薪＋伙食津貼＋主管津貼＋職務津貼＋補助津貼
 		if (
-			employee_data.work_type === WorkTypeEnum.enum.ForeignWorker ||
+			employee_data.work_type === workTypeEnum.enum.ForeignWorker ||
 			employee_data.work_status === WorkStatusEnum.enum.ForeignWorker
 		) {
 			if (pay_type === PayTypeEnum.enum.foreign_15_bonus) {
@@ -367,7 +367,7 @@ export class CalculateService {
 		if (received_elderly_benefits) return 0; // 'Jerry 100426 已領老年給付者,員工免付勞保
 
 		if (
-			kind1 === WorkTypeEnum.enum.ForeignWorker ||
+			kind1 === workTypeEnum.enum.ForeignWorker ||
 			kind2 === WorkStatusEnum.enum.ForeignWorker
 		)
 			return Round(
@@ -503,7 +503,7 @@ export class CalculateService {
 		const Fulltime = full_attendance_bonus ?? 0;
 
 		if (
-			kind1 === WorkTypeEnum.Enum.ForeignWorker ||
+			kind1 === workTypeEnum.Enum.ForeignWorker ||
 			kind2 === WorkStatusEnum.Enum.ForeignWorker
 		)
 			return Round((money + food + Effect + Fulltime) * 0.005);
@@ -559,7 +559,7 @@ export class CalculateService {
 				holidays_type_dict[holiday.pay_order!]!;
 		});
 		if (
-			employee_data.work_type === WorkTypeEnum.Enum.ForeignWorker ||
+			employee_data.work_type === workTypeEnum.Enum.ForeignWorker ||
 			employee_data.work_status === WorkStatusEnum.Enum.ForeignWorker
 		) {
 			hourly_fee = Floor(insurance_rate_setting.min_wage / 240, 2);
@@ -770,7 +770,7 @@ export class CalculateService {
 
 		if (pay_type === PayTypeEnum.Enum.month_salary) {
 			if (
-				work_type === WorkTypeEnum.Enum.ForeignWorker ||
+				work_type === workTypeEnum.Enum.ForeignWorker ||
 				work_status === WorkStatusEnum.Enum.ForeignWorker
 			) {
 				return (
@@ -842,7 +842,7 @@ export class CalculateService {
 
 		// Jerry 07/01/31 主要區別外籍勞工 同時也是當月離職人員的算法會與間接人員計計算邏輯衝突,因此以工作類別區分外籍勞工
 		if (
-			kind1 === WorkTypeEnum.Enum.ForeignWorker ||
+			kind1 === workTypeEnum.Enum.ForeignWorker ||
 			kind2 === WorkStatusEnum.Enum.ForeignWorker
 		) {
 			// Jerry 07/09/21  15840 ==> 17280   09/4/28 17280 ==> 25920
@@ -928,7 +928,7 @@ export class CalculateService {
 			}
 		});
 		if (
-			employee_data.work_type === WorkTypeEnum.Enum.ForeignWorker ||
+			employee_data.work_type === workTypeEnum.Enum.ForeignWorker ||
 			employee_data.work_status === WorkStatusEnum.Enum.ForeignWorker
 		) {
 			return (
@@ -1532,7 +1532,7 @@ export class CalculateService {
 				return x1 + x2;
 			}
 			if (
-				work_type === WorkTypeEnum.Enum.ForeignWorker ||
+				work_type === workTypeEnum.Enum.ForeignWorker ||
 				work_status === WorkStatusEnum.Enum.ForeignWorker
 			) {
 				const x1 = Round(
@@ -1669,7 +1669,7 @@ export class CalculateService {
 		const kind2 = employee_data.work_status;
 		//更新過團保費數值
 		if (
-			kind1 === WorkTypeEnum.Enum.ForeignWorker ||
+			kind1 === workTypeEnum.Enum.ForeignWorker ||
 			kind2 === WorkStatusEnum.Enum.ForeignWorker
 		) {
 			if (level === "F") return 47;
@@ -1833,7 +1833,7 @@ export class CalculateService {
 		const Normalday = payset ? payset.work_day ?? 30 : 30; //rd("工作天數");
 		const PartTimeDay = payset ? payset.li_day ?? 30 : 30; //rd("勞保天數");
 
-		if (kind1 === WorkTypeEnum.Enum.ForeignWorker) return 0;
+		if (kind1 === workTypeEnum.Enum.ForeignWorker) return 0;
 		if (kind2 === WorkStatusEnum.Enum.Boss) return 0;
 		if (kind2 === WorkStatusEnum.Enum.ResignedEmployee) return 0;
 		if (kind2 === WorkStatusEnum.Enum.Consultant) return 0;
@@ -1902,7 +1902,7 @@ export class CalculateService {
 		const money = taxable_subtotal + non_taxable_subtotal;
 		const l_i_day = payset?.li_day ?? 30;
 
-		if (kind1 === WorkTypeEnum.Enum.ForeignWorker)
+		if (kind1 === workTypeEnum.Enum.ForeignWorker)
 			if (kind2 === WorkStatusEnum.Enum.RegularEmployee) {
 				//         'ComRetire_old = 0 '2014/1/15 外籍勞工從事一般員工, 也要提撥勞退(舊)
 				return Round(Round(money * 0.02, 0), 0);
@@ -2124,7 +2124,7 @@ export class CalculateService {
 				t1 += h.total_hours ?? 0;
 			}
 		}
-		if (kind1 === WorkTypeEnum.Enum.ForeignWorker) {
+		if (kind1 === workTypeEnum.Enum.ForeignWorker) {
 			return Round(insurance_rate_setting.l_i_wage_replacement_rate * t1);
 		} else {
 			if (kind2 === WorkStatusEnum.Enum.ResignedEmployee) {

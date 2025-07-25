@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { Id } from "./common_type";
-import { WorkTypeEnum } from "./work_type_enum";
+import { workTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
 import { CostCategoryEnum } from "./cost_category_type";
 
@@ -14,7 +14,7 @@ export const employeeData = z.object({
 	group_insurance_type: z.string(),
 	department: z.string(),
 	cost_category: CostCategoryEnum,
-	work_type: WorkTypeEnum,
+	work_type: workTypeEnum,
 	work_status: WorkStatusEnum,
 	disabilty_level: z.string().nullable(),
 	sex_type: z.string(),

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { WorkTypeEnum } from "./work_type_enum";
+import { workTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
 import { CostCategoryEnum } from "./cost_category_type";
 

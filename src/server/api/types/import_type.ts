@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { CostCategoryEnum } from "./cost_category_type";
-import { WorkTypeEnum } from "./work_type_enum";
+import { workTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
 import { currencyForeignEnum } from "./currency_foreign_enum";
 
@@ -23,7 +23,7 @@ export const importFields = z.object({
 	/** 成本分類 */
 	cost_category: CostCategoryEnum,
 	/** 工作類別 */
-	work_type: WorkTypeEnum,
+	work_type: workTypeEnum,
 	/** 工作形態 */
 	work_status: WorkStatusEnum,
 	/** 職等 */

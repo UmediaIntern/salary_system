@@ -11,7 +11,7 @@ import {
 } from "~/server/api/types/work_status_enum";
 import {
 	WorkTypeEnumType,
-	WorkTypeEnum,
+	workTypeEnum,
 	convertFromDBWorkTypeEnum,
 	DBWorkTypeEnum,
 } from "~/server/api/types/work_type_enum";
@@ -29,7 +29,7 @@ const dbEmp = z.object({
 	WORK_TYPE: stringToEnum
 		.pipe(DBWorkTypeEnum)
 		.transform(convertFromDBWorkTypeEnum)
-		.pipe(WorkTypeEnum),
+		.pipe(workTypeEnum),
 	WORK_STATUS: stringToEnum
 		.pipe(DBWorkStatusEnum)
 		.transform(convertFromDBWorkStatusEnum)

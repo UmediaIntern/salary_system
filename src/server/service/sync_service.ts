@@ -30,7 +30,7 @@ import {
 import { z } from "zod";
 import { EmployeeDataMapper } from "../database/mapper/employee_data_mapper";
 import { IncomeTaxSettingService } from "./income_tax_setting_service";
-import { WorkTypeEnum } from "../api/types/work_type_enum";
+import { workTypeEnum } from "../api/types/work_type_enum";
 
 @injectable()
 export class SyncService {
@@ -327,7 +327,7 @@ export class SyncService {
 							// 檢查不合理的工作類別
 							if (
 								emp.work_type !==
-								WorkTypeEnum.Values.ForeignWorker
+								workTypeEnum.Values.ForeignWorker
 							) {
 								msg = "外勞的工作類別不是外勞";
 							}

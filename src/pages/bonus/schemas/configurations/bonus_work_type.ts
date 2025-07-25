@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { workTypeEnum } from "~/server/api/types/work_type_enum";
 
 const zc = z.coerce;
 
 export const bonusWorkTypeSchema = z.object({
 	id: zc.number(),
-	work_type: z.enum(["直接人員", "間接人員", "外籍勞工"]),
+	work_type: workTypeEnum,
 	multiplier: zc.number(),
 });

@@ -17,7 +17,7 @@ import {
 import {
 	DBWorkTypeEnum,
 	DBWorkTypeEnumType,
-	WorkTypeEnum,
+	workTypeEnum,
 	convertFromDBWorkTypeEnum,
 	convertToDBWorkTypeEnum,
 	type WorkTypeEnumType,
@@ -52,7 +52,7 @@ const dbEmployeeData = z.object({
 
 const decFields = z.object({
 	id: z.number(),
-	work_type: WorkTypeEnum,
+	work_type: workTypeEnum,
 	work_status: WorkStatusEnum,
 });
 
