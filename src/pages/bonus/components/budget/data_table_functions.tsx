@@ -107,6 +107,7 @@ export function DataTableFunctions({
 					<BonusExcelDownloader
 						table_name={tableType}
 						bonus_type={bonusType}
+						setOpenDialog={setOpen}
 					/>
 				)}
 				{mode == "excel_upload" && (

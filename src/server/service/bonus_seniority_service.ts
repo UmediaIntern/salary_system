@@ -1,4 +1,4 @@
-import { injectable } from "tsyringe";
+import { container, injectable } from "tsyringe";
 import { BaseResponseError } from "../errors/base_response_error";
 import { z } from "zod";
 import {
@@ -9,6 +9,8 @@ import { BonusSeniority } from "../database/entity/SALARY/bonus_seniority";
 import { select_value } from "./helper_function";
 import { BonusTypeEnumType } from "../api/types/bonus_type_enum";
 import { Bonus } from "../database/entity/UMEDIA/bonus";
+import { Database } from "../database/client";
+import { Op } from "sequelize";
 
 @injectable()
 export class BonusSeniorityService {
@@ -34,6 +36,7 @@ export class BonusSeniorityService {
 	async batchCreateBonusSeniority(
 		data_array: z.infer<typeof createBonusSeniorityService>[]
 	) {
+		const t = await container.resolve(Database).connection.transaction();
 		const new_data_array = data_array.map((data) => {
 			return {
 				period_id: data.period_id,
@@ -45,7 +48,19 @@ export class BonusSeniorityService {
 				update_by: "system",
 			};
 		});
-		await BonusSeniority.bulkCreate(new_data_array);
+		await BonusSeniority.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: new_data_array[0]!.period_id,
+					bonus_type: new_data_array[0]!.bonus_type,
+					seniority: { [Op.in]: new_data_array.map((d) => d.seniority) },
+				},
+				transaction: t,
+			}
+		);
+		await BonusSeniority.bulkCreate(new_data_array, { transaction: t });
+		await t.commit();
 	}
 
 	async getBonusSeniorityById(id: number): Promise<BonusSeniority | null> {
@@ -96,6 +111,7 @@ export class BonusSeniorityService {
 				bonus_type: bonus_type,
 				disabled: false,
 			},
+			order: [["seniority", "ASC"]],
 		});
 		return bonusSeniority;
 	}

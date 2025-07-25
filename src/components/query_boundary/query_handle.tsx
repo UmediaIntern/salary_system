@@ -49,7 +49,7 @@ export function useQueryHandle<TData, TError extends InferrableClientTypes>(
 		};
 	}
 
-	if (isError || !data) {
+	if (isError || data === undefined) {
 		if (error) toast.error(error.message);
 		return {
 			data: undefined,

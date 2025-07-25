@@ -20,7 +20,6 @@ import {
 } from "~/components/ui/dialog";
 import { type Period } from "~/server/database/entity/UMEDIA/period";
 import { useTranslation } from "react-i18next";
-import { DatePicker } from "./ui/date-picker";
 import { usePeriodContext } from "./context/period_context_provider";
 import { useQueryHandle } from "./query_boundary/query_handle";
 import { formatDate } from "~/lib/utils/format_date";

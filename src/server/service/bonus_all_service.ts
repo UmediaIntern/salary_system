@@ -17,19 +17,16 @@ export class BonusAllService {
 		bonus_type,
 		multiplier,
 	}: z.infer<typeof createBonusAllService>): Promise<BonusAll> {
-		const bonusAll = await BonusAll.findOne({
-			where: {
-				period_id: period_id,
-				bonus_type: bonus_type,
-				disabled: false,
-			},
-		});
-		if (bonusAll != null) {
-			throw new InternalServerError(
-				"BonusAll already exists",
-				BonusAllServiceErrorScope
-			);
-		}
+		await BonusAll.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: period_id,
+					bonus_type: bonus_type,
+					disabled: false,
+				},
+			}
+		);
 		const newData = await BonusAll.create({
 			period_id: period_id,
 			bonus_type: bonus_type,

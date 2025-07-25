@@ -16,12 +16,14 @@ import { EHRService } from "./ehr_service";
 import { EmployeePaymentService } from "./employee_payment_service";
 import { EmployeeBonusMapper } from "../database/mapper/employee_bonus_mapper";
 import {
+	batchCreateEmployeeBonusAPI,
 	createEmployeeBonusService,
 	type updateEmployeeBonusService,
 } from "../api/types/employee_bonus_type";
 import { BonusAllService } from "./bonus_all_service";
 import { LongServiceEnum } from "../api/types/long_service_enum";
 import { Op } from "sequelize";
+import { Database } from "../database/client";
 
 @injectable()
 export class EmployeeBonusService {
@@ -49,13 +51,47 @@ export class EmployeeBonusService {
 		return newData;
 	}
 
+	async batchCreateEmployeeBonus(
+		data: z.input<typeof batchCreateEmployeeBonusAPI>
+	): Promise<EmployeeBonus[]> {
+		const t = await container.resolve(Database).connection.transaction();
+		const employeeBonusList = await Promise.all(
+			data.map(async (e) => {
+				const d = createEmployeeBonusService.parse(e);
+				return await this.employeeBonusMapper.encode({
+					...d,
+					disabled: false,
+					create_by: "system",
+					update_by: "system",
+				});
+			})
+		);
+
+
+		await EmployeeBonus.update({
+			disabled: true,
+		}, {
+			where: {
+				period_id: data[0]!.period_id,
+				bonus_type: data[0]!.bonus_type,
+				emp_no: { [Op.in]: data.map((e) => e.emp_no) },
+			},
+			transaction: t,
+		})
+
+		const newData = await EmployeeBonus.bulkCreate(employeeBonusList, { transaction: t });
+
+		await t.commit();
+
+		return newData;
+	}
+
 	async createEmployeeBonusByEmpNoList(
 		period_id: number,
 		issue_date: string,
 		bonus_type: BonusTypeEnumType,
 		emp_no_list: string[]
 	) {
-		console.log("//called createEmployeeBonusByEmpNoList//");
 		const existingBonuses = new Set(
 			(
 				await this.getAllEmployeeBonusByPeriodIdByBonusType(
@@ -63,10 +99,6 @@ export class EmployeeBonusService {
 					bonus_type
 				)
 			).map((e) => e.emp_no)
-		);
-		console.log(existingBonuses);
-		console.log(
-			emp_no_list.filter((emp_no) => !existingBonuses.has(emp_no))
 		);
 		await Promise.all(
 			emp_no_list
@@ -95,7 +127,6 @@ export class EmployeeBonusService {
 					})
 				)
 		);
-		console.log("//end createEmployeeBonusByEmpNoList//");
 	}
 
 	async getEmployeeBonusById(id: number) {
@@ -261,7 +292,6 @@ export class EmployeeBonusService {
 		period_id: number,
 		bonus_type: BonusTypeEnumType
 	) {
-		console.log("\\n\n\ncalled initCandidateEmployeeBonus\n\n\n");
 		const all_emp_bonus_list =
 			await this.getAllEmployeeBonusByPeriodIdByBonusType(
 				period_id,
@@ -281,8 +311,7 @@ export class EmployeeBonusService {
 		);
 		const ehr_service = container.resolve(EHRService);
 		const employee_data_service = container.resolve(EmployeeDataService);
-		const issue_date = (await ehr_service.getPeriodById(period_id))
-			.issue_date;
+		const issue_date = (await ehr_service.getPeriodById(period_id)).issue_date;
 		const all_emp_data =
 			await employee_data_service.getEmployeeDataByEmpNoListByPeriod(
 				period_id,

@@ -18,7 +18,7 @@ export function ExcelUploadDialogContent({
 	const { t } = useTranslation(["common", "nav"]);
 
 	return (
-		<DialogContent className="max-h-[80vh] max-w-[80vw] p-8">
+		<DialogContent className="max-h-[80vh] max-w-[80vw] p-8 flex flex-col">
 			<DialogHeader>
 				<DialogTitle>
 					{`${t(`button.excel_upload`)}${t("button.form")}`}

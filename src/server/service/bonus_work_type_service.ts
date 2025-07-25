@@ -1,4 +1,4 @@
-import { injectable } from "tsyringe";
+import { container, injectable } from "tsyringe";
 import { BaseResponseError } from "../errors/base_response_error";
 import { z } from "zod";
 import {
@@ -9,6 +9,8 @@ import { BonusWorkType } from "../database/entity/SALARY/bonus_work_type";
 import { select_value } from "./helper_function";
 import { BonusTypeEnumType } from "../api/types/bonus_type_enum";
 import { WorkTypeEnumType } from "../api/types/work_type_enum";
+import { Database } from "../database/client";
+import { Op } from "sequelize";
 
 @injectable()
 export class BonusWorkTypeService {
@@ -36,6 +38,7 @@ export class BonusWorkTypeService {
 	async batchCreateBonusWorkType(
 		data_array: z.infer<typeof createBonusWorkTypeService>[]
 	) {
+		const t = await container.resolve(Database).connection.transaction();
 		const new_data_array = data_array.map((data) => {
 			return {
 				period_id: data.period_id,
@@ -47,7 +50,19 @@ export class BonusWorkTypeService {
 				update_by: "system",
 			};
 		});
-		await BonusWorkType.bulkCreate(new_data_array);
+		await BonusWorkType.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: new_data_array[0]!.period_id,
+					bonus_type: new_data_array[0]!.bonus_type,
+					work_type: { [Op.in]: new_data_array.map((d) => d.work_type) },
+				},
+				transaction: t,
+			}
+		);
+		await BonusWorkType.bulkCreate(new_data_array, { transaction: t });
+		await t.commit();
 	}
 
 	async getBonusWorkTypeById(id: number): Promise<BonusWorkType | null> {
@@ -70,6 +85,7 @@ export class BonusWorkTypeService {
 					bonus_type: bonus_type,
 					disabled: false,
 				},
+				order: [["work_type", "ASC"]],
 			}
 		);
 		return bonusWorkType;
@@ -88,10 +104,10 @@ export class BonusWorkTypeService {
 			},
 		});
 		// if (list.length == 0) return 1;
-		const dict = list.reduce((acc:{[key:string]:number}, item) => {
+		const dict = list.reduce((acc: { [key: string]: number }, item) => {
 			acc[item.work_type] = item.multiplier;
 			return acc;
-		  }, {});
+		}, {});
 		const multiplier = dict[work_type];
 		return multiplier ?? 1;
 	}
