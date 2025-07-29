@@ -652,10 +652,16 @@ export class EmployeePaymentService {
 				empPayment,
 				start_date,
 			);
-
+			if (!before) {
+				continue;
+			}
+			const hasFullAttendenceBonus =
+					this.hasFullAttendenceBonus(before);
+			const fullAttendenceBonus = hasFullAttendenceBonus
+					? await this.ehrService.getFullAttendenceBonusLimit()
+					: 0;
 			if (
-				!before ||
-				before.base_salary + before.food_allowance > base_salary
+				before.base_salary + before.food_allowance + fullAttendenceBonus > base_salary
 			) {
 				continue;
 			}
@@ -665,11 +671,7 @@ export class EmployeePaymentService {
 					id: before?.id,
 					end_date: subDays(start_date, 1),
 				});
-				const hasFullAttendenceBonus =
-					this.hasFullAttendenceBonus(before);
-				const fullAttendenceBonus = hasFullAttendenceBonus
-					? await this.ehrService.getFullAttendenceBonusLimit()
-					: 0;
+				
 				const matchedLevelEmployeePayment =
 					await this.getMatchedLevelEmployeePayment(
 						{

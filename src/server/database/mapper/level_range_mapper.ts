@@ -46,13 +46,12 @@ export class LevelRangeMapper extends BaseMapper<
 		if (level_start == null || level_end == null) {
 			throw new BaseResponseError("Level does not exist");
 		}
-
 		const levelRange: z.infer<typeof createLevelRangeService> =
 			createLevelRangeService.parse({
+				...level_range,
 				level_start_id: level_start.id,
 				level_end_id: level_end.id,
-				end_date: null,
-				...level_range,
+				end_date: level_start.end_date,
 			});
 
 		return levelRange;

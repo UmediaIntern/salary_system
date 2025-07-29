@@ -14,6 +14,7 @@ import { EHRService } from "./ehr_service";
 import { Op } from "sequelize";
 import { LevelRangeMapper } from "../database/mapper/level_range_mapper";
 import { dateToString, stringToDate } from "../api/types/z_utils";
+import { Database } from "../database/client";
 
 @injectable()
 export class LevelRangeService {
@@ -23,17 +24,9 @@ export class LevelRangeService {
 		data: z.infer<typeof createLevelRangeService>
 	): Promise<LevelRange> {
 		const d = createLevelRangeService.parse(data);
-		const start_date = d.start_date ?? new Date();
-		// TODO: what is this doing, change
-		const start_date_adjust = new Date(
-			start_date.setFullYear(start_date.getFullYear(), 0, 1)
-		);
-		const end_date = new Date(
-			start_date.setFullYear(start_date.getFullYear(), 11, 31)
-		);
 		const levelRange = await this.levelRangeMapper.encode({
 			...d,
-			start_date: start_date_adjust,
+			start_date: d.start_date ?? new Date(),
 			disabled: false,
 			create_by: "system",
 			update_by: "system",
@@ -50,7 +43,7 @@ export class LevelRangeService {
 			throw new Error(
 				`Data already exist type:${
 					existed_data.type
-				}, start_date: ${start_date_adjust.toDateString()}, end_date: ${end_date.toDateString()}`
+				}, start_date: ${existed_data.start_date}}`
 			);
 		}
 		const newData = await LevelRange.create(levelRange, {
@@ -63,9 +56,38 @@ export class LevelRangeService {
 	async batchCreateLevelRange(
 		data_array: z.infer<typeof createLevelRangeService>[]
 	): Promise<LevelRange[]> {
-		const newData = await Promise.all(
-			data_array.map(async (d) => await this.createLevelRange(d))
+		const t = await container.resolve(Database).connection.transaction();
+		const levelRangeList = await Promise.all(
+			data_array.map(async (data) => {
+				const d = createLevelRangeService.parse(data);
+				return await this.levelRangeMapper.encode({
+					...d,
+					start_date: d.start_date ?? new Date(),
+					disabled: false,
+					create_by: "system",
+					update_by: "system",
+				});
+			})
 		);
+
+
+		for (const data of levelRangeList) {
+			await LevelRange.update(
+				{ disabled: true },
+				{
+					where: {
+						type: data.type,
+						start_date: data.start_date,
+					},
+					transaction: t,
+				}
+			);
+		}
+
+		const newData = await LevelRange.bulkCreate(levelRangeList, { transaction: t });
+
+		await t.commit();
+
 		return newData;
 	}
 
@@ -290,7 +312,7 @@ export class LevelRangeService {
 						level_start_id: levelRange.level_start_id,
 						level_end_id: levelRange.level_end_id,
 						start_date: stringToDate.parse(levelRange.start_date),
-						end_date: stringToDate.parse(end_date_string),
+						end_date: stringToDate.parse(start_date_string),
 					});
 					await this.deleteLevelRange(levelRange.id);
 				})
@@ -306,6 +328,26 @@ export class LevelRangeService {
 			});
 			await Promise.all(
 				deleteList.map(async (levelRange) => {
+					await this.deleteLevelRange(levelRange.id);
+				})
+			);
+			const rescheduleList = await LevelRange.findAll({
+				where: {
+					end_date: {
+						[Op.gte]: start_date_string,
+					},
+					disabled: false,
+				},
+			});
+			await Promise.all(
+				rescheduleList.map(async (levelRange) => {
+					await this.createLevelRange({
+						type: levelRange.type,
+						level_start_id: levelRange.level_start_id,
+						level_end_id: levelRange.level_end_id,
+						start_date: stringToDate.parse(levelRange.start_date),
+						end_date: stringToDate.parse(start_date_string),
+					});
 					await this.deleteLevelRange(levelRange.id);
 				})
 			);
