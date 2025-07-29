@@ -11,10 +11,12 @@ import {
 	type updateLevelRangeService,
 } from "../api/types/level_range_type";
 import { EHRService } from "./ehr_service";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { LevelRangeMapper } from "../database/mapper/level_range_mapper";
 import { dateToString, stringToDate } from "../api/types/z_utils";
 import { Database } from "../database/client";
+import { previousDay, subDays } from "date-fns";
+import { Level } from "../database/entity/SALARY/level";
 
 @injectable()
 export class LevelRangeService {
@@ -49,7 +51,7 @@ export class LevelRangeService {
 		const newData = await LevelRange.create(levelRange, {
 			raw: true,
 		});
-
+		console.log(`create level_range: ${JSON.stringify(newData)}`);
 		return newData;
 	}
 
@@ -278,79 +280,111 @@ export class LevelRangeService {
 		});
 		return levelList != null;
 	}
-
-	async emptyInfluencedLevelRange(
-		start_date_string: string,
-		end_date_string: string | null
-	): Promise<void> {
-		if (end_date_string != null) {
-			const deleteList = await LevelRange.findAll({
-				where: {
-					start_date: {
-						[Op.between]: [start_date_string, end_date_string],
-					},
-					disabled: false,
-				},
-			});
-			await Promise.all(
-				deleteList.map(async (levelRange) => {
-					await this.deleteLevelRange(levelRange.id);
+	async levelRangeReschedule(): Promise<void> {
+		const allLevelRange = await LevelRange.findAll({
+			where: { disabled: false },
+			order: [
+				["start_date", "DESC"],
+				["type", "ASC"],
+			],
+			raw: true,
+		});
+		const allLevel = await Level.findAll({
+			where: { disabled: false },
+			raw: true,
+		})
+		allLevelRange.forEach(async (levelRange) => {
+			const matchedLevel = allLevel.find(level => level.id == levelRange.level_start_id)
+			if (matchedLevel == undefined) {
+				return
+			}
+			if (matchedLevel.end_date != null && levelRange.start_date > matchedLevel.end_date ) {
+				await this.deleteLevelRange(levelRange.id)
+			}
+			else {
+				const new_start_date = levelRange.start_date> matchedLevel.start_date ? levelRange.start_date: matchedLevel.start_date
+				const new_end_date = (levelRange.end_date == null || (matchedLevel.end_date != null &&levelRange.end_date > matchedLevel.end_date) )? matchedLevel.end_date: levelRange.end_date
+				await this.updateLevelRange({
+					id: levelRange.id,
+					start_date: stringToDate.parse(new_start_date),
+					end_date: subDays(stringToDate.parse(new_start_date), 1)
 				})
-			);
-			const rescheduleList = await LevelRange.findAll({
-				where: {
-					end_date: {
-						[Op.between]: [start_date_string, end_date_string],
-					},
-					disabled: false,
-				},
-			});
-			await Promise.all(
-				rescheduleList.map(async (levelRange) => {
-					await this.createLevelRange({
-						type: levelRange.type,
-						level_start_id: levelRange.level_start_id,
-						level_end_id: levelRange.level_end_id,
-						start_date: stringToDate.parse(levelRange.start_date),
-						end_date: stringToDate.parse(start_date_string),
-					});
-					await this.deleteLevelRange(levelRange.id);
-				})
-			);
-		} else {
-			const deleteList = await LevelRange.findAll({
-				where: {
-					start_date: {
-						[Op.gte]: start_date_string,
-					},
-					disabled: false,
-				},
-			});
-			await Promise.all(
-				deleteList.map(async (levelRange) => {
-					await this.deleteLevelRange(levelRange.id);
-				})
-			);
-			const rescheduleList = await LevelRange.findAll({
-				where: {
-					end_date: {
-						[Op.gte]: start_date_string,
-					},
-					disabled: false,
-				},
-			});
-			await Promise.all(
-				rescheduleList.map(async (levelRange) => {
-					await this.createLevelRange({
-						type: levelRange.type,
-						level_start_id: levelRange.level_start_id,
-						level_end_id: levelRange.level_end_id,
-						start_date: stringToDate.parse(levelRange.start_date),
-						end_date: stringToDate.parse(start_date_string),
-					});
-					await this.deleteLevelRange(levelRange.id);
-				})
-			);
-		}
+			}
+		})
 	}
+	// async emptyInfluencedLevelRange(
+	// 	start_date_string: string,
+	// 	end_date_string: string | null
+	// ): Promise<void> {
+	// 	if (end_date_string != null) {
+	// 		const deleteList = await LevelRange.findAll({
+	// 			where: {
+	// 				start_date: {
+	// 					[Op.between]: [start_date_string, end_date_string],
+	// 				},
+	// 				disabled: false,
+	// 			},
+	// 		});
+	// 		await Promise.all(
+	// 			deleteList.map(async (levelRange) => {
+	// 				await this.deleteLevelRange(levelRange.id);
+	// 			})
+	// 		);
+	// 		const rescheduleList = await LevelRange.findAll({
+	// 			where: {
+	// 				end_date: {
+	// 					[Op.between]: [start_date_string, end_date_string],
+	// 				},
+	// 				disabled: false,
+	// 			},
+	// 		});
+	// 		await Promise.all(
+	// 			rescheduleList.map(async (levelRange) => {
+	// 				await this.createLevelRange({
+	// 					type: levelRange.type,
+	// 					level_start_id: levelRange.level_start_id,
+	// 					level_end_id: levelRange.level_end_id,
+	// 					start_date: stringToDate.parse(levelRange.start_date),
+	// 					end_date: subDays(stringToDate.parse(start_date_string),1),
+	// 				});
+	// 				await this.deleteLevelRange(levelRange.id);
+	// 			})
+	// 		);
+	// 	} else {
+	// 		const deleteList = await LevelRange.findAll({
+	// 			where: {
+	// 				start_date: {
+	// 					[Op.gte]: start_date_string,
+	// 				},
+	// 				disabled: false,
+	// 			},
+	// 		});
+	// 		await Promise.all(
+	// 			deleteList.map(async (levelRange) => {
+	// 				await this.deleteLevelRange(levelRange.id);
+	// 			})
+	// 		);
+	// 		const rescheduleList = await LevelRange.findAll({
+	// 			where: {
+	// 				end_date: {
+	// 					[Op.or]: [{ [Op.gte]: start_date_string }, { [Op.eq]: null }],
+	// 				},
+	// 				disabled: false,
+	// 			},
+	// 		});	
+	// 		await Promise.all(
+	// 			rescheduleList.map(async (levelRange) => {
+	// 				console.log(`levelRange: ${JSON.stringify(levelRange)} `);
+	// 				await this.createLevelRange({
+	// 					type: levelRange.type,
+	// 					level_start_id: levelRange.level_start_id,
+	// 					level_end_id: levelRange.level_end_id,
+	// 					start_date: stringToDate.parse(levelRange.start_date),
+	// 					end_date: subDays(stringToDate.parse(start_date_string),1),
+	// 				});
+	// 				await this.deleteLevelRange(levelRange.id);
+	// 			})
+	// 		);
+	// 	}
+	// }
 }

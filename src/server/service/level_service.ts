@@ -410,7 +410,7 @@ async rescheduleLevel(): Promise<void> {
 	// Process each start date
 	const promises = startDates.map(async (startDate, index) => {
 	  const levels = groupedLevels[startDate];
-	  let changedLevelRange = false;
+	//   let changedLevelRange = false;
   
 	  // Process each level
 	  const tasks = levels!.map(async (level) => {
@@ -423,8 +423,8 @@ async rescheduleLevel(): Promise<void> {
 		  // Check if the level's end date needs to be updated
 		  if (level.end_date != dateToString.parse(newEndDate)) {
 			// Check if the level range needs to be updated
-			if (!changedLevelRange) {
-			  // Check if the level's end date is null or later than the new end date
+			if (level == levels![0]) {
+			  // modify level range at first data
 			  if (
 				level.end_date == null ||
 				stringToDate.parse(level.end_date).getTime() > newEndDate.getTime()
@@ -441,7 +441,7 @@ async rescheduleLevel(): Promise<void> {
 				  dateToString.parse(newEndDate)
 				);
 			  }
-			  changedLevelRange = true;
+			//   changedLevelRange = true;
 			}
   
 			// Update the level's end date
@@ -456,13 +456,13 @@ async rescheduleLevel(): Promise<void> {
 		  // This is the last start date, so update the level's end date to null
 		  if (level.end_date != null) {
 			// Check if the level range needs to be updated
-			if (!changedLevelRange) {
-			  // TODO: possible error, no await
+			if (level == levels![0]) {
+			  // modify level range at first data
 			  await levelRangeService.emptyInfluencedLevelRange(
 				dateToString.parse(subDays(stringToDate.parse(level.end_date), 1)),
 				null
 			  );
-			  changedLevelRange = true;
+			//   changedLevelRange = true;
 			}
   
 			// Update the level's end date to null
