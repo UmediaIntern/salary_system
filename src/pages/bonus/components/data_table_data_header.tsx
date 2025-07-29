@@ -28,8 +28,8 @@ export function DataTableDataHeader<TData>({
 									className={cn(
 										"text-center z-10",
 										header.id == "department" ? "sticky left-[0px]" :
-										header.id == "emp_no" ? "sticky left-[125px]" :
-										header.id == "emp_name" ? "sticky left-[250px]" :
+										header.id == "emp_no" ? "sticky left-[108px]" :
+										header.id == "emp_name" ? "sticky left-[244px]" :
 										"overflow-auto"
 									)}
 									colSpan={header.colSpan}
