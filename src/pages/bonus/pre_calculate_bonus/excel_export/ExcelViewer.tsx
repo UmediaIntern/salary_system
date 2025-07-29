@@ -246,9 +246,6 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 	}>({ rowIndex: -1, colIndex: -1 });
 
 	const [sheets, setSheets] = useState<ExcelSheetWithColor[]>([]);
-	const [lastValidSheets, setLastValidSheets] = useState<
-		ExcelSheetWithColor[]
-	>([]);
 
 	const { t } = useTranslation(["common"]);
 
@@ -817,21 +814,6 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 								each cell before download.
 							</DialogDescription>
 						</DialogHeader>
-						{/* <div className="grid gap-4 py-4">
-							<div className="grid grid-cols-4 items-center gap-4">
-								<Label htmlFor="name" className="text-right">
-									Export Filename
-								</Label>
-								<Input
-									id="filename"
-									value={filename}
-									onChange={(e) => {
-										setFilename(e.target.value);
-									}}
-									className="col-span-3"
-								/>
-							</div>
-						</div> */}
 						<div className="flex flex-col items-center">
 						<MultiSelect
 							placeholder="Select Department..."

@@ -1,8 +1,8 @@
-import { useContext } from "react";
 import { bonusToolbarFunctionsContext } from "../function_sheet/bonus_functions_context";
 import { ExcelUploadDialogContent } from "~/components/file_operations/excel_upload_dialog_content";
 import { usePeriodContext } from "~/components/context/period_context_provider";
-import dataTableContext from "../context/data_table_context";
+import { useBonusFunctionContext } from "../context/data_table_context_provider";
+import { useContext } from "react";
 
 export function BonusExcelUpload({
 	tableType,
@@ -11,12 +11,12 @@ export function BonusExcelUpload({
 	tableType: string;
 	closeDialog: () => void;
 }) {
-	const functions = useContext(bonusToolbarFunctionsContext);
 	const singleEntry = tableType == "TableBonusAll";
 
 	const { selectedPeriod } = usePeriodContext();
-	const { selectedBonusType } = useContext(dataTableContext);
+	const { selectedBonusType } = useBonusFunctionContext();
 
+	const functions = useContext(bonusToolbarFunctionsContext);
 	const createFunction = functions.createFunction!;
 	const batchCreateFunction = functions.batchCreateFunction!;
 

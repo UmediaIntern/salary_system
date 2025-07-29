@@ -1,8 +1,7 @@
-import React, { useContext } from "react";
 import { useTranslation } from "react-i18next";
-import dataTableContext from "../context/data_table_context";
 import { ExcelDownload } from "~/components/file_operations/excel_download";
 import { getExcelData } from "~/components/file_operations/excel_utils";
+import { useBonusFunctionContext } from "../context/data_table_context_provider";
 
 function getTableName(table_name: string) {
 	if (table_name == "TableBonusAll") return "bonusAll";
@@ -24,7 +23,7 @@ export function BonusExcelDownloader({
 	bonus_type: string;
 	setOpenDialog: (open: boolean) => void;
 }) {
-	const { selectedTable } = useContext(dataTableContext);
+	const { selectedTable } = useBonusFunctionContext();
 	const { t } = useTranslation();
 
 	const shouldTranspose = ["TableBonusAll"].includes(table_name);

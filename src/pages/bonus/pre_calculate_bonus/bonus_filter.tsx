@@ -13,8 +13,7 @@ import {
     type LucideIcon,
     Users,
 } from "lucide-react";
-import DataTableContextProvider from "../components/context/data_table_context_provider";
-import dataTableContext from "../components/context/data_table_context";
+import DataTableContextProvider, { useBonusFunctionContext } from "../components/context/data_table_context_provider";
 import { getTableNameKey } from "../components/context/data_table_enum";
 import { Separator } from "~/components/ui/separator";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -84,7 +83,7 @@ function getTableComponent(
 }
 
 export default function BonusFilter() {
-    const { selectedBonusType } = useContext(dataTableContext);
+    const { selectedBonusType } = useBonusFunctionContext();
     return (
         <DataTableContextProvider>
             <ResizablePanelGroup direction="horizontal" className="rounded-md border-2">

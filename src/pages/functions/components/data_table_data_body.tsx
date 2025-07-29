@@ -85,8 +85,8 @@ export function DataTableDataBody<TData>({
 									className={cn(
 										"max-w-xs",
 										cell.id.split("_").slice(1).join("_") == "department" ? "sticky left-[0px] bg-white" :
-											cell.id.split("_").slice(1).join("_") == "emp_no" ? "sticky left-[116px] bg-white" :
-												cell.id.split("_").slice(1).join("_") == "emp_name" ? "sticky left-[260px] bg-white" :
+											cell.id.split("_").slice(1).join("_") == "emp_no" ? "sticky left-[108px] bg-white" :
+												cell.id.split("_").slice(1).join("_") == "emp_name" ? "sticky left-[244px] bg-white" :
 													""
 									)}
 								>
