@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { WorkTypeEnum } from "./work_type_enum";
+import { workTypeEnum } from "./work_type_enum";
 import { WorkStatusEnum } from "./work_status_enum";
 import { CostCategoryEnum } from "./cost_category_type";
 
@@ -12,7 +12,7 @@ export const TransactionIndividual = z.object({
 	emp_no: z.string(),										/** 員工編號 */
 	emp_name: z.string(),									/** 員工姓名 */
 	cost_category: CostCategoryEnum, 						/** 成本分類 */
-	work_type: WorkTypeEnum,								/** 工作類別 */
+	work_type: workTypeEnum,								/** 工作類別 */
 	work_status: WorkStatusEnum,							/** 工作形態 */
 	position: z.number(),									/** 職等 */
 	position_type: z.string(),								/** 職級 */

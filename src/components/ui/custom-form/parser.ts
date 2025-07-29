@@ -93,6 +93,9 @@ export function createFormEntries<T extends ZodObjectOrWrapped>(
 ): FormEntries {
 	const entries = formFields.fields.map((field) => {
 		const cfg = config.find((c) => c.key === field.key)?.config;
+		if (cfg?.options) {
+			field.options = cfg.options;
+		}
 		return {
 			field: field,
 			config: cfg,

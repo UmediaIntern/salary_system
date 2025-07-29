@@ -15,5 +15,6 @@ export const employeePaymentSchema = z.object({
 	long_service_allowance: zc.number(),
 	long_service_allowance_type: LongServiceEnum,
 	l_r_self_ratio: zc.number(),
+	bank_account_foreign: zc.string().nullable(),
 	start_date: zodRequiredDate("start_date"),
 });

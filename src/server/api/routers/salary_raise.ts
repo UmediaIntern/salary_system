@@ -17,7 +17,7 @@ import {
     batchCreateSalaryRaiseSeniorityAPI,
     batchCreateSalaryRaiseWorkTypeAPI,
 } from "../types/parameters_input_type";
-import { WorkTypeEnum } from "../types/work_type_enum";
+import { workTypeEnum } from "../types/work_type_enum";
 import { roundProperties } from "~/server/database/mapper/helper_function";
 import { SalaryRaiseMapper } from "~/server/database/mapper/salary_raise_mapper";
 import {
@@ -338,7 +338,7 @@ export const bonusRouter = createTRPCRouter({
             z.object({
                 period_id: z.number(),
                 bonus_type: bonusTypeEnum,
-                work_type: WorkTypeEnum,
+                work_type: workTypeEnum,
                 multiplier: z.number(),
             })
         )
@@ -501,7 +501,7 @@ export const bonusRouter = createTRPCRouter({
         .input(
             z.object({
                 id: z.number(),
-                work_type: WorkTypeEnum,
+                work_type: workTypeEnum,
                 multiplier: z.number(),
             })
         )

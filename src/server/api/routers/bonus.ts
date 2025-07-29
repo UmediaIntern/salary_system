@@ -17,7 +17,7 @@ import {
 	batchCreateBonusSeniorityAPI,
 	batchCreateBonusWorkTypeAPI,
 } from "../types/parameters_input_type";
-import { convertFromDBWorkTypeEnum, DBWorkTypeEnum, WorkTypeEnum } from "../types/work_type_enum";
+import { workTypeEnum } from "../types/work_type_enum";
 import { roundProperties } from "~/server/database/mapper/helper_function";
 import { EmployeeBonusMapper } from "~/server/database/mapper/employee_bonus_mapper";
 import {
@@ -449,19 +449,14 @@ export const bonusRouter = createTRPCRouter({
 			z.object({
 				period_id: z.number(),
 				bonus_type: bonusTypeEnum,
-				work_type: DBWorkTypeEnum,
+				work_type: workTypeEnum,
 				multiplier: z.number(),
 			})
 		)
 		.mutation(async ({ input }) => {
 			const bonusWorkTypeService =
 				container.resolve(BonusWorkTypeService);
-			const result = await bonusWorkTypeService.createBonusWorkType(
-				{
-					...input,
-					work_type: convertFromDBWorkTypeEnum(input.work_type),
-				}
-			);
+			const result = await bonusWorkTypeService.createBonusWorkType(input);
 			return result;
 		}),
 	createBonusSeniority: publicProcedure
@@ -551,7 +546,7 @@ export const bonusRouter = createTRPCRouter({
 				z.object({
 					period_id: z.number(),
 					bonus_type: bonusTypeEnum,
-					work_type: DBWorkTypeEnum,
+					work_type: workTypeEnum,
 					multiplier: z.number(),
 				})
 			)
@@ -559,12 +554,7 @@ export const bonusRouter = createTRPCRouter({
 		.mutation(async ({ input }) => {
 			const bonusWorkTypeService =
 				container.resolve(BonusWorkTypeService);
-			const result = await bonusWorkTypeService.batchCreateBonusWorkType(
-				input.map((item) => ({
-					...item,
-					work_type: convertFromDBWorkTypeEnum(item.work_type),
-				})),
-			);
+			const result = await bonusWorkTypeService.batchCreateBonusWorkType(input);
 			return result;
 		}),
 	batchCreateBonusSeniority: publicProcedure
@@ -627,19 +617,14 @@ export const bonusRouter = createTRPCRouter({
 		.input(
 			z.object({
 				id: z.number(),
-				work_type: DBWorkTypeEnum,
+				work_type: workTypeEnum,
 				multiplier: z.number(),
 			})
 		)
 		.mutation(async ({ input }) => {
 			const bonusWorkTypeService =
 				container.resolve(BonusWorkTypeService);
-			const result = await bonusWorkTypeService.updateBonusWorkType(
-				{
-					...input,
-					work_type: convertFromDBWorkTypeEnum(input.work_type),
-				}
-			);
+			const result = await bonusWorkTypeService.updateBonusWorkType(input);
 			return result;
 		}),
 	updateBonusSeniority: publicProcedure

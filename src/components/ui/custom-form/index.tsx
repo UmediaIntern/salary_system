@@ -31,8 +31,8 @@ export default function CustomForm<SchemaType extends ZodObjectOrWrapped>({
 	const parsedSchema = parseSchema(formSchema);
 	const formEntries = createFormEntries(parsedSchema, formConfig)
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		const parsedValues = formSchema.safeParse(values);
+	function onSubmit(data: z.infer<typeof formSchema>) {
+		const parsedValues = formSchema.safeParse(data);
 		if (!parsedValues.success) {
 			console.log("Parse value failed", parsedValues.error.message)
 		}
@@ -45,9 +45,7 @@ export default function CustomForm<SchemaType extends ZodObjectOrWrapped>({
 		<Form {...form}>
 			<form
 				id={formId}
-				onSubmit={(e) => {
-					void form.handleSubmit(onSubmit)(e);
-				}}
+				onSubmit={form.handleSubmit(onSubmit)}
 				onChange={() => {
 					const values = form.getValues();
 					onValuesChangeProp?.(values);

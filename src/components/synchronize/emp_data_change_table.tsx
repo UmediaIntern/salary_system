@@ -99,7 +99,8 @@ export function EmployeeDataChangeTable({
 													{/* Department */}
 													{index === 0 ? (
 														<TableCell
-															className={cn("font-medium align-top", d.department.is_different && "text-red-500")}
+															// className={cn("font-medium align-top", d.department.is_different && "text-red-500")}
+															className="font-medium align-top"
 															rowSpan={rowSpan}
 														>
 															<div className="sticky top-16">
@@ -125,7 +126,8 @@ export function EmployeeDataChangeTable({
 													{/* Name */}
 													{index === 0 ? (
 														<TableCell
-															className={cn("font-medium align-top", d.name.is_different && "text-red-500")}
+															// className={cn("font-medium align-top", d.name.is_different && "text-red-500")}
+															className="font-medium align-top"
 															rowSpan={rowSpan}
 														>
 															<div className="sticky top-16">

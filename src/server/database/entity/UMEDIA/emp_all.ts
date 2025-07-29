@@ -6,7 +6,7 @@ import {
 } from "~/server/api/types/work_status_enum";
 import {
 	WorkTypeEnumType,
-	WorkTypeEnum,
+	workTypeEnum,
 } from "~/server/api/types/work_type_enum";
 import { stringToEnum } from "~/server/api/types/z_utils";
 import { get_date_string } from "~/server/service/helper_function";
@@ -18,7 +18,7 @@ const dbEmpAll = z.object({
 	POSITION_TYPE: z.string(),
 	GIN: z.string(),
 	USER_YIM: z.string().default("MISSING"),
-	DL_IDL: stringToEnum.pipe(WorkTypeEnum),
+	DL_IDL: stringToEnum.pipe(workTypeEnum),
 	WORK_STATUS: stringToEnum
 		.pipe(WorkStatusEnum)
 		.default(WorkStatusEnum.Enum.RegularEmployee),

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { Id } from "./common_type";
 import { bonusTypeEnum } from "./bonus_type_enum";
-import { WorkTypeEnum } from "./work_type_enum";
+import { workTypeEnum } from "./work_type_enum";
 
 const BasicInfo = z.object({
 	issue_date: z.date(),
@@ -29,7 +29,7 @@ export const batchCreateBonusAllAPI = z.array(createBonusAllAPI);
 const BonusWorkType = z.object({
 	period_id: z.number(),
 	bonus_type: bonusTypeEnum,
-	work_type: WorkTypeEnum,
+	work_type: workTypeEnum,
 	multiplier: z.number(),
 });
 
@@ -189,7 +189,7 @@ export const batchCreateSalaryRaiseAllAPI = z.array(createSalaryRaiseAllAPI);
 
 const SalaryRaiseWorkType = z.object({
     period_id: z.number(),
-    work_type: WorkTypeEnum,
+    work_type: workTypeEnum,
     multiplier: z.number(),
 });
 
