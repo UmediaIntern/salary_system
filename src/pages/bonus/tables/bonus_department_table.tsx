@@ -102,15 +102,15 @@ export function bonusDepartmentMapper(
 }
 
 interface BonusDepartmentTableProps extends TableComponentProps {
-	period_id: number;
-	bonus_type: BonusTypeEnumType;
+	periodId: number;
+	bonusType: BonusTypeEnumType;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }
 
 export function BonusDepartmentTable({
-	period_id,
-	bonus_type,
+	periodId: period_id,
+	bonusType: bonus_type,
 	viewOnly,
 }: BonusDepartmentTableProps) {
 	const { t } = useTranslation(["common"]);

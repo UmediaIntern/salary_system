@@ -28,8 +28,8 @@ import { BonusAllTable } from "../tables/bonus_all_table";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 
 export type TableComponentProps = {
-    period_id: number;
-    bonus_type: BonusTypeEnumType;
+    periodId: number;
+    bonusType: BonusTypeEnumType;
     globalFilter?: string;
 };
 
@@ -106,7 +106,7 @@ function CompTablesSelector() {
         BonusTableEnumValues[0]
     );
 
-    const { setSelectedTableType } = useContext(dataTableContext);
+    const { setSelectedTableType } = useBonusFunctionContext();
 
     const tableComponentMap: Record<BonusTableEnum, TableComponent> =
         BonusTableEnumValues.reduce((map, table) => {
@@ -159,7 +159,7 @@ function CompTablesSelector() {
 }
 
 function CompTableView({ bonus_type }: { bonus_type: BonusTypeEnumType }) {
-    const { selectedTableType } = useContext(dataTableContext);
+    const { selectedTableType } = useBonusFunctionContext();
     const { selectedPeriod } = usePeriodContext();
 
     const { t } = useTranslation(['common']);
@@ -173,7 +173,7 @@ function CompTableView({ bonus_type }: { bonus_type: BonusTypeEnumType }) {
                     <div key={selectedTableType} className="flex h-full">
                         {selectedPeriod ? React.createElement<TableComponentProps>(
                             getTableComponent(selectedTableType).component,
-                            { period_id: selectedPeriod.period_id, bonus_type: bonus_type }
+                            { periodId: selectedPeriod.period_id, bonusType: bonus_type }
                         ) : <p>{t("others.select_period")}</p>}
                     </div>
                 );

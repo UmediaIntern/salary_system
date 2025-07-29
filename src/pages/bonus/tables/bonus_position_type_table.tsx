@@ -87,15 +87,15 @@ export function bonusPositionTypeMapper(
 }
 
 interface BonusPositionTypeTableProps extends TableComponentProps {
-	period_id: number;
-	bonus_type: BonusTypeEnumType;
+	periodId: number;
+	bonusType: BonusTypeEnumType;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }
 
 export function BonusPositionTypeTable({
-	period_id,
-	bonus_type,
+	periodId: period_id,
+	bonusType: bonus_type,
 	viewOnly,
 }: BonusPositionTypeTableProps) {
 	const { isLoading, isError, data, error } =

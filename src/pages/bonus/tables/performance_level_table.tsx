@@ -82,7 +82,7 @@ export function performaceLevelMapper(
 }
 
 interface PerformanceLevelTableProps extends TableComponentProps {
-	period_id: number;
+	periodId: number;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }

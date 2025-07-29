@@ -7,6 +7,6 @@ export default function BonusFinalCheck() {
     const { selectedPeriod } = usePeriodContext()
     const { selectedBonusType } = useContext(dataTableContext);
     return (
-        selectedPeriod ? <EmployeeBonusTable period_id={selectedPeriod.period_id} bonus_type={selectedBonusType} viewOnly={true} /> : <></>
+        selectedPeriod ? <EmployeeBonusTable periodId={selectedPeriod.period_id} bonusType={selectedBonusType} viewOnly={true} /> : <></>
     );
 }

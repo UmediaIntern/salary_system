@@ -18,9 +18,9 @@ export default function BonusBudget() {
 
 	return (
 		<EmployeeBonusTable
-			period_id={selectedPeriod.period_id}
-			bonus_type={selectedBonusType}
-			issue_date={selectedIssueDate}
+			periodId={selectedPeriod.period_id}
+			bonusType={selectedBonusType}
+			issueDate={selectedIssueDate}
 		/>
 	);
 }

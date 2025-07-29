@@ -123,15 +123,15 @@ export function bonusPositionMapper(
 }
 
 interface BonusPositionTableProps extends TableComponentProps {
-	period_id: number;
-	bonus_type: BonusTypeEnumType;
+	periodId: number;
+	bonusType: BonusTypeEnumType;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }
 
 export function BonusPositionTable({
-	period_id,
-	bonus_type,
+	periodId: period_id,
+	bonusType: bonus_type,
 	viewOnly,
 }: BonusPositionTableProps) {
 	const { t } = useTranslation(["common"]);

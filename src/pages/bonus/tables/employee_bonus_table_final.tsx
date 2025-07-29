@@ -18,8 +18,8 @@ type RowItemKey = keyof RowItem;
 const columnHelper = createColumnHelper<RowItem>();
 
 interface EmployeeBonusTableProps extends TableComponentProps {
-    period_id: number;
-    bonus_type: BonusTypeEnumType;
+    periodId: number;
+    bonusType: BonusTypeEnumType;
     globalFilter?: string;
     viewOnly?: boolean;
 }
@@ -70,7 +70,7 @@ const employee_bonus_final_columns = ({ t }: { t: TFunction<[string], undefined>
         })),
 ]
 
-export function EmployeeBonusTable({ period_id, bonus_type, viewOnly }: EmployeeBonusTableProps) {
+export function EmployeeBonusTable({ periodId: period_id, bonusType: bonus_type, viewOnly }: EmployeeBonusTableProps) {
     const { t } = useTranslation(["common"]);
 
     const { isLoading, isError, data, error } =

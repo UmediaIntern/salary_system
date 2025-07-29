@@ -25,6 +25,7 @@ import { useBonusFunctionContext } from "../components/context/data_table_contex
 import { BonusFunctionComponent } from "./bonus_function_component";
 import { Dialog } from "~/components/ui/dialog";
 import { ConfirmDialog } from "~/components/table_functions/confirm_dialog";
+import { useQueryHandle } from "~/components/query_boundary/query_handle";
 
 export type RowItem = EmployeeBonusFEType & {
 	functions: FunctionsItem;
@@ -56,43 +57,43 @@ const employee_bonus_budget_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-		...columnNames.map((key) =>
-			columnHelper.accessor(key, {
-				header: ({ column }) => {
-					return (
-						<ColumnHeaderComponent column={column}>
-							{t(`table.${key}`)}
-						</ColumnHeaderComponent>
-					);
-				},
-				cell: ({ row }) => {
-					switch (key) {
-						default:
-							return (
-								<ColumnCellComponent>
-									{row.original[key]?.toString() ?? ""}
-								</ColumnCellComponent>
-							);
-					}
-				},
-			})
-		),
-		columnHelper.accessor("functions", {
-			header: ({ }) => {
+	...columnNames.map((key) =>
+		columnHelper.accessor(key, {
+			header: ({ column }) => {
 				return (
-					<ColumnHeaderBaseComponent>
-						{t(`others.functions`)}
-					</ColumnHeaderBaseComponent>
+					<ColumnHeaderComponent column={column}>
+						{t(`table.${key}`)}
+					</ColumnHeaderComponent>
 				);
 			},
 			cell: ({ row }) => {
-				return <BonusFunctionComponent data={row.original} />;
+				switch (key) {
+					default:
+						return (
+							<ColumnCellComponent>
+								{row.original[key]?.toString() ?? ""}
+							</ColumnCellComponent>
+						);
+				}
 			},
 		}),
-	];
+	),
+	columnHelper.accessor("functions", {
+		header: ({}) => {
+			return (
+				<ColumnHeaderBaseComponent>
+					{t(`others.functions`)}
+				</ColumnHeaderBaseComponent>
+			);
+		},
+		cell: ({ row }) => {
+			return <BonusFunctionComponent data={row.original} />;
+		},
+	}),
+];
 
 export function employeeBonusMapper(
-	employeeBonusData: EmployeeBonusFEType[]
+	employeeBonusData: EmployeeBonusFEType[],
 ): RowItem[] {
 	return employeeBonusData.map((d) => {
 		return {
@@ -104,17 +105,19 @@ export function employeeBonusMapper(
 }
 
 interface EmployeeBonusTableProps extends TableComponentProps {
-	period_id: number;
-	bonus_type: BonusTypeEnumType;
-	issue_date: Date;
+	periodId: number;
+	bonusType: BonusTypeEnumType;
+	issueDate: Date;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }
 
+const filterKey: RowItemKey = "emp_no";
+
 export function EmployeeBonusTable({
-	period_id,
-	bonus_type,
-	issue_date,
+	periodId: period_id,
+	bonusType: bonus_type,
+	issueDate: issue_date,
 	viewOnly,
 }: EmployeeBonusTableProps) {
 	const { t } = useTranslation(["common"]);
@@ -126,6 +129,7 @@ export function EmployeeBonusTable({
 		setOpenDialog,
 		mode,
 	} = useBonusFunctionContext();
+	const { setSelectedTableType } = useBonusFunctionContext();
 
 	const ctx = api.useUtils();
 	const initFunction = api.bonus.initCandidateEmployeeBonus.useMutation({
@@ -133,15 +137,6 @@ export function EmployeeBonusTable({
 			void ctx.bonus.getEmployeeBonus.invalidate();
 		},
 	});
-	const { isLoading, isError, data, error } =
-		api.bonus.getEmployeeBonus.useQuery({ period_id, bonus_type });
-	const filterKey: RowItemKey = "emp_no";
-	const { setSelectedTableType } = useBonusFunctionContext();
-
-	useEffect(() => {
-		setSelectedTableType("TableEmployeeBonus");
-		initFunction.mutate({ period_id, bonus_type, issue_date });
-	}, []);
 
 	const deleteEmployeeBonus = api.bonus.deleteEmployeeBonus.useMutation({
 		onSuccess: () => {
@@ -149,16 +144,21 @@ export function EmployeeBonusTable({
 		},
 	});
 
-	if (initFunction.isPending || isLoading) {
-		return (
-			<div className="flex grow items-center justify-center">
-				<LoadingSpinner />
-			</div>
-		); // TODO: Loading element with toast
-	}
+	const getBonus = api.bonus.getEmployeeBonus.useQuery({
+		period_id,
+		bonus_type,
+	});
+	const { data, isPending, content } = useQueryHandle(getBonus);
 
-	if (isError) {
-		return <span>Error: {error.message}</span>; // TODO: Error element with toast
+
+	useEffect(() => {
+		setSelectedTableType("TableEmployeeBonus");
+		initFunction.mutate({ period_id, bonus_type, issue_date });
+	}, []);
+
+
+	if (initFunction.isPending || isPending) {
+		return content;
 	}
 
 	if (viewOnly) {
@@ -167,7 +167,7 @@ export function EmployeeBonusTable({
 				columns={employee_bonus_budget_columns({
 					t,
 				})}
-				data={employeeBonusMapper(data!)}
+				data={employeeBonusMapper(data)}
 				filterColumnKey={filterKey}
 			/>
 		);
@@ -179,13 +179,15 @@ export function EmployeeBonusTable({
 			period_id={period_id}
 			bonus_type={bonus_type}
 		>
-			<Sheet open={openSheet && mode !== "delete"} onOpenChange={setOpenSheet}>
-				{/* <Button onClick={() => console.log(selectedBonusType)}>TEST</Button> */}
+			<Sheet
+				open={openSheet && mode !== "delete"}
+				onOpenChange={setOpenSheet}
+			>
 				<DataTableWithFunctions
 					columns={employee_bonus_budget_columns({
 						t,
 					})}
-					data={employeeBonusMapper(data!)}
+					data={employeeBonusMapper(data)}
 					bonusType={bonus_type}
 					filterColumnKey={filterKey}
 				/>

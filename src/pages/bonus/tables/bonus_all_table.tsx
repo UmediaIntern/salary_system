@@ -114,15 +114,15 @@ export function bonusAllMapper(bonusAllData: BonusAllFEType): RowItem | undefine
 }
 
 interface BonusAllTableProps extends TableComponentProps {
-	period_id: number;
-	bonus_type: BonusTypeEnumType;
+	periodId: number;
+	bonusType: BonusTypeEnumType;
 	globalFilter?: string;
 	viewOnly?: boolean;
 }
 
 export function BonusAllTable({
-	period_id,
-	bonus_type,
+	periodId: period_id,
+	bonusType: bonus_type,
 	viewOnly,
 }: BonusAllTableProps) {
 	const { t } = useTranslation(["common"]);
