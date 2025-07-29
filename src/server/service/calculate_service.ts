@@ -1941,11 +1941,12 @@ export class CalculateService {
 		employee_bonus_list: EmployeeBonusDecType[]
 	): Promise<number> {
 		if (pay_type === PayTypeEnum.Enum.month_salary) {
+			const bonus_type = getMatchedBonusType(pay_type)
 			const new_all =
 				org_trust_reserve +
 				// emp_trust_reserve +
 				(employee_bonus_list.filter(
-					(e) => e.bonus_type === bonusTypeEnum.Enum.project_bonus
+					(e) => e.bonus_type === bonus_type
 				)[0]?.app_amount ?? 0);
 			const accumulated_all = accumulated_bonus + accumulated_trust;
 
