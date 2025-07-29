@@ -4,13 +4,13 @@ import { Button } from "~/components/ui/button";
 import { DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { bonusTypeEnum, BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import dataTableContext from "./context/data_table_context";
 import { DatePicker } from "~/components/ui/date-picker";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { useBonusFunctionContext } from "./context/data_table_context_provider";
 
 export function BonusTypeSelector({ setSelectedIndex }: { setSelectedIndex: (index: number) => void }) {
     const { t } = useTranslation("common");
-    const { selectedBonusType, setSelectedBonusType, selectedIssueDate, setSelectedIssueDate } = useContext(dataTableContext);
+    const { selectedBonusType, setSelectedBonusType, selectedIssueDate, setSelectedIssueDate } = useBonusFunctionContext();
     const { selectedPayDate } = usePeriodContext();
     const [tmpBonusType, setTmpBonusType] = useState<BonusTypeEnumType>(selectedBonusType);
     const [tmpIssueDate, setTmpIssueDate] = useState<Date | null>(selectedIssueDate ? selectedIssueDate : selectedPayDate);

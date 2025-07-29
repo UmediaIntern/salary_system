@@ -1,7 +1,4 @@
-import { useContext, useState } from "react";
-import dataTableContext from "../components/context/data_table_context";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { i18n, locales } from "~/components/lang_config";
+import { useState } from "react";
 import { api } from "~/utils/api";
 import { usePeriodContext } from "~/components/context/period_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
@@ -11,10 +8,11 @@ import {
 	getBonusExcel,
 	excludeDataColumn,
 } from "./excel_export/utils";
+import { useBonusFunctionContext } from "../components/context/data_table_context_provider";
 
 export default function BonusExcelExport() {
 	const { selectedPeriod } = usePeriodContext();
-	const { selectedBonusType } = useContext(dataTableContext);
+	const { selectedBonusType } = useBonusFunctionContext();
 
 	const getExcelA = api.bonus.getExcelEmployeeBonus.useQuery({
 		period_id: selectedPeriod?.period_id ?? 0,
@@ -48,16 +46,3 @@ export default function BonusExcelExport() {
 		/>
 	);
 }
-
-export const getStaticProps = async ({ locale }: { locale: string }) => {
-	return {
-		props: {
-			...(await serverSideTranslations(
-				locale,
-				["common", "nav"],
-				i18n,
-				locales,
-			)),
-		},
-	};
-};

@@ -246,9 +246,6 @@ const ExcelViewer: React.FC<ExcelViewerProps> = ({
 	}>({ rowIndex: -1, colIndex: -1 });
 
 	const [sheets, setSheets] = useState<ExcelSheetWithColor[]>([]);
-	const [lastValidSheets, setLastValidSheets] = useState<
-		ExcelSheetWithColor[]
-	>([]);
 
 	const { t } = useTranslation(["common"]);
 

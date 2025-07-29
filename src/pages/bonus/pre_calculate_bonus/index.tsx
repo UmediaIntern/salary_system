@@ -2,11 +2,13 @@ import { RootLayout } from "~/components/layout/root_layout";
 import { type NextPageWithLayout } from "../../_app";
 import { PerpageLayoutNav } from "~/components/layout/perpage_layout_nav";
 import { Header } from "~/components/header";
-import { ReactElement, useContext, useState } from "react";
+import { ReactElement, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { i18n, locales } from "~/components/lang_config";
-import DataTableContextProvider from "../components/context/data_table_context_provider";
+import DataTableContextProvider, {
+	useBonusFunctionContext,
+} from "../components/context/data_table_context_provider";
 import { ProgressBar } from "~/components/functions/progress_bar";
 import { Button } from "~/components/ui/button";
 import BonusFilter from "./bonus_filter";
@@ -14,7 +16,6 @@ import BonusBudget from "./bonus_budget";
 import BonusExcelExport from "./bonus_excel_export";
 import { Dialog, DialogTrigger } from "~/components/ui/dialog";
 import { BonusTypeSelector } from "../components/bonus_type_selector";
-import dataTableContext from "../components/context/data_table_context";
 import { formatDate } from "~/lib/utils/format_date";
 
 type BonusStepPage = {
@@ -24,8 +25,7 @@ type BonusStepPage = {
 
 const BonusHomePageContent = () => {
 	const { t } = useTranslation(["common", "nav"]);
-	const { selectedBonusType, selectedIssueDate } =
-		useContext(dataTableContext);
+	const { selectedBonusType, selectedIssueDate } = useBonusFunctionContext();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 
 	const pageList: BonusStepPage[] = [
@@ -81,9 +81,11 @@ const BonusHomePageContent = () => {
 					/>
 				</div>
 			</div>
+			{/* Main content */}
 			<div className="m-4 flex min-h-0 grow">
 				{pageList[selectedIndex]?.page ?? <></>}
 			</div>
+			{/* Navigation buttons */}
 			<div className="mx-4 mb-4 flex justify-between">
 				{selectedIndex != 0 ? (
 					<Button onClick={() => setSelectedIndex(selectedIndex - 1)}>
