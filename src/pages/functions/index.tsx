@@ -28,32 +28,14 @@ const function_data: (t: I18nType) => FunctionLinkData[] = (t) => [
 	{
 		title: t("others.month_salary"),
 		iconPath: "./icons/coins.svg",
-		subscript: "some notes",
+		subscript: "",
 		url: "/functions/month_salary",
 	},
 	{
 		title: t("others.foreign_workers_bonus"),
 		iconPath: "./icons/coins.svg",
-		subscript: "some notes",
+		subscript: "",
 		url: "/functions/month_salary",
-	},
-	{
-		title: t("others.employee_trust"),
-		iconPath: "./icons/coins.svg",
-		subscript: "some notes",
-		url: null,
-	},
-	{
-		title: t("others.quarterly_bonus"),
-		iconPath: "./icons/coins.svg",
-		subscript: "some notes",
-		url: null,
-	},
-	{
-		title: t("others.employee_dividends"),
-		iconPath: "./icons/coins.svg",
-		subscript: "some notes",
-		url: null,
 	},
 ];
 
