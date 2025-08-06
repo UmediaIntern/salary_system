@@ -63,12 +63,14 @@ export const allowance_range_columns = ({
 					let content = "";
 					switch (key) {
 						case "start_date":
-							content =
-								formatDate("day", row.original.start_date) ??
-								"";
+							content = formatDate("day", row.original.start_date) ?? "";
+							break;
 						case "end_date":
-							content =
-								formatDate("day", row.original.end_date) ?? "";
+							content = formatDate("day", row.original.end_date) ?? "";
+							break;
+						case "allowance_type":
+							content = t(`allowance_type.${row.original.allowance_type}`);
+							break;
 						default:
 							content = row?.original[key]?.toString() ?? "";
 					}

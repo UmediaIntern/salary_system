@@ -156,7 +156,7 @@ export function SyncPageContent({ data }: { data: SyncData[] }) {
 						}
 					>
 						<SelectTrigger className="mr-2 w-[180px]">
-							<SelectValue placeholder="Select a fruit" />
+							<SelectValue placeholder="Select a mode" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectGroup>

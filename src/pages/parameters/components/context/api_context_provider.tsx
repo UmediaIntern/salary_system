@@ -41,6 +41,8 @@ export default function ApiFunctionsProvider({
 	const getSalaryIncomeTax = () => 
 		api.parameters.getAllSalaryIncomeTax.useQuery();
 
+	
+
 
 	const functionsDictionary: Record<ParameterTableEnum, QueryFunctionsApi> = {
 		TableAttendance: {

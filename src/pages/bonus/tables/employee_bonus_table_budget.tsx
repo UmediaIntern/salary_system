@@ -26,6 +26,7 @@ import { BonusFunctionComponent } from "./bonus_function_component";
 import { Dialog } from "~/components/ui/dialog";
 import { ConfirmDialog } from "~/components/table_functions/confirm_dialog";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
+import { formatDate } from "~/lib/utils/format_date";
 
 export type RowItem = EmployeeBonusFEType & {
 	functions: FunctionsItem;
@@ -68,6 +69,12 @@ const employee_bonus_budget_columns = ({
 			},
 			cell: ({ row }) => {
 				switch (key) {
+					case "issue_date":
+						return (
+							<ColumnCellComponent>
+								{formatDate("day", row.original.issue_date) ?? ""}
+							</ColumnCellComponent>
+						);
 					default:
 						return (
 							<ColumnCellComponent>

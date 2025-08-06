@@ -61,8 +61,7 @@ function FormDescComp({ label }: { label: string }) {
 		<div className="space-y-0.5">
 			<FormLabel>{label}</FormLabel>
 			<FormDescription>
-				Access the functions in the
-				{label} page.
+				Access the functions in the {label} page.
 			</FormDescription>
 		</div>
 	);

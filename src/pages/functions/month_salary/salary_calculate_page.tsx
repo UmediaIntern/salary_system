@@ -131,8 +131,8 @@ function SalaryCalculateContent({
 						</CardTitle>
 						<CardDescription>
 							<Button>
-								<Link href="/report">
-									{t("reports", { ns: "nav" })}
+								<Link href="/data_export">
+									{t("data_export", { ns: "nav" })}
 								</Link>
 							</Button>
 						</CardDescription>

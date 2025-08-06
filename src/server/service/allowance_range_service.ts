@@ -13,7 +13,7 @@ import { Op } from "sequelize";
 export class AllowanceRangeService {
 	constructor(private readonly allowanceRangeMapper: AllowanceRangeMapper,
 		readonly ehrService: EHRService
-	) {}
+	) { }
 	async createAllowanceRange(data: z.infer<typeof createAllowanceRangeService>) {
 		const result = createAllowanceRangeService.safeParse(data);
 		if (!result.success) {
@@ -55,6 +55,7 @@ export class AllowanceRangeService {
 		const allowance_range_list = await this.allowanceRangeMapper.decodeList(allowance_range);
 		return allowance_range_list;
 	}
+	
 	// async getMatchedAllowance(period_id: number,employee_data: EmployeeDataDecType,allowance_type:AllowanceTypeEnumType) {
 	// 	const period = await this.ehrService.getPeriodById(period_id);
 	// 	const current_date_string = dateToString.parse(period.end_date);
@@ -77,12 +78,9 @@ export class AllowanceRangeService {
 	// 	});
 	// 	return await this.allowanceRangeMapper.decode(allowance_range);
 	// }
-	async checkAllowanceInRange(cur_allowance_range: AllowanceRangeDecType[],employee_data: EmployeeDataDecType,allowance_type:AllowanceTypeEnumType,amount:number) {
+	async checkAllowanceInRange(cur_allowance_range: AllowanceRangeDecType[], employee_data: EmployeeDataDecType, allowance_type: AllowanceTypeEnumType, amount: number) {
 		const allowance_range = cur_allowance_range.find((v) => v.allowance_type === allowance_type && v.position === employee_data.position && v.position_type === employee_data.position_type);
-		if (allowance_range == undefined) {
-			return false;
-		}
-		if (allowance_range.allowance_start <= amount && allowance_range.allowance_end >= amount) {
+		if (!allowance_range || (allowance_range.allowance_start <= amount && allowance_range.allowance_end >= amount)) {
 			return true;
 		}
 		return false;

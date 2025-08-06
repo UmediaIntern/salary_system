@@ -6,10 +6,10 @@ const zc = z.coerce;
 
 export const allowanceRangeSchema = z.object({
 	id: zc.number(),
-	position: z.number(),
-	position_type: z.string(),
+	position: zc.number(),
+	position_type: zc.string(),
 	allowance_type: allowanceTypeEnum,
-	allowance_start: z.number(),
-	allowance_end: z.number(),
+	allowance_start: zc.number(),
+	allowance_end: zc.number(),
 	start_date: zodRequiredDate("start_date"),
 });

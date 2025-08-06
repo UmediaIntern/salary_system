@@ -472,5 +472,12 @@
     "direct_employee": "Direct Employee",
     "indirect_employee": "Indirect Employee",
     "foreign_worker": "Foreign Worker"
+  },
+  "allowance_type": {
+    "supervisor_allowance": "Supervisor Allowance",
+    "occupational_allowance": "Occupational Allowance",
+    "long_service_allowance": "Long Service Allowance",
+    "subsidy_allowance": "Subsidy Allowance",
+    "food_allowance": "Food Allowance"
   }
 }

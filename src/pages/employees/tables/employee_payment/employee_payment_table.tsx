@@ -31,9 +31,10 @@ const firstThreeColumns: PaymentRowItemKey[] = [
 	"emp_name",
 ];
 
-const allowanceColumns: PaymentRowItemKey[] = [
+const infoColumns: PaymentRowItemKey[] = [
 	"position",
 	"position_type",
+	"base_salary",
 	"supervisor_allowance",
 	"food_allowance",
 	"occupational_allowance",
@@ -42,7 +43,6 @@ const allowanceColumns: PaymentRowItemKey[] = [
 ];
 
 const columnNames: PaymentRowItemKey[] = [
-	"base_salary",
 	"long_service_allowance_type",
 	"l_r_self_ratio",
 	"l_i",
@@ -61,7 +61,7 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 				<ColumnCellComponent
 					className={cn(
 						row.original.info.isPositionModified &&
-							"text-destructive",
+						"text-destructive",
 					)}
 				>
 					{row.original.position}
@@ -75,11 +75,23 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 				<ColumnCellComponent
 					className={cn(
 						row.original.info.isPositionTypeModified &&
-							"text-destructive",
+						"text-destructive",
 					)}
 				>
 					{row.original.position_type}
 				</ColumnCellComponent>
+			);
+		},
+	}),
+	columnHelper.accessor("base_salary", {
+		cell: ({ row }) => {
+			const data = row.original.base_salary;
+			return (
+				<ColumnCellComponentWithInfo
+					data={data}
+					info={row.original.info}
+					range={row.original.info.base_salary}
+				/>
 			);
 		},
 	}),
@@ -91,6 +103,7 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 					data={data}
 					info={row.original.info}
 					range={row.original.info.supervisor}
+					relatedToPositionChange={true}
 				/>
 			);
 		},
@@ -103,6 +116,7 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 					data={data}
 					info={row.original.info}
 					range={row.original.info.food}
+					relatedToPositionChange={true}
 				/>
 			);
 		},
@@ -115,6 +129,7 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 					data={data}
 					info={row.original.info}
 					range={row.original.info.occupational}
+					relatedToPositionChange={true}
 				/>
 			);
 		},
@@ -127,6 +142,7 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 					data={data}
 					info={row.original.info}
 					range={row.original.info.subsidy}
+					relatedToPositionChange={true}
 				/>
 			);
 		},
@@ -139,6 +155,7 @@ const employee_payment_columns_with_info = ({ t }: { t: I18nType }) => [
 					data={data}
 					info={row.original.info}
 					range={row.original.info.longService}
+					relatedToPositionChange={true}
 				/>
 			);
 		},
@@ -157,7 +174,7 @@ export const employee_payment_columns = ({ t }: { t: I18nType }) => [
 			},
 		}),
 	),
-	...employee_payment_columns_with_info({t}),
+	...employee_payment_columns_with_info({ t }),
 	...columnNames.map((key) =>
 		columnHelper.accessor(key, {
 			cell: ({ row }) => {
@@ -169,15 +186,22 @@ export const employee_payment_columns = ({ t }: { t: I18nType }) => [
 						);
 						break;
 					case "start_date":
-						content = `${
-							formatDate("day", row.original.start_date) ?? ""
-						}`;
+						content = `${formatDate("day", row.original.start_date) ?? ""
+							}`;
 						break;
 					case "end_date":
-						content = `${
-							formatDate("day", row.original.end_date) ?? ""
-						}`;
+						content = `${formatDate("day", row.original.end_date) ?? ""
+							}`;
 						break;
+					case "l_i":
+					case "h_i":
+					case "l_r":
+					case "occupational_injury":
+						return <ColumnCellComponentWithInfo
+							data={content}
+							info={row.original.info}
+							range={row.original.info[key]}
+						/>
 				}
 				return <ColumnCellComponent>{content}</ColumnCellComponent>;
 			},
@@ -191,7 +215,7 @@ export const employee_payment_columns = ({ t }: { t: I18nType }) => [
 ];
 
 export const employee_payment_history_columns = ({ t }: { t: I18nType }) => [
-	...[...firstThreeColumns, ...allowanceColumns].map((key) =>
+	...[...firstThreeColumns, ...infoColumns].map((key) =>
 		historyColumnHelper.accessor(key, {
 			cell: ({ row }) => {
 				return (
@@ -213,14 +237,12 @@ export const employee_payment_history_columns = ({ t }: { t: I18nType }) => [
 						);
 						break;
 					case "start_date":
-						content = `${
-							formatDate("day", row.original.start_date) ?? ""
-						}`;
+						content = `${formatDate("day", row.original.start_date) ?? ""
+							}`;
 						break;
 					case "end_date":
-						content = `${
-							formatDate("day", row.original.end_date) ?? ""
-						}`;
+						content = `${formatDate("day", row.original.end_date) ?? ""
+							}`;
 						break;
 				}
 				return <ColumnCellComponent>{content}</ColumnCellComponent>;

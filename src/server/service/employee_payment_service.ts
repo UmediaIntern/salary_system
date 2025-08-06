@@ -12,6 +12,7 @@ import { LevelRangeService } from "./level_range_service";
 import { LevelService } from "./level_service";
 import {
 	type EmployeePaymentFEType,
+	EmployeePaymentInfo,
 	employeePaymentCreateService,
 	isEqualEmployeePayment,
 	type updateEmployeePaymentService,
@@ -33,7 +34,7 @@ export class EmployeePaymentService {
 		private readonly levelService: LevelService,
 		private readonly levelRangeService: LevelRangeService,
 		private readonly employeeDataService: EmployeeDataService,
-	) {}
+	) { }
 
 	async createEmployeePayment(
 		data: z.input<typeof employeePaymentCreateService>,
@@ -512,7 +513,7 @@ export class EmployeePaymentService {
 					empPayment.h_i != updatedEmployeePayment.h_i ||
 					empPayment.l_r != updatedEmployeePayment.l_r ||
 					empPayment.occupational_injury !=
-						updatedEmployeePayment.occupational_injury
+					updatedEmployeePayment.occupational_injury
 				) {
 					await this.createEmployeePayment({
 						...updatedEmployeePayment,
@@ -635,7 +636,7 @@ export class EmployeePaymentService {
 			"position" | "position_type" | "work_type"
 		>,
 	): boolean {
-		if (emp.work_type !== "ForeignWorker") {
+		if (emp.work_type !== WorkStatusEnum.Values.ForeignWorker) {
 			if (emp.position === 2 || emp.position === 3) {
 				return true;
 			}
@@ -656,10 +657,10 @@ export class EmployeePaymentService {
 				continue;
 			}
 			const hasFullAttendenceBonus =
-					this.hasFullAttendenceBonus(before);
+				this.hasFullAttendenceBonus(before);
 			const fullAttendenceBonus = hasFullAttendenceBonus
-					? await this.ehrService.getFullAttendenceBonusLimit()
-					: 0;
+				? await this.ehrService.getFullAttendenceBonusLimit()
+				: 0;
 			if (
 				before.base_salary + before.food_allowance + fullAttendenceBonus > base_salary
 			) {
@@ -671,7 +672,7 @@ export class EmployeePaymentService {
 					id: before?.id,
 					end_date: subDays(start_date, 1),
 				});
-				
+
 				const matchedLevelEmployeePayment =
 					await this.getMatchedLevelEmployeePayment(
 						{
@@ -820,12 +821,11 @@ export class EmployeePaymentService {
 			employeePayment.occupational_allowance +
 			employeePayment.subsidy_allowance +
 			(employeePayment.long_service_allowance_type ==
-			LongServiceEnum.Enum.month_allowance
+				LongServiceEnum.Enum.month_allowance
 				? employeePayment.long_service_allowance
 				: 0) +
-			(employeeData.position >= 2 &&
-			employeeData.position <= 3 &&
-			employeeData.work_type == workTypeEnum.Values.DirectEmployee
+			((employeeData.position === 2 || employeeData.position === 3)
+				&& employeeData.work_type !== workTypeEnum.Values.ForeignWorker
 				? 2000
 				: 0);
 
@@ -851,7 +851,7 @@ export class EmployeePaymentService {
 			h_i: result.find((r) => r.type === "健保")?.level ?? 0,
 			l_r:
 				employeeData.work_type != workTypeEnum.Values.ForeignWorker &&
-				employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
+					employeeData.work_status != WorkStatusEnum.Values.ForeignWorker
 					? (result.find((r) => r.type === "勞退")?.level ?? 0)
 					: 0,
 			occupational_injury:
@@ -860,6 +860,7 @@ export class EmployeePaymentService {
 
 		return updatedEmployeePayment;
 	}
+
 	async dropEmployeePaymentPeriod(period_id: number): Promise<number> {
 		const start_date = (await this.ehrService.getPeriodById(period_id))
 			.start_date;
@@ -868,4 +869,21 @@ export class EmployeePaymentService {
 		});
 		return deletedRows;
 	}
+
+	isAbnormal(info: EmployeePaymentInfo): boolean {
+		return (
+			info.isPositionModified ||
+			info.isPositionTypeModified ||
+			!info.supervisor.isInRange ||
+			!info.occupational.isInRange ||
+			!info.longService.isInRange ||
+			!info.subsidy.isInRange ||
+			!info.food.isInRange ||
+			!info.base_salary.isInRange ||
+			!info.l_i.isInRange ||
+			!info.h_i.isInRange ||
+			!info.l_r.isInRange ||
+			!info.occupational_injury.isInRange
+		);
+	};
 }

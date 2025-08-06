@@ -91,11 +91,16 @@ export type EmployeePaymentRangeStatus = z.infer<typeof rangeStatus>;
 export const employeePaymentInfo = z.object({
 	isPositionModified: z.boolean(),
 	isPositionTypeModified: z.boolean(),
+	base_salary: rangeStatus,
 	supervisor: rangeStatus,
 	occupational: rangeStatus,
 	longService: rangeStatus,
 	subsidy: rangeStatus,
 	food: rangeStatus,
+	l_i: rangeStatus,
+	h_i: rangeStatus,
+	l_r: rangeStatus,
+	occupational_injury: rangeStatus,
 });
 
 export type EmployeePaymentInfo = z.infer<typeof employeePaymentInfo>;

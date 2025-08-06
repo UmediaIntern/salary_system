@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { PopoverMultiSelector } from "../popover_multi_selector";
 import { type SyncDataAndStatus } from "./update_table";
 import { Badge } from "../ui/badge";
+import { convertFromDBWorkStatusEnum, WorkStatusEnum, WorkStatusEnumType } from "~/server/api/types/work_status_enum";
 
 interface SelectEmployeeProps {
 	data: SyncDataAndStatus[];
@@ -21,7 +22,18 @@ export function SelectEmployee({
 	const { t } = useTranslation(["common"]);
 
 	const foramttedData = data.map((d) => {
-		const changed = !d.name.salary_value || !d.english_name.salary_value;
+		const is_new_employee = d.comparisons.some(
+			({ key, ehr_value }) =>
+				key === "work_status" &&
+				([
+					WorkStatusEnum.Values.NewEmployee,
+					WorkStatusEnum.Values.NewEmployeeFullMonth,
+					WorkStatusEnum.Values.NewEmployeePartialMonth,
+				] as WorkStatusEnumType[])
+					.includes(convertFromDBWorkStatusEnum(ehr_value))
+		);
+
+		const changed_department = d.department.salary_value && d.department.salary_value !== d.department.ehr_value;
 
 		return {
 			key: d.emp_no,
@@ -31,9 +43,14 @@ export function SelectEmployee({
 				<div>
 					{`${d.emp_no} ${d.name.ehr_value ?? d.name.ehr_value} ${d.english_name.ehr_value ?? d.name.ehr_value
 						}`}
-					{changed && (
-						<Badge variant="outline">
+					{is_new_employee && (
+						<Badge variant="outline" className="ml-1">
 							{t("sync_page.new_employee")}
+						</Badge>
+					)}
+					{changed_department && (
+						<Badge variant="outline" className="ml-1">
+							{t("sync_page.new_department")}
 						</Badge>
 					)}
 				</div>

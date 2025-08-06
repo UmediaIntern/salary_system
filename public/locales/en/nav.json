@@ -1,5 +1,5 @@
 {
-  "selects": "Select",
+  "selects": "Selects",
   "actions": "Actions",
 	"configurations": "Configurations",
 	"maintainance": "Maintainance",
@@ -11,7 +11,8 @@
   "bonus": "Bonus",
   "settings": "Settings",
 	"roles": "Roles",
-	"report": "Reports",
+	"report": "Report",
+  "data_export": "Data Export",
   "calendar": "Calendar",
   "import": "Import"
 }

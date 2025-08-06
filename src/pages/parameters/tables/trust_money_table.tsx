@@ -136,10 +136,6 @@ export function trustMoneyMapper(
 		start_date: d.start_date,
 		end_date: d.end_date,
 		functions: d.functions,
-
-		// functions: {
-		// 	deletable: true,
-		// }
 	}));
 }
 

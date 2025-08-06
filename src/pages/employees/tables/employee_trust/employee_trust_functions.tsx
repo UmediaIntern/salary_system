@@ -71,6 +71,12 @@ export function EmployeeTrustFunctions() {
 				void ctx.employeeTrust.invalidate();
 			},
 		});
+	const batchCreateEmployeeTrust =
+		api.employeeTrust.batchCreateEmployeeTrust.useMutation({
+			onSuccess: () => {
+				void ctx.employeeTrust.invalidate();
+			},
+		});
 
 	const createFormSchema = employeeTrustSchema.omit({ id: true });
 	const createForm = buildStandardFormProps({
@@ -150,11 +156,15 @@ export function EmployeeTrustFunctions() {
 							["id", "functions", "disabled"]
 						)}
 						fileName="employee_trust"
+						setOpenDialog={setOpenDialog}
 					/>
 				)}
 				{mode === "excel_upload" && (
 					<DialogContent className="flex max-h-[80vh] max-w-[80vw] p-8">
-						<ExcelUpload />
+						<ExcelUpload onClick={(data) => {
+							batchCreateEmployeeTrust.mutate(data);
+							setOpenDialog(false);
+						}} />
 					</DialogContent>
 				)}
 			</Dialog>

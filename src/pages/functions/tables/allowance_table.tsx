@@ -102,7 +102,6 @@ export function AllowanceTable({ period_id, emp_no_list }: AllowanceTableProps) 
 				"professional_cert_allowance",
 				"long_service_allowance"]
 				.some(key => d[key] > 0)
-			|| d.food_allowance !== 2400
 		);
 		return <DataTable columns={columns(t, dataDiff)} data={filteredData} />;
 	}

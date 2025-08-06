@@ -10,17 +10,21 @@ export function ColumnCellComponentWithInfo({
 	info,
 	range,
 	data,
+	relatedToPositionChange = false,
 }: {
 	info: EmployeePaymentInfo;
 	range: EmployeePaymentRangeStatus;
 	data: string | number;
+	relatedToPositionChange?: boolean;
 }) {
 	const positionOrTypeChange =
 		info.isPositionModified || info.isPositionTypeModified;
 	const error_flag =
-		positionOrTypeChange && !range.isInRange && !range.isModified;
+		!range.isInRange;
 	const warning_flag =
-		positionOrTypeChange && range.isInRange && !range.isModified;
+		relatedToPositionChange
+			? positionOrTypeChange && range.isInRange && !range.isModified
+			: range.isInRange && !range.isModified;
 
 	return (
 		<ColumnCellComponent

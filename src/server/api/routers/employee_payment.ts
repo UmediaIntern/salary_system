@@ -26,8 +26,8 @@ import { SyncService } from "~/server/service/sync_service";
 import { FunctionsEnum } from "../types/functions_enum";
 import { EHRService } from "~/server/service/ehr_service";
 import { allowanceTypeEnum } from "../types/allowance_type_enum";
-import { Allowance } from "~/server/database/entity/UMEDIA/allowance";
 import { AllowanceRangeService } from "~/server/service/allowance_range_service";
+import { select_value } from "~/server/service/helper_function";
 
 export const employeePaymentRouter = createTRPCRouter({
 	getCurrentEmployeePayment: userProcedure
@@ -96,9 +96,9 @@ export const employeePaymentRouter = createTRPCRouter({
 				);
 			const employeeDataService = container.resolve(EmployeeDataService);
 			const employeeData =
-				await employeeDataService.getAllEmployeeDataByPeriod(
-					previous_period_id
-				);
+				await employeeDataService.getAllEmployeeDataByPeriod(period_id);
+			const previousEmployeeData =
+				await employeeDataService.getAllEmployeeDataByPeriod(previous_period_id);
 
 			const syncService = container.resolve(SyncService);
 			const cand_paid_emps = await syncService.getCandPaidEmployees(
@@ -109,13 +109,11 @@ export const employeePaymentRouter = createTRPCRouter({
 			const differences =
 				await syncService.compareEhrWithSalaryEmployeeData(
 					period_id,
-					employeeData,
+					previousEmployeeData,
 					cand_emp_no_list
 				);
 
-			console.log(differences);
-			const employeePaymentWithInfos: EmployeePaymentWithInfoFEType[] =
-				[];
+			const employeePaymentWithInfos: EmployeePaymentWithInfoFEType[] = [];
 			for (const employeePayment of employeePaymentFE) {
 				const emp_data = employeeData.find(
 					(emp) => emp.emp_no == employeePayment.emp_no
@@ -139,6 +137,7 @@ export const employeePaymentRouter = createTRPCRouter({
 						)?.is_different ?? false;
 				}
 				// Compare with previous period's payment to determine isModified
+				let isBaseSalaryInRange = employeePayment.base_salary > 0;
 				let isSupervisorInRange =
 					await allowance_range_service.checkAllowanceInRange(
 						cur_allowance_range,
@@ -174,6 +173,12 @@ export const employeePaymentRouter = createTRPCRouter({
 						allowanceTypeEnum.Enum.food_allowance,
 						employeePayment.food_allowance
 					);
+				let isLIinRange = employeePayment.l_i > 0;
+				let isHIinRange = employeePayment.h_i > 0;
+				let isLRinRange = employeePayment.emp_no.startsWith("F")
+					? employeePayment.l_r === 0
+					: employeePayment.l_r > 0;
+				let isOccupationalInjuryInRange = employeePayment.occupational_injury > 0;
 
 				let isSupervisorModified = false;
 				let isOccupationalModified = false;
@@ -215,6 +220,10 @@ export const employeePaymentRouter = createTRPCRouter({
 					info: {
 						isPositionModified,
 						isPositionTypeModified,
+						base_salary: {
+							isInRange: isBaseSalaryInRange,
+							isModified: isBaseSalaryInRange,
+						},
 						supervisor: {
 							isInRange: isSupervisorInRange,
 							isModified: isSupervisorModified,
@@ -235,6 +244,22 @@ export const employeePaymentRouter = createTRPCRouter({
 							isInRange: isFoodInRange,
 							isModified: isFoodModified,
 						},
+						l_i: {
+							isInRange: isLIinRange,
+							isModified: isLIinRange,
+						},
+						h_i: {
+							isInRange: isHIinRange,
+							isModified: isHIinRange,
+						},
+						l_r: {
+							isInRange: isLRinRange,
+							isModified: isLRinRange,
+						},
+						occupational_injury: {
+							isInRange: isOccupationalInjuryInRange,
+							isModified: isOccupationalInjuryInRange,
+						},
 					},
 				});
 			}
@@ -245,6 +270,17 @@ export const employeePaymentRouter = createTRPCRouter({
 			}
 			const accessibleEmpData = employeePaymentWithInfos.filter((emp) => {
 				return (emp.position ?? 0) <= access.employees_r_lv;
+			});
+
+			// Sort on demand
+			accessibleEmpData.sort((a, b) => {
+				const aAbnormal = employeePaymentService.isAbnormal(a.info);
+				const bAbnormal = employeePaymentService.isAbnormal(b.info);
+
+				if (aAbnormal && !bAbnormal) return -1;
+				if (!aAbnormal && bAbnormal) return 1;
+
+				return a.emp_no.localeCompare(b.emp_no);
 			});
 
 			return accessibleEmpData;
@@ -366,11 +402,11 @@ export const employeePaymentRouter = createTRPCRouter({
 			if (originalEmployeePayment == null) {
 				throw new BaseResponseError("Employee Payment does not exist");
 			}
-			// await validateService.validateEmployeePayment({
-			// 	emp_no: select_value(input.emp_no, originalEmployeePayment.emp_no),
-			// 	start_date: select_value(input.start_date, originalEmployeePayment.start_date),
-			// 	end_date: select_value(input.end_date, originalEmployeePayment.end_date),
-			// });
+			await validateService.validateEmployeePayment({
+				emp_no: select_value(input.emp_no, originalEmployeePayment.emp_no),
+				start_date: select_value(input.start_date, originalEmployeePayment.start_date),
+				end_date: select_value(input.end_date, originalEmployeePayment.end_date),
+			});
 
 			await employeePaymentService.updateEmployeePaymentAndMatchLevel(
 				employeePayment

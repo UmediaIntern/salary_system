@@ -77,6 +77,23 @@ export const employeeTrustRouter = createTRPCRouter({
 			return newdata;
 		}),
 
+	batchCreateEmployeeTrust: publicProcedure
+		.input(z.array(employeeTrustCreateAPI))
+		.mutation(async ({ input }) => {
+			const employeeTrustService = container.resolve(EmployeeTrustService);
+			const validateService = container.resolve(ValidateService);
+
+			const newdata = [];
+			for (const item of input) {
+				await validateService.validateEmployeeTrust(item);
+				const created = await employeeTrustService.createEmployeeTrust(item);
+				newdata.push(created);
+			}
+			
+			await employeeTrustService.rescheduleEmployeeTrust();
+			return newdata;
+		}),
+
 	updateEmployeeTrust: publicProcedure
 		.input(updateEmployeeTrustAPI)
 		.mutation(async ({ input }) => {

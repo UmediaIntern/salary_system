@@ -131,8 +131,8 @@ export class SyncService {
 		// syncData.english_name = this.dataComparison("english_name", ehrEmp.english_name, salaryEmp?.english_name);
 		const pseudo_english_name: DataComparison = {
 			key: "english_name",
-			salary_value: "Howard",
-			ehr_value: "Howard",
+			salary_value: "",
+			ehr_value: "",
 			is_different: false,
 		};
 

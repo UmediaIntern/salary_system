@@ -519,8 +519,8 @@
     "select_department": "選擇部門",
     "selected": "已選擇",
     "check": "確認修改",
-    "new_department": "改動",
-    "new_employee": "改動",
+    "new_department": "部門異動",
+    "new_employee": "新進員工",
     "all_(un)click": "全選/取消全選"
   },
   "form": {
@@ -561,6 +561,13 @@
     "direct_employee": "直接人員",
     "indirect_employee": "間接人員",
     "foreign_worker": "外籍勞工"
+  },
+  "allowance_type": {
+    "supervisor_allowance": "主管津貼",
+    "occupational_allowance": "職務津貼",
+    "long_service_allowance": "久任津貼",
+    "subsidy_allowance": "補助津貼",
+    "food_allowance": "伙食津貼"
   },
   "TODO": {
     "year_award_contribution": "年獎提撥",
