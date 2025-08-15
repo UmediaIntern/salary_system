@@ -135,7 +135,7 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 	const { t } = useTranslation(["common"]);
 	const getAttendance =
 		api.parameters.getCurrentAttendanceSetting.useQuery({ period_id });
-  const { isPending, content, data } = useQueryHandle(getAttendance);
+	const { isPending, content, data } = useQueryHandle(getAttendance);
 	const filterKey: RowItemKey = "parameters";
 
 	const { selectedTab, openSheet, setOpenSheet, openDialog, setOpenDialog, mode, setData } =
@@ -147,9 +147,9 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 		}
 	}, [data, setData, selectedTab]);
 
-  if (isPending) {
-    return content;
-  }
+	if (isPending) {
+		return content;
+	}
 
 	return (
 		<>
@@ -168,7 +168,7 @@ export function AttendanceTable({ period_id, viewOnly }: AttendanceTableProps) {
 							filterColumnKey={filterKey}
 						/>
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<AutoParameterForm />
+							<AutoParameterForm mode={mode} />
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog

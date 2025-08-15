@@ -22,6 +22,16 @@ export class BonusWorkTypeService {
 		work_type,
 		multiplier,
 	}: z.infer<typeof createBonusWorkTypeService>): Promise<BonusWorkType> {
+		await BonusWorkType.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: period_id,
+					bonus_type: bonus_type,
+					work_type: work_type,
+				},
+			}
+		);
 		const newData = await BonusWorkType.create(
 			{
 				period_id: period_id,

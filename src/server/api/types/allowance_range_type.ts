@@ -17,6 +17,9 @@ export const createAllowanceRangeAPI = allowanceRangeBase
 	.omit({ end_date: true });
 export const createAllowanceRangeService = allowanceRangeBase.merge(dateCreate);
 
+export const batchCreateAllowanceRangeAPI = z.array(createAllowanceRangeAPI);
+export const batchCreateAllowanceRangeService = z.array(createAllowanceRangeService);
+
 // Update Types
 export const updateAllowanceRangeAPI = allowanceRangeBase
 	.merge(dateAll)

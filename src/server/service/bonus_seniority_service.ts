@@ -14,7 +14,7 @@ import { Op } from "sequelize";
 
 @injectable()
 export class BonusSeniorityService {
-	constructor() {}
+	constructor() { }
 
 	async createBonusSeniority({
 		period_id,
@@ -22,6 +22,16 @@ export class BonusSeniorityService {
 		seniority,
 		multiplier,
 	}: z.infer<typeof createBonusSeniorityService>): Promise<BonusSeniority> {
+		await BonusSeniority.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: period_id,
+					bonus_type: bonus_type,
+					seniority: seniority,
+				},
+			}
+		);
 		const newData = await BonusSeniority.create({
 			period_id: period_id,
 			bonus_type: bonus_type,
@@ -84,10 +94,10 @@ export class BonusSeniorityService {
 				disabled: false,
 			},
 		});
-		const dict = list.reduce((acc:{[key:number]:number}, item) => {
+		const dict = list.reduce((acc: { [key: number]: number }, item) => {
 			acc[item.seniority] = item.multiplier;
 			return acc;
-		  }, {});
+		}, {});
 		const multiplier = dict[seniority];
 		// const multiplier = (
 		// 	await BonusSeniority.findOne({

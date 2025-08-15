@@ -6,8 +6,8 @@ import { type TRPCClientErrorLike } from "@trpc/client";
 
 interface QueryFunctionsApi {
 	queryFunction:
-		| (() => UseTRPCQueryResult<any[], TRPCClientErrorLike<any>>)
-		| undefined;
+	| (() => UseTRPCQueryResult<any[], TRPCClientErrorLike<any>>)
+	| undefined;
 }
 
 export const apiFunctionsContext = createContext<QueryFunctionsApi>({
@@ -32,17 +32,20 @@ export default function ApiFunctionsProvider({
 
 	const getTrustMoney = () => api.parameters.getAllTrustMoney.useQuery();
 
-	const getLevelRange = () => 
+	const getLevelRange = () =>
 		api.parameters.getAllLevelRange.useQuery();
-	
-	const getLevel = () => 
+
+	const getLevel = () =>
 		api.parameters.getAllLevel.useQuery();
 
-	const getSalaryIncomeTax = () => 
+	const getSalaryIncomeTax = () =>
 		api.parameters.getAllSalaryIncomeTax.useQuery();
 
-	
+	const getIncomeTaxSetting = () =>
+		api.parameters.getAllIncomeTaxSetting.useQuery();
 
+	const getAllowanceRange = () =>
+		api.parameters.getAllAllowanceRange.useQuery();
 
 	const functionsDictionary: Record<ParameterTableEnum, QueryFunctionsApi> = {
 		TableAttendance: {
@@ -65,7 +68,13 @@ export default function ApiFunctionsProvider({
 		},
 		TableSalaryIncomeTax: {
 			queryFunction: getSalaryIncomeTax,
-		}
+		},
+		TableIncomeTaxSetting: {
+			queryFunction: getIncomeTaxSetting,
+		},
+		TableAllowanceRange: {
+			queryFunction: getAllowanceRange,
+		},
 	};
 
 	// Return the provider with the functions

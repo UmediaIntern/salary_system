@@ -155,7 +155,7 @@ export function EmployeeTrustFunctions() {
 								) ?? [],
 							["id", "functions", "disabled"]
 						)}
-						fileName="employee_trust"
+						fileName="employeeTrust"
 						setOpenDialog={setOpenDialog}
 					/>
 				)}

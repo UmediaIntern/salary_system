@@ -87,11 +87,11 @@ function getTableComponent(
 				component: IncomeTaxSettingTable,
 				icon: Table,
 			}
-    case "TableAllowanceRange":
-      return {
-        component: AllowanceRangeTable,
-        icon: Table,
-      }
+		case "TableAllowanceRange":
+			return {
+				component: AllowanceRangeTable,
+				icon: Table,
+			}
 		default:
 			throw new Error(`Invalid table`);
 	}

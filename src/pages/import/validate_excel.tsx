@@ -41,11 +41,25 @@ export function ValidateExcel() {
 	function uploadData() {
 		const toastId = toast.loading("Loading…");
 		console.log(excelData);
-    setProgress(80);
-		importTransaction.mutate(excelData, {
+		const transformedData = excelData.map((data) => {
+			return {
+				...data,
+				period_id: Number(data.period_id),
+				issue_date: new Date(data.issue_date),
+				residence_permit_start_date: data.residence_permit_start_date ? new Date(data.residence_permit_start_date) : null,
+				residence_permit_end_date: data.residence_permit_end_date ? new Date(data.residence_permit_end_date) : null,
+				registration_date: new Date(data.registration_date),
+				quit_date: data.quit_date ? new Date(data.quit_date) : null,
+			};
+		});
+
+		console.log(transformedData);
+
+		setProgress(80);
+		importTransaction.mutate(transformedData, {
 			onSuccess: () => {
 				toast.success("Upload success", { id: toastId });
-        handleFinal();
+				handleFinal();
 			},
 			onError: (error) => {
 				toast.error(`Upload error ${error.message}`, {
@@ -71,12 +85,12 @@ export function ValidateExcel() {
 		try {
 			const { empty } =
 				await trpcUtils.importTransaction.checkImportTransaction.fetch({
-					period_id: period_id,
+					period_id: Number(period_id),
 				});
 			setProgress(40);
 
 			if (empty) {
-        setProgress(60);
+				setProgress(60);
 				uploadData();
 			} else {
 				setOpenDialog(true);
@@ -90,7 +104,7 @@ export function ValidateExcel() {
 	function handleFinal() {
 		setOpenDialog(false);
 		setIsUploading(false);
-    setProgress(0);
+		setProgress(0);
 	}
 
 	function handleConfirm() {
@@ -101,11 +115,11 @@ export function ValidateExcel() {
 
 		const toastId = toast.loading("Loading…");
 		deleteTransaction.mutate(
-			{ period_id: periodId },
+			{ period_id: Number(periodId) },
 			{
 				onSuccess: () => {
 					toast.success("Delete success", { id: toastId });
-          setProgress(60);
+					setProgress(60);
 					uploadData();
 				},
 				onError: (error) => {

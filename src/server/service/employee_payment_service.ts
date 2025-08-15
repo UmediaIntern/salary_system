@@ -663,9 +663,11 @@ export class EmployeePaymentService {
 				: 0;
 			if (
 				before.base_salary + before.food_allowance + fullAttendenceBonus > base_salary
+				|| (await this.employeeDataService.getLatestEmployeeDataByEmpNo(before.emp_no)).quit_date != null
 			) {
 				continue;
 			}
+
 
 			tasks.push(async () => {
 				await this.updateEmployeePayment({
@@ -826,7 +828,7 @@ export class EmployeePaymentService {
 				: 0) +
 			((employeeData.position === 2 || employeeData.position === 3)
 				&& employeeData.work_type !== workTypeEnum.Values.ForeignWorker
-				? 2000
+				? await this.ehrService.getFullAttendenceBonusLimit()
 				: 0);
 
 		const result = [];

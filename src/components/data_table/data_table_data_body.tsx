@@ -99,7 +99,7 @@ export function DataTableDataBody<TData>({
 						<DialogDescription>
 						</DialogDescription>
 					</DialogHeader>
-					<Button onClick={() => console.log(selectedDetailData)}>
+					<Button onClick={() => {}}>
 						TEST
 					</Button>
 

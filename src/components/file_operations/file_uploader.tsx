@@ -111,7 +111,6 @@ export function FileUploader(props: FileUploaderProps) {
 			}
 
       if (fileRejections.length !== 0) {
-        console.log(`${fileRejections.length} files rejected`);
         toast.error(`Failed: Try to upload ${totalCount} files. ${fileRejections.length} rejected / ${totalCount} total`);
 
         // TODO: add onReject

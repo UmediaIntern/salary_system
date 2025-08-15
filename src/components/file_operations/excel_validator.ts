@@ -56,7 +56,6 @@ export class ExcelValidator {
   }
 
   validate(excel: ExcelSheetData): ValidateResult {
-    console.log("Validating excel:", excel.sheet_name);
 
     const errors: ValidateErrorCode[] = [];
 

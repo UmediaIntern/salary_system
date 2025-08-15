@@ -6,6 +6,7 @@ import dataTableContext, { type FunctionMode } from "../context/data_table_conte
 import { buildStandardFormProps, StandardForm } from "~/components/form/default/form_standard";
 import { DefaultValues } from "react-hook-form";
 import { usePeriodContext } from "~/components/context/period_context_provider";
+import { reverseBonusAllMapper } from "../../tables/bonus_all_table";
 
 interface BonusFormProps<SchemaType extends z.AnyZodObject> {
 	formSchema: SchemaType;
@@ -24,14 +25,13 @@ export function BonusForm<SchemaType extends z.AnyZodObject>({
 	mode,
 	closeSheet,
 }: BonusFormProps<SchemaType>) {
-	const { data, selectedBonusType } = useContext(dataTableContext);
+	const { data, selectedBonusType, selectedTableType } = useContext(dataTableContext);
 	const { selectedPeriod } = usePeriodContext();
 	const functions = useContext(bonusToolbarFunctionsContext);
 	const createFunction = functions.createFunction!;
-	const updateFunction = functions.updateFunction!;		
+	const updateFunction = functions.updateFunction!;
 
 	const onSubmit = (d: z.infer<typeof formSchema>) => {
-		console.log(d);
 		if (mode === "create") {
 			createFunction.mutate({ ...d, bonus_type: selectedBonusType, period_id: selectedPeriod!.period_id });
 		} else if (mode === "update") {
@@ -51,14 +51,13 @@ export function BonusForm<SchemaType extends z.AnyZodObject>({
 		closeSheet: () => closeSheet(),
 	});
 
-
 	return (
 		<>
-			{<StandardForm 
+			{<StandardForm
 				formSchema={formSchema}
 				formConfig={formConfig}
 				formSubmit={onSubmit}
-				defaultValue={data}
+				defaultValue={selectedTableType === "TableBonusAll" ? reverseBonusAllMapper(data) : data}
 				buttonText={mode}
 				closeSheet={closeSheet}
 			/>}

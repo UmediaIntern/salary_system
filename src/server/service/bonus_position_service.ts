@@ -23,6 +23,17 @@ export class BonusPositionService {
 		position_type,
 		position_type_multiplier
 	}: z.infer<typeof createBonusPositionService>): Promise<BonusPosition> {
+		await BonusPosition.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: period_id,
+					bonus_type: bonus_type,
+					position: position,
+					position_type: position_type,
+				},
+			}
+		);
 		const newData = await BonusPosition.create(
 			{
 				period_id: period_id,

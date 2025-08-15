@@ -23,7 +23,7 @@ import { type TableEnum, getTableNameKey } from "../context/data_table_enum";
 import { getSchema } from "../../schemas/get_schemas";
 import { modeDescription } from "~/lib/utils/helper_function";
 import { type BonusTypeEnumType } from "~/server/api/types/bonus_type_enum";
-import { type FunctionMode } from "../context/data_table_context";
+import dataTableContext, { type FunctionMode } from "../context/data_table_context";
 import { BonusExcelDownloader } from "../excel_download/bonus_excel_downloader";
 import { BonusExcelUpload } from "../excel_upload/bonus_excel_upload";
 import {
@@ -45,6 +45,7 @@ export function DataTableFunctions({
 }: DataTableFunctionsProps) {
 	const [open, setOpen] = useState<boolean>(false);
 	const [mode, setMode] = useState<FunctionMode>("none");
+	const { setData } = useContext(dataTableContext);
 	const { t } = useTranslation(["common", "nav"]);
 
 	// ========================= Additional Condition for Schema =====================================
@@ -84,6 +85,7 @@ export function DataTableFunctions({
 						/>
 						<FunctionMenuOptionBase
 							onClick={() => {
+								setData(null);
 								setMode("create");
 								setOpen(true);
 							}}

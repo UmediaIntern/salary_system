@@ -19,6 +19,8 @@ import ParameterToolbarFunctionsProvider from "../components/function_sheet/para
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { AutoParameterForm } from "../schemas/auto_parameter_form";
+import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
+import { ColumnCellComponent } from "~/components/data_table/column_cell_component";
 
 export type RowItem = {
 	position: number;
@@ -47,66 +49,44 @@ export const trust_money_columns = ({
 }: {
 	t: TFunction<[string], undefined>;
 }) => [
-	...f.map((key: RowItemKey) =>
-		columnHelper.accessor(key, {
+		...f.map((key: RowItemKey) =>
+			columnHelper.accessor(key, {
+				header: ({ column }) => {
+					return (
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
+					);
+				},
+				cell: ({ row }) => {
+					let content = "";
+					switch (key) {
+						case "start_date":
+							content = formatDate("day", row.original.start_date) ?? "";
+							break;
+						case "end_date":
+							content = formatDate("day", row.original.end_date) ?? "";
+							break;
+						default:
+							content = row?.original[key]?.toString() ?? "";
+					}
+					return <ColumnCellComponent>{content}</ColumnCellComponent>;
+				},
+			})
+		),
+		columnHelper.accessor("functions", {
 			header: ({ column }) => {
 				return (
-					<div className="flex justify-center">
-						<div className="text-center font-medium">
-							<Button
-								variant="ghost"
-								onClick={() =>
-									column.toggleSorting(
-										column.getIsSorted() === "asc",
-									)
-								}
-							>
-								{t(`table.${key}`)}
-								<ArrowUpDown className="ml-2 h-4 w-4" />
-							</Button>
-						</div>
-					</div>
+					<ColumnHeaderComponent column={column}>
+						{t(`others.functions`)}
+					</ColumnHeaderComponent>
 				);
 			},
 			cell: ({ row }) => {
-				switch (key) {
-					case "start_date":
-						return (
-							<div className="text-center font-medium">{`${
-								formatDate("day", row.original.start_date) ?? ""
-							}`}</div>
-						);
-					case "end_date":
-						return (
-							<div className="text-center font-medium">{`${
-								formatDate("day", row.original.end_date) ?? ""
-							}`}</div>
-						);
-					default:
-						return (
-							<div className="text-center font-medium">{`${row.original[
-								key
-							].toString()}`}</div>
-						);
-				}
+				return <TrustMoneyFunctionComponent data={row.original} />;
 			},
 		}),
-	),
-	columnHelper.accessor("functions", {
-		header: () => {
-			return (
-				<div className="flex justify-center">
-					<div className="text-center font-medium">
-						{t(`others.functions`)}
-					</div>
-				</div>
-			);
-		},
-		cell: ({ row }) => {
-			return <TrustMoneyFunctionComponent data={row.original} />;
-		},
-	}),
-];
+	];
 
 function TrustMoneyFunctionComponent({ data }: { data: RowItem }) {
 	const { setOpenSheet, setOpenDialog, setMode, setData, enableFunctions } =
@@ -177,7 +157,7 @@ export function TrustMoneyTable({ period_id, viewOnly }: TrustMoneyTableProps) {
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<AutoParameterForm />
+					<AutoParameterForm mode={mode} />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

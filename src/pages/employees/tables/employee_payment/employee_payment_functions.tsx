@@ -202,7 +202,7 @@ export function EmployeePaymentFunctions() {
 								) ?? [],
 							["id", "functions", "disabled"]
 						)}
-						fileName="employee_payment"
+						fileName="employeePayment"
 						setOpenDialog={setOpenDialog}
 					/>
 				)}

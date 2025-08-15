@@ -12,6 +12,8 @@ function getTableName(table_name: string) {
 	if (table_name == "TableLevel") return "level";
 	if (table_name == "TableLevelRange") return "levelRange";
 	if (table_name == "TableSalaryIncomeTax") return "salaryIncomeTax";
+	if (table_name == "TableIncomeTaxSetting") return "incomeTaxSetting";
+	if (table_name == "TableAllowanceRange") return "allowanceRange";
 
 	return table_name;
 }
@@ -19,8 +21,10 @@ function getTableName(table_name: string) {
 
 export function ParameterExcelDownloader({
 	table_name,
+	setOpenDialog
 }: {
 	table_name: string;
+	setOpenDialog: (open: boolean) => void;
 }) {
 	const { selectedTable } = useDataTableContext();
 	const { t } = useTranslation();
@@ -34,13 +38,14 @@ export function ParameterExcelDownloader({
 				selectedTable?.table
 					.getFilteredRowModel()
 					.rows.map((r) => r.original as Record<string, unknown>) ??
-					[],
+				[],
 				["id", "functions", "disabled"],
 				!shouldTranspose
 			)}
 			fileName={filename}
 			withHeader={!shouldTranspose}
 			transpose={shouldTranspose}
+			setOpenDialog={setOpenDialog}
 		/>
 	);
 }

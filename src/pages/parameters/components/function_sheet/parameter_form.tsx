@@ -10,6 +10,7 @@ import { useDataTableContext } from "../context/data_table_context_provider";
 import { useTranslation } from "react-i18next";
 
 export interface FormSchemaConfig<SchemaType extends z.AnyZodObject> {
+	mode: FunctionModeEnumType;
 	formSchema: SchemaType;
 	formConfig?: FormConfig<SchemaType>;
 }

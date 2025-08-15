@@ -182,9 +182,8 @@ export class AttendanceSettingService {
 			],
 		});
 
-		const attendanceSettingList = await this.attendanceMapper.decodeList(
-			encodedList
-		);
+		const attendanceSettingList = await this.attendanceMapper.decodeList(encodedList);
+		
 		for (let i = 0; i < attendanceSettingList.length - 1; i += 1) {
 			const end_date = attendanceSettingList[i]!.end_date;
 			const start_date = attendanceSettingList[i + 1]!.start_date;

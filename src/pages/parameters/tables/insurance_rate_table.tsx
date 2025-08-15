@@ -189,7 +189,7 @@ export function InsuranceRateTable({
 							filterColumnKey={filterKey}
 						/>
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<AutoParameterForm />
+							<AutoParameterForm mode={mode} />
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog

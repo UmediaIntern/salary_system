@@ -35,12 +35,7 @@ type RowItemKey = keyof Omit<RowItem, "functions">;
 
 const columnHelper = createColumnHelper<RowItem>();
 
-export const allowance_range_columns = ({
-	t,
-}: {
-	t: TFunction<[string], undefined>;
-}) => {
-	const f: RowItemKey[] = [
+const f: RowItemKey[] = [
 		"position",
 		"position_type",
 		"allowance_type",
@@ -49,6 +44,12 @@ export const allowance_range_columns = ({
 		"start_date",
 		"end_date",
 	];
+
+export const allowance_range_columns = ({
+	t,
+}: {
+	t: TFunction<[string], undefined>;
+}) => {
 	return [
 		...f.map((key) =>
 			columnHelper.accessor(key, {
@@ -164,7 +165,7 @@ export function AllowanceRangeTable({
 					data={allowanceRangeMapper(data ?? [])}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<AutoParameterForm />
+					<AutoParameterForm mode={mode} />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

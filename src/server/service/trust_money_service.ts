@@ -144,7 +144,7 @@ export class TrustMoneyService {
 			raw: true,
 		});
 		const data_array = await this.trustMoneyMapper.decodeList(trustMoney);
-		const groupedSalaryIncomeTaxRecords: Record<
+		const groupedTrustMoneyRecords: Record<
 			string,
 			TrustMoneyDecType[]
 		> = {};
@@ -155,12 +155,12 @@ export class TrustMoneyService {
 			} else
 				key =
 					get_date_string(d.start_date) + get_date_string(d.end_date);
-			if (!groupedSalaryIncomeTaxRecords[key]) {
-				groupedSalaryIncomeTaxRecords[key] = [];
+			if (!groupedTrustMoneyRecords[key]) {
+				groupedTrustMoneyRecords[key] = [];
 			}
-			groupedSalaryIncomeTaxRecords[key]!.push(d);
+			groupedTrustMoneyRecords[key]!.push(d);
 		});
-		const grouped_array = Object.values(groupedSalaryIncomeTaxRecords).sort(
+		const grouped_array = Object.values(groupedTrustMoneyRecords).sort(
 			(a, b) => {
 				if (a[0]!.start_date > b[0]!.start_date) {
 					return -1;

@@ -18,7 +18,7 @@ export const incomeTaxSettingFE = z
         id: z.number(),
     })
     .merge(incomeTaxSettingBase)
-    .merge(dateMetaFE)
+    .merge(dateAll)
     .merge(func);
 
 export type IncomeTaxSettingFEType = z.infer<typeof incomeTaxSettingFE>;

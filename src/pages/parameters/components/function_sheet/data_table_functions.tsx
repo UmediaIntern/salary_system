@@ -1,6 +1,6 @@
 import { cn } from "~/lib/utils";
 import { useState } from "react";
-import { EllipsisVertical } from "lucide-react";
+import { CirclePlus, EllipsisVertical } from "lucide-react";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import {
 	DropdownMenu,
@@ -23,29 +23,21 @@ import { modeDescription } from "~/lib/utils/helper_function";
 import { ParameterExcelDownloader } from "../excel_download/parameter_excel_downloader";
 import { ParameterExcelUpload } from "../excel_upload/parameter_excel_uplaod";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { FunctionMenuOption } from "~/components/table_functions/function_menu/function_menu_option";
+import { FunctionMenuOption, FunctionMenuOptionBase } from "~/components/table_functions/function_menu/function_menu_option";
 import { useDataTableContext } from "../context/data_table_context_provider";
 import { AutoParameterForm } from "../../schemas/auto_parameter_form";
+import { FunctionModeEnumType } from "../context/data_table_context";
 
 interface DataTableFunctionsProps extends React.HTMLAttributes<HTMLDivElement> {
 	tableType: TableEnum;
 }
-
-// TODO: remove
-type FunctionMode =
-	| "create"
-	| "update"
-	| "delete"
-	| "excel_download"
-	| "excel_upload"
-	| "none";
 
 export function DataTableFunctions({
 	tableType,
 	className,
 }: DataTableFunctionsProps) {
 	const { t } = useTranslation(["common", "nav"]);
-	const [mode, setMode] = useState<FunctionMode>("none");
+	const [mode, setMode] = useState<FunctionModeEnumType>("none");
 	const { enableFunctions, setData, openDialog, setOpenDialog } = useDataTableContext();
 
 	// ========================= Additional Condition for Schema =====================================
@@ -83,13 +75,14 @@ export function DataTableFunctions({
 								setOpenDialog(true);
 							}}
 						/>
-						<FunctionMenuOption.Create
-							disabled={!enableFunctions}
+						<FunctionMenuOptionBase
 							onClick={() => {
-								setData(null);
+								setData(null)
 								setMode("create");
 								setOpenDialog(true);
 							}}
+							itemName={t("button.create_with_blank")}
+							icon={CirclePlus}
 						/>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -116,7 +109,7 @@ export function DataTableFunctions({
 									{modeDescription(t, mode)}
 								</DialogDescription>
 							</DialogHeader>
-							<AutoParameterForm />
+							<AutoParameterForm mode={mode} />
 						</ScrollArea>
 					</DialogContent>
 				)}

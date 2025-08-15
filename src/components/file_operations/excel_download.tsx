@@ -29,7 +29,7 @@ export function ExcelDownload({ data, fileName, setOpenDialog, withHeader = true
 	const period_name = selectedPeriod?.period_name ?? "ERROR";
 
 	useEffect(() => {
-		setFilename(`${fileName}_${period_name}`);
+		setFilename(`${t(`table_name.${fileName}`)}_${period_name}`);
 	}, [fileName, period_name]);
 
 	const headers = data[0]?.map((header) => t(`table.${header}`)) ?? null;

@@ -51,7 +51,6 @@ function recoverData(
 	const keys = data[0].map((original_header: string) =>
 		inverse_translate(String(original_header), table_name)
 	);
-	console.log("keys", keys);
 
 	// Map each row to an object using the keys
 	const mappedData = data.slice(1).map((row: any[]) => {

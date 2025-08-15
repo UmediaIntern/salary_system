@@ -14,12 +14,14 @@ import {
 } from "../components/function_sheet/parameter_form";
 import { SelectLevelField } from "../components/function_sheet/form_fields/select_level_field";
 import { useDataTableContext } from "../components/context/data_table_context_provider";
+import { FunctionModeEnumType } from "../components/context/data_table_context";
 
 function DefaultModeAndCloseForm<SchemaType extends z.AnyZodObject>({
+	mode,
 	formSchema,
 	formConfig,
 }: FormSchemaConfig<SchemaType>) {
-	const { mode, setOpenSheet, setOpenDialog } = useDataTableContext();
+	const { setOpenSheet, setOpenDialog } = useDataTableContext();
 
 	return (
 		<ParameterForm
@@ -34,12 +36,13 @@ function DefaultModeAndCloseForm<SchemaType extends z.AnyZodObject>({
 	);
 }
 
-export function AutoParameterForm() {
+export function AutoParameterForm({ mode }: { mode: FunctionModeEnumType }) {
 	const { selectedTableType } = useDataTableContext();
 	switch (selectedTableType) {
 		case "TableAttendance":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={attendanceSchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -47,6 +50,7 @@ export function AutoParameterForm() {
 		case "TableBankSetting":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={bankSchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -54,6 +58,7 @@ export function AutoParameterForm() {
 		case "TableInsurance":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={insuranceSchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -61,6 +66,7 @@ export function AutoParameterForm() {
 		case "TableTrustMoney":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={trustMoneySchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -68,6 +74,7 @@ export function AutoParameterForm() {
 		case "TableLevel":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={levelSchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -75,6 +82,7 @@ export function AutoParameterForm() {
 		case "TableLevelRange":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={levelRangeSchema}
 					formConfig={[
 						{ key: "id", config: { hidden: true } },
@@ -97,6 +105,7 @@ export function AutoParameterForm() {
 		case "TableTrustMoney":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={trustMoneySchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -104,6 +113,7 @@ export function AutoParameterForm() {
 		case "TableSalaryIncomeTax":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={salaryIncomeTaxSchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -111,6 +121,7 @@ export function AutoParameterForm() {
 		case "TableIncomeTaxSetting":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={incomeTaxSchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>
@@ -118,6 +129,7 @@ export function AutoParameterForm() {
 		case "TableAllowanceRange":
 			return (
 				<DefaultModeAndCloseForm
+					mode={mode}
 					formSchema={allowanceRangeSchema}
 					formConfig={[{ key: "id", config: { hidden: true } }]}
 				/>

@@ -25,7 +25,6 @@ export function ExcelUpload({ onClick }: ExcelUploadProps) {
 		}
 		for (const file of files) {
 			const data = await extractData(file);
-			console.log("extracted data", data);
 			if (data) setData(data);
 		}
 	}

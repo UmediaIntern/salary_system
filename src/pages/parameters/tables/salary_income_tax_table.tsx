@@ -179,7 +179,7 @@ export function SalaryIncomeTaxTable({
 					filterColumnKey={filterKey}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<AutoParameterForm />
+					<AutoParameterForm mode={mode} />
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

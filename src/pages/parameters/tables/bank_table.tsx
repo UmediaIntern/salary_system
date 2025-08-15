@@ -165,7 +165,7 @@ export function BankTable({ period_id, viewOnly }: BankTableProps) {
 					]}
 				/>
 				<FunctionsSheetContent t={t} period_id={period_id}>
-					<AutoParameterForm />
+					<AutoParameterForm mode={mode}/>
 				</FunctionsSheetContent>
 			</Sheet>
 			<ConfirmDialog

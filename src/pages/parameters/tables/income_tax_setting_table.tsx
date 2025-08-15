@@ -19,6 +19,7 @@ import { type IncomeTaxSettingFEType } from "~/server/api/types/income_tax_setti
 import { useDataTableContext } from "../components/context/data_table_context_provider";
 import { useQueryHandle } from "~/components/query_boundary/query_handle";
 import { AutoParameterForm } from "../schemas/auto_parameter_form";
+import { ColumnHeaderComponent } from "~/components/data_table/column_header_component";
 
 const formula = "If (發薪日 - 入境日期) > [外勞入境天數門檻] then\n\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\nElse\n\tIf 薪資所得稅扣繳總額 < (最低基本工資-免稅額)*[最低工資倍率] then \n\t\tTax=薪資所得稅扣繳總額*[薪資所得扣繳總額比率1]%\n\tElse\n\t\tTax=薪資扣繳總額*[薪資所得扣繳總額比率2]\n\tEnd_If\nEnd_If";
 
@@ -39,26 +40,16 @@ export const income_tax_setting_columns = ({
 			columnHelper.accessor(key as RowItemKey, {
 				header: ({ column }) => {
 					return (
-						<div className="flex justify-center">
-							<div className="text-center font-medium">
-								<Button
-									variant="ghost"
-									onClick={() =>
-										column.toggleSorting(
-											column.getIsSorted() === "asc"
-										)
-									}
-								>
-									{t(`table.${key}`)}
-									<ArrowUpDown className="ml-2 h-4 w-4" />
-								</Button>
-							</div>
-						</div>
+						<ColumnHeaderComponent column={column}>
+							{t(`table.${key}`)}
+						</ColumnHeaderComponent>
 					);
 				},
 				cell: ({ row }) => {
 					if (key === "value") {
-						if (row.original.parameters === c_StartDateStr || row.original.parameters === c_EndDateStr) {
+						if (row.original.parameters === c_StartDateStr ||
+							row.original.parameters === c_EndDateStr
+						) {
 							return (
 								<div className="text-center font-medium">{formatDate("day", row.original.value as Date | null) ?? ""}</div>
 							);
@@ -126,26 +117,24 @@ export function IncomeTaxSettingTable({
 	period_id,
 	viewOnly,
 }: IncomeTaxSettingTableProps) {
-
-
 	const { t } = useTranslation(["common"]);
+	const getIncomeTaxSetting =
+		api.parameters.getCurrentIncomeTaxSetting.useQuery({ period_id });
+	const { isPending, content, data } = useQueryHandle(getIncomeTaxSetting);
+	const filterKey: RowItemKey = "parameters";
+
 	const { selectedTab, openSheet, setOpenSheet, openDialog, setOpenDialog, mode, setData } =
 		useDataTableContext();
-
-	const getIncomeTaxSetting =
-		api.incomeTaxSetting.getCurrentIncomeTaxSetting.useQuery({ period_id });
-  const { isPending, content, data } = useQueryHandle(getIncomeTaxSetting);
-	const filterKey: RowItemKey = "parameters";
 
 	useEffect(() => {
 		if (data && selectedTab === "current") {
 			setData(data);
 		}
-	}, [data, selectedTab, setData]);
+	}, [data, setData, selectedTab]);
 
-  if (isPending) {
-    return content;
-  }
+	if (isPending) {
+		return content;
+	}
 
 	return (
 		<>
@@ -161,7 +150,7 @@ export function IncomeTaxSettingTable({
 							filterColumnKey={filterKey}
 						/>
 						<FunctionsSheetContent t={t} period_id={period_id}>
-							<AutoParameterForm />
+							<AutoParameterForm mode={mode} />
 						</FunctionsSheetContent>
 					</Sheet>
 					<ConfirmDialog open={openDialog && mode === "delete"} onOpenChange={setOpenDialog} schema={incomeTaxSchema} />

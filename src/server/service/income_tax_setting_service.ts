@@ -8,34 +8,49 @@ import {
 	createIncomeTaxSettingService,
 	updateIncomeTaxSettingService,
 } from "../api/types/income_tax_setting_type";
-import { IncomeTaxSetting } from "../database/entity/SALARY/income_tax_setting";
-import { dateToString, dateToStringNullable } from "../api/types/z_utils";
+import { decIncomeTaxSetting, encIncomeTaxSetting, IncomeTaxSetting, IncomeTaxSettingDecType } from "../database/entity/SALARY/income_tax_setting";
+import { dateToString } from "../api/types/z_utils";
+import { BaseMapper } from "../database/mapper/base_mapper";
 
 @injectable()
 export class IncomeTaxSettingService {
-	constructor(private readonly ehrService: EHRService) {}
+	private readonly incomeTaxSettingMapper: BaseMapper<
+		IncomeTaxSetting,
+		IncomeTaxSettingDecType,
+		typeof encIncomeTaxSetting,
+		typeof decIncomeTaxSetting
+	>;
+
+	constructor(private readonly ehrService: EHRService) {
+		this.incomeTaxSettingMapper = new BaseMapper(
+			"IncomeTax Setting Mapper",
+			encIncomeTaxSetting,
+			decIncomeTaxSetting
+		);
+	}
 
 	async createIncomeTaxSetting(
 		data: z.infer<typeof createIncomeTaxSettingService>
 	): Promise<IncomeTaxSetting> {
 		const d = createIncomeTaxSettingService.parse(data);
-		const newData = await IncomeTaxSetting.create(
-			{
-				...d,
-				start_date: dateToString.parse(d.start_date ?? new Date()),
-				end_date: dateToStringNullable.parse(d.end_date),
-				disabled: false,
-				create_by: "system",
-				update_by: "system",
-			},
-			{ raw: true }
-		);
+
+		const incomeTaxSetting = await this.incomeTaxSettingMapper.encode({
+			...d,
+			start_date: d.start_date ?? new Date(),
+			disabled: false,
+			create_by: "system",
+			update_by: "system",
+		});
+
+		const newData = await IncomeTaxSetting.create(incomeTaxSetting, {
+			raw: true
+		});
 		return newData;
 	}
 
 	async getCurrentIncomeTaxSetting(
 		period_id: number
-	): Promise<IncomeTaxSetting | null> {
+	): Promise<IncomeTaxSettingDecType | null> {
 		const period = await this.ehrService.getPeriodById(period_id);
 		const current_date_string = dateToString.parse(period.end_date);
 		const incomeTaxSettingList = await IncomeTaxSetting.findAll({
@@ -52,7 +67,6 @@ export class IncomeTaxSettingService {
 				disabled: false,
 			},
 			order: [["start_date", "DESC"]],
-			raw: true,
 		});
 
 		if (incomeTaxSettingList.length > 1) {
@@ -65,12 +79,65 @@ export class IncomeTaxSettingService {
 			? incomeTaxSettingList[0]
 			: null;
 
-		return incomeTaxSetting;
+		return incomeTaxSetting ? await this.incomeTaxSettingMapper.decode(incomeTaxSetting) : null;
+	}
+
+	async getAllIncomeTaxSetting(): Promise<IncomeTaxSettingDecType[][]> {
+		const incomeTaxSettingList = await IncomeTaxSetting.findAll({
+			where: { disabled: false },
+			order: [["start_date", "DESC"]],
+		});
+		const data_array = await this.incomeTaxSettingMapper.decodeList(
+			incomeTaxSettingList
+		);
+		const groupedRecords: Record<string, IncomeTaxSettingDecType[]> = {};
+		data_array.forEach((d) => {
+			let key = "";
+			if (d.end_date == null) {
+				key = get_date_string(d.start_date);
+			} else
+				key =
+					get_date_string(d.start_date) + get_date_string(d.end_date);
+			if (!groupedRecords[key]) {
+				groupedRecords[key] = [];
+			}
+			groupedRecords[key]!.push(d);
+		});
+		const grouped_array = Object.values(groupedRecords).sort((a, b) => {
+			if (a[0]!.start_date > b[0]!.start_date) {
+				return -1;
+			} else if (a[0]!.start_date < b[0]!.start_date) {
+				return 1;
+			} else if (a[0]!.end_date == null) {
+				return -1;
+			} else if (b[0]!.end_date == null) {
+				return 1;
+			} else if (a[0]!.end_date > b[0]!.end_date) {
+				return -1;
+			} else return 1;
+		});
+
+		return grouped_array;
+	}
+
+	async getAllFutureIncomeTaxSetting(): Promise<IncomeTaxSettingDecType[]> {
+		const current_date_string = get_date_string(new Date());
+		const incomeTaxSettingList = await IncomeTaxSetting.findAll({
+			where: {
+				start_date: {
+					[Op.gt]: current_date_string,
+				},
+				disabled: false,
+			},
+			order: [["start_date", "DESC"]],
+		});
+
+		return await this.incomeTaxSettingMapper.decodeList(incomeTaxSettingList);
 	}
 
 	async getIncomeTaxSettingByDate(
 		date: Date
-	): Promise<IncomeTaxSetting | null> {
+	): Promise<IncomeTaxSettingDecType | null> {
 		const date_string = dateToString.parse(date);
 		const insuranceRateSetting = await IncomeTaxSetting.findOne({
 			where: {
@@ -85,19 +152,17 @@ export class IncomeTaxSettingService {
 			raw: true,
 		});
 
-		return insuranceRateSetting;
+		return await this.incomeTaxSettingMapper.decode(insuranceRateSetting);
 	}
 
 	async getIncomeTaxSettingById(
 		id: number
-	): Promise<IncomeTaxSetting | null> {
+	): Promise<IncomeTaxSettingDecType | null> {
 		const insuranceRateSetting = await IncomeTaxSetting.findOne({
-			where: {
-				id: id,
-			},
+			where: { id: id },
 		});
 
-		return insuranceRateSetting;
+		return await this.incomeTaxSettingMapper.decode(insuranceRateSetting);
 	}
 
 	async updateIncomeTaxSetting(
@@ -123,7 +188,7 @@ export class IncomeTaxSettingService {
 	}
 
 	async rescheduleIncomeTaxSetting(): Promise<void> {
-		const incomeTaxSettingList = await IncomeTaxSetting.findAll({
+		const encodedList = await IncomeTaxSetting.findAll({
 			where: { disabled: false },
 			order: [
 				["start_date", "ASC"],
@@ -131,21 +196,17 @@ export class IncomeTaxSettingService {
 			],
 		});
 
+		const incomeTaxSettingList = await this.incomeTaxSettingMapper.decodeList(encodedList);
+
 		for (let i = 0; i < incomeTaxSettingList.length - 1; i += 1) {
-			const end_date = incomeTaxSettingList[i]!.end_date
-				? new Date(incomeTaxSettingList[i]!.end_date!)
-				: null;
-			const start_date = new Date(
-				incomeTaxSettingList[i + 1]!.start_date
-			);
+			const end_date = incomeTaxSettingList[i]!.end_date;
+			const start_date = incomeTaxSettingList[i + 1]!.start_date;
 
 			const new_end_date = new Date(start_date);
 			new_end_date.setDate(new_end_date.getDate() - 1);
 
 			if (end_date?.getTime() != new_end_date.getTime()) {
-				if (
-					new_end_date < new Date(incomeTaxSettingList[i]!.start_date)
-				) {
+				if (new_end_date < incomeTaxSettingList[i]!.start_date) {
 					await this.deleteIncomeTaxSetting(
 						incomeTaxSettingList[i]!.id
 					);
@@ -204,13 +265,11 @@ export class IncomeTaxSettingService {
 			),
 			start_date: select_value(
 				start_date,
-				new Date(income_tax_setting.start_date)
+				income_tax_setting.start_date
 			),
 			end_date: select_value(
 				end_date,
 				income_tax_setting.end_date
-					? new Date(income_tax_setting.end_date)
-					: null
 			),
 		};
 	}

@@ -34,7 +34,6 @@ export function PeriodContextProvider({ children }: PropsWithChildren) {
 			// Check if the date is valid
 			const date = new Date(sessionPayDate);
 			if (date.getTime() <= 0) {
-				console.log("Period context: Invalid date");
 				return;
 			}
 			setSelectedPayDate(date);

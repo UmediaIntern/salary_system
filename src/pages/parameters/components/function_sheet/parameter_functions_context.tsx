@@ -254,7 +254,7 @@ export default function ParameterToolbarFunctionsProvider({
 				ctx.parameters.getAllFutureSalaryIncomeTax.invalidate();
 			},
 		});
-	const batchCreateSalaryIncomeTax = 
+	const batchCreateSalaryIncomeTax =
 		api.parameters.batchCreateSalaryIncomeTax.useMutation({
 			onSuccess: () => {
 				ctx.parameters.getCurrentSalaryIncomeTax.invalidate();
@@ -273,26 +273,72 @@ export default function ParameterToolbarFunctionsProvider({
 	//#endregion
 
 	// #region <IncomeTaxSetting>
-	const getCurrentIncomeTaxSetting = () => api.incomeTaxSetting.getCurrentIncomeTaxSetting.useQuery({ period_id });
-	// const getFutureIncomeTaxSetting = () => api.parameters.getAllFutureIncomeTaxSetting.useQuery();
+	const getCurrentIncomeTaxSetting = () => api.parameters.getCurrentIncomeTaxSetting.useQuery({ period_id });
+	const getFutureIncomeTaxSetting = () => api.parameters.getAllFutureIncomeTaxSetting.useQuery();
 	const createIncomeTaxSetting =
-		api.incomeTaxSetting.createIncomeTaxSetting.useMutation({
+		api.parameters.createIncomeTaxSetting.useMutation({
 			onSuccess: () => {
 				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
+				ctx.parameters.getAllIncomeTaxSetting.invalidate();
+				ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
 			},
 		});
 	const updateIncomeTaxSetting =
-		api.incomeTaxSetting.updateIncomeTaxSetting.useMutation({
+		api.parameters.updateIncomeTaxSetting.useMutation({
 			onSuccess: () => {
 				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
+				ctx.parameters.getAllIncomeTaxSetting.invalidate();
+				ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
 			},
 		});
 	const deleteIncomeTaxSetting =
-		api.incomeTaxSetting.deleteIncomeTaxSetting.useMutation({
+		api.parameters.deleteIncomeTaxSetting.useMutation({
 			onSuccess: () => {
 				ctx.parameters.getCurrentIncomeTaxSetting.invalidate();
+				ctx.parameters.getAllIncomeTaxSetting.invalidate();
+				ctx.parameters.getAllFutureIncomeTaxSetting.invalidate();
 			},
 		});
+	//#endregion
+
+	// #region <AllowanceRange>
+	const getCurrentAllowanceRange = () =>
+		api.parameters.getCurrentAllowanceRange.useQuery({ period_id });
+	const getFutureAllowanceRange = () =>
+		api.parameters.getAllFutureAllowanceRange.useQuery();
+	const updateAllowanceRange =
+		api.parameters.updateAllowanceRange.useMutation({
+			onSuccess: () => {
+				ctx.parameters.getCurrentAllowanceRange.invalidate();
+				ctx.parameters.getAllAllowanceRange.invalidate();
+				ctx.parameters.getAllFutureAllowanceRange.invalidate();
+			},
+		});
+	const createAllowanceRange =
+		api.parameters.createAllowanceRange.useMutation({
+			onSuccess: () => {
+				ctx.parameters.getCurrentAllowanceRange.invalidate();
+				ctx.parameters.getAllAllowanceRange.invalidate();
+				ctx.parameters.getAllFutureAllowanceRange.invalidate();
+			},
+		});
+	const batchCreateAllowanceRange =
+		api.parameters.batchCreateAllowanceRange.useMutation({
+			onSuccess: () => {
+				ctx.parameters.getCurrentAllowanceRange.invalidate();
+				ctx.parameters.getAllAllowanceRange.invalidate();
+				ctx.parameters.getAllFutureAllowanceRange.invalidate();
+			},
+		});
+	const deleteAllowanceRange =
+		api.parameters.deleteAllowanceRange.useMutation({
+			onSuccess: () => {
+				ctx.parameters.getCurrentAllowanceRange.invalidate();
+				ctx.parameters.getAllAllowanceRange.invalidate();
+				ctx.parameters.getAllFutureAllowanceRange.invalidate();
+			},
+		});
+	//#endregion
 
 	const functionsDictionary: Record<ParameterTableEnum, FunctionsApi> = {
 		TableAttendance: {
@@ -353,15 +399,20 @@ export default function ParameterToolbarFunctionsProvider({
 		},
 		TableIncomeTaxSetting: {
 			queryCurrentFunction: getCurrentIncomeTaxSetting,
-			queryFutureFunction: undefined,
+			queryFutureFunction: getFutureIncomeTaxSetting,
 			updateFunction: updateIncomeTaxSetting,
 			createFunction: createIncomeTaxSetting,
 			deleteFunction: deleteIncomeTaxSetting,
 			batchCreateFunction: undefined,
-		}, 
-    TableAllowanceRange: {
-      queryFutureFunction: () => {},
-    }
+		},
+		TableAllowanceRange: {
+			queryCurrentFunction: getCurrentAllowanceRange,
+			queryFutureFunction: getFutureAllowanceRange,
+			updateFunction: updateAllowanceRange,
+			createFunction: createAllowanceRange,
+			deleteFunction: deleteAllowanceRange,
+			batchCreateFunction: batchCreateAllowanceRange,
+		}
 	};
 
 	// Return the provider with the functions

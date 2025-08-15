@@ -15,12 +15,12 @@ import { Op, where } from "sequelize";
 import { LevelRangeMapper } from "../database/mapper/level_range_mapper";
 import { dateToString, stringToDate } from "../api/types/z_utils";
 import { Database } from "../database/client";
-import { previousDay, subDays } from "date-fns";
+import { subDays } from "date-fns";
 import { Level } from "../database/entity/SALARY/level";
 
 @injectable()
 export class LevelRangeService {
-	constructor(private readonly levelRangeMapper: LevelRangeMapper) {}
+	constructor(private readonly levelRangeMapper: LevelRangeMapper) { }
 
 	async createLevelRange(
 		data: z.infer<typeof createLevelRangeService>
@@ -43,15 +43,13 @@ export class LevelRangeService {
 		});
 		if (existed_data != null) {
 			throw new Error(
-				`Data already exist type:${
-					existed_data.type
+				`Data already exist type: ${existed_data.type
 				}, start_date: ${existed_data.start_date}}`
 			);
 		}
 		const newData = await LevelRange.create(levelRange, {
 			raw: true,
 		});
-		console.log(`create level_range: ${JSON.stringify(newData)}`);
 		return newData;
 	}
 
@@ -226,31 +224,22 @@ export class LevelRangeService {
 		});
 	}
 
-	async updateLevelRangeId({
-		old_id,
-		new_id,
-	}: {
-		old_id: number;
-		new_id: number;
-	}): Promise<void> {
+	async updateLevelRangeId(
+		updateIDs: {
+			old_id: number;
+			new_id: number;
+		}[]): Promise<void> {
 		const levelRangeList = await LevelRange.findAll({
 			where: { disabled: false },
 		});
 		const promises = levelRangeList.map(async (levelRange) => {
-			if (
-				levelRange.level_start_id == old_id ||
-				levelRange.level_end_id == old_id
-			) {
+			const new_level_start_id = updateIDs.find(updateID => updateID.old_id === levelRange.level_start_id)?.new_id;
+			const new_level_end_id = updateIDs.find(updateID => updateID.old_id === levelRange.level_end_id)?.new_id;
+			if (new_level_start_id !== undefined || new_level_end_id !== undefined) {
 				await this.updateLevelRange({
 					id: levelRange.id,
-					level_start_id:
-						levelRange.level_start_id == old_id
-							? new_id
-							: levelRange.level_start_id,
-					level_end_id:
-						levelRange.level_end_id == old_id
-							? new_id
-							: levelRange.level_end_id,
+					level_start_id: new_level_start_id ?? levelRange.level_start_id,
+					level_end_id: new_level_end_id ?? levelRange.level_end_id,
 				});
 			}
 		});
@@ -280,8 +269,9 @@ export class LevelRangeService {
 		});
 		return levelList != null;
 	}
-	async levelRangeReschedule(): Promise<void> {
-		const allLevelRange = await LevelRange.findAll({
+
+	async rescheduleLevelRange(): Promise<void> {
+		let levelRanges = await LevelRange.findAll({
 			where: { disabled: false },
 			order: [
 				["start_date", "DESC"],
@@ -289,28 +279,105 @@ export class LevelRangeService {
 			],
 			raw: true,
 		});
-		const allLevel = await Level.findAll({
+
+		const levels = await Level.findAll({
 			where: { disabled: false },
 			raw: true,
-		})
-		allLevelRange.forEach(async (levelRange) => {
-			const matchedLevel = allLevel.find(level => level.id == levelRange.level_start_id)
-			if (matchedLevel == undefined) {
-				return
-			}
-			if (matchedLevel.end_date != null && levelRange.start_date > matchedLevel.end_date ) {
+		});
+
+		const promises = levelRanges.map(async (levelRange) => {
+			const levelStart = levels.find(level => level.id == levelRange.level_start_id)
+			const levelEnd = levels.find(level => level.id == levelRange.level_end_id)
+			if (levelStart == undefined || levelEnd == undefined) {
 				await this.deleteLevelRange(levelRange.id)
 			}
-			else {
-				const new_start_date = levelRange.start_date> matchedLevel.start_date ? levelRange.start_date: matchedLevel.start_date
-				const new_end_date = (levelRange.end_date == null || (matchedLevel.end_date != null &&levelRange.end_date > matchedLevel.end_date) )? matchedLevel.end_date: levelRange.end_date
-				await this.updateLevelRange({
-					id: levelRange.id,
-					start_date: stringToDate.parse(new_start_date),
-					end_date: subDays(stringToDate.parse(new_start_date), 1)
-				})
+			else if (levelStart.start_date != levelEnd.start_date) {
+				await this.deleteLevelRange(levelRange.id)
+			}
+			else if (levelStart.end_date && levelRange.start_date > levelStart.end_date) {
+				await this.deleteLevelRange(levelRange.id)
+			}
+			else if (levelRange.start_date < levelStart.start_date) {
+				await this.deleteLevelRange(levelRange.id)
 			}
 		})
+
+		await Promise.all(promises)
+
+		levelRanges = await LevelRange.findAll({
+			where: { disabled: false },
+			order: [
+				["start_date", "DESC"],
+				["type", "ASC"],
+			],
+			raw: true,
+		});
+
+		const groupedLevelRanges = levelRanges.reduce(
+			(acc: Record<string, LevelRange[]>, levelRange) => {
+				const startDate = levelRange.start_date;
+				if (!acc[startDate]) {
+					acc[startDate] = [];
+				}
+				acc[startDate]!.push(levelRange);
+				return acc;
+			},
+			{}
+		);
+
+		const startDates = Object.keys(groupedLevelRanges).sort(
+			(a, b) =>
+				stringToDate.parse(a).getTime() -
+				stringToDate.parse(b).getTime()
+		);
+
+		// Process each start date
+		const promises2 = startDates.map(async (startDate, index) => {
+			const levelRanges = groupedLevelRanges[startDate];
+			const isLast = (index === startDates.length - 1);
+			const nextStartDate = isLast ? null : startDates[index + 1];
+			const newEndDate = isLast ? null : dateToString.parse(subDays(new Date(nextStartDate!), 1));
+			const levelEndDate = levels.find(level => level.id == levelRanges![0]!.level_end_id)!.end_date;
+			const minEndDate = (levelEndDate == null || (newEndDate != null && newEndDate < levelEndDate))
+				? newEndDate
+				: levelEndDate;
+
+			const tasks = levelRanges!.map(async (levelRange) => {
+				if (levelRange.end_date != minEndDate) {
+					await this.deleteLevelRange(levelRange.id);
+					await this.createLevelRange({
+						type: levelRange.type,
+						level_start_id: levelRange.level_start_id,
+						level_end_id: levelRange.level_end_id,
+						start_date: stringToDate.parse(startDate),
+						end_date: stringToDate.parse(minEndDate),
+					});
+				}
+			});
+
+			await Promise.all(tasks);
+		});
+
+		await Promise.all(promises2);
+
+		// levelRanges.forEach(async (levelRange) => {
+		// 	const matchedLevel = levels.find(level => level.id == levelRange.level_start_id)
+		// 	if (matchedLevel == undefined) {
+		// 		return
+		// 	}
+		// 	if (matchedLevel.end_date != null && levelRange.start_date > matchedLevel.end_date) {
+		// 		await this.deleteLevelRange(levelRange.id)
+		// 	}
+		// 	else {
+		// 		const new_start_date = levelRange.start_date > matchedLevel.start_date ? levelRange.start_date : matchedLevel.start_date
+		// 		const new_end_date = (levelRange.end_date == null || (matchedLevel.end_date != null && levelRange.end_date > matchedLevel.end_date)) ? matchedLevel.end_date : levelRange.end_date
+		// 		await this.updateLevelRange({
+		// 			id: levelRange.id,
+		// 			start_date: stringToDate.parse(new_start_date),
+		// 			end_date: subDays(stringToDate.parse(new_start_date), 1)
+		// 		})
+		// 	}
+		// })
 	}
 	// async emptyInfluencedLevelRange(
 	// 	start_date_string: string,

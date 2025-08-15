@@ -56,8 +56,8 @@ import {
 	updateSalaryIncomeTaxAPI,
 } from "../types/salary_income_tax";
 import { IncomeTaxSettingService } from "~/server/service/income_tax_setting_service";
-import { createIncomeTaxSettingAPI } from "../types/income_tax_setting_type";
-import { allowanceRangeFE, createAllowanceRangeAPI } from "../types/allowance_range_type";
+import { createIncomeTaxSettingAPI, incomeTaxSettingFE, updateIncomeTaxSettingAPI } from "../types/income_tax_setting_type";
+import { allowanceRangeFE, batchCreateAllowanceRangeAPI, createAllowanceRangeAPI, updateAllowanceRangeAPI } from "../types/allowance_range_type";
 import { AllowanceRangeService } from "~/server/service/allowance_range_service";
 
 export const parametersRouter = createTRPCRouter({
@@ -361,7 +361,7 @@ export const parametersRouter = createTRPCRouter({
 				create_by: newData.create_by,
 				start_date: levelRange.start_date!,
 			});
-			// await levelRangeService.rescheduleLevelRange();
+			await levelRangeService.rescheduleLevelRange();
 			return levelRangeFE;
 		}),
 
@@ -376,7 +376,7 @@ export const parametersRouter = createTRPCRouter({
 			const newData = await levelRangeService.batchCreateLevelRange(
 				levelRange
 			);
-			// await levelRangeService.rescheduleLevelRange();
+			await levelRangeService.rescheduleLevelRange();
 			return newData;
 		}),
 
@@ -442,7 +442,7 @@ export const parametersRouter = createTRPCRouter({
 			const newdata = await levelRangeService.updateLevelRange(
 				levelRange
 			);
-			// await levelRangeService.rescheduleLevelRange();
+			await levelRangeService.rescheduleLevelRange();
 			return newdata;
 		}),
 
@@ -452,29 +452,32 @@ export const parametersRouter = createTRPCRouter({
 			const { input } = opts;
 			const levelRangeService = container.resolve(LevelRangeService);
 			await levelRangeService.deleteLevelRange(input.id);
-			// await levelRangeService.rescheduleLevelRange();
+			await levelRangeService.rescheduleLevelRange();
 		}),
 
 	createLevel: publicProcedure
 		.input(createLevelAPI)
 		.mutation(async ({ input }) => {
 			const levelService = container.resolve(LevelService);
+			const levelRangeService = container.resolve(LevelRangeService);
 			const newdata = await levelService.createLevel({
 				...input,
 				end_date: null,
 			});
 			await levelService.rescheduleLevel();
+			await levelRangeService.rescheduleLevelRange();
 			return newdata;
 		}),
 
 	batchCreateLevel: publicProcedure
 		.input(batchCreateLevelAPI)
 		.mutation(async ({ input }) => {
-			console.log("called batchCreateLevelAPI");
 			const levelService = container.resolve(LevelService);
+			const levelRangeService = container.resolve(LevelRangeService);
 			const new_input = input.map((e) => ({ ...e, end_date: null }));
 			const newdata = await levelService.batchCreateLevel(new_input);
 			await levelService.rescheduleLevel();
+			await levelRangeService.rescheduleLevelRange();
 			return newdata;
 		}),
 
@@ -576,8 +579,10 @@ export const parametersRouter = createTRPCRouter({
 		.input(updateLevelAPI)
 		.mutation(async ({ input }) => {
 			const levelService = container.resolve(LevelService);
+			const levelRangeService = container.resolve(LevelRangeService);
 			const newdata = await levelService.updateLevel(input);
 			await levelService.rescheduleLevel();
+			await levelRangeService.rescheduleLevelRange();
 			return newdata;
 		}),
 
@@ -586,8 +591,10 @@ export const parametersRouter = createTRPCRouter({
 		.mutation(async (opts) => {
 			const { input } = opts;
 			const levelService = container.resolve(LevelService);
+			const levelRangeService = container.resolve(LevelRangeService);
 			await levelService.deleteLevel(input.id);
 			await levelService.rescheduleLevel();
+			await levelRangeService.rescheduleLevelRange();
 		}),
 
 	createPerformanceLevel: publicProcedure
@@ -870,34 +877,63 @@ export const parametersRouter = createTRPCRouter({
 	// & MARK: Table[薪資所得稅設定]
 	getCurrentIncomeTaxSetting: publicProcedure
 		.input(z.object({ period_id: z.number() }))
+		.output(incomeTaxSettingFE.nullable())
 		.query(async ({ input }) => {
-			const incomeTaxService = container.resolve(IncomeTaxSettingService);
+			const incomeTaxSettingService = container.resolve(
+				IncomeTaxSettingService
+			);
 			const incomeTaxSetting =
-				await incomeTaxService.getCurrentIncomeTaxSetting(
+				await incomeTaxSettingService.getCurrentIncomeTaxSetting(
 					input.period_id
 				);
+
 			if (incomeTaxSetting == null) {
-				// throw new BaseResponseError(
-				// 	"InsuranceRateSetting does not exist"
-				// );
+				// throw new BaseResponseError("IncomeTaxSetting does not exist");
 				return null;
 			}
-			const incomeTaxSettingFE = {
+			const IncomeTaxSettingFE = {
 				...roundProperties(incomeTaxSetting, 4),
-				start_date: new Date(incomeTaxSetting.start_date),
-				end_date: incomeTaxSetting.end_date
-					? new Date(incomeTaxSetting.end_date)
-					: null,
 				functions: {
 					creatable: true,
-					updatable:
-						new Date(incomeTaxSetting.start_date) > new Date(),
-					deletable:
-						new Date(incomeTaxSetting.start_date) > new Date(),
+					updatable: incomeTaxSetting.start_date > new Date(),
+					deletable: incomeTaxSetting.start_date > new Date(),
 				},
 			};
-			return incomeTaxSettingFE;
+
+			return IncomeTaxSettingFE;
 		}),
+
+	getAllIncomeTaxSetting: publicProcedure.query(async () => {
+		const incomeTaxSettingService = container.resolve(IncomeTaxSettingService);
+		const incomeTaxSetting =
+			await incomeTaxSettingService.getAllIncomeTaxSetting();
+		if (incomeTaxSetting.length == 0) {
+			// throw new BaseResponseError("IncomeTaxSetting does not exist");
+		}
+		const IncomeTaxSettingFE = await Promise.all(
+			incomeTaxSetting.map((incomeTax_list) => {
+				const list = incomeTax_list.map((a) => {
+					return {
+						...roundProperties(a, 4),
+						functions: {
+							creatable: true,
+							updatable: a.start_date > new Date(),
+							deletable: a.start_date > new Date(),
+						},
+					};
+				});
+				return list;
+			})
+		);
+		return IncomeTaxSettingFE;
+	}),
+
+	getAllFutureIncomeTaxSetting: publicProcedure.query(async () => {
+		const incomeTaxSettingService = container.resolve(IncomeTaxSettingService);
+		const incomeTaxSetting =
+			await incomeTaxSettingService.getAllFutureIncomeTaxSetting();
+		return incomeTaxSetting.map((e) => roundProperties(e, 4));
+	}),
 
 	createIncomeTaxSetting: publicProcedure
 		.input(createIncomeTaxSettingAPI)
@@ -911,41 +947,116 @@ export const parametersRouter = createTRPCRouter({
 			return newdata;
 		}),
 
-	getCurrentAllowanceRange: publicProcedure
-		.input(z.object({ period_id: z.number() }))
-		.output(allowanceRangeFE.array().nullable())
-		.query(async ({ input }) => {
-			const alllowanceRangeService = container.resolve(
-				AllowanceRangeService
-			);
-			const allowanceRange =
-				await alllowanceRangeService.getCurrentAllowanceRange(
-					input.period_id
-				);
-
-			if (allowanceRange == null) {
-				return null;
-			}
-
-			const allowanceRangeFE = allowanceRange.map((a) => ({
-				...a,
-				functions: {
-					creatable: true,
-					updatable: a.start_date > new Date(),
-					deletable: a.start_date > new Date(),
-				},
-			}));
-
-			return allowanceRangeFE;
+	updateIncomeTaxSetting: publicProcedure
+		.input(updateIncomeTaxSettingAPI)
+		.mutation(async ({ input }) => {
+			const incomeTaxService = container.resolve(IncomeTaxSettingService);
+			await incomeTaxService.updateIncomeTaxSetting(input);
+			await incomeTaxService.rescheduleIncomeTaxSetting();
 		}),
-	// MARK: Table[津貼範圍設定]
 
+	deleteIncomeTaxSetting: publicProcedure
+		.input(z.object({ id: z.number() }))
+		.mutation(async ({ input }) => {
+			const incomeTaxService = container.resolve(IncomeTaxSettingService);
+			await incomeTaxService.deleteIncomeTaxSetting(input.id);
+			await incomeTaxService.rescheduleIncomeTaxSetting();
+		}),
+
+	// MARK: Table[津貼範圍設定]
 	createAllowanceRange: publicProcedure
 		.input(createAllowanceRangeAPI)
 		.mutation(async ({ input }) => {
-			const allowanceRangeService = container.resolve(
-				AllowanceRangeService
+			const allowanceRangeService = container.resolve(AllowanceRangeService);
+			const newdata = await allowanceRangeService.createAllowanceRange({
+				...input,
+				end_date: null,
+			});
+			await allowanceRangeService.rescheduleAllowanceRange();
+			return newdata;
+		}),
+
+	batchCreateAllowanceRange: publicProcedure
+		.input(batchCreateAllowanceRangeAPI)
+		.mutation(async ({ input }) => {
+			const allowanceRangeService = container.resolve(AllowanceRangeService);
+			const newdata = await allowanceRangeService.batchCreateAllowanceRange(
+				input.map((item) => ({ ...item, end_date: null }))
 			);
-			return await allowanceRangeService.createAllowanceRange({...input,end_date: null});
+			await allowanceRangeService.rescheduleAllowanceRange();
+			return newdata;
+		}),
+
+	getCurrentAllowanceRange: publicProcedure
+		.input(z.object({ period_id: z.number() }))
+		.query(async ({ input }) => {
+			const allowanceRangeService = container.resolve(AllowanceRangeService);
+			const allowanceRange = await allowanceRangeService.getCurrentAllowanceRange(
+				input.period_id
+			);
+			if (allowanceRange == null) {
+				// throw new BaseResponseError("AllowanceRange does not exist");
+			}
+			const allowanceRangeFE = await Promise.all(
+				allowanceRange.map(async (e) => {
+					return {
+						...e,
+						functions: {
+							creatable: true,
+							updatable: e.start_date > new Date(),
+							deletable: e.start_date > new Date(),
+						},
+					};
+				})
+			);
+			return allowanceRangeFE;
+		}),
+
+	getAllAllowanceRange: publicProcedure.query(async () => {
+		const allowanceRangeService = container.resolve(AllowanceRangeService);
+		const allowanceRange = await allowanceRangeService.getAllAllowanceRange();
+		if (allowanceRange == null) {
+			// throw new BaseResponseError("AllowanceRange does not exist");
+		}
+		const allowanceRangeFE = await Promise.all(
+			allowanceRange.map(async (allowance_range_list) => {
+				const list = allowance_range_list.map((d) => {
+					return {
+						...d,
+						functions: {
+							creatable: true,
+							updatable: d.start_date > new Date(),
+							deletable: d.start_date > new Date(),
+						},
+					};
+				});
+				return list;
+			})
+		);
+		return allowanceRangeFE;
+	}),
+
+	getAllFutureAllowanceRange: publicProcedure.query(async () => {
+		const allowanceRangeService = container.resolve(AllowanceRangeService);
+		const allowanceRange = await allowanceRangeService.getAllFutureAllowanceRange();
+		return allowanceRange;
+	}),
+
+	updateAllowanceRange: publicProcedure
+		.input(updateAllowanceRangeAPI)
+		.mutation(async ({ input }) => {
+			const allowanceRangeService = container.resolve(AllowanceRangeService);
+			const newdata = await allowanceRangeService.updateAllowanceRange(input);
+			await allowanceRangeService.rescheduleAllowanceRange();
+			return newdata;
+		}),
+
+	deleteAllowanceRange: publicProcedure
+		.input(z.object({ id: z.number() }))
+		.mutation(async (opts) => {
+			const { input } = opts;
+			const allowanceRangeService = container.resolve(AllowanceRangeService);
+			await allowanceRangeService.deleteAllowanceRange(input.id);
+			await allowanceRangeService.rescheduleAllowanceRange();
 		}),
 });

@@ -36,6 +36,7 @@ import { Notification } from "~/server/database/entity/SALARY/notification";
 import { User } from "~/server/database/entity/SALARY/user";
 import { UserService } from "~/server/service/user_service";
 import { AllowanceRange } from "~/server/database/entity/SALARY/allowance_range";
+import { IncomeTaxSetting } from "~/server/database/entity/SALARY/income_tax_setting";
 
 export const debugRouter = createTRPCRouter({
 	getDatabases: publicProcedure.query(async () => {
@@ -142,6 +143,8 @@ export const debugRouter = createTRPCRouter({
 						"Level",
 						"TrustMoney",
 						"SalaryIncomeTax",
+						"IncomeTaxSetting",
+						"AllowanceRange",
 						"Transaction",
 						"Notification",
 						"AllowanceRange",
@@ -174,9 +177,10 @@ export const debugRouter = createTRPCRouter({
 				Level: Level,
 				TrustMoney: TrustMoney,
 				SalaryIncomeTax: SalaryIncomeTax,
+				IncomeTaxSetting: IncomeTaxSetting,
+				AllowanceRange: AllowanceRange,
 				Transaction: Transaction,
 				Notification: Notification,
-				AllowanceRange: AllowanceRange,
 			};
 
 			const promises = input.table_name_list.map(async (table_name) => {
@@ -219,9 +223,8 @@ export const debugRouter = createTRPCRouter({
 			return { msg: "Connection has been established successfully." };
 		} catch (error) {
 			return {
-				msg: `Unable to connect to the database: ${
-					(error as Error).message
-				}`,
+				msg: `Unable to connect to the database: ${(error as Error).message
+					}`,
 			};
 		}
 	}),

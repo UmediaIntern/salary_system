@@ -25,7 +25,6 @@ class ExcelSheet {
 	setData(data: any[][]) {
 		const valid = this.validateData(data);
 		if (!valid) {
-			console.log(`Invalid data set in worksheet ${this.worksheet.name}`);
 			return;
 		}
 		this.data = data;
@@ -34,7 +33,6 @@ class ExcelSheet {
 
 	finalize() {
 		if (!this.data) {
-			console.log(`No data set in worksheet ${this.worksheet.name}`);
 			return;
 		}
 

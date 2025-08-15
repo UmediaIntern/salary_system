@@ -20,6 +20,19 @@ export class BonusDepartmentService {
 		department,
 		multiplier,
 	}: z.infer<typeof createBonusDepartmentService>): Promise<BonusDepartment> {
+		await BonusDepartment.update(
+			{ disabled: true },
+			{
+				where: {
+					period_id: period_id,
+					bonus_type: bonus_type,
+					department:
+						typeof department === "number"
+							? department.toString()
+							: department,
+				},
+			}
+		);
 		const newData = await BonusDepartment.create({
 			period_id: period_id,
 			bonus_type: bonus_type,

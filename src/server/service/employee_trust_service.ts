@@ -126,9 +126,10 @@ export class EmployeeTrustService {
 
 		const prev_end = dLatestTrust?.end_date ?? null;
 		if (prev_end !== null && prev_end < data.start_date) {
-			throw new Error(
-				"Previous end data found, meaning employee already quit. Can not insert new trust."
-			);
+			// throw new Error(
+			// 	"Previous end data found, meaning employee already quit. Can not insert new trust."
+			// );
+			return;
 		}
 		// console.log("input date", inputDate);
 		// console.log("latestPayment", latestPayment?.dataValues);

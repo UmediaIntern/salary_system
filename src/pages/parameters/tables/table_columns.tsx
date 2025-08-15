@@ -11,6 +11,8 @@ import { levelMapper, level_columns } from "./level_table";
 import { levelRangeMapper, level_range_columns } from "./level_range_table";
 import { salary_income_tax_columns, salaryIncomeTaxMapper } from "./salary_income_tax_table";
 import { type TFunction } from "i18next";
+import { income_tax_setting_columns, incomeTaxSettingMapper } from "./income_tax_setting_table";
+import { allowance_range_columns, allowanceRangeMapper } from "./allowance_range_table";
 
 export function getTableColumn(
 	selectedTableType: ParameterTableEnum,
@@ -31,6 +33,10 @@ export function getTableColumn(
 			return level_columns({ t });
 		case "TableSalaryIncomeTax":
 			return salary_income_tax_columns({ t });
+		case "TableIncomeTaxSetting":
+			return income_tax_setting_columns({ t });
+		case "TableAllowanceRange":
+			return allowance_range_columns({ t });
 		default:
 			return [];
 	}
@@ -52,5 +58,9 @@ export function getTableMapper(selectedTableType: ParameterTableEnum) {
 			return levelMapper;
 		case "TableSalaryIncomeTax":
 			return salaryIncomeTaxMapper;
+		case "TableIncomeTaxSetting":
+			return incomeTaxSettingMapper;
+		case "TableAllowanceRange":
+			return allowanceRangeMapper;
 	}
 }

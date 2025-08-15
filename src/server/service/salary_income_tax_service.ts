@@ -293,10 +293,7 @@ export class SalaryIncomeTaxService {
 		const deleted_primary_key = await this.deleteSalaryIncomeTax(id);
 
 		const primary_key = await this.createSalaryIncomeTax({
-			salary_start: select_value(
-				salary_start,
-				salaryIncomeTax.salary_start
-			),
+			salary_start: select_value(salary_start, salaryIncomeTax.salary_start),
 			salary_end: select_value(salary_end, salaryIncomeTax.salary_end),
 			dependent: select_value(dependent, salaryIncomeTax.dependent),
 			tax_amount: select_value(tax_amount, salaryIncomeTax.tax_amount),

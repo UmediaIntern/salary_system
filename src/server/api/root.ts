@@ -11,7 +11,6 @@ import { employeeTrustRouter } from "./routers/employee_trust";
 import { calculateRouter } from "./routers/calculate";
 import { transactionRouter } from "./routers/transaction";
 import { bonusRouter } from "./routers/bonus";
-import { incomeTaxSettingRouter } from "./routers/income_tax_setting";
 import { testTransactionRouter } from "./routers/TEST_transaction";
 import { notificationRouter } from "./routers/notification";
 import { userRouter } from "./routers/user";
@@ -37,7 +36,6 @@ export const appRouter = createTRPCRouter({
 	calculate: calculateRouter,
 	transaction: transactionRouter,
 	notification: notificationRouter,
-	incomeTaxSetting: incomeTaxSettingRouter,
 	user: userRouter,
 	importTransaction: importTransactionRouter,
 	testTransaction: testTransactionRouter,

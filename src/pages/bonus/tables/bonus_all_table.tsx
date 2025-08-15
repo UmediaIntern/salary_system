@@ -91,7 +91,7 @@ export const bonus_all_columns = ({
 		}),
 	];
 
-function BonusAllFunctionComponent({ data }: { data: RowItem }) {
+function BonusAllFunctionComponent({ data }: { data: Partial<BonusAllFEType> | undefined }) {
 	const { setOpenSheet, setOpenDialog, setMode, setData } = useBonusFunctionContext();
 	return (
 		<FunctionsComponent
@@ -111,6 +111,17 @@ export function bonusAllMapper(bonusAllData: BonusAllFEType): RowItem | undefine
 		value: bonusAllData?.multiplier,
 		functions: bonusAllData?.functions,
 	} : undefined;
+}
+
+export function reverseBonusAllMapper(
+	data: RowItem
+): Partial<BonusAllFEType> | undefined {
+	if (!data) return undefined;
+	return {
+		id: data.id,
+		multiplier: data.value,
+		functions: data.functions,
+	};
 }
 
 interface BonusAllTableProps extends TableComponentProps {

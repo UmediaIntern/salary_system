@@ -16,7 +16,6 @@ function guardRoute(
 		if (access) {
 			return NextResponse.rewrite(new URL(request.url));
 		}
-		console.log(`You cannot view ${route} page`);
 		const redirectUrl = new URL(`/${locale}`, request.url);
 		return NextResponse.redirect(redirectUrl);
 	}
@@ -46,7 +45,6 @@ export default withAuth(
 		const parseAccessible = accessResponse.safeParse(accessRes);
 
 		if (!parseAccessible.success) {
-			console.log(parseAccessible.error);
 			throw new ParserError(parseAccessible.error.toString(), MiddlewareErrorScope);
 		}
 		const accessible = parseAccessible.data.result.data.json;
