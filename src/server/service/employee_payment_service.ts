@@ -12,7 +12,7 @@ import { LevelRangeService } from "./level_range_service";
 import { LevelService } from "./level_service";
 import {
 	type EmployeePaymentFEType,
-	EmployeePaymentInfo,
+	EmployeePaymentWithInfoFEType,
 	employeePaymentCreateService,
 	isEqualEmployeePayment,
 	type updateEmployeePaymentService,
@@ -223,14 +223,27 @@ export class EmployeePaymentService {
 			raw: true,
 		});
 
-		const employeePaymentList = await Promise.all(
-			employeePayment.map(
-				async (e) => await this.employeePaymentMapper.decode(e),
-			),
-		);
+		const employeePaymentList = await this.employeePaymentMapper.decodeList(employeePayment);
 
 		return this.employeePaymentMapper.getEmployeePaymentFE(
 			employeePaymentList,
+		);
+	}
+
+	async getCurrentEmployeePaymentWithInfo(
+		period_id: number,
+	): Promise<EmployeePaymentWithInfoFEType[]> {
+		const previous_period_id = await this.ehrService.getPreviousPeriodId(period_id);
+		const employeePaymentFE = await this.getCurrentEmployeePayment(period_id);
+		const previousEmployeePaymentFE = await this.getCurrentEmployeePayment(
+			previous_period_id,
+		);
+
+		return this.employeePaymentMapper.getEmployeePaymentWithInfoFE(
+			period_id,
+			previous_period_id,
+			employeePaymentFE,
+			previousEmployeePaymentFE,
 		);
 	}
 
@@ -871,21 +884,4 @@ export class EmployeePaymentService {
 		});
 		return deletedRows;
 	}
-
-	isAbnormal(info: EmployeePaymentInfo): boolean {
-		return (
-			info.isPositionModified ||
-			info.isPositionTypeModified ||
-			!info.supervisor.isInRange ||
-			!info.occupational.isInRange ||
-			!info.longService.isInRange ||
-			!info.subsidy.isInRange ||
-			!info.food.isInRange ||
-			!info.base_salary.isInRange ||
-			!info.l_i.isInRange ||
-			!info.h_i.isInRange ||
-			!info.l_r.isInRange ||
-			!info.occupational_injury.isInRange
-		);
-	};
 }

@@ -21,12 +21,7 @@ import { EmployeePaymentMapper } from "~/server/database/mapper/employee_payment
 import { ValidateService } from "~/server/service/validate_service";
 import { getRoleFromCtx } from "../helper";
 import { AccessService } from "~/server/service/access_service";
-import { EmployeeDataService } from "~/server/service/employee_data_service";
-import { SyncService } from "~/server/service/sync_service";
-import { FunctionsEnum } from "../types/functions_enum";
 import { EHRService } from "~/server/service/ehr_service";
-import { allowanceTypeEnum } from "../types/allowance_type_enum";
-import { AllowanceRangeService } from "~/server/service/allowance_range_service";
 import { select_value } from "~/server/service/helper_function";
 
 export const employeePaymentRouter = createTRPCRouter({
@@ -70,217 +65,17 @@ export const employeePaymentRouter = createTRPCRouter({
 				throw new BaseResponseError("Access denied", 403);
 			}
 
-			const period_id = input.period_id;
-			const ehrService = container.resolve(EHRService);
-			const previous_period_id = await ehrService.getPreviousPeriodId(
-				period_id
-			);
-			const allowance_range_service = container.resolve(
-				AllowanceRangeService
-			);
-			const cur_allowance_range =
-				await allowance_range_service.getCurrentAllowanceRange(
-					period_id
-				);
-
 			const employeePaymentService = container.resolve(
 				EmployeePaymentService
 			);
-			const employeePaymentFE: EmployeePaymentFEType[] =
-				await employeePaymentService.getCurrentEmployeePayment(
-					period_id
+			const employeePaymentWithInfoFE: EmployeePaymentWithInfoFEType[] =
+				await employeePaymentService.getCurrentEmployeePaymentWithInfo(
+					input.period_id
 				);
-			const previousEmployeePaymentFE: EmployeePaymentFEType[] =
-				await employeePaymentService.getCurrentEmployeePayment(
-					previous_period_id
-				);
-			const employeeDataService = container.resolve(EmployeeDataService);
-			const employeeData =
-				await employeeDataService.getAllEmployeeDataByPeriod(period_id);
-			const previousEmployeeData =
-				await employeeDataService.getAllEmployeeDataByPeriod(previous_period_id);
-
-			const syncService = container.resolve(SyncService);
-			const cand_paid_emps = await syncService.getCandPaidEmployees(
-				FunctionsEnum.Values.month_salary,
-				period_id
-			); // 獲取候選需支付員工數據
-			const cand_emp_no_list = cand_paid_emps.map((emp) => emp.emp_no); // 提取候選員工的員工編號列表
-			const differences =
-				await syncService.compareEhrWithSalaryEmployeeData(
-					period_id,
-					previousEmployeeData,
-					cand_emp_no_list
-				);
-
-			const employeePaymentWithInfos: EmployeePaymentWithInfoFEType[] = [];
-			for (const employeePayment of employeePaymentFE) {
-				const emp_data = employeeData.find(
-					(emp) => emp.emp_no == employeePayment.emp_no
-				)!;
-				const emp_diff = differences.find(
-					(diff) =>
-						diff.emp_no.salary_value == employeePayment.emp_no ||
-						diff.emp_no.ehr_value == employeePayment.emp_no
-				);
-
-				let isPositionModified = false;
-				let isPositionTypeModified = false;
-				if (emp_diff) {
-					isPositionModified =
-						emp_diff.comparisons.find(
-							(cmp) => cmp.key == "position"
-						)?.is_different ?? false;
-					isPositionTypeModified =
-						emp_diff.comparisons.find(
-							(cmp) => cmp.key == "position_type"
-						)?.is_different ?? false;
-				}
-				// Compare with previous period's payment to determine isModified
-				let isBaseSalaryInRange = employeePayment.base_salary > 0;
-				let isSupervisorInRange =
-					await allowance_range_service.checkAllowanceInRange(
-						cur_allowance_range,
-						emp_data,
-						allowanceTypeEnum.Enum.supervisor_allowance,
-						employeePayment.supervisor_allowance
-					);
-				let isOccupationalInRange =
-					await allowance_range_service.checkAllowanceInRange(
-						cur_allowance_range,
-						emp_data,
-						allowanceTypeEnum.Enum.occupational_allowance,
-						employeePayment.occupational_allowance
-					);
-				let isLongServiceInRange =
-					await allowance_range_service.checkAllowanceInRange(
-						cur_allowance_range,
-						emp_data,
-						allowanceTypeEnum.Enum.long_service_allowance,
-						employeePayment.long_service_allowance
-					);
-				let isSubsidyInRange =
-					await allowance_range_service.checkAllowanceInRange(
-						cur_allowance_range,
-						emp_data,
-						allowanceTypeEnum.Enum.subsidy_allowance,
-						employeePayment.subsidy_allowance
-					);
-				let isFoodInRange =
-					await allowance_range_service.checkAllowanceInRange(
-						cur_allowance_range,
-						emp_data,
-						allowanceTypeEnum.Enum.food_allowance,
-						employeePayment.food_allowance
-					);
-				let isLIinRange = employeePayment.l_i > 0;
-				let isHIinRange = employeePayment.h_i > 0;
-				let isLRinRange = employeePayment.emp_no.startsWith("F")
-					? employeePayment.l_r === 0
-					: employeePayment.l_r > 0;
-				let isOccupationalInjuryInRange = employeePayment.occupational_injury > 0;
-
-				let isSupervisorModified = false;
-				let isOccupationalModified = false;
-				let isLongServiceModified = false;
-				let isSubsidyModified = false;
-				let isFoodModified = false;
-
-				const previousEmployeePayment = previousEmployeePaymentFE.find(
-					(prevEmp) => prevEmp.emp_no == employeePayment.emp_no
-				);
-				if (previousEmployeePayment) {
-					isSupervisorModified =
-						employeePayment.supervisor_allowance !=
-						previousEmployeePayment.supervisor_allowance;
-					isOccupationalModified =
-						employeePayment.occupational_allowance !=
-						previousEmployeePayment.occupational_allowance;
-					isLongServiceModified =
-						employeePayment.long_service_allowance !=
-						previousEmployeePayment.long_service_allowance;
-					isSubsidyModified =
-						employeePayment.subsidy_allowance !=
-						previousEmployeePayment.subsidy_allowance;
-					isFoodModified =
-						employeePayment.food_allowance !=
-						previousEmployeePayment.food_allowance;
-				} else {
-					isSupervisorModified =
-						employeePayment.supervisor_allowance != 0;
-					isOccupationalModified =
-						employeePayment.occupational_allowance != 0;
-					isLongServiceModified =
-						employeePayment.long_service_allowance != 0;
-					isSubsidyModified = employeePayment.subsidy_allowance != 0;
-					isFoodModified = employeePayment.food_allowance != 0;
-				}
-				employeePaymentWithInfos.push({
-					...employeePayment,
-					info: {
-						isPositionModified,
-						isPositionTypeModified,
-						base_salary: {
-							isInRange: isBaseSalaryInRange,
-							isModified: isBaseSalaryInRange,
-						},
-						supervisor: {
-							isInRange: isSupervisorInRange,
-							isModified: isSupervisorModified,
-						},
-						occupational: {
-							isInRange: isOccupationalInRange,
-							isModified: isOccupationalModified,
-						},
-						longService: {
-							isInRange: isLongServiceInRange,
-							isModified: isLongServiceModified,
-						},
-						subsidy: {
-							isInRange: isSubsidyInRange,
-							isModified: isSubsidyModified,
-						},
-						food: {
-							isInRange: isFoodInRange,
-							isModified: isFoodModified,
-						},
-						l_i: {
-							isInRange: isLIinRange,
-							isModified: isLIinRange,
-						},
-						h_i: {
-							isInRange: isHIinRange,
-							isModified: isHIinRange,
-						},
-						l_r: {
-							isInRange: isLRinRange,
-							isModified: isLRinRange,
-						},
-						occupational_injury: {
-							isInRange: isOccupationalInjuryInRange,
-							isModified: isOccupationalInjuryInRange,
-						},
-					},
-				});
-			}
 
 			// Filter by access level
-			if (!access.employees) {
-				throw new BaseResponseError("Access denied", 403);
-			}
-			const accessibleEmpData = employeePaymentWithInfos.filter((emp) => {
+			const accessibleEmpData = employeePaymentWithInfoFE.filter((emp) => {
 				return (emp.position ?? 0) <= access.employees_r_lv;
-			});
-
-			// Sort on demand
-			accessibleEmpData.sort((a, b) => {
-				const aAbnormal = employeePaymentService.isAbnormal(a.info);
-				const bAbnormal = employeePaymentService.isAbnormal(b.info);
-
-				if (aAbnormal && !bAbnormal) return -1;
-				if (!aAbnormal && bAbnormal) return 1;
-
-				return a.emp_no.localeCompare(b.emp_no);
 			});
 
 			return accessibleEmpData;
